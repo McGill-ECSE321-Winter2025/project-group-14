@@ -12,7 +12,7 @@ import jakarta.persistence.ManyToOne;
 @Entity
 public class BorrowingRequest {
 
-    enum BorrowingRequestStatus { Delivered, Acceped, Rejected };
+    public enum BorrowingRequestStatus { Delivered, Acceped, Rejected };
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

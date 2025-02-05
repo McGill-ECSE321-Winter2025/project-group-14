@@ -19,9 +19,5 @@ public interface BorrowingRequestRepository extends CrudRepository<BorrowingRequ
     @Query("SELECT r FROM BorrowingRequest r WHERE r.status = ?1 AND r.sender.id = ?2 ORDER BY r.sendTime DESC")
     List<BorrowingRequest> findAllRequestsByStatusAndSender(String status, int senderId);
 
-    // sorted to allow the sender to see which games they need to pick up soon
-    @Query("SELECT r FROM BorrowingRequest r WHERE r.status = 'Accepted' AND r.sender.id = ?1 AND R.startTime > CURRENT_TIMESTAMP ORDER BY r.startTime ASC")
-    List<BorrowingRequest> findAllNotPassedAcceptedRequestsForSender(int senderId);
-
     List<BorrowingRequest> findByGameCopy(GameCopy gameCopy);
 }

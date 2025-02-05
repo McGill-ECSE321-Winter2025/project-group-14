@@ -1,5 +1,8 @@
 package ca.mcgill.ecse321.gamenight.model;
 
-public class Player {
+import jakarta.persistence.Entity;
+
+@Entity
+public class Player extends AccountRole{
 
 }
