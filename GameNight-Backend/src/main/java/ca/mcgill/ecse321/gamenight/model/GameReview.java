@@ -21,12 +21,16 @@ public class GameReview {
     @ManyToOne
     @JoinColumn(name = "reviewer_id")
     private Player reviewer;
+    @ManyToOne
+    @JoinColumn(name = "game_id")
+    private Game game;
 
-    public GameReview(int rating, String comment, Player reviewer) {
+    public GameReview(int rating, String comment, Player reviewer, Game game) {
         this.datePosted = new Date(System.currentTimeMillis());
         this.rating = rating;
         this.comment = comment;
         this.reviewer = reviewer;
+        this.game = game;
     }
 
     public int getId() {
@@ -47,5 +51,9 @@ public class GameReview {
 
     public Player getReviewer() {
         return reviewer;
+    }
+
+    public Game getGame() {
+        return game;
     }
 }
