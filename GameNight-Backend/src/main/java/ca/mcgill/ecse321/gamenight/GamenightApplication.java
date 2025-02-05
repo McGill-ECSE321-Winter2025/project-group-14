@@ -1,13 +1,13 @@
-package ca.mcgill.esce321.eventregistration;
+package ca.mcgill.ecse321.gamenight;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class EventregistrationApplication {
+public class GamenightApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(EventregistrationApplication.class, args);
+		SpringApplication.run(GamenightApplication.class, args);
 	}
 
 }

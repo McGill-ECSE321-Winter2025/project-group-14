@@ -1,10 +1,10 @@
-package ca.mcgill.esce321.eventregistration;
+package ca.mcgill.ecse321.gamenight;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class EventregistrationApplicationTests {
+class GamenightApplicationTests {
 
 	@Test
 	void contextLoads() {
