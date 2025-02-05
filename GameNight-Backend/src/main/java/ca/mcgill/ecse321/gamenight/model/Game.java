@@ -1,7 +1,12 @@
 package ca.mcgill.ecse321.gamenight.model;
 
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+
+@Entity
 public class Game {
 
+    @Id
     private String name;
     private String description;
 
