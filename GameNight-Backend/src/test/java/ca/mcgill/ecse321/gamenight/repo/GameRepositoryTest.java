@@ -65,11 +65,8 @@ public class GameRepositoryTest {
 
         assertNotNull(topGames);
         assertEquals(3, topGames.size());
-        Game firstGame = topGames.get(0);
-        assertEquals("Monopoly", firstGame.getName());
-        Game secondGame = topGames.get(1);
-        assertEquals("Uno", secondGame.getName());
-        Game thirdGame = topGames.get(2);
-        assertEquals("Chess", thirdGame.getName());
+        assertEquals("Monopoly", topGames.get(0).getName());
+        assertEquals("Uno", topGames.get(1).getName());
+        assertEquals("Chess", topGames.get(2).getName());
     }
 }

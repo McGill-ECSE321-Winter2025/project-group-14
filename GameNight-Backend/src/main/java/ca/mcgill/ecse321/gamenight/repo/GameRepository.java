@@ -7,7 +7,7 @@ import org.springframework.data.repository.CrudRepository;
 
 import ca.mcgill.ecse321.gamenight.model.Game;
 
-public interface GameRepository extends CrudRepository<Game, String>{
+public interface GameRepository extends CrudRepository<Game, String> {
     @Query("SELECT r.game FROM GameReview r GROUP BY r.game ORDER BY AVG(r.rating) DESC LIMIT 3")
     List<Game> findTheThreeHighestRatedGames();
 }
