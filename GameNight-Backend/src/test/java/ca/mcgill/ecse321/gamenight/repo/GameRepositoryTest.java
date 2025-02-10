@@ -11,10 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import ca.mcgill.ecse321.gamenight.model.Game;
-import jakarta.transaction.Transactional;
 
 @SpringBootTest
-@Transactional
 public class GameRepositoryTest {
 
     @Autowired
