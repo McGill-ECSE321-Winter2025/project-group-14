@@ -25,6 +25,10 @@ public class GameReview {
     @JoinColumn(name = "game_id")
     private Game game;
 
+    public GameReview() {
+        
+    }
+
     public GameReview(int rating, String comment, Player reviewer, Game game) {
         this.datePosted = new Date(System.currentTimeMillis());
         this.rating = rating;
