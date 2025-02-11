@@ -1,9 +1,15 @@
 package ca.mcgill.ecse321.gamenight.model;
 
+import jakarta.persistence.Entity;
+import jakarta.persistence.OneToOne;
+
+@Entity
 public class Player extends AccountRole{
 
+    @OneToOne
     private Player reviewer;
 
+    @OneToOne
     private Player sender;
 
     public Player(){
@@ -28,3 +34,4 @@ public class Player extends AccountRole{
 
 
 }
+

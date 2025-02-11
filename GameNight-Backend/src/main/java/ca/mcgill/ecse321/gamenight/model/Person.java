@@ -2,16 +2,19 @@ package ca.mcgill.ecse321.gamenight.model;
 
 import java.util.Set;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 
 @Entity
 public class Person {
-    
+    @Id
     private String emailAddress;
     private String password;
     private String name;
 
-   
+    @OneToMany(mappedBy = "person", cascade = CascadeType.ALL)
     private Set<AccountRole> roles;
 
     public Set<AccountRole> getRoles(){
@@ -52,3 +55,4 @@ public class Person {
     }
 
 }
+
