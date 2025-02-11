@@ -1,10 +1,17 @@
 package ca.mcgill.ecse321.gamenight.model;
 
+import java.util.Set;
+
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 
 @Entity
 public class Player extends AccountRole{
+    
+    @OneToMany(mappedBy = "player", cascade = CascadeType.ALL)
+    private Set<Registration> registrations;
 
     @OneToOne
     private Player reviewer;

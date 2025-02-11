@@ -1,11 +1,18 @@
 package ca.mcgill.ecse321.gamenight.model;
 
+import java.util.Set;
+
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
+import jakarta.persistence.OneToMany;
 
 @Entity
 public class GameOwner extends AccountRole {
 
     private boolean isActive;
+    
+    @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL)
+    private Set<GameCopy> ownedGames;
 
     public GameOwner(){
         

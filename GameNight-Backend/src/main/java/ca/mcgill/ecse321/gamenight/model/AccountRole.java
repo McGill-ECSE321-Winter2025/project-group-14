@@ -6,10 +6,10 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Inheritance;
 import jakarta.persistence.InheritanceType;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.MappedSuperclass;
 
-@MappedSuperclass
+
 @Entity
 @Inheritance(strategy =InheritanceType.JOINED)
 public abstract class AccountRole {
@@ -19,6 +19,7 @@ public abstract class AccountRole {
     private int id;
 
     @ManyToOne
+    @JoinColumn(name = "person_email")
     public Person person;
 
     public Person getPerson() {
