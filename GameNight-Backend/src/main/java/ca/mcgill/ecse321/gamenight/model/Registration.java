@@ -4,6 +4,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.ManyToOne;
 
 @Entity
 public class Registration {
@@ -11,8 +12,9 @@ public class Registration {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    private int id;
+    @ManyToOne
     private Event event;
+    @ManyToOne
     private Player player;
 
     public Registration() {
