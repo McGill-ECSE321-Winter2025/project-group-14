@@ -22,6 +22,8 @@ public class GameReviewRepositoryTest {
 
     @Autowired
     private PlayerRepository playerRepo;
+    @Autowired
+    private AccountRoleRepository AccountRole;
 
     private Person person;
     private Player player;
@@ -45,8 +47,8 @@ public class GameReviewRepositoryTest {
     @AfterEach
     public void clearDatabase() {
         gameReviewRepo.deleteAll();
-        playerRepo.deleteAll();
         gameRepo.deleteAll();
+        playerRepo.deleteAll();
         personRepo.deleteAll();
     }
 
