@@ -5,8 +5,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Column;
-import jakarta.persistence.Temporal;
-import jakarta.persistence.TemporalType;
+
 import java.util.Date;
 
 @Entity
@@ -19,10 +18,8 @@ public class Event {
     private String name;
     private String description;
 
-    @Temporal(TemporalType.TIMESTAMP)
     private Date startTime;
 
-    @Temporal(TemporalType.TIMESTAMP)
     private Date endTime;
 
     public Event(String name, String description, Date startTime, Date endTime) {
@@ -30,6 +27,9 @@ public class Event {
         this.description = description;
         this.startTime = startTime;
         this.endTime = endTime;
+    }
+    public int getId() {
+        return id;
     }
 
     public String getName() {
