@@ -23,7 +23,8 @@ public class PersonRepositoryTest {
     }
 
     @Test
-	public void testPersistAndLoadPerson() {
+	public void testCreateAndReadPerson() {
+
 		String name = "Reina";
 		String emailAddress = "reina@gmail.com";
 		String password = "i_love_muffins";
@@ -32,16 +33,13 @@ public class PersonRepositoryTest {
 		reina.setName(name);
 		reina.setEmailAddress(emailAddress);
 		reina.setPassword(password); 
-
         reina = personRepository.save(reina);
 
-        Person reinaFromDb = personRepository.findPersonByEmailAddress(emailAddress);
+        Person reinaFromDb = personRepository.findPersonByEmailAddress(reina.getEmailAddress());
 
         assertNotNull(reinaFromDb);
-		assertEquals(name, reinaFromDb.getName());
-		assertEquals(emailAddress, reinaFromDb.getEmailAddress());
-		assertEquals(password, reinaFromDb.getPassword());
-
-
+		assertEquals(reina.getName(), reinaFromDb.getName());
+		assertEquals(reina.getEmailAddress(), reinaFromDb.getEmailAddress());
+		assertEquals(reina.getPassword(), reinaFromDb.getPassword());
     }
 }

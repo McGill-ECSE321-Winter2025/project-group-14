@@ -20,7 +20,7 @@ public abstract class AccountRole {
 
     @ManyToOne
     @JoinColumn(name = "person_email")
-    public Person person;
+    private Person person;
 
     public Person getPerson() {
         return person;

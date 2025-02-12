@@ -11,8 +11,8 @@ public class GameOwner extends AccountRole {
 
     private boolean isActive;
 
-    // @OneToMany(mappedBy = "gameOwner", cascade = CascadeType.ALL)
-    // private Set<GameCopy> ownedGames;
+    @OneToMany(mappedBy = "gameOwner", cascade = CascadeType.ALL)
+    private Set<GameCopy> ownedGames;
 
     public GameOwner() {
     }
