@@ -8,6 +8,7 @@ import jakarta.persistence.ManyToOne;
 
 @Entity
 public class Registration {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
