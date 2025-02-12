@@ -18,28 +18,28 @@ public class PersonRepositoryTest {
     private PersonRepository personRepository;
 
     @AfterEach
-    public void clearDatabase(){
+    public void clearDatabase() {
         personRepository.deleteAll();
     }
 
     @Test
-	public void testCreateAndReadPerson() {
+    public void testCreateAndReadPerson() {
 
-		String name = "Reina";
-		String emailAddress = "reina@gmail.com";
-		String password = "i_love_muffins";
+        String name = "Reina";
+        String emailAddress = "reina@gmail.com";
+        String password = "i_love_muffins";
 
-		Person reina = new Person();
-		reina.setName(name);
-		reina.setEmailAddress(emailAddress);
-		reina.setPassword(password); 
+        Person reina = new Person();
+        reina.setName(name);
+        reina.setEmailAddress(emailAddress);
+        reina.setPassword(password);
         reina = personRepository.save(reina);
 
-        Person reinaFromDb = personRepository.findPersonByEmailAddress(reina.getEmailAddress());
+        Person reinaFromDb = personRepository.findByEmailAddress(emailAddress);
 
         assertNotNull(reinaFromDb);
-		assertEquals(reina.getName(), reinaFromDb.getName());
-		assertEquals(reina.getEmailAddress(), reinaFromDb.getEmailAddress());
-		assertEquals(reina.getPassword(), reinaFromDb.getPassword());
+        assertEquals(reina.getName(), reinaFromDb.getName());
+        assertEquals(reina.getEmailAddress(), reinaFromDb.getEmailAddress());
+        assertEquals(reina.getPassword(), reinaFromDb.getPassword());
     }
 }

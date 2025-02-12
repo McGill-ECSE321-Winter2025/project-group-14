@@ -4,5 +4,5 @@ import org.springframework.data.repository.CrudRepository;
 import ca.mcgill.ecse321.gamenight.model.Person;
 
 public interface PersonRepository extends CrudRepository<Person, String> {
-    public Person findPersonByEmailAddress(String emailAddress);
+    public Person findByEmailAddress(String emailAddress);
 }
