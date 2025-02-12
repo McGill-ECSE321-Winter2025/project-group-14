@@ -15,7 +15,6 @@ public class GameOwner extends AccountRole {
     // private Set<GameCopy> ownedGames;
 
     public GameOwner() {
-
     }
 
     public boolean isActive() {

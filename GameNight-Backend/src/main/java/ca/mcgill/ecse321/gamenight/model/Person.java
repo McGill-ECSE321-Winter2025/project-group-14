@@ -25,9 +25,14 @@ public class Person {
     // public void setRoles(Set<AccountRole> roles){
     // this.roles = roles;
     // }
-
     public Person() {
 
+    }
+
+    public Person(String emailAddress, String password, String name) {
+        this.emailAddress = emailAddress;
+        this.name = name;
+        this.password = password;
     }
 
     public String getEmailAddress() {

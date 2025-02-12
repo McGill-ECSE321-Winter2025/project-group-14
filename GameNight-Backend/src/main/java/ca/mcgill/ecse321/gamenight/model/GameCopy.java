@@ -13,13 +13,19 @@ public class GameCopy {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
+
     private String description;
+
     @ManyToOne
     @JoinColumn(name = "game_id")
     private Game game;
+
     @ManyToOne
     @JoinColumn(name = "gameowner_id")
     private GameOwner gameOwner;
+
+    public GameCopy() {
+    };
 
     public GameCopy(String description, Game game, GameOwner gameOwner) {
         this.description = description;
