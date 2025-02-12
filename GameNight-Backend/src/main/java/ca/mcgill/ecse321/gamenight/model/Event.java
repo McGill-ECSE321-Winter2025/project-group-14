@@ -11,7 +11,7 @@ import java.util.Date;
 @Entity
 public class Event {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO) 
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private int id;
 
     @Column(nullable = false)
@@ -28,6 +28,7 @@ public class Event {
         this.startTime = startTime;
         this.endTime = endTime;
     }
+
     public int getId() {
         return id;
     }
@@ -63,4 +64,5 @@ public class Event {
     public void setEndTime(Date endTime) {
         this.endTime = endTime;
     }
+
 }
