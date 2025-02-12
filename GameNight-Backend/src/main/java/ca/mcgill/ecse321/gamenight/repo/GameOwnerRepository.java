@@ -7,6 +7,6 @@ import ca.mcgill.ecse321.gamenight.model.GameOwner;
 
 
 public interface GameOwnerRepository extends CrudRepository<GameOwner, Integer> {
-    GameOwner findGameOwnerByGameCopy(GameCopy copy);
+    public GameOwner findGameOwnerByGameCopy(GameCopy copy);
 
 }
