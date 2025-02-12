@@ -35,7 +35,7 @@ public class PersonRepositoryTest {
 
         reina = personRepository.save(reina);
 
-        Person reinaFromDb = personRepository.findPersonByEmailAddress(emailAddress);
+        Person reinaFromDb = personRepository.findByEmailAddress(emailAddress);
 
         assertNotNull(reinaFromDb);
 		assertEquals(name, reinaFromDb.getName());
