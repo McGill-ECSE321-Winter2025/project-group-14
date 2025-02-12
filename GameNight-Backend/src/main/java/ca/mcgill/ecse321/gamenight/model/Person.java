@@ -14,20 +14,20 @@ public class Person {
     private String password;
     private String name;
 
-    @OneToMany(mappedBy = "person", cascade = CascadeType.ALL)
-    private Set<AccountRole> roles;
+    // @OneToMany(mappedBy = "person", cascade = CascadeType.ALL)
+    // private Set<AccountRole> roles;
 
-    public Set<AccountRole> getRoles(){
-        return roles;
-        
-    }
+    // public Set<AccountRole> getRoles(){
+    // return roles;
 
-    public void setRoles(Set<AccountRole> roles){
-        this.roles = roles;
-    }
+    // }
+
+    // public void setRoles(Set<AccountRole> roles){
+    // this.roles = roles;
+    // }
 
     public Person() {
-        
+
     }
 
     public String getEmailAddress() {
@@ -55,4 +55,3 @@ public class Person {
     }
 
 }
-

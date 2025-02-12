@@ -10,12 +10,12 @@ import jakarta.persistence.OneToMany;
 public class GameOwner extends AccountRole {
 
     private boolean isActive;
-    
-    @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL)
-    private Set<GameCopy> ownedGames;
 
-    public GameOwner(){
-        
+    // @OneToMany(mappedBy = "gameOwner", cascade = CascadeType.ALL)
+    // private Set<GameCopy> ownedGames;
+
+    public GameOwner() {
+
     }
 
     public boolean isActive() {
@@ -27,4 +27,3 @@ public class GameOwner extends AccountRole {
     }
 
 }
-

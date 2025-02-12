@@ -8,37 +8,35 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 
 @Entity
-public class Player extends AccountRole{
-    
-    @OneToMany(mappedBy = "player", cascade = CascadeType.ALL)
-    private Set<Registration> registrations;
+public class Player extends AccountRole {
 
-    @OneToOne
-    private Player reviewer;
+    // @OneToMany(mappedBy = "player", cascade = CascadeType.ALL)
+    // private Set<Registration> registrations;
 
-    @OneToOne
-    private Player sender;
+    // @OneToOne
+    // private Player reviewer;
 
-    public Player(){
-        
+    // @OneToOne
+    // private Player sender;
+
+    public Player() {
+
     }
 
-    public Player getReviewer() {
-        return reviewer;
-    }
+    // public Player getReviewer() {
+    // return reviewer;
+    // }
 
-    public void setReviewer(Player reviewer) {
-        this.reviewer = reviewer;
-    }
+    // public void setReviewer(Player reviewer) {
+    // this.reviewer = reviewer;
+    // }
 
-    public Player getSender() {
-        return sender;
-    }
+    // public Player getSender() {
+    // return sender;
+    // }
 
-    public void setSender(Player sender) {
-        this.sender = sender;
-    }
-
+    // public void setSender(Player sender) {
+    // this.sender = sender;
+    // }
 
 }
-
