@@ -8,7 +8,7 @@ import ca.mcgill.ecse321.gamenight.model.Player;
 
 public interface PlayerRepository extends CrudRepository<Player, Integer> {
     
-    Player findPlayerByEvent(Event event);
+    public Player findPlayerByEvent(Event event);
 
-    Player findPlayerByGameReview(GameReview review );
+    public Player findPlayerByGameReview(GameReview review );
 }
