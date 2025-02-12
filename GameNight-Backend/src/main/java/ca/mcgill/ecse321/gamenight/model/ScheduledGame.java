@@ -1,9 +1,22 @@
 package ca.mcgill.ecse321.gamenight.model;
 
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.ManyToOne;
+
+@Entity
 public class ScheduledGame {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
+
+    @ManyToOne
     private Game game;
+    
+    @ManyToOne
     private Event event;
 
     public ScheduledGame() {
