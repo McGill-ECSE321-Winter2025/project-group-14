@@ -3,13 +3,20 @@ package ca.mcgill.ecse321.gamenight.model;
 import java.util.Set;
 
 import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 
 @Entity
 public class Person {
     @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private int id;
+
+    @Column(name = "email_address", unique = true, nullable = false)
     private String emailAddress;
     private String password;
     private String name;
@@ -17,17 +24,21 @@ public class Person {
     @OneToMany(mappedBy = "person", cascade = CascadeType.ALL)
     private Set<AccountRole> roles;
 
-    public Set<AccountRole> getRoles(){
+    public Set<AccountRole> getRoles() {
         return roles;
-        
+
     }
 
-    public void setRoles(Set<AccountRole> roles){
+    public void setRoles(Set<AccountRole> roles) {
         this.roles = roles;
     }
 
     public Person() {
-        
+
+    }
+
+    public int getId() {
+        return id;
     }
 
     public String getEmailAddress() {
@@ -55,4 +66,3 @@ public class Person {
     }
 
 }
-
