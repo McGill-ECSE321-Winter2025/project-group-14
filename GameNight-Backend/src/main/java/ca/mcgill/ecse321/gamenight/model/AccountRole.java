@@ -9,25 +9,20 @@ import jakarta.persistence.InheritanceType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 
-
 @Entity
-@Inheritance(strategy =InheritanceType.JOINED)
+@Inheritance(strategy =InheritanceType.TABLE_PER_CLASS)
 public abstract class AccountRole {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private int id;
 
     @ManyToOne
-    @JoinColumn(name = "person_email")
+    @JoinColumn(name = "person_email", referencedColumnName = "email_address")
     private Person person;
 
     public Person getPerson() {
         return person;
-    }
-
-    public void setPerson(Person person) {
-        this.person = person;
     }
 
     public AccountRole(){
@@ -38,8 +33,5 @@ public abstract class AccountRole {
         return id;
     }
 
-    public void setId(int id) {
-        this.id = id;
-    }
 }
 

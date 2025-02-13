@@ -28,7 +28,8 @@ dependencies {
 tasks.named('test') {
 	useJUnitPlatform()
 	testLogging {
-		exceptionFormat "full"
+		exceptionFormat = 'full'
 		events "passed", "skipped", "failed"
 	}
 }
+
