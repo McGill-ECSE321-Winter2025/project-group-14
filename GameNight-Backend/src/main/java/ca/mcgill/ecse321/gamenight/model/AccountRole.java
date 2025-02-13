@@ -10,7 +10,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 
 @Entity
-@Inheritance(strategy =InheritanceType.TABLE_PER_CLASS)
+@Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
 public abstract class AccountRole {
 
     @Id
@@ -18,15 +18,15 @@ public abstract class AccountRole {
     private int id;
 
     @ManyToOne
-    @JoinColumn(name = "person_email", referencedColumnName = "email_address")
+    @JoinColumn(name = "person_id", referencedColumnName = "id")
     private Person person;
+
+    public AccountRole() {
+
+    }
 
     public Person getPerson() {
         return person;
-    }
-
-    public AccountRole(){
-
     }
 
     public int getId() {
@@ -34,4 +34,3 @@ public abstract class AccountRole {
     }
 
 }
-
