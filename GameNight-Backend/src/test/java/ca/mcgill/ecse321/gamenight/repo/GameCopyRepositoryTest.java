@@ -62,7 +62,7 @@ public class GameCopyRepositoryTest {
         // Assertions
         assertNotNull(retrievedGameCopy);
         assertEquals(gameCopy.getDescription(), retrievedGameCopy.getDescription());
-        assertEquals(gameCopy.getGame().getName(), retrievedGameCopy.getGame().getName());
+        assertEquals(gameCopy.getGame().getId(), retrievedGameCopy.getGame().getId());
         assertEquals(gameCopy.getOwner().getPerson().getName(), retrievedGameCopy.getOwner().getPerson().getName());
     }
 
@@ -96,7 +96,7 @@ public class GameCopyRepositoryTest {
         // Assertions
         assertNotNull(updatedGameCopy);
         assertEquals(updatedDescription, updatedGameCopy.getDescription());
-        assertEquals(gameCopy.getGame().getName(), updatedGameCopy.getGame().getName());
+        assertEquals(gameCopy.getGame().getId(), updatedGameCopy.getGame().getId());
         assertEquals(gameCopy.getOwner().getPerson().getName(), updatedGameCopy.getOwner().getPerson().getName());
     }
 

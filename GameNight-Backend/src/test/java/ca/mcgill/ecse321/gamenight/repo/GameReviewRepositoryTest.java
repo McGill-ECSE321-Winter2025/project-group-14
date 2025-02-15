@@ -63,7 +63,7 @@ public class GameReviewRepositoryTest {
         assertNotNull(retrievedGameReview);
         assertEquals(gameReview.getRating(), retrievedGameReview.getRating());
         assertEquals(gameReview.getComment(), retrievedGameReview.getComment());
-        assertEquals(gameReview.getGame().getName(), retrievedGameReview.getGame().getName());
+        assertEquals(gameReview.getGame().getId(), retrievedGameReview.getGame().getId());
         assertEquals(gameReview.getReviewer().getPerson().getName(),
                 retrievedGameReview.getReviewer().getPerson().getName());
     }

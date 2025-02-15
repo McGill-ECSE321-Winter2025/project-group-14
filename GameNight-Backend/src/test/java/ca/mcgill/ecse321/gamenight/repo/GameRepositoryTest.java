@@ -7,12 +7,14 @@ import java.util.Optional;
 import java.util.List;
 
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import ca.mcgill.ecse321.gamenight.model.Game;
 import ca.mcgill.ecse321.gamenight.model.GameReview;
+import jakarta.persistence.EntityManager;
 
 @SpringBootTest
 public class GameRepositoryTest {
@@ -23,20 +25,20 @@ public class GameRepositoryTest {
     private GameReviewRepository reviewRepo;
 
     @AfterEach
-	public void clearDatabase() {
+    public void clearDatabase() {
         reviewRepo.deleteAll();
-		gameRepo.deleteAll();
-	}
+        gameRepo.deleteAll();
+    }
 
     @Test
     public void testCreateGame() {
         Game game = new Game("Uno", "A card game");
         game = gameRepo.save(game);
 
-        Optional<Game> fetchedGame = gameRepo.findById(game.getName());
+        Optional<Game> fetchedGame = gameRepo.findById(game.getId());
 
         assertNotNull(game);
-        assertEquals(game.getName(), fetchedGame.get().getName());
+        assertEquals(game.getId(), fetchedGame.get().getId());
         assertEquals(game.getDescription(), fetchedGame.get().getDescription());
     }
 
@@ -65,8 +67,8 @@ public class GameRepositoryTest {
 
         assertNotNull(topGames);
         assertEquals(3, topGames.size());
-        assertEquals("Monopoly", topGames.get(0).getName());
-        assertEquals("Uno", topGames.get(1).getName());
-        assertEquals("Chess", topGames.get(2).getName());
+        assertEquals(game2.getId(), topGames.get(0).getId());
+        assertEquals(game1.getId(), topGames.get(1).getId());
+        assertEquals(game4.getId(), topGames.get(2).getId());
     }
 }
