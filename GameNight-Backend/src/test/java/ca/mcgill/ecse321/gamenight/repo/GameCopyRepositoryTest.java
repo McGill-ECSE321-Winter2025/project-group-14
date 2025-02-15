@@ -4,7 +4,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
+import java.util.List;
+
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -29,37 +32,40 @@ public class GameCopyRepositoryTest {
     @Autowired
     private PersonRepository personRepo;
 
+    private static Person person;
+    private static GameOwner owner;
+    private static Game game;
+
+    @BeforeAll
+    public static void setup(@Autowired PersonRepository personRepo,
+            @Autowired GameOwnerRepository gameOwnerRepo,
+            @Autowired GameRepository gameRepo) {
+        // Create and save a Person
+        person = new Person("aaaaaa@gmail.com", "aaaaa", "Bertrand");
+        personRepo.save(person);
+
+        // Create and save a GameOwner
+        owner = new GameOwner();
+        owner.setPerson(person);
+        gameOwnerRepo.save(owner);
+
+        // Create and save a Game
+        game = new Game("Batman", "A Batman game");
+        gameRepo.save(game);
+    }
+
     @AfterEach
     public void clearDatabase() {
         gameCopyRepo.deleteAll();
-        gameRepo.deleteAll();
-        gameOwnerRepo.deleteAll();
-        personRepo.deleteAll();
     }
 
     @Test
     public void testCreateAndReadGameCopy() {
-        // Create a Person
-        Person person = new Person("aaaaaa@gmail.com", "aaaaa", "Bertrand");
-        personRepo.save(person);
-
-        // Create Owner
-        GameOwner owner = new GameOwner();
-        owner.setPerson(person);
-        gameOwnerRepo.save(owner);
-
-        // Create a Game
-        Game game = new Game("Batman", "A Batman game");
-        gameRepo.save(game);
-
-        // Create a GameCopy
         GameCopy gameCopy = new GameCopy("My copy of Batman", game, owner);
         gameCopyRepo.save(gameCopy);
 
-        // Read the GameCopy from the database
         GameCopy retrievedGameCopy = gameCopyRepo.findById(gameCopy.getId()).orElse(null);
 
-        // Assertions
         assertNotNull(retrievedGameCopy);
         assertEquals(gameCopy.getDescription(), retrievedGameCopy.getDescription());
         assertEquals(gameCopy.getGame().getId(), retrievedGameCopy.getGame().getId());
@@ -68,32 +74,15 @@ public class GameCopyRepositoryTest {
 
     @Test
     public void testModifyGameCopy() {
-        // Create a Person
-        Person person = new Person("aaaaaa@gmail.com", "aaaaa", "Bertrand");
-        personRepo.save(person);
-
-        // Create Owner
-        GameOwner owner = new GameOwner();
-        owner.setPerson(person);
-        gameOwnerRepo.save(owner);
-
-        // Create a Game
-        Game game = new Game("Batman", "A Batman game");
-        gameRepo.save(game);
-
-        // Create a GameCopy
         GameCopy gameCopy = new GameCopy("My copy of Batman", game, owner);
         gameCopyRepo.save(gameCopy);
 
-        // Modify the GameCopy's description
         String updatedDescription = "Updated description of Batman";
         gameCopy.setDescription(updatedDescription);
         gameCopyRepo.save(gameCopy);
 
-        // Retrieve the updated GameCopy
         GameCopy updatedGameCopy = gameCopyRepo.findById(gameCopy.getId()).orElse(null);
 
-        // Assertions
         assertNotNull(updatedGameCopy);
         assertEquals(updatedDescription, updatedGameCopy.getDescription());
         assertEquals(gameCopy.getGame().getId(), updatedGameCopy.getGame().getId());
@@ -102,30 +91,44 @@ public class GameCopyRepositoryTest {
 
     @Test
     public void testDeleteGameCopy() {
-        // Create a Person
-        Person person = new Person("aaaaaa@gmail.com", "aaaaa", "Bertrand");
-        personRepo.save(person);
-
-        // Create Owner
-        GameOwner owner = new GameOwner();
-        owner.setPerson(person);
-        gameOwnerRepo.save(owner);
-
-        // Create a Game
-        Game game = new Game("Batman", "A Batman game");
-        gameRepo.save(game);
-
-        // Create a GameCopy
         GameCopy gameCopy = new GameCopy("My copy of Batman", game, owner);
         gameCopyRepo.save(gameCopy);
 
-        // Delete the GameCopy
         gameCopyRepo.delete(gameCopy);
 
-        // Try to retrieve the deleted GameCopy
         GameCopy deletedGameCopy = gameCopyRepo.findById(gameCopy.getId()).orElse(null);
-
-        // Assertions
         assertNull(deletedGameCopy);
+    }
+
+    @Test
+    public void testFindByGame() {
+        GameCopy gameCopy1 = new GameCopy("My copy of Batman", game, owner);
+        gameCopyRepo.save(gameCopy1);
+
+        GameCopy gameCopy2 = new GameCopy("Another copy of Batman", game, owner);
+        gameCopyRepo.save(gameCopy2);
+
+        List<GameCopy> gameCopies = gameCopyRepo.findByGame(game);
+
+        assertNotNull(gameCopies);
+        assertEquals(2, gameCopies.size());
+        assertEquals(gameCopy1.getDescription(), gameCopies.get(0).getDescription());
+        assertEquals(gameCopy2.getDescription(), gameCopies.get(1).getDescription());
+    }
+
+    @Test
+    public void testFindByGameOwner() {
+        GameCopy gameCopy1 = new GameCopy("My copy of Batman", game, owner);
+        gameCopyRepo.save(gameCopy1);
+
+        GameCopy gameCopy2 = new GameCopy("Another copy of Batman", game, owner);
+        gameCopyRepo.save(gameCopy2);
+
+        List<GameCopy> gameCopies = gameCopyRepo.findByGameOwner(owner);
+
+        assertNotNull(gameCopies);
+        assertEquals(2, gameCopies.size());
+        assertEquals(gameCopy1.getDescription(), gameCopies.get(0).getDescription());
+        assertEquals(gameCopy2.getDescription(), gameCopies.get(1).getDescription());
     }
 }
