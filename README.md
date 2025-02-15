@@ -7,12 +7,12 @@ You can start reading the project report [here](https://github.com/McGill-ECSE32
 
 ## Overview Table
 | Name          |GitHub Username|             Role              | Deliverable 1 Individual Effort (h) | Deliverable 2 Individual Effort (h) | Deliverable 3 Individual Effort (h) |
-| ------------- | ------------- | ----------------------------- |   ----------------- |   ----------------- |   ----------------- | 
-| Deniz Kuru    | deniz-kuru    | UI/UX designer                |                     |                     |                     |
-| Ayham Nassar  | dtuXu         | Back-End Developer            |                     |                     |                     |
-| Reina El-Hoz  | ReinaEl-Hoz   | Front-End Developer           |                     |                     |                     |
-|Mathis Bélanger| Matblg        | Project Manager               |                     |                     |                     |
-| Kassem Yassine| KassemYassine | Full-Stack Developer          |                     |                     |                     |
-| Hamza Abudaqa |  HamzaAbudaqa | Test & Verification Developer |                     |                     |                     |
-|Marianne Romero| MarianneRomero| Software Systems Integration  |                     |                     |                     |
+| ------------- | ------------- | ----------------------------- |   :---------------: |   :---------------: |   :---------------: | 
+| Deniz Kuru    | deniz-kuru    | UI/UX designer                |        15           |                     |                     |
+| Ayham Nassar  | dtuXu         | Back-End Developer            |        15           |                     |                     |
+| Reina El-Hoz  | ReinaEl-Hoz   | Front-End Developer           |        15           |                     |                     |
+|Mathis Bélanger| Matblg        | Project Manager               |        15           |                     |                     |
+| Kassem Yassine| KassemYassine | Full-Stack Developer          |        15           |                     |                     |
+| Hamza Abudaqa |  HamzaAbudaqa | Test & Verification Developer |        15           |                     |                     |
+|Marianne Romero| MarianneRomero| Software Systems Integration  |        15           |                     |                     |
 
