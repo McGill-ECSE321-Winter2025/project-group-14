@@ -34,5 +34,7 @@ public class EventRepositoryTest {
         assertNotNull(fetchedEvent.get());
         assertEquals(event.getName(), fetchedEvent.get().getName());
         assertEquals(event.getDescription(), fetchedEvent.get().getDescription());
+        assertEquals(event.getStartTime(), fetchedEvent.get().getStartTime());
+        assertEquals(event.getEndTime(), fetchedEvent.get().getEndTime());
     }
 }
