@@ -1,5 +1,6 @@
 package ca.mcgill.ecse321.gamenight.model;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -16,11 +17,11 @@ public class GameCopy {
 
     private String description;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.REMOVE)
     @JoinColumn(name = "game_id")
     private Game game;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.REMOVE)
     @JoinColumn(name = "gameowner_id")
     private GameOwner gameOwner;
 

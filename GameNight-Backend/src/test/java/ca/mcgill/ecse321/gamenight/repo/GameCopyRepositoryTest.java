@@ -8,6 +8,7 @@ import java.util.List;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -36,10 +37,10 @@ public class GameCopyRepositoryTest {
     private static GameOwner owner;
     private static Game game;
 
-    @BeforeAll
-    public static void setup(@Autowired PersonRepository personRepo,
-            @Autowired GameOwnerRepository gameOwnerRepo,
-            @Autowired GameRepository gameRepo) {
+    @BeforeEach
+    public void setup() {
+        clearDatabase();
+
         // Create and save a Person
         person = new Person("aaaaaa@gmail.com", "aaaaa", "Bertrand");
         personRepo.save(person);
