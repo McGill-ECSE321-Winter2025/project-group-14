@@ -6,6 +6,4 @@ import ca.mcgill.ecse321.gamenight.model.GameReview;
 import ca.mcgill.ecse321.gamenight.model.Player;
 
 public interface PlayerRepository extends CrudRepository<Player, Integer> {
-    
-    public Player findPlayerByGameReview(GameReview review );
 }
