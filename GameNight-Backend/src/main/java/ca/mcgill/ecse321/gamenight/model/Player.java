@@ -10,6 +10,6 @@ public class Player extends AccountRole {
     }
 
     public Player(Person person) {
-
+        super(person);
     }
 }

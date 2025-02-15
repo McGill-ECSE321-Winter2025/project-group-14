@@ -15,7 +15,6 @@ public class ScheduledGame {
 
     @ManyToOne
     private Game game;
-
     @ManyToOne
     private Event event;
 

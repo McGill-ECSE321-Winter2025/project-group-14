@@ -29,9 +29,6 @@ public class Event {
         this.endTime = endTime;
     }
 
-    public Event() {
-    }
-
     public int getId() {
         return id;
     }
@@ -67,5 +64,4 @@ public class Event {
     public void setEndTime(Date endTime) {
         this.endTime = endTime;
     }
-
 }
