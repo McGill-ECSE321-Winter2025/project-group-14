@@ -20,10 +20,10 @@ public class RegistrationRepositoryTest {
 
     @Autowired
     private RegistrationRepository registrationRepo;
-    
+
     @Autowired
     private EventRepository eventRepo;
-    
+
     @Autowired
     private PlayerRepository playerRepo;
 
