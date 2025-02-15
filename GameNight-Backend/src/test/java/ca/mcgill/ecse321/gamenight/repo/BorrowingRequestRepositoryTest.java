@@ -65,8 +65,8 @@ public class BorrowingRequestRepositoryTest {
         @AfterEach
         public void clearDatabase() {
                 borrowingRepo.deleteAll();
-                playerRepo.deleteAll();
                 gameCopyRepo.deleteAll();
+                playerRepo.deleteAll();
                 gameOwnerRepo.deleteAll();
                 gameRepo.deleteAll();
                 personRepo.deleteAll();
