@@ -25,8 +25,6 @@ public class PersonRepositoryTest {
     }
 
     @Test
-    @Transactional
-    @Rollback(false)
     public void testCreateAndReadPerson() {
         String name = "Reina";
         String emailAddress = "reina@gmail.com";
