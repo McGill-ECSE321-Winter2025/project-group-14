@@ -10,6 +10,10 @@ public class GameOwner extends AccountRole {
     public GameOwner() {
     }
 
+    public GameOwner(Person person) {
+        super(person);
+    }
+
     public boolean isActive() {
         return isActive;
     }

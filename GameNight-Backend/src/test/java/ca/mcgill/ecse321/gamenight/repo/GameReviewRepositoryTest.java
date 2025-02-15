@@ -22,8 +22,6 @@ public class GameReviewRepositoryTest {
 
     @Autowired
     private PlayerRepository playerRepo;
-    @Autowired
-    private AccountRoleRepository AccountRole;
 
     private Person person;
     private Player player;
@@ -36,8 +34,7 @@ public class GameReviewRepositoryTest {
         person = new Person("aaaaaa@gmail.com", "aaaaa", "Bertrand");
         personRepo.save(person);
 
-        player = new Player();
-        player.setPerson(person);
+        player = new Player(person);
         playerRepo.save(player);
 
         game = new Game("Batman", "A Batman game");

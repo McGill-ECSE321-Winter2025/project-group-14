@@ -8,4 +8,8 @@ public class Player extends AccountRole {
     public Player() {
 
     }
+
+    public Player(Person person) {
+
+    }
 }

@@ -25,6 +25,10 @@ public abstract class AccountRole {
 
     }
 
+    public AccountRole(Person person) {
+        this.person = person;
+    }
+
     public Person getPerson() {
         return person;
     }

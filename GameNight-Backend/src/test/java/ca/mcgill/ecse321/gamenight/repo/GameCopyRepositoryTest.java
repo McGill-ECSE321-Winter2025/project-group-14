@@ -45,8 +45,7 @@ public class GameCopyRepositoryTest {
         personRepo.save(person);
 
         // Create and save a GameOwner
-        owner = new GameOwner();
-        owner.setPerson(person);
+        owner = new GameOwner(person);
         gameOwnerRepo.save(owner);
 
         // Create and save a Game
