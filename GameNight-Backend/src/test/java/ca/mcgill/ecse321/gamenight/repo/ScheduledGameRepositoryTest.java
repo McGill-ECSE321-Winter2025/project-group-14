@@ -13,9 +13,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import ca.mcgill.ecse321.gamenight.model.ScheduledGame;
 import ca.mcgill.ecse321.gamenight.model.Game;
 import ca.mcgill.ecse321.gamenight.model.Event;
-import ca.mcgill.ecse321.gamenight.repo.ScheduledGameRepository;
-import ca.mcgill.ecse321.gamenight.repo.GameRepository;
-import ca.mcgill.ecse321.gamenight.repo.EventRepository;
 
 @SpringBootTest
 public class ScheduledGameRepositoryTest {
