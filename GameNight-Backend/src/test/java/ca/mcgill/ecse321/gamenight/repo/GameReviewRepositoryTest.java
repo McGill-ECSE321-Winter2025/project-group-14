@@ -32,8 +32,8 @@ public class GameReviewRepositoryTest {
     @AfterEach
     public void clearDatabase() {
         gameReviewRepo.deleteAll();
-        gameRepo.deleteAll();
         playerRepo.deleteAll();
+        gameRepo.deleteAll();
         personRepo.deleteAll();
     }
 

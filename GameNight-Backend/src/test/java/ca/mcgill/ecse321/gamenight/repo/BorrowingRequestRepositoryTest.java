@@ -219,4 +219,184 @@ public class BorrowingRequestRepositoryTest {
         // Assertions
         assertEquals(2, requests.size());
     }
+
+    @Test
+    public void testFindAllRequestsByStatusAndGameOwner() {
+        // Create an owner
+        Person person1 = new Person("aaaaaa@gmail.com", "aaaaa", "Bertrand");
+        personRepo.save(person1);
+
+        GameOwner owner = new GameOwner();
+        owner.setPerson(person1);
+        gameOwnerRepo.save(owner);
+
+        // Create a borrower
+        Person person2 = new Person("bbbbbb@gmail.com", "bbbbb", "Patrick");
+        personRepo.save(person2);
+
+        Player borrower = new Player();
+        borrower.setPerson(person2);
+        playerRepo.save(borrower);
+
+        // Create a Game
+        Game game = new Game("Batman", "A Batman game");
+        gameRepo.save(game);
+
+        // Create a GameCopy
+        GameCopy gameCopy = new GameCopy("My copy of Batman", game, owner);
+        gameCopyRepo.save(gameCopy);
+
+        // Create BorrowingRequests with different statuses
+        BorrowingRequest request1 = new BorrowingRequest(Date.valueOf("2023-10-01"), Date.valueOf("2023-10-10"),
+                borrower, gameCopy);
+        request1.setStatus(BorrowingRequestStatus.Rejected);
+        borrowingRepo.save(request1);
+
+        BorrowingRequest request2 = new BorrowingRequest(Date.valueOf("2023-11-01"), Date.valueOf("2023-11-10"),
+                borrower, gameCopy);
+        request2.setStatus(BorrowingRequestStatus.Accepted);
+        borrowingRepo.save(request2);
+
+        // Retrieve requests by status and game owner
+        List<BorrowingRequest> pendingRequests = borrowingRepo.findAllRequestsByStatusAndGameOwner(
+                BorrowingRequestStatus.Rejected,
+                owner.getId());
+
+        // Assertions
+        assertEquals(1, pendingRequests.size());
+        assertEquals(request1.getId(), pendingRequests.get(0).getId());
+    }
+
+    @Test
+    public void testFindBySender() {
+        // Create an owner
+        Person person1 = new Person("aaaaaa@gmail.com", "aaaaa", "Bertrand");
+        personRepo.save(person1);
+
+        GameOwner owner = new GameOwner();
+        owner.setPerson(person1);
+        gameOwnerRepo.save(owner);
+
+        // Create a borrower
+        Person person2 = new Person("bbbbbb@gmail.com", "bbbbb", "Patrick");
+        personRepo.save(person2);
+
+        Player borrower = new Player();
+        borrower.setPerson(person2);
+        playerRepo.save(borrower);
+
+        // Create a Game
+        Game game = new Game("Batman", "A Batman game");
+        gameRepo.save(game);
+
+        // Create a GameCopy
+        GameCopy gameCopy = new GameCopy("My copy of Batman", game, owner);
+        gameCopyRepo.save(gameCopy);
+
+        // Create BorrowingRequests for the same sender
+        BorrowingRequest request1 = new BorrowingRequest(Date.valueOf("2023-10-01"), Date.valueOf("2023-10-10"),
+                borrower, gameCopy);
+        BorrowingRequest request2 = new BorrowingRequest(Date.valueOf("2023-11-01"), Date.valueOf("2023-11-10"),
+                borrower, gameCopy);
+        borrowingRepo.save(request1);
+        borrowingRepo.save(request2);
+
+        // Retrieve requests by sender
+        List<BorrowingRequest> requestsBySender = borrowingRepo.findBySender(borrower);
+
+        // Assertions
+        assertEquals(2, requestsBySender.size());
+        assertTrue(requestsBySender.stream().allMatch(r -> r.getSender().getId() == borrower.getId()));
+    }
+
+    @Test
+    public void testFindAllRequestsByStatusAndSender() {
+        // Create an owner
+        Person person1 = new Person("aaaaaa@gmail.com", "aaaaa", "Bertrand");
+        personRepo.save(person1);
+
+        GameOwner owner = new GameOwner();
+        owner.setPerson(person1);
+        gameOwnerRepo.save(owner);
+
+        // Create a borrower
+        Person person2 = new Person("bbbbbb@gmail.com", "bbbbb", "Patrick");
+        personRepo.save(person2);
+
+        Player borrower = new Player();
+        borrower.setPerson(person2);
+        playerRepo.save(borrower);
+
+        // Create a Game
+        Game game = new Game("Batman", "A Batman game");
+        gameRepo.save(game);
+
+        // Create a GameCopy
+        GameCopy gameCopy = new GameCopy("My copy of Batman", game, owner);
+        gameCopyRepo.save(gameCopy);
+
+        // Create BorrowingRequests with different statuses for the same sender
+        BorrowingRequest request1 = new BorrowingRequest(Date.valueOf("2023-10-01"), Date.valueOf("2023-10-10"),
+                borrower, gameCopy);
+        request1.setStatus(BorrowingRequestStatus.Rejected);
+        borrowingRepo.save(request1);
+
+        BorrowingRequest request2 = new BorrowingRequest(Date.valueOf("2023-11-01"), Date.valueOf("2023-11-10"),
+                borrower, gameCopy);
+        request2.setStatus(BorrowingRequestStatus.Accepted);
+        borrowingRepo.save(request2);
+
+        // Retrieve requests by status and sender
+        List<BorrowingRequest> rejectedRequests = borrowingRepo.findAllRequestsByStatusAndSender(
+                BorrowingRequestStatus.Rejected,
+                borrower.getId());
+
+        // Assertions
+        assertEquals(1, rejectedRequests.size());
+        assertEquals(request1.getId(), rejectedRequests.get(0).getId());
+        assertEquals(BorrowingRequestStatus.Rejected, rejectedRequests.get(0).getStatus());
+    }
+
+    @Test
+    public void testFindByGameCopy() {
+        // Create an owner
+        Person person1 = new Person("aaaaaa@gmail.com", "aaaaa", "Bertrand");
+        personRepo.save(person1);
+
+        GameOwner owner = new GameOwner();
+        owner.setPerson(person1);
+        gameOwnerRepo.save(owner);
+
+        // Create a borrower
+        Person person2 = new Person("bbbbbb@gmail.com", "bbbbb", "Patrick");
+        personRepo.save(person2);
+
+        Player borrower = new Player();
+        borrower.setPerson(person2);
+        playerRepo.save(borrower);
+
+        // Create a Game
+        Game game = new Game("Batman", "A Batman game");
+        gameRepo.save(game);
+
+        // Create a GameCopy
+        GameCopy gameCopy = new GameCopy("My copy of Batman", game, owner);
+        gameCopyRepo.save(gameCopy);
+
+        // Create BorrowingRequests for the same game copy
+        BorrowingRequest request1 = new BorrowingRequest(Date.valueOf("2023-10-01"), Date.valueOf("2023-10-10"),
+                borrower, gameCopy);
+        borrowingRepo.save(request1);
+
+        BorrowingRequest request2 = new BorrowingRequest(Date.valueOf("2023-11-01"), Date.valueOf("2023-11-10"),
+                borrower, gameCopy);
+        borrowingRepo.save(request2);
+
+        // Retrieve requests by game copy
+        List<BorrowingRequest> requestsByGameCopy = borrowingRepo.findByGameCopy(gameCopy);
+
+        // Assertions
+        assertEquals(2, requestsByGameCopy.size());
+        assertTrue(requestsByGameCopy.stream().allMatch(r -> r.getGameCopy().getId() == gameCopy.getId()));
+    }
 }
