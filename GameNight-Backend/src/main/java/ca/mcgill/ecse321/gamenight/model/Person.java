@@ -21,8 +21,16 @@ public class Person {
 
     }
 
+    public Person(String emailAddress, String password, String name) {
+        this.emailAddress = emailAddress;
+        this.name = name;
+        this.password = password;
+
+    }
+
     public int getId() {
         return id;
+
     }
 
     public String getEmailAddress() {

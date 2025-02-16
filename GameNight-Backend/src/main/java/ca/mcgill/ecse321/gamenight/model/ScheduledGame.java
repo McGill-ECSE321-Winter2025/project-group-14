@@ -1,5 +1,6 @@
 package ca.mcgill.ecse321.gamenight.model;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -15,7 +16,6 @@ public class ScheduledGame {
 
     @ManyToOne
     private Game game;
-    
     @ManyToOne
     private Event event;
 

@@ -12,7 +12,9 @@ import jakarta.persistence.ManyToOne;
 @Entity
 public class BorrowingRequest {
 
-    public enum BorrowingRequestStatus { Delivered, Acceped, Rejected };
+    public enum BorrowingRequestStatus {
+        Delivered, Accepted, Rejected
+    };
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -21,12 +23,17 @@ public class BorrowingRequest {
     private Date startTime;
     private Date endTime;
     private BorrowingRequestStatus status = BorrowingRequestStatus.Delivered;
+
     @ManyToOne
     @JoinColumn(name = "sender_id")
     private Player sender;
+
     @ManyToOne
     @JoinColumn(name = "gamecopy_id")
     private GameCopy gameCopy;
+
+    public BorrowingRequest() {
+    }
 
     public BorrowingRequest(Date startTime, Date endTime, Player sender, GameCopy gameCopy) {
         this.sendTime = new java.sql.Date(System.currentTimeMillis());

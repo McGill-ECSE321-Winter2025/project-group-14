@@ -1,5 +1,6 @@
 package ca.mcgill.ecse321.gamenight.model;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -14,12 +15,16 @@ public abstract class AccountRole {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private int id;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.REMOVE)
     @JoinColumn(name = "person_id", referencedColumnName = "id")
     private Person person;
 
     public AccountRole() {
 
+    }
+
+    public AccountRole(Person person) {
+        this.person = person;
     }
 
     public Person getPerson() {
