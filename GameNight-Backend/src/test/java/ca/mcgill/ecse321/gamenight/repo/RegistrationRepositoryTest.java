@@ -3,7 +3,6 @@ package ca.mcgill.ecse321.gamenight.repo;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.Date;
-import java.util.Optional;
 import java.util.List;
 
 import org.junit.jupiter.api.AfterEach;
