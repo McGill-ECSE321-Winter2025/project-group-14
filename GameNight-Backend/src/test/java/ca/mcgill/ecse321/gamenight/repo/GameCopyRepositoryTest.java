@@ -32,9 +32,9 @@ public class GameCopyRepositoryTest {
     @Autowired
     private PersonRepository personRepo;
 
-    private static Person person;
-    private static GameOwner owner;
-    private static Game game;
+    private Person person;
+    private GameOwner owner;
+    private Game game;
 
     @BeforeEach
     public void setup() {

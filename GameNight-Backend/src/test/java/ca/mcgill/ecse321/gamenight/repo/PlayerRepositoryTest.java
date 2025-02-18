@@ -11,20 +11,19 @@ import ca.mcgill.ecse321.gamenight.GamenightApplication;
 import ca.mcgill.ecse321.gamenight.model.Person;
 import ca.mcgill.ecse321.gamenight.model.Player;
 
-
 @SpringBootTest(classes = GamenightApplication.class)
 public class PlayerRepositoryTest {
-    
-    @Autowired // everytime the test is called, @Autowired creates a new repo 
+
+    @Autowired // everytime the test is called, @Autowired creates a new repo
     private PlayerRepository playerRepository;
     @Autowired
     private PersonRepository personRepository;
 
     @AfterEach
-	public void clearDatabase() {
-		playerRepository.deleteAll();
+    public void clearDatabase() {
+        playerRepository.deleteAll();
         personRepository.deleteAll();
-	}
+    }
 
     @Test
     public void testCreateAndReadPlayer() {
@@ -38,7 +37,6 @@ public class PlayerRepositoryTest {
         Player hamza = new Player(person);
         hamza = playerRepository.save(hamza);
 
-
         Player hamzaFromDb = playerRepository.findById(hamza.getId()).orElse(null);
 
         assertNotNull(hamzaFromDb);
@@ -47,7 +45,5 @@ public class PlayerRepositoryTest {
         assertEquals(hamza.getPerson().getEmailAddress(), hamzaFromDb.getPerson().getEmailAddress());
         assertEquals(hamza.getPerson().getPassword(), hamzaFromDb.getPerson().getPassword());
 
-        
     }
 }
-

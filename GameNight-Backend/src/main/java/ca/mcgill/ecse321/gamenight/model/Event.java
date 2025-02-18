@@ -25,7 +25,7 @@ public class Event {
     public Event() {
 
     }
-    
+
     public Event(String name, String description, Date startTime, Date endTime) {
         this.name = name;
         this.description = description;
