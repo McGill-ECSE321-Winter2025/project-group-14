@@ -14,6 +14,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import ca.mcgill.ecse321.gamenight.model.Event;
 import ca.mcgill.ecse321.gamenight.model.Player;
 import ca.mcgill.ecse321.gamenight.model.Registration;
+import ca.mcgill.ecse321.gamenight.model.Registration.Key;
 
 @SpringBootTest
 public class RegistrationRepositoryTest {
@@ -44,14 +45,14 @@ public class RegistrationRepositoryTest {
         Player player = new Player();
         player = playerRepo.save(player);
 
-        Registration registration = new Registration(event, player);
+        Key key = new Key(player, event);
+        Registration registration = new Registration(key);
         registration = registrationRepo.save(registration);
 
-        Optional<Registration> fetchedRegistrationOpt = registrationRepo.findById(registration.getId());
-        assertTrue(fetchedRegistrationOpt.isPresent(), "Registration should be present in repository");
-        Registration fetchedRegistration = fetchedRegistrationOpt.get();
-        assertEquals(event.getId(), fetchedRegistration.getEvent().getId(), "Event IDs should match");
-        assertEquals(player.getId(), fetchedRegistration.getPlayer().getId(), "Player IDs should match");
+        Registration fetchedRegistration = registrationRepo.findByKey(registration.getKey());
+        assertTrue(fetchedRegistration != null, "Registration should be present in repository");
+        assertEquals(event.getId(), fetchedRegistration.getKey().getEvent().getId(), "Event IDs should match");
+        assertEquals(player.getId(), fetchedRegistration.getKey().getPlayer().getId(), "Player IDs should match");
     }
 
     @Test
@@ -67,12 +68,12 @@ public class RegistrationRepositoryTest {
         Player player2 = new Player();
         player2 = playerRepo.save(player2);
 
-        Registration reg1 = new Registration(event, player1);
-        Registration reg2 = new Registration(event, player2);
+        Registration reg1 = new Registration(new Key(player1, event));
+        Registration reg2 = new Registration(new Key(player2, event));
         registrationRepo.save(reg1);
         registrationRepo.save(reg2);
 
-        List<Registration> regs = registrationRepo.findByEvent(event);
+        List<Registration> regs = registrationRepo.findByKey_EventId(event.getId());
         assertNotNull(regs, "Registrations list should not be null");
         assertEquals(2, regs.size(), "There should be two registrations for the event");
     }
@@ -92,12 +93,11 @@ public class RegistrationRepositoryTest {
         Event event2 = new Event("Evening Event", "Evening session", startTime2, endTime2);
         event2 = eventRepo.save(event2);
 
-        Registration reg1 = new Registration(event1, player);
-        Registration reg2 = new Registration(event2, player);
+        Registration reg1 = new Registration(new Key(player, event1));
+        Registration reg2 = new Registration(new Key(player, event2));
         registrationRepo.save(reg1);
         registrationRepo.save(reg2);
-
-        List<Registration> regs = registrationRepo.findByPlayer(player);
+        List<Registration> regs = registrationRepo.findByKey_PlayerId(player.getId());
         assertNotNull(regs, "Registrations list should not be null");
         assertEquals(2, regs.size(), "There should be two registrations for the player");
     }
