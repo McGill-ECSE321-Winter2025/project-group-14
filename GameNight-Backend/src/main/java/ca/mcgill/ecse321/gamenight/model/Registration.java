@@ -1,51 +1,66 @@
 package ca.mcgill.ecse321.gamenight.model;
 
+import java.io.Serializable;
+import java.util.Objects;
+
+import jakarta.persistence.Embeddable;
+import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
 
 @Entity
 public class Registration {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
-    @ManyToOne
-    private Event event;
-    @ManyToOne
-    private Player player;
+    @EmbeddedId
+    private Key key;
 
     public Registration() {
     }
 
-    public Registration(Event event, Player player) {
-        this.event = event;
-        this.player = player;
+    public Registration(Key key) {
+        this.key = key;
     }
 
-    public int getId() {
-        return id;
+    public Key getKey() {
+        return key;
     }
 
-    public void setId(int id) {
-        this.id = id;
-    }
+    @Embeddable
+    public static class Key implements Serializable {
+        @ManyToOne
+		private Player player;
+		@ManyToOne
+		private Event event;
 
-    public Event getEvent() {
-        return event;
-    }
+        public Key() {
+		}
 
-    public void setEvent(Event event) {
-        this.event = event;
-    }
+		public Key(Player player, Event event) {
+			this.player = player;
+			this.event = event;
+		}
 
-    public Player getPlayer() {
-        return player;
-    }
+		public Player getPlayer() {
+			return player;
+		}
 
-    public void setPlayer(Player player) {
-        this.player = player;
+		public Event getEvent() {
+			return event;
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (!(obj instanceof Key)) {
+				return false;
+			}
+			Key otherKey = (Key) obj;
+			return this.player.getId() == otherKey.player.getId()
+					&& this.event.getId() == otherKey.event.getId();
+		}
+
+		@Override
+		public int hashCode() {
+			return Objects.hash(this.player.getId(), this.event.getId());
+		}
     }
 }
