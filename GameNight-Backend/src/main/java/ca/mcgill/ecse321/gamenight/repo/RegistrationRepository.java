@@ -4,12 +4,12 @@ import java.util.List;
 
 import org.springframework.data.repository.CrudRepository;
 import ca.mcgill.ecse321.gamenight.model.Registration;
-import ca.mcgill.ecse321.gamenight.model.Event;
-import ca.mcgill.ecse321.gamenight.model.Player;
 
-public interface RegistrationRepository extends CrudRepository<Registration, Integer> {
+public interface RegistrationRepository extends CrudRepository<Registration, Registration.Key> {
 
-    List<Registration> findByEvent(Event event);
+    Registration findByKey(Registration.Key key);
 
-    List<Registration> findByPlayer(Player player);
+    List<Registration> findByKey_EventId(int eventId);
+
+    List<Registration> findByKey_PlayerId(int playerId);
 }
