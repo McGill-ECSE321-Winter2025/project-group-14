@@ -4,12 +4,12 @@ import java.util.List;
 
 import org.springframework.data.repository.CrudRepository;
 import ca.mcgill.ecse321.gamenight.model.ScheduledGame;
-import ca.mcgill.ecse321.gamenight.model.Game;
-import ca.mcgill.ecse321.gamenight.model.Event;
+
 
 public interface ScheduledGameRepository extends CrudRepository<ScheduledGame, Integer> {
+    ScheduledGame findByKey(ScheduledGame.Key key);
 
-    List<ScheduledGame> findByGame(Game game);
+    List<ScheduledGame> findByKey_GameId(int gameId);
+    List<ScheduledGame> findByKey_EventId(int eventId);
 
-    List<ScheduledGame> findByEvent(Event event);
 }

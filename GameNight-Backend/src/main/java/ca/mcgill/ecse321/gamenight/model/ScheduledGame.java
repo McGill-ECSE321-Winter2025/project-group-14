@@ -1,52 +1,66 @@
 package ca.mcgill.ecse321.gamenight.model;
 
+import java.io.Serializable;
+import java.util.Objects;
+
+import jakarta.persistence.Embeddable;
+import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
 
 @Entity
 public class ScheduledGame {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
-
-    @ManyToOne
-    private Game game;
-    @ManyToOne
-    private Event event;
+    @EmbeddedId
+    private Key key;
 
     public ScheduledGame() {
     }
 
-    public ScheduledGame(Game game, Event event) {
-        this.game = game;
-        this.event = event;
+    public ScheduledGame(Key key) {
+        this.key = key;
     }
 
-    public int getId() {
-        return id;
+    public Key getKey() {
+        return key;
     }
 
-    public void setId(int id) {
-        this.id = id;
-    }
+    @Embeddable
+    public static class Key implements Serializable {
+        @ManyToOne
+        private Game game;
+        @ManyToOne
+        private Event event;
 
-    public Game getGame() {
-        return game;
-    }
+        public Key() {
+        }
 
-    public void setGame(Game game) {
-        this.game = game;
-    }
+        public Key(Game game, Event event) {
+            this.game = game;
+            this.event = event;
+        }
 
-    public Event getEvent() {
-        return event;
-    }
+        public Game getGame() {
+            return game;
+        }
 
-    public void setEvent(Event event) {
-        this.event = event;
+        public Event getEvent() {
+            return event;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (!(obj instanceof Key)) {
+                return false;
+            }
+            Key otherKey = (Key) obj;
+            return this.game.getId() == otherKey.game.getId() 
+                    && this.event.getId() == otherKey.event.getId();
+        } 
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(game.getId(), event.getId());
+        }
     }
 }
