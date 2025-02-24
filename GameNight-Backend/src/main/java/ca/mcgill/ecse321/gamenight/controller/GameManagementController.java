@@ -46,7 +46,7 @@ public class GameManagementController {
         return new GameResponseDto(g);
     }
 
-    @GetMapping("/games/{id}")
+    @GetMapping("/games")
     public ArrayList<GameResponseDto> findAllGames() {
         ArrayList<GameResponseDto> games = new ArrayList<GameResponseDto>();
         Iterator<Game> iterator = gameManagementService.findAllGames().iterator();
