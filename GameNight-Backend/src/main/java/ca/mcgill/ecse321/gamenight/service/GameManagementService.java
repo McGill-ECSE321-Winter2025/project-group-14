@@ -10,6 +10,7 @@ import ca.mcgill.ecse321.gamenight.model.Game;
 import ca.mcgill.ecse321.gamenight.model.GameCopy;
 import ca.mcgill.ecse321.gamenight.model.GameOwner;
 import ca.mcgill.ecse321.gamenight.repo.GameCopyRepository;
+import ca.mcgill.ecse321.gamenight.repo.GameOwnerRepository;
 import ca.mcgill.ecse321.gamenight.repo.GameRepository;
 import jakarta.transaction.Transactional;
 
@@ -21,6 +22,9 @@ public class GameManagementService {
 
     @Autowired
     private GameCopyRepository gameCopyRepository;
+
+    @Autowired
+    private GameOwnerRepository gameOwnerRepository;
 
     @Transactional
     public Game createGame(String name, String description) {
@@ -41,6 +45,14 @@ public class GameManagementService {
         return game;
     }
 
+    @Transactional
+    public void deleteGame(int id) {
+        Optional<Game> g = gameRepository.findById(id);
+        if (g.isPresent()) {
+            gameRepository.delete(g.get());
+        }
+    }
+
     public Game findGameById(int id) {
         Optional<Game> g = gameRepository.findById(id);
         if (!g.isPresent()) {
@@ -55,13 +67,16 @@ public class GameManagementService {
     }
 
     @Transactional
-    public GameCopy addGameCopy(String description, Game game, GameOwner owner) {
-        GameCopy g = new GameCopy(description, game, owner);
+    public GameCopy addGameCopy(String description, int gameId, int ownerId) {
+        GameOwner gameOwner = getGameOwnerById(ownerId);
+        Game game = findGameById(gameId);
+        GameCopy g = new GameCopy(description, game, gameOwner);
         return g;
     }
 
     @Transactional
-    public GameCopy updateGameCopyDescription(int id, String description) {
+    public GameCopy updateGameCopy(int id, String description) {
+        // i'm assuming we can only modify the description, otherwise it should be deleted
         GameCopy g = findGameCopyById(id);
         g.setDescription(description);
         gameCopyRepository.save(g);
@@ -84,8 +99,18 @@ public class GameManagementService {
         return g.get();
     }
 
-    public List<GameCopy> findGameCopiesForOwner(GameOwner gameOwner) {
+    public List<GameCopy> findGameCopiesByOwner(int ownerId) {
+        GameOwner gameOwner = getGameOwnerById(ownerId);
         List<GameCopy> games = gameCopyRepository.findByGameOwner(gameOwner);
         return games;
+    }
+
+    private GameOwner getGameOwnerById(int ownerId) {
+        // TODO: replace this once the service is there???
+        Optional<GameOwner> owner = gameOwnerRepository.findById(ownerId);
+        if (!owner.isPresent()) {
+            throw new IllegalArgumentException("There is no owner with ID " + ownerId);
+        }
+        return owner.get();
     }
 }
