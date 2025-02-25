@@ -4,7 +4,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -71,7 +70,7 @@ public class GameManagementServiceTest {
     }
 
     @Test
-    public void failToCreateGameWithNoName() {
+    public void creatingGameWithNoNameTest() {
         Exception e = assertThrows(IllegalArgumentException.class, () ->
             gameManagementService.createGame(null, "A  card game"));
         assertEquals("Game must have a name", e.getMessage());
@@ -152,12 +151,72 @@ public class GameManagementServiceTest {
         Game game = new Game("Uno", "A card game");
         when(gameRepository.findById(game.getId())).thenReturn(Optional.ofNullable(game));
         GameCopy gameCopy = new GameCopy("Lost a card", game, owner);
-        when(gameCopyRepository.findById(anyInt())).thenReturn(Optional.ofNullable(gameCopy));
+        when(gameCopyRepository.findById(gameCopy.getId())).thenReturn(Optional.ofNullable(gameCopy));
 
         GameCopy g = gameManagementService.addGameCopy("Lost a card", game.getId(), owner.getId());
 
         assertEquals(owner.getId(), g.getOwner().getId());
         assertEquals(game.getId(), g.getGame().getId());
         assertEquals("Lost a card", g.getDescription());
+    }
+
+    @Test
+    public void updateGameCopyTest() {
+        Game game = new Game("Uno", "A card game");
+        GameCopy gameCopy = new GameCopy("Lost a card", game, owner);
+        when(gameCopyRepository.findById(gameCopy.getId())).thenReturn(Optional.ofNullable(gameCopy));
+
+        GameCopy savedGame = gameManagementService.updateGameCopy(gameCopy.getId(), "Lost two cards");
+
+        assertEquals(gameCopy,savedGame);
+    }
+
+    @Test
+    public void deleteGameCopyTest() {
+        Game game = new Game("Uno", "A card game");
+        GameCopy gameCopy = new GameCopy("Lost a card", game, owner);
+        when(gameCopyRepository.findById(gameCopy.getId())).thenReturn(Optional.ofNullable(gameCopy));
+
+        gameManagementService.deleteGameCopy(gameCopy.getId());
+
+        verify(gameCopyRepository, times(1)).delete(gameCopy);
+    }
+
+    @Test
+    public void findExistsingGameCopyByIdTest() {
+        Game game = new Game("Uno", "A card game");
+        GameCopy expected = new GameCopy("Lost a card", game, owner);
+        when(gameCopyRepository.findById(expected.getId())).thenReturn(Optional.ofNullable(expected));
+
+        GameCopy foundGame = gameManagementService.findGameCopyById(expected.getId());
+
+        assertEquals(expected,foundGame);
+    }
+
+    @Test
+    public void tryToFindGameCopyNotInDBTest() {
+        int id = 5;
+        when(gameCopyRepository.findById(id)).thenReturn(Optional.ofNullable(null));
+
+        Exception e = assertThrows(IllegalArgumentException.class, () ->
+            gameManagementService.findGameCopyById(id));
+        assertEquals("There is no game copy with ID " + id , e.getMessage());
+    }
+
+    @Test
+    public void findGameCopiesByOwnerTest() {
+        when(gameOwnerRepository.findById(owner.getId())).thenReturn(Optional.ofNullable(owner));
+        Game game1 = new Game("Uno", "A card game");
+        GameCopy gameCopy1 = new GameCopy("aaa", game1, owner);
+        Game game2 = new Game("Monopoly", "A board game");
+        GameCopy gameCopy2 = new GameCopy("aaa", game2, owner);
+        ArrayList<GameCopy> expected = new ArrayList<>();
+        expected.add(gameCopy1);
+        expected.add(gameCopy2);
+        when(gameCopyRepository.findByGameOwner(owner)).thenReturn(expected);
+
+        Iterable<GameCopy> result = gameManagementService.findGameCopiesByOwner(owner.getId());
+
+        assertEquals(expected, result);
     }
 }
