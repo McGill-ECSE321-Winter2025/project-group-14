@@ -27,18 +27,37 @@ public class GameManagementController {
     @Autowired
     GameManagementService gameManagementService;
 
+    /**
+     * Create a new game
+     * 
+     * @param game The game to create
+     * @return The created game
+     */
     @PostMapping("/games/")
     public GameResponseDto createGame(@RequestBody GameRequestDto game) {
         Game g = gameManagementService.createGame(game.getName(), game.getDescription());
         return new GameResponseDto(g);
     }
 
+    /**
+     * Return the game with the given ID
+     * 
+     * @param id The primary key of the game to find
+     * @return The person with the given ID
+     */
     @GetMapping("/games/{id}")
     public GameResponseDto findGameById(@PathVariable int id) {
         Game g = gameManagementService.findGameById(id);
         return new GameResponseDto(g);
     }
 
+    /**
+     * Update the game with the given ID
+     * 
+     * @param id The primary key of the game to update
+     * @param game The updated game information
+     * @return The updated game
+     */
     @PutMapping("/games/{id}")
     public GameResponseDto updateGame(@PathVariable int id, @RequestBody GameRequestDto game) {
         // this will throw an exception if we try to create a game this way, should we change it?
@@ -46,6 +65,11 @@ public class GameManagementController {
         return new GameResponseDto(g);
     }
 
+    /**
+     * Return all games in the system
+     * 
+     * @return All games in the system
+     */
     @GetMapping("/games")
     public ArrayList<GameResponseDto> findAllGames() {
         ArrayList<GameResponseDto> games = new ArrayList<GameResponseDto>();
@@ -56,30 +80,60 @@ public class GameManagementController {
         return games;
     }
 
+    /**
+     * Delete the game with the given ID from the system
+     * 
+     * @param id The primary key of the game to delete
+     */
     @DeleteMapping("/games/{id}")
     public void deleteGame(@PathVariable int id) {
         gameManagementService.deleteGame(id);
     }
 
+    /**
+     * Create a new game copy
+     * 
+     * @param gameCopy The game copy to create
+     * @return The created game copy
+     */
     @PostMapping("/gamecopies/")
-    public GameCopyResponseDto createGameCopy(@RequestBody GameCopyRequestDto game) {
-        GameCopy g = gameManagementService.addGameCopy(game.getDescription(), game.getGameId(), game.getOwnerId());
+    public GameCopyResponseDto createGameCopy(@RequestBody GameCopyRequestDto gameCopy) {
+        GameCopy g = gameManagementService.addGameCopy(gameCopy.getDescription(), gameCopy.getGameId(), gameCopy.getOwnerId());
         return new GameCopyResponseDto(g);
     }
 
+    /**
+     * Return the game copy with the given ID
+     * 
+     * @param id The primary key of the game copy
+     * @return The game copy with the given ID
+     */
     @GetMapping("/gamecopies/{id}")
     public GameCopyResponseDto findGameCopyById(@PathVariable int id) {
         GameCopy g = gameManagementService.findGameCopyById(id);
         return new GameCopyResponseDto(g);
     }
 
+    /**
+     * Update the game copy with the given ID
+     * 
+     * @param id The primary key of the game copy
+     * @param gameCopy The updated game copy information
+     * @return The updated game copy
+     */
     @PutMapping("/gamecopies/{id}")
-    public GameCopyResponseDto updateGameCopy(@PathVariable int id, @RequestBody GameCopyRequestDto game) {
+    public GameCopyResponseDto updateGameCopy(@PathVariable int id, @RequestBody GameCopyRequestDto gameCopy) {
         // this will throw an exception if we try to create a game this way, should we change it?
-        GameCopy g = gameManagementService.updateGameCopy(id, game.getDescription());
+        GameCopy g = gameManagementService.updateGameCopy(id, gameCopy.getDescription());
         return new GameCopyResponseDto(g);
     }
 
+    /**
+     * Return all game copies of the game owner with the given ID
+     * 
+     * @param ownerId The primary key of the game owner
+     * @return The game copies of the given game owner
+     */
     @GetMapping("/gamecopies/")
     public ArrayList<GameCopyResponseDto> findGameCopyByOwner(@RequestParam(name = "owner_id") int ownerId) {
         ArrayList<GameCopyResponseDto> games = new ArrayList<>();
