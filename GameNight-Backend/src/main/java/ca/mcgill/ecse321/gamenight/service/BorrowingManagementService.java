@@ -6,7 +6,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
-import ca.mcgill.ecse321.gamenight.event.NotificationEvent;
 import ca.mcgill.ecse321.gamenight.model.BorrowingRequest;
 import ca.mcgill.ecse321.gamenight.model.GameCopy;
 import ca.mcgill.ecse321.gamenight.model.GameOwner;
