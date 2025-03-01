@@ -20,9 +20,6 @@ public class BorrowingManagementService {
     @Autowired
     private BorrowingRequestRepository borrowingRequestRepository;
 
-    @Autowired 
-    private ApplicationEventPublisher eventPublisher;
-
     @Autowired
     private EmailService emailService;
 
