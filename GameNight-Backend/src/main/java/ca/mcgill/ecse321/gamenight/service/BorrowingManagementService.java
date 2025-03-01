@@ -38,12 +38,28 @@ public class BorrowingManagementService {
 
    // @Transactional
    // public BorrowingRequest respondToBorrowingRequest(BorrowingRequest request){}
+   // change status to accept 
+   // reina's method sends an email 
 
-   // @Transactional
-   // public BorrowingRequest updateBorrowingRequestStatus(BorrowingRequest request){}
+    @Transactional
+    public BorrowingRequest updateBorrowingRequestStatus(BorrowingRequest request, BorrowingRequestStatus status){
+        request.setStatus(status);
+        return request;
+    }
 
-    //public List<BorrowingRequest> findCompletedBorrowingRequestsForBorrower(int BorrowerId){}
+    public List<BorrowingRequest> findDeliveredBorrowingRequestsForBorrower(int BorrowerId){
+    return borrowingRequestRepository.findAllRequestsByStatusAndSender(BorrowingRequestStatus.Delivered, BorrowerId);
 
+    }
+
+    public List<BorrowingRequest> findRejectedBorrowingRequestsForBorrower(int BorrowerId){
+        return borrowingRequestRepository.findAllRequestsByStatusAndSender(BorrowingRequestStatus.Rejected, BorrowerId);
+    }
+
+    /*
+    We're assuming that borrowing  history of a borrower is the same as accepted request
+    So once the request is accepted, then we put it into the previously borrowed tab
+    */
     public List<BorrowingRequest> findAcceptedBorrowingRequestsForBorrower(int BorrowerId){
         return borrowingRequestRepository.findAllRequestsByStatusAndSender(BorrowingRequestStatus.Accepted, BorrowerId);
     }
@@ -52,8 +68,6 @@ public class BorrowingManagementService {
         return borrowingRequestRepository.findAllRequestsByStatusAndGameOwner(BorrowingRequestStatus.Accepted, ownerId);
     }
 
-    
-   // public List<BorrowingRequest> findBorrowingHistory(int borrowerId){}
 
     public BorrowingRequest findGameCopyLendingStatus(GameCopy gameCopy){
         List <BorrowingRequest> requests = borrowingRequestRepository.findByGameCopy(gameCopy);
