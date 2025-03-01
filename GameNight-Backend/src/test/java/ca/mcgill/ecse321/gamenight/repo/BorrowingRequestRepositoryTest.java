@@ -43,13 +43,13 @@ public class BorrowingRequestRepositoryTest {
         public void setUp() {
                 clearDatabase();
 
-                person1 = new Person("aaaaaa@gmail.com", "aaaaa", "Bertrand");
+                person1 = new Person("aaaaaa@gmail.com", "aaaaa", "Bertrand", "firebase-uid-111");
                 personRepo.save(person1);
 
                 owner = new GameOwner(person1);
                 gameOwnerRepo.save(owner);
 
-                person2 = new Person("bbbbbb@gmail.com", "bbbbb", "Patrick");
+                person2 = new Person("bbbbbb@gmail.com", "bbbbb", "Patrick", "firebase-uid222");
                 personRepo.save(person2);
 
                 borrower = new Player(person2);

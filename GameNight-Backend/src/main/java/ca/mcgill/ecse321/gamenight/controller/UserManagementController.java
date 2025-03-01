@@ -4,8 +4,11 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import jakarta.servlet.http.HttpServletRequest;
 
 import ca.mcgill.ecse321.gamenight.dto.PersonResponseDto;
 import ca.mcgill.ecse321.gamenight.dto.PlayerResponseDto;
@@ -14,7 +17,6 @@ import ca.mcgill.ecse321.gamenight.service.UserManagementService;
 import ca.mcgill.ecse321.gamenight.model.Person;
 import ca.mcgill.ecse321.gamenight.model.Player;
 import ca.mcgill.ecse321.gamenight.model.GameOwner;
-
 
 @RestController
 public class UserManagementController {
@@ -96,14 +98,24 @@ public class UserManagementController {
     }
 
     /**
-     * Return the details of a specific user.
+     * Retrieves user details if the authenticated user matches the requested ID.
      *
-     * @param id The primary key of the Person to find.
-     * @return The Person with the given ID.
+     * @param id
+     * @param request
+     * @return A {@link ResponseEntity} with the user's details if authorized,
+     *         otherwise a 403 Forbidden response.
      */
     @GetMapping("/users/{id}")
-    public ResponseEntity<PersonResponseDto> getUserDetail(@PathVariable int id) {
+    public ResponseEntity<?> getUserDetail(@PathVariable int id, HttpServletRequest request) {
+        String firebaseUid = (String) request.getAttribute("firebaseUid");
         Person person = userService.getUserById(id);
+
+        // If the requested user is not the authenticated user, deny access
+        if (!person.getFirebaseUid().equals(firebaseUid)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("You can only view your own profile.");
+        }
+
         return ResponseEntity.ok(new PersonResponseDto(person));
     }
+
 }

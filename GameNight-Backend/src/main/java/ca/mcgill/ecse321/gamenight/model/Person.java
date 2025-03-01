@@ -1,10 +1,6 @@
 package ca.mcgill.ecse321.gamenight.model;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 
 @Entity
 public class Person {
@@ -14,23 +10,25 @@ public class Person {
 
     @Column(name = "email_address", unique = true, nullable = false)
     private String emailAddress;
+
     private String password;
     private String name;
 
-    public Person() {
+    @Column(unique = true, nullable = false) // Firebase UID
+    private String firebaseUid;
 
+    public Person() {
     }
 
-    public Person(String emailAddress, String password, String name) {
+    public Person(String emailAddress, String password, String name, String firebaseUid) {
         this.emailAddress = emailAddress;
         this.name = name;
         this.password = password;
-
+        this.firebaseUid = firebaseUid;
     }
 
     public int getId() {
         return id;
-
     }
 
     public String getEmailAddress() {
@@ -57,4 +55,11 @@ public class Person {
         this.name = name;
     }
 
+    public String getFirebaseUid() {
+        return firebaseUid;
+    }
+
+    public void setFirebaseUid(String firebaseUid) {
+        this.firebaseUid = firebaseUid;
+    }
 }
