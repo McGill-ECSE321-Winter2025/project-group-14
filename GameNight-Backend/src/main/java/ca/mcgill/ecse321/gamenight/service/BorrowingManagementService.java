@@ -9,6 +9,8 @@ import org.springframework.stereotype.Service;
 import ca.mcgill.ecse321.gamenight.event.NotificationEvent;
 import ca.mcgill.ecse321.gamenight.model.BorrowingRequest;
 import ca.mcgill.ecse321.gamenight.model.GameCopy;
+import ca.mcgill.ecse321.gamenight.model.GameOwner;
+import ca.mcgill.ecse321.gamenight.model.Player;
 import ca.mcgill.ecse321.gamenight.model.BorrowingRequest.BorrowingRequestStatus;
 import ca.mcgill.ecse321.gamenight.repo.BorrowingRequestRepository;
 import jakarta.transaction.Transactional;
@@ -22,17 +24,24 @@ public class BorrowingManagementService {
     @Autowired 
     private ApplicationEventPublisher eventPublisher;
 
+    @Autowired
+    private EmailService emailService;
 
     @Transactional
     public BorrowingRequest sendBorrowingRequest(BorrowingRequest request){
         request.setStatus(BorrowingRequestStatus.Delivered);
-        int ownerId = request.getGameCopy().getOwner().getId();
-        int senderId= request.getSender().getId();
         BorrowingRequest savedRequest = borrowingRequestRepository.save(request);
-        
-        eventPublisher.publishEvent(new NotificationEvent(this, ownerId, 
-        "You have received a new borrowing request from" +senderId ));
 
+        GameCopy gameCopy = request.getGameCopy();
+        GameOwner owner = gameCopy.getOwner();
+        Player sender = request.getSender();
+       
+        emailService.sendBorrowingRequestEmail(
+            owner.getPerson().getEmailAddress(),
+            sender.getPerson(),
+            gameCopy.getGame().getName()
+        );
+        
         return savedRequest;
     }
 
