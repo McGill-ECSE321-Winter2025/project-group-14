@@ -28,6 +28,10 @@ public class BorrowingManagementService {
 
     @Transactional
     public BorrowingRequest sendBorrowingRequest(BorrowingRequest request){
+        if (request == null || request.getGameCopy() == null || request.getGameCopy().getOwner() == null || request.getSender() == null) {
+            throw new IllegalArgumentException("Invalid borrowing request or missing game details.");
+        }
+    
         request.setStatus(BorrowingRequestStatus.Delivered);
         BorrowingRequest savedRequest = borrowingRequestRepository.save(request);
 
