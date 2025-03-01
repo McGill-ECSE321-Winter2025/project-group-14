@@ -45,11 +45,28 @@ public class BorrowingManagementService {
         return savedRequest;
     }
 
-   // @Transactional
-   // public BorrowingRequest respondToBorrowingRequest(BorrowingRequest request){}
-   // change status to accept 
-   // reina's method sends an email 
+   @Transactional
+   public BorrowingRequest respondToBorrowingRequest(BorrowingRequest request, BorrowingRequestStatus status){
+        if (request == null || request.getGameCopy() == null || request.getGameCopy().getOwner() == null || request.getSender() == null) {
+            throw new IllegalArgumentException("Invalid borrowing request or missing game details.");
+        }
 
+        GameCopy gameCopy = request.getGameCopy();
+        GameOwner owner = gameCopy.getOwner();
+        Player sender = request.getSender();
+
+        if (status.equals(BorrowingRequestStatus.Accepted)){
+            updateBorrowingRequestStatus(request,BorrowingRequestStatus.Accepted);
+            emailService.sendRequestAcceptedEmail(sender.getPerson().getEmailAddress(),owner.getPerson().getName(),gameCopy.getGame().getName());
+        } else if (status.equals(BorrowingRequestStatus.Rejected)){
+            updateBorrowingRequestStatus(request,BorrowingRequestStatus.Rejected);
+            emailService.sendRequestRejectedEmail(sender.getPerson().getEmailAddress(),owner.getPerson().getName(),gameCopy.getGame().getName());
+        }
+        BorrowingRequest savedRequest = borrowingRequestRepository.save(request);
+        
+        return savedRequest;
+   }
+   
     @Transactional
     public BorrowingRequest updateBorrowingRequestStatus(BorrowingRequest request, BorrowingRequestStatus status){
         request.setStatus(status);
