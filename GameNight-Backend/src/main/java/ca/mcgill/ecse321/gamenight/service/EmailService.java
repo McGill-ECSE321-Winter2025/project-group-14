@@ -55,4 +55,17 @@ public class EmailService {
         sendSimpleEmail(to, subject, text);
     }
 
+    @Async
+    public void sendRequestRejectedEmail(String to, String ownerName, String gameName) {
+        String subject = "Borrowing Request Rejected";
+        String text = "Hello,\n\n" +
+                     "We regret to inform you that " + ownerName + " has declined your request to borrow " +
+                    "the game \"" + gameName + "\".\n\n" +
+                    "You may try borrowing another game or contact the owner for more details.\n\n" +
+                    "Best regards,\nGame Night Team";
+        
+        sendSimpleEmail(to, subject, text);
+    }
+
+
 }
