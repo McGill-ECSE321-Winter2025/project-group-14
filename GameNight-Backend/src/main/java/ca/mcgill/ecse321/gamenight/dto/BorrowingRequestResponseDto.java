@@ -16,7 +16,7 @@ public class BorrowingRequestResponseDto {
     private BorrowingRequestStatus status;
     
     @SuppressWarnings("unused")
-    private BorrowingRequestResponseDto(){}
+    public BorrowingRequestResponseDto(){}
 
     public BorrowingRequestResponseDto(BorrowingRequest request){
         this.id=request.getId();

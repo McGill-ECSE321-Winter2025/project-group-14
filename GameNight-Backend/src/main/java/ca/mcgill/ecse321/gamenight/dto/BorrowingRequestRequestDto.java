@@ -6,14 +6,16 @@ import ca.mcgill.ecse321.gamenight.model.BorrowingRequest;
 import ca.mcgill.ecse321.gamenight.model.BorrowingRequest.BorrowingRequestStatus;
 
 public class BorrowingRequestRequestDto {
-     private int id;
+    private int id;
     private Date sendTime;
     private Date startTime;
     private Date endTime;
     private String gameName;
     private String senderName;
     private BorrowingRequestStatus status;
-    
+    private int senderId;
+    private int gameCopyId;
+
     @SuppressWarnings("unused")
     private BorrowingRequestRequestDto(){
     }
@@ -25,6 +27,8 @@ public class BorrowingRequestRequestDto {
         this.status=request.getStatus();
         this.gameName = request.getGameCopy().getGame().getName();
         this.senderName = request.getSender().getPerson().getName();
+        this.senderId = request.getSender().getId();
+        this.gameCopyId = request.getGameCopy().getId();
     }
     public int getId() {
         return id;
@@ -46,5 +50,11 @@ public class BorrowingRequestRequestDto {
     }
     public BorrowingRequestStatus getStatus() {
         return status;
+    }
+    public int getSenderId() {
+        return senderId;
+    }
+    public int getGameCopyId() {
+        return gameCopyId;
     }
 }

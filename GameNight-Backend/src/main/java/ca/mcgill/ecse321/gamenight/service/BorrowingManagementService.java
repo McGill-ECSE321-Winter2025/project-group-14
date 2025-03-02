@@ -1,6 +1,8 @@
 package ca.mcgill.ecse321.gamenight.service;
 
+import java.sql.Date;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -10,7 +12,10 @@ import ca.mcgill.ecse321.gamenight.model.GameCopy;
 import ca.mcgill.ecse321.gamenight.model.GameOwner;
 import ca.mcgill.ecse321.gamenight.model.Player;
 import ca.mcgill.ecse321.gamenight.model.BorrowingRequest.BorrowingRequestStatus;
+import ca.mcgill.ecse321.gamenight.model.Game;
 import ca.mcgill.ecse321.gamenight.repo.BorrowingRequestRepository;
+import ca.mcgill.ecse321.gamenight.repo.GameCopyRepository;
+import ca.mcgill.ecse321.gamenight.repo.PlayerRepository;
 import jakarta.transaction.Transactional;
 
 @Service
@@ -20,20 +25,38 @@ public class BorrowingManagementService {
     private BorrowingRequestRepository borrowingRequestRepository;
 
     @Autowired
+    private GameCopyRepository gameCopyRepository;
+
+    @Autowired
+    private PlayerRepository playerRepository;
+
+    @Autowired
     private EmailService emailService;
 
     @Transactional
-    public BorrowingRequest sendBorrowingRequest(BorrowingRequest request){
-        if (request == null || request.getGameCopy() == null || request.getGameCopy().getOwner() == null || request.getSender() == null) {
-            throw new IllegalArgumentException("Invalid borrowing request or missing game details.");
+    public BorrowingRequest sendBorrowingRequest(int gameCopyId, int senderId, Date sendTime, Date startTime, Date endTime){
+        Optional<GameCopy> gameCopyOpt = gameCopyRepository.findById(gameCopyId);
+        if (!gameCopyOpt.isPresent()) {
+            throw new IllegalArgumentException("Game copy not found with ID: " + gameCopyId);
         }
+        GameCopy gameCopy = gameCopyOpt.get();
+
+        Optional<Player> senderOpt = playerRepository.findById(senderId);
+        if (!senderOpt.isPresent()) {
+            throw new IllegalArgumentException("Player not found with ID: " + senderId);
+        }
+        Player sender = senderOpt.get();
+        BorrowingRequest request = new BorrowingRequest();
+        request.setGameCopy(gameCopy);
+        request.setSender(sender);
+        request.setSendTime(sendTime);
+        request.setStartTime(startTime);
+        request.setEndTime(endTime);
     
-        request.setStatus(BorrowingRequestStatus.Delivered);
+        
         BorrowingRequest savedRequest = borrowingRequestRepository.save(request);
 
-        GameCopy gameCopy = request.getGameCopy();
         GameOwner owner = gameCopy.getOwner();
-        Player sender = request.getSender();
        
         emailService.sendBorrowingRequestEmail(
             owner.getPerson().getEmailAddress(),
