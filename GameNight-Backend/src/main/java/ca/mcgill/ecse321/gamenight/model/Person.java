@@ -13,6 +13,7 @@ public class Person {
 
     private String password;
     private String name;
+    private boolean isGameOwner;
 
     @Column(unique = true, nullable = false) // Firebase UID
     private String firebaseUid;
@@ -25,6 +26,7 @@ public class Person {
         this.name = name;
         this.password = password;
         this.firebaseUid = firebaseUid;
+        this.isGameOwner = false;
     }
 
     public int getId() {
@@ -62,4 +64,12 @@ public class Person {
     public void setFirebaseUid(String firebaseUid) {
         this.firebaseUid = firebaseUid;
     }
+    public boolean isGameOwner() {
+        return isGameOwner;
+    }
+
+    public void setGameOwner(boolean isGameOwner) {
+        this.isGameOwner = isGameOwner;
+    }
+    
 }

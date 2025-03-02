@@ -39,7 +39,6 @@ public class UserManagementService {
     }
 
     public Person registerUser(String email, String password, String name) throws FirebaseAuthException {
-        // Check if user already exists
         if (personRepository.findPersonByEmailAddress(email) != null) {
             throw new IllegalArgumentException("User already exists with this email.");
         }
@@ -89,14 +88,11 @@ public class UserManagementService {
     public Player createPlayer(Person person) {
         Player newPlayer = new Player(person);
         playerRepository.save(newPlayer);
-        // Hamza is it ok if I return a player here? Because i can't find the player obj
-        // from the person unless i interact w the database
         return newPlayer;
     }
 
     @Transactional
     public void updatePlayer(Person person, String email, String passWord) {
-        // Hamza you are updating User through player. Is that what UpdatePlayer is?
         if (!email.equals(person.getEmailAddress())) {
             person.setEmailAddress(email);
         }
@@ -107,8 +103,6 @@ public class UserManagementService {
 
     @Transactional
     public void deletePlayer(int playerId) {
-        // Hamza I made this method use id directly since the controller only knows the
-        // id
         if (!playerRepository.existsById(playerId)) {
             throw new IllegalArgumentException("Player with ID " + playerId + " does not exist.");
         }
@@ -117,7 +111,6 @@ public class UserManagementService {
 
     @Transactional
     public GameOwner createGameOwner(Person person) {
-        // Hazma i used the constructor w the person and maade it return
         GameOwner newGameOwner = new GameOwner(person);
         gameOwnerRepository.save(newGameOwner);
         return newGameOwner;
@@ -141,51 +134,15 @@ public class UserManagementService {
         }
         gameOwnerRepository.deleteById(gameOwnerId);
     }
-
-    @Transactional
+    
     public void toggleAccountRole(int id) {
-        if (role.equalsIgnoreCase("gameowner")) {
-            toggleToGameOwner(person.getId());
-        } else if (role.equalsIgnoreCase("player")) {
-            toggleToPlayer(person.getId());
-        } else {
-            throw new IllegalArgumentException("Invalid role: " + role);
-        }
+        Person person = personRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Person not found with ID: " + id));
+    
+        person.setGameOwner(!person.isGameOwner()); // Toggle role
+        personRepository.save(person);
     }
-
-    private void toggleToGameOwner(int personId) {
-        Optional<GameOwner> gameOwnerOpt = gameOwnerRepository.findById(personId);
-
-        if (gameOwnerOpt.isPresent()) {
-            GameOwner gameOwner = gameOwnerOpt.get();
-            gameOwner.setActive(true);
-            gameOwnerRepository.save(gameOwner);
-        } else {
-            throw new IllegalArgumentException("Person is not a GameOwner.");
-        }
-        Optional<Player> playerOpt = playerRepository.findById(personId);
-        playerOpt.ifPresent(player -> {
-            player.setActive(false);
-            playerRepository.save(player);
-        });
-    }
-
-    private void toggleToPlayer(int personId) {
-        Optional<Player> playerOpt = playerRepository.findById(personId);
-        if (playerOpt.isPresent()) {
-            Player player = playerOpt.get();
-            player.setActive(true);
-            playerRepository.save(player);
-        } else {
-            throw new IllegalArgumentException("Person is not a Player.");
-        }
-        Optional<GameOwner> gameOwnerOpt = gameOwnerRepository.findById(personId);
-        gameOwnerOpt.ifPresent(gameOwner -> {
-            gameOwner.setActive(false);
-            gameOwnerRepository.save(gameOwner);
-        });
-    }
-
+    
     public List<Person> getAllUsers() {
         Iterable<Person> iterable = personRepository.findAll();
         return StreamSupport.stream(iterable.spliterator(), false)
@@ -193,7 +150,8 @@ public class UserManagementService {
     }
 
     public Person getUserById(int userId) {
-        return personRepository.findPersonById(userId);
+        return personRepository.findById(userId)
+            .orElseThrow(() -> new RuntimeException("Person not found with ID: " + userId));
     }
-
+    
 }
