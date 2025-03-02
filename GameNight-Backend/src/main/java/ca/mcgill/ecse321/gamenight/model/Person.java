@@ -25,7 +25,6 @@ public class Person {
         this.emailAddress = emailAddress;
         this.name = name;
         this.password = password;
-        this.firebaseUid = firebaseUid;
         this.isGameOwner = false;
     }
 
@@ -64,6 +63,7 @@ public class Person {
     public void setFirebaseUid(String firebaseUid) {
         this.firebaseUid = firebaseUid;
     }
+
     public boolean isGameOwner() {
         return isGameOwner;
     }
@@ -71,5 +71,5 @@ public class Person {
     public void setGameOwner(boolean isGameOwner) {
         this.isGameOwner = isGameOwner;
     }
-    
+
 }
