@@ -13,7 +13,6 @@ import java.util.stream.StreamSupport;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import ca.mcgill.ecse321.gamenight.model.AccountRole;
 import ca.mcgill.ecse321.gamenight.model.GameOwner;
 import ca.mcgill.ecse321.gamenight.model.Person;
 import ca.mcgill.ecse321.gamenight.model.Player;
@@ -38,6 +37,7 @@ public class UserManagementService {
         this.personRepository = personRepository;
     }
 
+    @Transactional
     public Person registerUser(String email, String password, String name) throws FirebaseAuthException {
         if (personRepository.findPersonByEmailAddress(email) != null) {
             throw new IllegalArgumentException("User already exists with this email.");
@@ -69,6 +69,56 @@ public class UserManagementService {
         return userRecord.getUid();
     }
 
+    @Transactional
+    public boolean updateUser(int id, String oldPassword, String newEmail, String newPassword)
+            throws FirebaseAuthException {
+        Optional<Person> personOpt = personRepository.findById(id);
+        if (personOpt.isEmpty()) {
+            throw new IllegalArgumentException("User with ID " + id + " not found.");
+        }
+
+        Person person = personOpt.get();
+
+        // Verify old password before making any changes
+        if (!person.getPassword().equals(oldPassword)) {
+            return false; // Old password does not match
+        }
+
+        boolean changedEmail = false;
+        boolean changedPassword = false;
+
+        // Check and update email
+        if (newEmail != null && !newEmail.equals(person.getEmailAddress())) {
+            person.setEmailAddress(newEmail);
+            changedEmail = true;
+        }
+
+        // Check and update password
+        if (newPassword != null && !newPassword.equals(person.getPassword())) {
+            person.setPassword(newPassword);
+            changedPassword = true;
+        }
+
+        // Update Firebase if needed
+        if (changedEmail || changedPassword) {
+            UserRecord.UpdateRequest request = new UserRecord.UpdateRequest(person.getFirebaseUid());
+
+            if (changedEmail) {
+                request.setEmail(newEmail);
+            }
+            if (changedPassword) {
+                request.setPassword(newPassword);
+            }
+
+            FirebaseAuth.getInstance().updateUser(request);
+        }
+
+        personRepository.save(person);
+
+        return true;
+    }
+
+    @Transactional
     public void deleteUser(String firebaseUid) throws FirebaseAuthException {
         // Delete from Firebase
         FirebaseAuth.getInstance().deleteUser(firebaseUid);
@@ -135,15 +185,16 @@ public class UserManagementService {
         }
         gameOwnerRepository.deleteById(gameOwnerId);
     }
-    
+
+    @Transactional
     public void toggleAccountRole(int id) {
         Person person = personRepository.findById(id)
-            .orElseThrow(() -> new RuntimeException("Person not found with ID: " + id));
-    
+                .orElseThrow(() -> new RuntimeException("Person not found with ID: " + id));
+
         person.setGameOwner(!person.isGameOwner()); // Toggle role
         personRepository.save(person);
     }
-    
+
     public List<Person> getAllUsers() {
         Iterable<Person> iterable = personRepository.findAll();
         return StreamSupport.stream(iterable.spliterator(), false)
@@ -152,7 +203,7 @@ public class UserManagementService {
 
     public Person getUserById(int userId) {
         return personRepository.findById(userId)
-            .orElseThrow(() -> new RuntimeException("Person not found with ID: " + userId));
+                .orElseThrow(() -> new RuntimeException("Person not found with ID: " + userId));
     }
-    
+
 }
