@@ -52,7 +52,8 @@ public class UserManagementService {
         UserRecord userRecord = FirebaseAuth.getInstance().createUser(request);
 
         // Save user in the database
-        Person person = new Person(email, password, name, userRecord.getUid());
+        Person person = new Person(email, password, name);
+        person.setFirebaseUid(userRecord.getUid());
         personRepository.save(person);
 
         return person;
@@ -134,6 +135,7 @@ public class UserManagementService {
         }
         gameOwnerRepository.deleteById(gameOwnerId);
     }
+<<<<<<< HEAD
     
     public void toggleAccountRole(int id) {
         Person person = personRepository.findById(id)
@@ -143,6 +145,15 @@ public class UserManagementService {
         personRepository.save(person);
     }
     
+=======
+
+    @Transactional
+    public Person toggleUserType(int id) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'toggleUserType'");
+    }
+
+>>>>>>> f93763900cb650c5150f3a146cecabf48dcd3b52
     public List<Person> getAllUsers() {
         Iterable<Person> iterable = personRepository.findAll();
         return StreamSupport.stream(iterable.spliterator(), false)

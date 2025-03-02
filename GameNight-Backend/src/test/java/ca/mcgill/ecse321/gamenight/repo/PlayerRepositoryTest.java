@@ -31,7 +31,7 @@ public class PlayerRepositoryTest {
         String emailAddress = "hamza@gmail.com";
         String password = "helloworld";
 
-        Person person = new Person(emailAddress, password, name, "firebase-uid-333");
+        Person person = new Person(emailAddress, password, name);
         person = personRepository.save(person);
 
         Player hamza = new Player(person);

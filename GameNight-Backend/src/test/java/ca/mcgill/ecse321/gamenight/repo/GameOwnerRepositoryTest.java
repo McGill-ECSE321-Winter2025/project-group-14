@@ -32,7 +32,7 @@ public class GameOwnerRepositoryTest {
         String emailAddress = "hamza@gmail.com";
         String password = "helloworld";
 
-        Person person = new Person(emailAddress, password, name, "firebase-uid-333");
+        Person person = new Person(emailAddress, password, name);
         person = personRepository.save(person);
 
         GameOwner hamza = new GameOwner(person);

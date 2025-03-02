@@ -28,10 +28,11 @@ public class PersonRepositoryTest {
         String name = "Reina";
         String emailAddress = "reina@gmail.com";
         String password = "i_love_muffins";
-        String firebaseUid = "firebase-uid-12345"; // Required Firebase UID
 
         // When
-        Person reina = new Person(emailAddress, password, name, firebaseUid);
+        Person reina = new Person(emailAddress, password, name);
+        reina.setFirebaseUid("firebase-uid-333");
+        ;
         reina = personRepository.save(reina);
 
         // Then
