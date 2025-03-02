@@ -53,7 +53,8 @@ public class UserManagementService {
         UserRecord userRecord = FirebaseAuth.getInstance().createUser(request);
 
         // Save user in the database
-        Person person = new Person(email, password, name, userRecord.getUid());
+        Person person = new Person(email, password, name);
+        person.setFirebaseUid(userRecord.getUid());
         personRepository.save(person);
 
         return person;
@@ -143,47 +144,9 @@ public class UserManagementService {
     }
 
     @Transactional
-    public void toggleAccountRole(int id) {
-        if (role.equalsIgnoreCase("gameowner")) {
-            toggleToGameOwner(person.getId());
-        } else if (role.equalsIgnoreCase("player")) {
-            toggleToPlayer(person.getId());
-        } else {
-            throw new IllegalArgumentException("Invalid role: " + role);
-        }
-    }
-
-    private void toggleToGameOwner(int personId) {
-        Optional<GameOwner> gameOwnerOpt = gameOwnerRepository.findById(personId);
-
-        if (gameOwnerOpt.isPresent()) {
-            GameOwner gameOwner = gameOwnerOpt.get();
-            gameOwner.setActive(true);
-            gameOwnerRepository.save(gameOwner);
-        } else {
-            throw new IllegalArgumentException("Person is not a GameOwner.");
-        }
-        Optional<Player> playerOpt = playerRepository.findById(personId);
-        playerOpt.ifPresent(player -> {
-            player.setActive(false);
-            playerRepository.save(player);
-        });
-    }
-
-    private void toggleToPlayer(int personId) {
-        Optional<Player> playerOpt = playerRepository.findById(personId);
-        if (playerOpt.isPresent()) {
-            Player player = playerOpt.get();
-            player.setActive(true);
-            playerRepository.save(player);
-        } else {
-            throw new IllegalArgumentException("Person is not a Player.");
-        }
-        Optional<GameOwner> gameOwnerOpt = gameOwnerRepository.findById(personId);
-        gameOwnerOpt.ifPresent(gameOwner -> {
-            gameOwner.setActive(false);
-            gameOwnerRepository.save(gameOwner);
-        });
+    public Person toggleUserType(int id) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'toggleUserType'");
     }
 
     public List<Person> getAllUsers() {

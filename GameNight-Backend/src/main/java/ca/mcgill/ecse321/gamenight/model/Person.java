@@ -14,17 +14,16 @@ public class Person {
     private String password;
     private String name;
 
-    @Column(unique = true, nullable = false) // Firebase UID
+    @Column(unique = true, nullable = true) // Firebase UID
     private String firebaseUid;
 
     public Person() {
     }
 
-    public Person(String emailAddress, String password, String name, String firebaseUid) {
+    public Person(String emailAddress, String password, String name) {
         this.emailAddress = emailAddress;
         this.name = name;
         this.password = password;
-        this.firebaseUid = firebaseUid;
     }
 
     public int getId() {

@@ -31,7 +31,7 @@ public class GameReviewRepositoryTest {
     public void setUp() {
         clearDatabase();
 
-        person = new Person("aaaaaa@gmail.com", "aaaaa", "Bertrand", "firebase-uid-111");
+        person = new Person("aaaaaa@gmail.com", "aaaaa", "Bertrand");
         personRepo.save(person);
 
         player = new Player(person);

@@ -41,7 +41,7 @@ public class GameCopyRepositoryTest {
         clearDatabase();
 
         // Create and save a Person
-        person = new Person("aaaaaa@gmail.com", "aaaaa", "Bertrand", "firebase-uid-111");
+        person = new Person("aaaaaa@gmail.com", "aaaaa", "Bertrand");
         personRepo.save(person);
 
         // Create and save a GameOwner
