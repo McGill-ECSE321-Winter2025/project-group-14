@@ -76,7 +76,7 @@ public class UserManagementService {
         // Delete from database
         Person person = personRepository.findPersonByFirebaseUid(firebaseUid);
         if (person != null) {
-            personRepository.delete(person);
+            personRepository.delete(person); // this will also delete the related
         }
     }
 
@@ -86,13 +86,17 @@ public class UserManagementService {
     }
 
     @Transactional
-    public void createPlayer() {
-        Player newPlayer = new Player();
+    public Player createPlayer(Person person) {
+        Player newPlayer = new Player(person);
         playerRepository.save(newPlayer);
+        // Hamza is it ok if I return a player here? Because i can't find the player obj
+        // from the person unless i interact w the database
+        return newPlayer;
     }
 
     @Transactional
-    public void updatePlayerDetails(Person person, String email, String passWord) {
+    public void updatePlayer(Person person, String email, String passWord) {
+        // Hamza you are updating User through player. Is that what UpdatePlayer is?
         if (!email.equals(person.getEmailAddress())) {
             person.setEmailAddress(email);
         }
@@ -102,8 +106,9 @@ public class UserManagementService {
     }
 
     @Transactional
-    public void deletePlayerDetails(Person person) {
-        int playerId = person.getId();
+    public void deletePlayer(int playerId) {
+        // Hamza I made this method use id directly since the controller only knows the
+        // id
         if (!playerRepository.existsById(playerId)) {
             throw new IllegalArgumentException("Player with ID " + playerId + " does not exist.");
         }
@@ -111,9 +116,11 @@ public class UserManagementService {
     }
 
     @Transactional
-    public void createGameOwner() {
-        GameOwner newGameOwner = new GameOwner();
+    public GameOwner createGameOwner(Person person) {
+        // Hazma i used the constructor w the person and maade it return
+        GameOwner newGameOwner = new GameOwner(person);
         gameOwnerRepository.save(newGameOwner);
+        return newGameOwner;
     }
 
     @Transactional
@@ -127,8 +134,8 @@ public class UserManagementService {
     }
 
     @Transactional
-    public void deleteGameOwnerDetails(Person person) {
-        int gameOwnerId = person.getId();
+    public void deleteGameOwner(int gameOwnerId) {
+
         if (!gameOwnerRepository.existsById(gameOwnerId)) {
             throw new IllegalArgumentException("Game Owner with ID " + gameOwnerId + " does not exist.");
         }
@@ -136,7 +143,7 @@ public class UserManagementService {
     }
 
     @Transactional
-    public void toggleAccountRole(Person person, String role) {
+    public void toggleAccountRole(int id) {
         if (role.equalsIgnoreCase("gameowner")) {
             toggleToGameOwner(person.getId());
         } else if (role.equalsIgnoreCase("player")) {

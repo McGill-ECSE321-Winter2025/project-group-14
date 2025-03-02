@@ -32,14 +32,17 @@ public class UserManagementController {
      */
     @PostMapping("/players")
     public ResponseEntity<PlayerResponseDto> createPlayer(@RequestBody Person person) {
-        Player player = userService.createPlayer(person);
-        return ResponseEntity.ok(new PlayerResponseDto(player));
+        Player newPlayer = userService.createPlayer(person);
+        return ResponseEntity.ok(new PlayerResponseDto(newPlayer));
     }
+
+    // TODO: Write uodatePLayer
 
     /**
      * Delete a Player with the given ID.
      *
      * @param id The primary key of the Player to delete.
+     * @return empty body
      */
     @DeleteMapping("/players/{id}")
     public ResponseEntity<Void> deletePlayer(@PathVariable int id) {
@@ -65,8 +68,8 @@ public class UserManagementController {
      * @param id The primary key of the GameOwner to delete.
      */
     @DeleteMapping("/gameowners/{id}")
-    public ResponseEntity<Void> deleteGameOwner(@PathVariable int id) {
-        userService.deleteGameOwner(id);
+    public ResponseEntity<Void> deleteGameOwner(@PathVariable int gameOwnerId) {
+        userService.deleteGameOwner(gameOwnerId);
         return ResponseEntity.noContent().build();
     }
 
