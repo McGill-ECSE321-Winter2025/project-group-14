@@ -35,7 +35,7 @@ public class EmailService {
     public void sendBorrowingRequestEmail(String to, Person playerName, String gameName) {
         String subject = "New Borrowing Request";
         String text = "Hello,\n\n" +
-                     "You have received a new borrowing request from " + playerName + 
+                     "You have received a new borrowing request from " + playerName.getName() + 
                      " for your game \"" + gameName + "\".\n\n" +
                      "Please log in to respond to this request.\n\n" +
                      "Best regards,\nGame Night Team";

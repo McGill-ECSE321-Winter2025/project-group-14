@@ -38,13 +38,13 @@ public class BorrowingManagementController {
 
         }
 
-        @PutMapping
+        @PutMapping("/{requestId}/respond")
         public BorrowingRequestResponseDto respondToBorrowingRequest(@PathVariable int requestId,
                         @PathVariable BorrowingRequestStatus status) {
                 return null;
         }
 
-        @PutMapping
+        @PutMapping("/{requestId}/update")
         public BorrowingRequestResponseDto updateBorrowingRequestStatus(@PathVariable int requestId,
                         @PathVariable BorrowingRequestStatus status) {
                 return null;
@@ -74,15 +74,14 @@ public class BorrowingManagementController {
                 .collect(Collectors.toList());
         }
 
-        @GetMapping
-        public List<BorrowingRequestResponseDto> getLendingHistoryForOwner(@PathVariable int ownerId) {
-            return null;
-        }
+       //@GetMapping
+       // public List<BorrowingRequestResponseDto> getLendingHistoryForOwner(@PathVariable int ownerId) {
+       //     return null;
+       // }
 
-        @GetMapping
-        public List<BorrowingRequestResponseDto> getGameCopyLendingStatus(@PathVariable int gameCopyId) {
-            return null;
-        }
-
+       // @GetMapping
+       //public List<BorrowingRequestResponseDto> getGameCopyLendingStatus(@PathVariable int gameCopyId) {
+        //    return null;
+        //}
 
 }

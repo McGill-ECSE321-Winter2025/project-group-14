@@ -53,7 +53,7 @@ public class BorrowingManagementService {
         request.setStartTime(startTime);
         request.setEndTime(endTime);
     
-        
+        request.setStatus(BorrowingRequestStatus.Delivered);
         BorrowingRequest savedRequest = borrowingRequestRepository.save(request);
 
         GameOwner owner = gameCopy.getOwner();
@@ -84,6 +84,7 @@ public class BorrowingManagementService {
             updateBorrowingRequestStatus(request,BorrowingRequestStatus.Rejected);
             emailService.sendRequestRejectedEmail(sender.getPerson().getEmailAddress(),owner.getPerson().getName(),gameCopy.getGame().getName());
         }
+
         BorrowingRequest savedRequest = borrowingRequestRepository.save(request);
         
         return savedRequest;
