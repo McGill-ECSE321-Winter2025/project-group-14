@@ -26,7 +26,7 @@ public class GameReview {
     private Game game;
 
     public GameReview() {
-        
+
     }
 
     public GameReview(int rating, String comment, Player reviewer, Game game) {
@@ -51,6 +51,14 @@ public class GameReview {
 
     public String getComment() {
         return comment;
+    }
+
+    public void setComment(String comment) {
+        this.comment = comment;
+    }
+
+    public void setRating(int rating) {
+        this.rating = rating;
     }
 
     public Player getReviewer() {
