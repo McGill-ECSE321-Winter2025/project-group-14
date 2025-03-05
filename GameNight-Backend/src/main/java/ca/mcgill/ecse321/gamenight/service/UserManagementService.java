@@ -94,20 +94,17 @@ public class UserManagementService {
 
     @Transactional
     public void updatePlayer(Person person, String email, String passWord) {
-        if (!email.equals(person.getEmailAddress())) {
-            person.setEmailAddress(email);
-        }
-        if (!passWord.equals(person.getPassword())) {
-            person.setPassword(passWord);
-        }
+        person.setEmailAddress(email);
+        person.setPassword(passWord);
+        personRepository.save(person);
+        
     }
 
     @Transactional
     public void deletePlayer(int playerId) {
-        if (!playerRepository.existsById(playerId)) {
-            throw new IllegalArgumentException("Player with ID " + playerId + " does not exist.");
+        if (playerRepository.existsById(playerId)) {
+            playerRepository.deleteById(playerId);
         }
-        playerRepository.deleteById(playerId);
     }
 
     @Transactional
