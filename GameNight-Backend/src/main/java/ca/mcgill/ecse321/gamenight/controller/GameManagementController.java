@@ -60,7 +60,6 @@ public class GameManagementController {
      */
     @PutMapping("/games/{id}")
     public GameResponseDto updateGame(@PathVariable int id, @RequestBody GameRequestDto game) {
-        // this will throw an exception if we try to create a game this way, should we change it?
         Game g = gameManagementService.updateGame(id, game.getName(), game.getDescription());
         return new GameResponseDto(g);
     }
@@ -78,16 +77,6 @@ public class GameManagementController {
             games.add(new GameResponseDto(iterator.next()));
         }
         return games;
-    }
-
-    /**
-     * Delete the game with the given ID from the system
-     * 
-     * @param id The primary key of the game to delete
-     */
-    @DeleteMapping("/games/{id}")
-    public void deleteGame(@PathVariable int id) {
-        gameManagementService.deleteGame(id);
     }
 
     /**
@@ -123,7 +112,6 @@ public class GameManagementController {
      */
     @PutMapping("/gamecopies/{id}")
     public GameCopyResponseDto updateGameCopy(@PathVariable int id, @RequestBody GameCopyRequestDto gameCopy) {
-        // this will throw an exception if we try to create a game this way, should we change it?
         GameCopy g = gameManagementService.updateGameCopy(id, gameCopy.getDescription());
         return new GameCopyResponseDto(g);
     }
@@ -142,5 +130,15 @@ public class GameManagementController {
             games.add(new GameCopyResponseDto(iterator.next()));
         }
         return games;
+    }
+
+    /**
+     * Delete the game copy with the given ID from the system
+     * 
+     * @param id The primary key of the game copy to delete
+     */
+    @DeleteMapping("/gamecopies/{id}")
+    public void deleteGameCopy(@PathVariable int id) {
+        gameManagementService.deleteGameCopy(id);
     }
 }
