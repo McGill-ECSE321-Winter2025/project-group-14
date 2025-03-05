@@ -142,6 +142,7 @@ public class UserManagementService {
         return newPlayer;
     }
 
+    /* 
     @Transactional
     public void updatePlayer(Person person, String email, String passWord) {
         person.setEmailAddress(email);
@@ -149,6 +150,7 @@ public class UserManagementService {
         personRepository.save(person);
         
     }
+        */
 
     @Transactional
     public void deletePlayer(int playerId) {
@@ -163,7 +165,7 @@ public class UserManagementService {
         gameOwnerRepository.save(newGameOwner);
         return newGameOwner;
     }
-
+    /* 
     @Transactional
     public void updateGameOwnerDetails(Person person, String email, String passWord) {
         if (!email.equals(person.getEmailAddress())) {
@@ -172,7 +174,7 @@ public class UserManagementService {
         if (!passWord.equals(person.getPassword())) {
             person.setPassword(passWord);
         }
-    }
+    }*/
 
     @Transactional
     public void deleteGameOwner(int gameOwnerId) {
@@ -184,6 +186,7 @@ public class UserManagementService {
     }
 
     @Transactional
+    // check if they are an existing gameOwner, if not create a gameOwner
     public void toggleAccountRole(int id) {
         Person person = personRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Person not found with ID: " + id));
