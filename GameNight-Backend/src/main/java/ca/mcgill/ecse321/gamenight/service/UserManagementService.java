@@ -13,6 +13,7 @@ import java.util.stream.StreamSupport;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import ca.mcgill.ecse321.gamenight.model.AccountRole;
 import ca.mcgill.ecse321.gamenight.model.GameOwner;
 import ca.mcgill.ecse321.gamenight.model.Person;
 import ca.mcgill.ecse321.gamenight.model.Player;
@@ -134,23 +135,18 @@ public class UserManagementService {
         FirebaseToken decodedToken = FirebaseAuth.getInstance().verifyIdToken(idToken.replace("Bearer ", ""));
         return decodedToken.getUid();
     }
-
+    
     @Transactional
-    public Player createPlayer(Person person) {
-        Player newPlayer = new Player(person);
-        playerRepository.save(newPlayer);
-        return newPlayer;
-    }
+    public Person createPerson(){
+        Person newPerson = new Person();
+        Player newPlayer = new Player(newPerson);
+        GameOwner newGameOwner = new GameOwner(newPerson);
 
-    /* 
-    @Transactional
-    public void updatePlayer(Person person, String email, String passWord) {
-        person.setEmailAddress(email);
-        person.setPassword(passWord);
-        personRepository.save(person);
-        
+        newPerson.addRole(newPlayer);
+        newPerson.addRole(newGameOwner);
+
+        return personRepository.save(newPerson);
     }
-        */
 
     @Transactional
     public void deletePlayer(int playerId) {
@@ -158,23 +154,6 @@ public class UserManagementService {
             playerRepository.deleteById(playerId);
         }
     }
-
-    @Transactional
-    public GameOwner createGameOwner(Person person) {
-        GameOwner newGameOwner = new GameOwner(person);
-        gameOwnerRepository.save(newGameOwner);
-        return newGameOwner;
-    }
-    /* 
-    @Transactional
-    public void updateGameOwnerDetails(Person person, String email, String passWord) {
-        if (!email.equals(person.getEmailAddress())) {
-            person.setEmailAddress(email);
-        }
-        if (!passWord.equals(person.getPassword())) {
-            person.setPassword(passWord);
-        }
-    }*/
 
     @Transactional
     public void deleteGameOwner(int gameOwnerId) {
@@ -186,14 +165,28 @@ public class UserManagementService {
     }
 
     @Transactional
-    // check if they are an existing gameOwner, if not create a gameOwner
-    public void toggleAccountRole(int id) {
+    public void toggleGameOwner(int id) {
         Person person = personRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Person not found with ID: " + id));
+            .orElseThrow(() -> new RuntimeException("Person not found with ID: " + id));
+        
+        List<AccountRole> roles = person.getRoles();
+        GameOwner gameOwnerRole = null;
+        for (AccountRole role : roles) {
+            if (role instanceof GameOwner) {
+                gameOwnerRole = (GameOwner) role;
+                break;
+            }
+        }
+        if (gameOwnerRole != null) { // if the person has previously been a gameOwner, then just do oposite of isActive
+            gameOwnerRole.setActive(!gameOwnerRole.isActive());
+        } else { // if a person is toggling and never was a gameOwner then you know they are going from player to gameOwner
+            gameOwnerRole = new GameOwner(person);
+            gameOwnerRole.setActive(true);
+            person.addRole(gameOwnerRole);
+        }
+        personRepository.save(person); //not sure if it should be here or @transactional does it , because i create a new GameOwner
+        }
 
-        person.setGameOwner(!person.isGameOwner()); // Toggle role
-        personRepository.save(person);
-    }
 
     public List<Person> getAllUsers() {
         Iterable<Person> iterable = personRepository.findAll();

@@ -1,5 +1,8 @@
 package ca.mcgill.ecse321.gamenight.model;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import jakarta.persistence.*;
 
 @Entity
@@ -14,6 +17,7 @@ public class Person {
     private String password;
     private String name;
     private boolean isGameOwner;
+    private List<AccountRole> roles = new ArrayList<>();
 
     @Column(unique = true, nullable = true) // Firebase UID
     private String firebaseUid;
@@ -70,6 +74,16 @@ public class Person {
 
     public void setGameOwner(boolean isGameOwner) {
         this.isGameOwner = isGameOwner;
+    }
+
+    public List<AccountRole> getRoles() {
+        return roles;
+    }
+
+    public void addRole(AccountRole role) {
+        if (!roles.contains(role)) {
+            roles.add(role);
+        }
     }
 
 }
