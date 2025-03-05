@@ -28,9 +28,6 @@ public class BorrowingRequestResponseDto {
         this.senderName = request.getSender().getPerson().getName();
     }
 
-    public int getId() {
-        return id;
-    }
 
     public Date getSendTime() {
         return sendTime;

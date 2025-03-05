@@ -30,9 +30,7 @@ public class BorrowingRequestRequestDto {
         this.senderId = request.getSender().getId();
         this.gameCopyId = request.getGameCopy().getId();
     }
-    public int getId() {
-        return id;
-    }
+    
     public Date getSendTime() {
         return sendTime;
     }
