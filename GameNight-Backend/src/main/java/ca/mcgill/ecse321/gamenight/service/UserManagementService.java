@@ -135,7 +135,7 @@ public class UserManagementService {
         FirebaseToken decodedToken = FirebaseAuth.getInstance().verifyIdToken(idToken.replace("Bearer ", ""));
         return decodedToken.getUid();
     }
-    
+
     @Transactional
     public Person createPerson(){
         Person newPerson = new Person();
@@ -179,12 +179,7 @@ public class UserManagementService {
         }
         if (gameOwnerRole != null) { // if the person has previously been a gameOwner, then just do oposite of isActive
             gameOwnerRole.setActive(!gameOwnerRole.isActive());
-        } else { // if a person is toggling and never was a gameOwner then you know they are going from player to gameOwner
-            gameOwnerRole = new GameOwner(person);
-            gameOwnerRole.setActive(true);
-            person.addRole(gameOwnerRole);
-        }
-        personRepository.save(person); //not sure if it should be here or @transactional does it , because i create a new GameOwner
+            }
         }
 
 
