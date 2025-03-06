@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import ca.mcgill.ecse321.gamenight.dto.BorrowingRequestRequestDto;
@@ -18,13 +20,14 @@ import ca.mcgill.ecse321.gamenight.model.BorrowingRequest.BorrowingRequestStatus
 import ca.mcgill.ecse321.gamenight.service.BorrowingManagementService;
 
 @RestController
+@RequestMapping("/borrowingRequests")
 public class BorrowingManagementController {
 
         @Autowired
         private BorrowingManagementService borrowingManagementService;
 
         
-        @PostMapping("/request")
+        @PostMapping("")
         public BorrowingRequestResponseDto sendBorrowingRequest(@RequestBody BorrowingRequestRequestDto borrowingRequest) {
                 BorrowingRequest savedRequest = borrowingManagementService.sendBorrowingRequest(
                         borrowingRequest.getGameCopyId(),
@@ -40,13 +43,13 @@ public class BorrowingManagementController {
 
         @PutMapping("/{requestId}/respond")
         public BorrowingRequestResponseDto respondToBorrowingRequest(@PathVariable int requestId,
-                        @PathVariable BorrowingRequestStatus status) {
+                        @RequestParam BorrowingRequestStatus status) {
                 return null;
         }
 
         @PutMapping("/{requestId}/update")
         public BorrowingRequestResponseDto updateBorrowingRequestStatus(@PathVariable int requestId,
-                        @PathVariable BorrowingRequestStatus status) {
+                        @RequestParam BorrowingRequestStatus status) {
                 return null;
         }
 
@@ -73,15 +76,14 @@ public class BorrowingManagementController {
                 .map(request -> new BorrowingRequestResponseDto(request))
                 .collect(Collectors.toList());
         }
+        @GetMapping("/lendingHistory/{ownerId}")
+        public List<BorrowingRequestResponseDto> getLendingHistoryForOwner(@PathVariable int ownerId) {
+                return null;
+                }
 
-       //@GetMapping
-       // public List<BorrowingRequestResponseDto> getLendingHistoryForOwner(@PathVariable int ownerId) {
-       //     return null;
-       // }
+        @GetMapping("/accepted/{gameCopyId}/status")
+        public List<BorrowingRequestResponseDto> getGameCopyLendingStatus(@PathVariable int gameCopyId) {
+        return null;
+        }
 
-       // @GetMapping
-       //public List<BorrowingRequestResponseDto> getGameCopyLendingStatus(@PathVariable int gameCopyId) {
-        //    return null;
-        //}
-
-}
+        }
