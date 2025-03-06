@@ -179,7 +179,9 @@ public class UserManagementService {
         }
         if (gameOwnerRole != null) { // if the person has previously been a gameOwner, then just do oposite of isActive
             gameOwnerRole.setActive(!gameOwnerRole.isActive());
+            gameOwnerRepository.save(gameOwnerRole);
             }
+            
         }
 
 

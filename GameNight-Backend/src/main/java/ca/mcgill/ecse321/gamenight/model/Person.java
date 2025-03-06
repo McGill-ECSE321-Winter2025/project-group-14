@@ -17,6 +17,8 @@ public class Person {
     private String password;
     private String name;
     private boolean isGameOwner;
+
+    @OneToMany(mappedBy = "person", cascade = CascadeType.ALL,orphanRemoval = true)
     private List<AccountRole> roles = new ArrayList<>();
 
     @Column(unique = true, nullable = true) // Firebase UID
