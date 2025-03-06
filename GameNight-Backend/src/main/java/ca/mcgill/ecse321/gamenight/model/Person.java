@@ -13,7 +13,6 @@ public class Person {
 
     private String password;
     private String name;
-    private boolean isGameOwner;
 
     public Person() {
     }
@@ -22,7 +21,6 @@ public class Person {
         this.emailAddress = emailAddress;
         this.name = name;
         this.password = password;
-        this.isGameOwner = false;
     }
 
     public int getId() {
@@ -51,14 +49,6 @@ public class Person {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public boolean isGameOwner() {
-        return isGameOwner;
-    }
-
-    public void setGameOwner(boolean isGameOwner) {
-        this.isGameOwner = isGameOwner;
     }
 
 }
