@@ -165,7 +165,7 @@ public class UserManagementService {
     }
 
     @Transactional
-    public void toggleGameOwner(int id) {
+    public void toggleAccountRole(int id) {
         Person person = personRepository.findById(id)
             .orElseThrow(() -> new RuntimeException("Person not found with ID: " + id));
         
