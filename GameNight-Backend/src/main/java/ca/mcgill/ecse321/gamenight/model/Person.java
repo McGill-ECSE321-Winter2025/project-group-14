@@ -5,7 +5,7 @@ import jakarta.persistence.*;
 @Entity
 public class Person {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
     @Column(name = "email_address", unique = true, nullable = false)
@@ -14,9 +14,6 @@ public class Person {
     private String password;
     private String name;
     private boolean isGameOwner;
-
-    @Column(unique = true, nullable = true) // Firebase UID
-    private String firebaseUid;
 
     public Person() {
     }
@@ -54,14 +51,6 @@ public class Person {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public String getFirebaseUid() {
-        return firebaseUid;
-    }
-
-    public void setFirebaseUid(String firebaseUid) {
-        this.firebaseUid = firebaseUid;
     }
 
     public boolean isGameOwner() {

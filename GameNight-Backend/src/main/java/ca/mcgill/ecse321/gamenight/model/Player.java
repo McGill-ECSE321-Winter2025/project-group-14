@@ -4,12 +4,10 @@ import jakarta.persistence.Entity;
 
 @Entity
 public class Player extends AccountRole {
-    private boolean isActive;
 
     public Person getPerson() {
         return super.getPerson();
     }
-    
 
     public Player() {
 
@@ -17,13 +15,5 @@ public class Player extends AccountRole {
 
     public Player(Person person) {
         super(person);
-    }
-    
-
-    public boolean isActive() {
-        return isActive;
-    }
-    public void setActive(boolean isActive) {
-        this.isActive = isActive;
     }
 }

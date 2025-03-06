@@ -15,8 +15,8 @@ public abstract class AccountRole {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private int id;
 
-    @ManyToOne(cascade = CascadeType.REMOVE)
-    @JoinColumn(name = "person_id", referencedColumnName = "id")
+    @ManyToOne
+    @JoinColumn(name = "person_id", referencedColumnName = "id", nullable = false)
     private Person person;
 
     public AccountRole() {

@@ -8,35 +8,17 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import com.google.firebase.auth.FirebaseAuthException;
-
 import jakarta.servlet.http.HttpServletRequest;
 
 import ca.mcgill.ecse321.gamenight.dto.PersonResponseDto;
-import ca.mcgill.ecse321.gamenight.dto.PlayerResponseDto;
-import ca.mcgill.ecse321.gamenight.dto.GameOwnerResponseDto;
 import ca.mcgill.ecse321.gamenight.service.UserManagementService;
 import ca.mcgill.ecse321.gamenight.model.Person;
-import ca.mcgill.ecse321.gamenight.model.Player;
-import ca.mcgill.ecse321.gamenight.model.GameOwner;
 
 @RestController
 public class UserManagementController {
 
     @Autowired
     private UserManagementService userService;
-
-    /**
-     * Create a new Player.
-     *
-     * @param person The Person entity to convert into a Player.
-     * @return The created Player.
-     */
-    @PostMapping("/players")
-    public ResponseEntity<PlayerResponseDto> createPlayer(@RequestBody Person person) {
-        Player newPlayer = userService.createPlayer(person);
-        return ResponseEntity.ok(new PlayerResponseDto(newPlayer));
-    }
 
     /**
      * Delete a Player with the given ID.
@@ -48,18 +30,6 @@ public class UserManagementController {
     public ResponseEntity<Void> deletePlayer(@PathVariable int id) {
         userService.deletePlayer(id);
         return ResponseEntity.noContent().build();
-    }
-
-    /**
-     * Create a new GameOwner.
-     *
-     * @param person The Person entity to convert into a GameOwner.
-     * @return The created GameOwner.
-     */
-    @PostMapping("/gameowners")
-    public ResponseEntity<GameOwnerResponseDto> createOwner(@RequestBody Person person) {
-        GameOwner owner = userService.createGameOwner(person);
-        return ResponseEntity.ok(new GameOwnerResponseDto(owner));
     }
 
     /**
@@ -75,49 +45,31 @@ public class UserManagementController {
 
     /**
      * Updates a user's email or password after verifying their old password.
-     * 
-     * @param id          User ID.
-     * @param newEmail    New email (optional).
-     * @param newPassword New password (optional).
-     * @param oldPassword Current password for verification.
-     * @param request     HTTP request with authenticated Firebase UID.
-     * @return {@link ResponseEntity}:
-     *         - 200 OK on success.
-     *         - 401 Unauthorized if old password is incorrect.
-     *         - 403 Forbidden if updating another user's profile.
-     *         - 404 Not Found if user doesn't exist.
-     *         - 500 Internal Server Error if Firebase update fails.
+     *
+     * @param id
+     * @param newEmail
+     * @param newPassword
+     * @param oldPassword
+     * @return A {@link ResponseEntity}:
+     *         - 200 OK if the update is successful.
+     *         - 401 Unauthorized if the old password is incorrect.
+     *         - 404 Not Found if the user does not exist.
+     *         - 400 Bad Request if no new values are provided.
      */
     @PutMapping("/users/{id}")
     public ResponseEntity<?> updateUser(
             @PathVariable int id,
             @RequestParam(required = false) String newEmail,
             @RequestParam(required = false) String newPassword,
-            @RequestParam String oldPassword, // Require old password
-            HttpServletRequest request) {
+            @RequestParam String oldPassword) {
 
-        String firebaseUid = (String) request.getAttribute("firebaseUid");
+        boolean success = userService.updatePerson(id, oldPassword, newEmail, newPassword);
 
-        Person person = userService.getUserById(id);
-        if (person == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found.");
+        if (!success) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Incorrect old password.");
         }
 
-        // Ensure user is only updating their own profile
-        if (!person.getFirebaseUid().equals(firebaseUid)) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("You can only update your own profile.");
-        }
-
-        // Attempt to update user (this will check the old password)
-        boolean success;
-        try {
-            success = userService.updateUser(id, oldPassword, newEmail, newPassword);
-        } catch (FirebaseAuthException e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to update user in Firebase.");
-        }
-
-        return success ? ResponseEntity.ok("User updated successfully.")
-                : ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Incorrect old password.");
+        return ResponseEntity.ok("User updated successfully.");
     }
 
     /**
@@ -153,19 +105,28 @@ public class UserManagementController {
      * @param id
      * @param request
      * @return A {@link ResponseEntity} with the user's details if authorized,
-     *         otherwise a 403 Forbidden response.
+     *         otherwise a 403 Forbidden or 404 Not Found response.
      */
     @GetMapping("/users/{id}")
     public ResponseEntity<?> getUserDetail(@PathVariable int id, HttpServletRequest request) {
-        String firebaseUid = (String) request.getAttribute("firebaseUid");
-        Person person = userService.getUserById(id);
+        // Retrieve the authenticated user's ID from the request attributes
+        Integer authenticatedUserId = (Integer) request.getAttribute("userId");
 
-        // If the requested user is not the authenticated user, deny access
-        if (!person.getFirebaseUid().equals(firebaseUid)) {
+        if (authenticatedUserId == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized: No valid authentication.");
+        }
+
+        // Find the requested user by ID
+        Person person = userService.getUserById(id);
+        if (person == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found.");
+        }
+
+        // Ensure the authenticated user is requesting their own profile
+        if (!authenticatedUserId.equals(id)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("You can only view your own profile.");
         }
 
         return ResponseEntity.ok(new PersonResponseDto(person));
     }
-
 }

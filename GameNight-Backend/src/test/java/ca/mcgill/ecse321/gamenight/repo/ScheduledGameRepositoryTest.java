@@ -63,8 +63,10 @@ public class ScheduledGameRepositoryTest {
         game = gameRepo.save(game);
 
         Date startTime = new Date();
-        Event event1 = new Event("Game Night One", "Board games night", startTime, new Date(startTime.getTime() + 3600000));
-        Event event2 = new Event("Game Night Two", "More board games", startTime, new Date(startTime.getTime() + 3600000));
+        Event event1 = new Event("Game Night One", "Board games night", startTime,
+                new Date(startTime.getTime() + 3600000));
+        Event event2 = new Event("Game Night Two", "More board games", startTime,
+                new Date(startTime.getTime() + 3600000));
         event1 = eventRepo.save(event1);
         event2 = eventRepo.save(event2);
 
@@ -86,7 +88,8 @@ public class ScheduledGameRepositoryTest {
         game2 = gameRepo.save(game2);
 
         Date startTime = new Date();
-        Event event = new Event("Board Game Marathon", "A day of games", startTime, new Date(startTime.getTime() + 7200000));
+        Event event = new Event("Board Game Marathon", "A day of games", startTime,
+                new Date(startTime.getTime() + 7200000));
         event = eventRepo.save(event);
 
         ScheduledGame sg1 = new ScheduledGame(new Key(game1, event));

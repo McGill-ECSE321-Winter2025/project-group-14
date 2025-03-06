@@ -24,24 +24,21 @@ public class PersonRepositoryTest {
 
     @Test
     public void testCreateAndReadPerson() {
-        // Given
         String name = "Reina";
         String emailAddress = "reina@gmail.com";
         String password = "i_love_muffins";
 
-        // When
-        Person reina = new Person(emailAddress, password, name);
-        reina.setFirebaseUid("firebase-uid-333");
-        ;
+        Person reina = new Person();
+        reina.setName(name);
+        reina.setEmailAddress(emailAddress);
+        reina.setPassword(password);
         reina = personRepository.save(reina);
 
-        // Then
-        Person reinaFromDb = personRepository.findPersonById(reina.getId());
+        Person reinaFromDb = personRepository.findPersonById(reina.getId()).orElse(null);
 
         assertNotNull(reinaFromDb);
         assertEquals(reina.getName(), reinaFromDb.getName());
         assertEquals(reina.getEmailAddress(), reinaFromDb.getEmailAddress());
         assertEquals(reina.getPassword(), reinaFromDb.getPassword());
-        assertEquals(reina.getFirebaseUid(), reinaFromDb.getFirebaseUid()); // New check for Firebase UID
     }
 }
