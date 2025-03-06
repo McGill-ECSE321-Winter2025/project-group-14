@@ -102,8 +102,6 @@ public class UserManagementService {
         Person user = personRepository
                 .findPersonById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
-        gameOwnerRepository.deleteAllByPerson(user);
-        playerRepository.deleteAllByPerson(user);
         personRepository.delete(user);
     }
 
