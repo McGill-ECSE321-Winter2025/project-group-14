@@ -11,28 +11,28 @@ import jakarta.persistence.ManyToOne;
 @Entity
 public class Registration {
 
-    @EmbeddedId
-    private Key key;
+	@EmbeddedId
+	private Key key;
 
-    public Registration() {
-    }
+	public Registration() {
+	}
 
-    public Registration(Key key) {
-        this.key = key;
-    }
+	public Registration(Key key) {
+		this.key = key;
+	}
 
-    public Key getKey() {
-        return key;
-    }
+	public Key getKey() {
+		return key;
+	}
 
-    @Embeddable
-    public static class Key implements Serializable {
-        @ManyToOne
+	@Embeddable
+	public static class Key implements Serializable {
+		@ManyToOne
 		private Player player;
 		@ManyToOne
 		private Event event;
 
-        public Key() {
+		public Key() {
 		}
 
 		public Key(Player player, Event event) {
@@ -62,5 +62,5 @@ public class Registration {
 		public int hashCode() {
 			return Objects.hash(this.player.getId(), this.event.getId());
 		}
-    }
+	}
 }
