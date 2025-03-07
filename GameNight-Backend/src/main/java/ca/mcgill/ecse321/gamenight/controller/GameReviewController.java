@@ -16,7 +16,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/game-reviews")
 public class GameReviewController {
 
     @Autowired
@@ -47,7 +46,7 @@ public class GameReviewController {
                 game);
     }
 
-    @PostMapping("/submit")
+    @PostMapping("/reviews/")
     public ResponseEntity<GameReviewDto> submitReview(@RequestBody GameReviewDto reviewDto) {
         try {
             GameReview review = convertToEntity(reviewDto);
@@ -62,7 +61,7 @@ public class GameReviewController {
         }
     }
 
-    @DeleteMapping("/delete/{reviewId}")
+    @DeleteMapping("/reviews/{reviewId}")
     public ResponseEntity<Void> deleteReview(@PathVariable int reviewId) {
         boolean deleted = gameReviewService.deleteReview(reviewId);
         if (deleted) {
@@ -72,7 +71,7 @@ public class GameReviewController {
         }
     }
 
-    @PutMapping("/update/{reviewId}")
+    @PutMapping("/reviews/{reviewId}")
     public ResponseEntity<GameReviewDto> updateReview(
             @PathVariable int reviewId,
             @RequestBody GameReviewDto reviewDto) {
@@ -96,7 +95,7 @@ public class GameReviewController {
         }
     }
 
-    @GetMapping("/reviews-for-game/{gameId}")
+    @GetMapping("/games/{gameId}/reviews")
     public ResponseEntity<List<GameReviewDto>> getReviewsForGame(@PathVariable int gameId) {
         try {
             Game game = gameService.findGameById(gameId);
@@ -110,11 +109,38 @@ public class GameReviewController {
         }
     }
 
-    @GetMapping("/reviews-by-user/{reviewerId}")
+    @GetMapping("/users/{reviewerId}/reviews")
     public ResponseEntity<List<GameReviewDto>> getReviewsByUser(@PathVariable int reviewerId) {
         try {
             Player reviewer = userService.getPlayerById(reviewerId);
             List<GameReview> reviews = gameReviewService.getReviewsByPlayer(reviewer);
+            List<GameReviewDto> reviewDtos = reviews.stream()
+                    .map(this::convertToDto)
+                    .collect(Collectors.toList());
+            return new ResponseEntity<>(reviewDtos, HttpStatus.OK);
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @GetMapping("/games/{gameId}/average-rating")
+    public ResponseEntity<Double> getAverageRatingForGame(@PathVariable int gameId) {
+        try {
+            Game game = gameService.findGameById(gameId);
+            double averageRating = gameReviewService.getAverageRatingForGame(game);
+            return new ResponseEntity<>(averageRating, HttpStatus.OK);
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @GetMapping("/games/{gameId}/reviews-sorted")
+    public ResponseEntity<List<GameReviewDto>> getReviewsSortedByRating(
+            @PathVariable int gameId,
+            @RequestParam boolean ascending) {
+        try {
+            Game game = gameService.findGameById(gameId);
+            List<GameReview> reviews = gameReviewService.getReviewsSortedByRating(game, ascending);
             List<GameReviewDto> reviewDtos = reviews.stream()
                     .map(this::convertToDto)
                     .collect(Collectors.toList());
