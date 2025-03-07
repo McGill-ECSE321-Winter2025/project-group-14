@@ -47,14 +47,6 @@ public class GameManagementService {
         return game;
     }
 
-    @Transactional
-    public void deleteGame(int id) {
-        Optional<Game> g = gameRepository.findById(id);
-        if (g.isPresent()) {
-            gameRepository.delete(g.get());
-        }
-    }
-
     public Game findGameById(int id) {
         Optional<Game> g = gameRepository.findById(id);
         if (!g.isPresent()) {
@@ -64,8 +56,7 @@ public class GameManagementService {
     }
 
     public Iterable<Game> findAllGames() {
-        Iterable<Game> games = gameRepository.findAll();
-        return games;
+        return gameRepository.findAll();
     }
 
     @Transactional

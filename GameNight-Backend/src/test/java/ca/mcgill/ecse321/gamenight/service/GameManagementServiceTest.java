@@ -94,16 +94,6 @@ public class GameManagementServiceTest {
     }
 
     @Test
-    public void deleteGameTest() {
-        Game game = new Game("Uno", "A card game");
-        when(gameRepository.findById(game.getId())).thenReturn(Optional.ofNullable(game));
-
-        gameManagementService.deleteGame(game.getId());
-
-        verify(gameRepository, times(1)).delete(game);
-    }
-
-    @Test
     public void findExistsingGameByIdTest() {
         Game game = new Game("Uno", "A card game");
         when(gameRepository.findById(game.getId())).thenReturn(Optional.ofNullable(game));
