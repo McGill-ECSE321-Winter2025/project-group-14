@@ -5,8 +5,8 @@ import ca.mcgill.ecse321.gamenight.model.Game;
 import ca.mcgill.ecse321.gamenight.model.GameReview;
 import ca.mcgill.ecse321.gamenight.model.Player;
 import ca.mcgill.ecse321.gamenight.service.GameReviewService;
-import ca.mcgill.ecse321.gamenight.service.GameService;
-import ca.mcgill.ecse321.gamenight.service.PlayerService;
+import ca.mcgill.ecse321.gamenight.service.GameManagementService;
+import ca.mcgill.ecse321.gamenight.service.UserManagementService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,23 +23,23 @@ public class GameReviewController {
     private GameReviewService gameReviewService;
 
     @Autowired
-    private PlayerService playerService;
+    private UserManagementService userService;
 
     @Autowired
-    private GameService gameService;
+    private GameManagementService gameService;
 
     private GameReviewDto convertToDto(GameReview review) {
         return new GameReviewDto(
                 review.getId(),
                 review.getRating(),
                 review.getComment(),
-                review.getReviewer().getPlayerId(),
-                review.getGame().getGameId());
+                review.getReviewer().getId(),
+                review.getGame().getId());
     }
 
     private GameReview convertToEntity(GameReviewDto reviewDto) {
-        Player reviewer = playerService.getPlayerById(reviewDto.getReviewerId());
-        Game game = gameService.getGameById(reviewDto.getGameId());
+        Player reviewer = userService.getPlayerById(reviewDto.getReviewerId());
+        Game game = gameService.findGameById(reviewDto.getGameId());
         return new GameReview(
                 reviewDto.getRating(),
                 reviewDto.getComment(),
@@ -99,7 +99,7 @@ public class GameReviewController {
     @GetMapping("/reviews-for-game/{gameId}")
     public ResponseEntity<List<GameReviewDto>> getReviewsForGame(@PathVariable int gameId) {
         try {
-            Game game = gameService.getGameById(gameId);
+            Game game = gameService.findGameById(gameId);
             List<GameReview> reviews = gameReviewService.getReviewsForGame(game);
             List<GameReviewDto> reviewDtos = reviews.stream()
                     .map(this::convertToDto)
@@ -113,8 +113,8 @@ public class GameReviewController {
     @GetMapping("/reviews-by-user/{reviewerId}")
     public ResponseEntity<List<GameReviewDto>> getReviewsByUser(@PathVariable int reviewerId) {
         try {
-            Player reviewer = playerService.getPlayerById(reviewerId);
-            List<GameReview> reviews = gameReviewService.getReviewsByUser(reviewer);
+            Player reviewer = userService.getPlayerById(reviewerId);
+            List<GameReview> reviews = gameReviewService.getReviewsByPlayer(reviewer);
             List<GameReviewDto> reviewDtos = reviews.stream()
                     .map(this::convertToDto)
                     .collect(Collectors.toList());

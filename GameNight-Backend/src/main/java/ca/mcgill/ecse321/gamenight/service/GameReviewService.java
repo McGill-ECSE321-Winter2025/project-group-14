@@ -100,7 +100,7 @@ public class GameReviewService {
     }
 
     @Transactional
-    public List<GameReview> getReviewsByUser(Player reviewer) {
+    public List<GameReview> getReviewsByPlayer(Player reviewer) {
         if (reviewer == null) {
             throw new IllegalArgumentException("Reviewer cannot be null.");
         }

@@ -1,15 +1,8 @@
 plugins {
-<<<<<<< HEAD
-	id 'java'
-	id 'org.springframework.boot' version '3.4.2'
-	id 'io.spring.dependency-management' version '1.1.7'
-	id 'jacoco'
-=======
     id 'java'
     id 'org.springframework.boot' version '3.4.0'
     id 'io.spring.dependency-management' version '1.1.6'
     id 'io.freefair.lombok' version '8.11'
->>>>>>> 30-feature-user-management
 }
 
 group = 'ca.mcgill.ecse321'
@@ -27,17 +20,6 @@ repositories {
 
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-<<<<<<< HEAD
-	implementation 'org.springframework.boot:spring-boot-starter-web'
-	runtimeOnly 'org.postgresql:postgresql'
-	testImplementation 'org.springframework.boot:spring-boot-starter-test'
-	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
-
-	// API docs
-	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.5'
-	annotationProcessor 'com.github.therapi:therapi-runtime-javadoc-scribe:0.13.0'
-	implementation 'com.github.therapi:therapi-runtime-javadoc:0.13.0'
-=======
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
     implementation 'org.projectlombok:lombok'
@@ -47,7 +29,6 @@ dependencies {
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'com.h2database:h2'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
->>>>>>> 30-feature-user-management
 }
 
 tasks.named('test') {

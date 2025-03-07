@@ -143,6 +143,11 @@ public class UserManagementService {
                 .orElseThrow(() -> new RuntimeException("Person not found with ID: " + userId));
     }
 
+    public Player getPlayerById(int playerId) {
+        return playerRepository.findById(playerId)
+                .orElseThrow(() -> new RuntimeException("Person not found with ID: " + playerId));
+    }
+
     private void validateUsernameAndPassword(String username, String password) {
         String cleanUsername = StringUtils.trimToNull(username);
         String cleanPassword = StringUtils.trimToNull(password);
