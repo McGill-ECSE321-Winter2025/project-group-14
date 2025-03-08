@@ -5,10 +5,9 @@ public class GameReviewDto {
     private int reviewId;
     private int rating;
     private String comment;
-    private int reviewerId; // Reference to the reviewer (Player)
-    private int gameId; // Reference to the game (Game)
+    private int reviewerId;
+    private int gameId;
 
-    // Constructors
     public GameReviewDto() {
     }
 
@@ -20,7 +19,6 @@ public class GameReviewDto {
         this.gameId = gameId;
     }
 
-    // Getters and Setters
     public int getReviewId() {
         return reviewId;
     }
