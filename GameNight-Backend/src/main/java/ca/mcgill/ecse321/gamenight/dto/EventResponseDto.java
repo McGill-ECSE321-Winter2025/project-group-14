@@ -4,10 +4,7 @@ import java.util.Date;
 
 import ca.mcgill.ecse321.gamenight.model.Event;
 
-/**
- * DTO for outgoing event data.
- * Similar to "BorrowingRequestResponseDto".
- */
+
 public class EventResponseDto {
     
     private int id;
@@ -16,13 +13,10 @@ public class EventResponseDto {
     private Date startTime;
     private Date endTime;
 
-    // No-arg constructor if needed for frameworks
     public EventResponseDto() {
     }
 
-    /**
-     * Construct a DTO from an actual Event entity.
-     */
+   
     public EventResponseDto(Event event) {
         this.id = event.getId();
         this.name = event.getName();

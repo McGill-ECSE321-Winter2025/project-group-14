@@ -24,8 +24,7 @@ public class EventManagementController {
             requestDto.getName(),
             requestDto.getDescription(),
             requestDto.getStartTime(),
-            requestDto.getEndTime(),
-            requestDto.getMaxParticipants()
+            requestDto.getEndTime()
         );
         return new EventResponseDto(created);
     }
@@ -43,8 +42,7 @@ public class EventManagementController {
             requestDto.getName(),
             requestDto.getDescription(),
             requestDto.getStartTime(),
-            requestDto.getEndTime(),
-            requestDto.getMaxParticipants()
+            requestDto.getEndTime()
         );
         return new EventResponseDto(updated);
     }
@@ -79,7 +77,8 @@ public class EventManagementController {
 
     @GetMapping("/player/{playerId}")
     public List<EventResponseDto> getEventsForPlayer(@PathVariable int playerId) {
-        return eventService.getEventsForPlayer(playerId).stream()
+        return eventService.getEventsForPlayer(playerId)
+                .stream()
                 .map(EventResponseDto::new)
                 .collect(Collectors.toList());
     }

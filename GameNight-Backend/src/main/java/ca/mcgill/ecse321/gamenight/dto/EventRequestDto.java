@@ -2,11 +2,7 @@ package ca.mcgill.ecse321.gamenight.dto;
 
 import java.util.Date;
 
-/**
- * DTO (Data Transfer Object) for incoming event data.
- * This resembles your "BorrowingRequestRequestDto" pattern:
- * used when creating or updating an event via a POST/PUT request.
- */
+
 public class EventRequestDto {
 
     private String name;
@@ -14,7 +10,6 @@ public class EventRequestDto {
     private Date startTime;
     private Date endTime;
 
-    // No-arg constructor needed for deserialization
     public EventRequestDto() {
     }
 
@@ -25,7 +20,6 @@ public class EventRequestDto {
         this.endTime = endTime;
     }
 
-    // Getters
     public String getName() {
         return name;
     }

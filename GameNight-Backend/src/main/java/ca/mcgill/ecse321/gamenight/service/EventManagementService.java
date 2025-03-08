@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import ca.mcgill.ecse321.gamenight.model.Event;
 import ca.mcgill.ecse321.gamenight.model.Player;
 import ca.mcgill.ecse321.gamenight.model.Registration;
+import ca.mcgill.ecse321.gamenight.model.Registration.Key;
 import ca.mcgill.ecse321.gamenight.model.ScheduledGame;
 import ca.mcgill.ecse321.gamenight.repo.EventRepository;
 import ca.mcgill.ecse321.gamenight.repo.PlayerRepository;
@@ -22,26 +23,15 @@ public class EventManagementService {
     @Autowired
     private EventRepository eventRepository;
 
-    @Autowired
-    private ScheduledGameRepository scheduledGameRepository;
-
-    @Autowired
-    private PlayerRepository playerRepository;
-
-    @Autowired
-    private RegistrationRepository registrationRepository;
-
     @Transactional
-    public Event createEvent(String name, String description, Date startTime, Date endTime, int maxParticipants) {
+    public Event createEvent(String name, String description, Date startTime, Date endTime) {
         if (name == null || name.trim().isEmpty()) {
             throw new IllegalArgumentException("Event name cannot be null or empty.");
         }
         if (startTime != null && endTime != null && endTime.before(startTime)) {
             throw new IllegalArgumentException("Event end time cannot be before the start time.");
         }
-
         Event newEvent = new Event(name, description, startTime, endTime);
-        newEvent.setMaxParticipants(maxParticipants);
         return eventRepository.save(newEvent);
     }
 
@@ -52,9 +42,8 @@ public class EventManagementService {
     }
 
     @Transactional
-    public Event updateEvent(int eventId, String name, String description, Date startTime, Date endTime, Integer maxParticipants) {
+    public Event updateEvent(int eventId, String name, String description, Date startTime, Date endTime) {
         Event existingEvent = getEventById(eventId);
-
         if (name != null && !name.trim().isEmpty()) {
             existingEvent.setName(name);
         }
@@ -70,10 +59,6 @@ public class EventManagementService {
         if (endTime != null) {
             existingEvent.setEndTime(endTime);
         }
-        if (maxParticipants != null) {
-            existingEvent.setMaxParticipants(maxParticipants);
-        }
-
         return eventRepository.save(existingEvent);
     }
 
@@ -88,16 +73,18 @@ public class EventManagementService {
         return eventRepository.findAll();
     }
 
-    @Transactional
-    public List<ScheduledGame> getScheduledEventsForAGame(int gameId) {
-        return scheduledGameRepository.findByGameId(gameId);
-    }
+    @Autowired
+    private ScheduledGameRepository scheduledGameRepository;
+
+    @Autowired
+    private PlayerRepository playerRepository;
+
+    @Autowired
+    private RegistrationRepository registrationRepository;
 
     @Transactional
-    public boolean isEventFull(int eventId) {
-        Event event = getEventById(eventId);
-        long registeredCount = registrationRepository.countByEvent(event);
-        return registeredCount >= event.getMaxParticipants();
+    public List<ScheduledGame> getScheduledEventsForAGame(int gameId) {
+        return scheduledGameRepository.findByKey_GameId(gameId);
     }
 
     @Transactional
@@ -105,12 +92,7 @@ public class EventManagementService {
         Event event = getEventById(eventId);
         Player player = playerRepository.findById(playerId)
                 .orElseThrow(() -> new NoSuchElementException("No Player found with ID: " + playerId));
-
-        if (isEventFull(eventId)) {
-            throw new IllegalStateException("Cannot register: Event is full.");
-        }
-
-        Registration registration = new Registration(player, event);
+        Registration registration = new Registration(new Key(player, event));
         registrationRepository.save(registration);
     }
 
@@ -119,29 +101,29 @@ public class EventManagementService {
         Event event = getEventById(eventId);
         Player player = playerRepository.findById(playerId)
                 .orElseThrow(() -> new NoSuchElementException("No Player found with ID: " + playerId));
-
-        Registration registration = registrationRepository.findByEventAndPlayer(event, player)
-                .orElseThrow(() -> new NoSuchElementException("No registration found for this player and event"));
-
-        registrationRepository.delete(registration);
+        Registration existing = registrationRepository.findByKey(new Key(player, event));
+        if (existing == null) {
+            throw new NoSuchElementException("No registration found for this player and event");
+        }
+        registrationRepository.delete(existing);
     }
 
     @Transactional
     public List<Event> getEventsForPlayer(int playerId) {
-        Player player = playerRepository.findById(playerId)
+        playerRepository.findById(playerId)
                 .orElseThrow(() -> new NoSuchElementException("No Player found with ID: " + playerId));
-        return registrationRepository.findByPlayer(player)
+        return registrationRepository.findByKey_PlayerId(playerId)
                 .stream()
-                .map(Registration::getEvent)
+                .map(r -> r.getKey().getEvent())
                 .collect(Collectors.toList());
     }
 
     @Transactional
     public List<Player> getPlayersForEvent(int eventId) {
-        Event event = getEventById(eventId);
-        return registrationRepository.findByEvent(event)
+        getEventById(eventId);
+        return registrationRepository.findByKey_EventId(eventId)
                 .stream()
-                .map(Registration::getPlayer)
+                .map(r -> r.getKey().getPlayer())
                 .collect(Collectors.toList());
     }
 }
