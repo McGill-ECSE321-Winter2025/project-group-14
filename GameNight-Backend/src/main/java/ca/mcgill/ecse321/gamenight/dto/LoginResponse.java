@@ -1,4 +1,4 @@
-package ca.mcgill.ecse321.gamenight.responses;
+package ca.mcgill.ecse321.gamenight.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

@@ -9,16 +9,28 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import jakarta.servlet.http.HttpServletRequest;
-
+import ca.mcgill.ecse321.gamenight.dto.AuthRequest;
+import ca.mcgill.ecse321.gamenight.dto.LoginResponse;
 import ca.mcgill.ecse321.gamenight.dto.PersonResponseDto;
+import ca.mcgill.ecse321.gamenight.middleware.RequireUser;
 import ca.mcgill.ecse321.gamenight.service.UserManagementService;
 import ca.mcgill.ecse321.gamenight.model.Person;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 public class UserManagementController {
 
     @Autowired
     private UserManagementService userService;
+
+    @Autowired
+    public UserManagementController(UserManagementService userManagementService) {
+        this.userService = userManagementService;
+    }
 
     /**
      * Delete a Player with the given ID.
@@ -37,10 +49,32 @@ public class UserManagementController {
      *
      * @param id The primary key of the GameOwner to delete.
      */
-    @DeleteMapping("/gameowners/{id}")
+    @DeleteMapping("/users/gameowners/{id}")
     public ResponseEntity<Void> deleteGameOwner(@PathVariable int gameOwnerId) {
         userService.deleteGameOwner(gameOwnerId);
         return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/users")
+    public ResponseEntity<?> createPerson(
+            @RequestBody AuthRequest request) {
+        userService.createPerson(request);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+
+    @DeleteMapping("/users/{userId}")
+    @RequireUser
+    public ResponseEntity<?> deletePerson(@PathVariable int userId) {
+        userService.deletePerson(userId);
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/users/login")
+    public ResponseEntity<LoginResponse> login(
+            @RequestBody AuthRequest request) {
+        Person user = userService.login(request);
+        return ResponseEntity.ok(
+                new LoginResponse(user.getId(), user.getEmailAddress()));
     }
 
     /**

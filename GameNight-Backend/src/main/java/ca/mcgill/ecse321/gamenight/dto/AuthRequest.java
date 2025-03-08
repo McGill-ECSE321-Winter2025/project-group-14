@@ -1,4 +1,4 @@
-package ca.mcgill.ecse321.gamenight.requests;
+package ca.mcgill.ecse321.gamenight.dto;
 
 import lombok.Data;
 
