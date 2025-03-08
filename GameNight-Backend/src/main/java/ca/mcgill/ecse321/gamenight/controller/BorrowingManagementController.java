@@ -17,6 +17,8 @@ import ca.mcgill.ecse321.gamenight.dto.BorrowingRequestRequestDto;
 import ca.mcgill.ecse321.gamenight.dto.BorrowingRequestResponseDto;
 import ca.mcgill.ecse321.gamenight.model.BorrowingRequest;
 import ca.mcgill.ecse321.gamenight.model.BorrowingRequest.BorrowingRequestStatus;
+import ca.mcgill.ecse321.gamenight.model.GameCopy;
+import ca.mcgill.ecse321.gamenight.repo.GameCopyRepository;
 import ca.mcgill.ecse321.gamenight.service.BorrowingManagementService;
 
 @RestController
@@ -26,6 +28,8 @@ public class BorrowingManagementController {
         @Autowired
         private BorrowingManagementService borrowingManagementService;
 
+        @Autowired
+        private GameCopyRepository gameCopyRepository;
         
         @PostMapping("")
         public BorrowingRequestResponseDto sendBorrowingRequest(@RequestBody BorrowingRequestRequestDto borrowingRequest) {
@@ -44,13 +48,17 @@ public class BorrowingManagementController {
         @PutMapping("/{requestId}/respond")
         public BorrowingRequestResponseDto respondToBorrowingRequest(@PathVariable int requestId,
                         @RequestParam BorrowingRequestStatus status) {
-                return null;
+                                BorrowingRequest request = borrowingManagementService.getBorrowingRequestById(requestId);
+                                BorrowingRequest updatedRequest = borrowingManagementService.respondToBorrowingRequest(request, status);
+                                return new BorrowingRequestResponseDto(updatedRequest);
         }
-
+        
         @PutMapping("/{requestId}/update")
         public BorrowingRequestResponseDto updateBorrowingRequestStatus(@PathVariable int requestId,
                         @RequestParam BorrowingRequestStatus status) {
-                return null;
+                                BorrowingRequest request = borrowingManagementService.getBorrowingRequestById(requestId);
+                                BorrowingRequest updatedRequest = borrowingManagementService.updateBorrowingRequestStatus(request,status);
+                return new BorrowingRequestResponseDto(updatedRequest);
         }
 
         @GetMapping("/delivered/{borrowerId}")
@@ -76,14 +84,21 @@ public class BorrowingManagementController {
                 .map(request -> new BorrowingRequestResponseDto(request))
                 .collect(Collectors.toList());
         }
+        
         @GetMapping("/lendingHistory/{ownerId}")
         public List<BorrowingRequestResponseDto> getLendingHistoryForOwner(@PathVariable int ownerId) {
-                return null;
-                }
-
+                List<BorrowingRequest> ownerLendingHistory = borrowingManagementService.findLendingHistory(ownerId);
+                return ownerLendingHistory.stream().map(BorrowingRequestResponseDto::new).collect(Collectors.toList());
+        }
+        
         @GetMapping("/accepted/{gameCopyId}/status")
-        public List<BorrowingRequestResponseDto> getGameCopyLendingStatus(@PathVariable int gameCopyId) {
-        return null;
+        public BorrowingRequestResponseDto getGameCopyLendingStatus(@PathVariable int gameCopyId) {
+                GameCopy gameCopy = gameCopyRepository.findById(gameCopyId).orElseThrow(() -> new IllegalArgumentException("Game copy not found with ID: " + gameCopyId));
+                BorrowingRequest request = borrowingManagementService.findGameCopyLendingStatus(gameCopy);
+                if (request == null) {
+                        throw new IllegalArgumentException("No active borrowing request found for Game Copy ID: " + gameCopyId);
+                }
+        return new BorrowingRequestResponseDto(request);
         }
 
         }

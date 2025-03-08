@@ -6,7 +6,6 @@ import ca.mcgill.ecse321.gamenight.model.BorrowingRequest;
 import ca.mcgill.ecse321.gamenight.model.BorrowingRequest.BorrowingRequestStatus;
 
 public class BorrowingRequestRequestDto {
-    private int id;
     private Date sendTime;
     private Date startTime;
     private Date endTime;
@@ -20,7 +19,6 @@ public class BorrowingRequestRequestDto {
     private BorrowingRequestRequestDto(){
     }
     public BorrowingRequestRequestDto(BorrowingRequest request){
-        this.id=request.getId();
         this.sendTime = request.getSendTime();
         this.endTime = request.getEndTime();
         this.startTime = request.getStartTime();

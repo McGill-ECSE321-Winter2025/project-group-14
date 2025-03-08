@@ -127,4 +127,10 @@ public class BorrowingManagementService {
         }
         return null;
     }
+    
+    public BorrowingRequest getBorrowingRequestById(int requestId) {
+        return borrowingRequestRepository.findById(requestId)
+                .orElseThrow(() -> new IllegalArgumentException("Borrowing request not found with ID: " + requestId));
+    }
+    
 }
