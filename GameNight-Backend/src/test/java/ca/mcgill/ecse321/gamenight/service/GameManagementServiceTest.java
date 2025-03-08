@@ -148,7 +148,7 @@ public class GameManagementServiceTest {
         GameCopy gameCopy = new GameCopy("Lost a card", game, owner);
         when(gameCopyRepository.findById(gameCopy.getId())).thenReturn(Optional.ofNullable(gameCopy));
 
-        GameCopy g = gameManagementService.addGameCopy("Lost a card", game.getId(), owner.getId());
+        GameCopy g = gameManagementService.createGameCopy("Lost a card", game.getId(), owner.getId());
 
         assertEquals(owner.getId(), g.getOwner().getId());
         assertEquals(game.getId(), g.getGame().getId());

@@ -60,7 +60,7 @@ public class GameManagementService {
     }
 
     @Transactional
-    public GameCopy addGameCopy(String description, int gameId, int ownerId) {
+    public GameCopy createGameCopy(String description, int gameId, int ownerId) {
         GameOwner gameOwner = getGameOwnerById(ownerId);
         Game game = findGameById(gameId);
         GameCopy newGameCopy = new GameCopy(description, game, gameOwner);
