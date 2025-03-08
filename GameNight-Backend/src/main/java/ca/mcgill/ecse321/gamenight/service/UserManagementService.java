@@ -102,23 +102,9 @@ public class UserManagementService {
         Person user = personRepository
                 .findPersonById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
+        gameOwnerRepository.delete(gameOwnerRepository.findByPersonId(userId));
+        playerRepository.delete(playerRepository.findByPersonId(userId));
         personRepository.delete(user);
-    }
-
-    @Transactional
-    public void deletePlayer(int playerId) {
-        if (playerRepository.existsById(playerId)) {
-            playerRepository.deleteById(playerId);
-        }
-    }
-
-    @Transactional
-    public void deleteGameOwner(int gameOwnerId) {
-
-        if (!gameOwnerRepository.existsById(gameOwnerId)) {
-            throw new IllegalArgumentException("Game Owner with ID " + gameOwnerId + " does not exist.");
-        }
-        gameOwnerRepository.deleteById(gameOwnerId);
     }
 
     @Transactional

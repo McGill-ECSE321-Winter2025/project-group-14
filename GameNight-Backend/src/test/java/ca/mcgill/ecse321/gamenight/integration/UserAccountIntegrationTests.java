@@ -5,9 +5,12 @@ import static org.junit.jupiter.api.Assertions.*;
 import ca.mcgill.ecse321.gamenight.repo.GameOwnerRepository;
 import ca.mcgill.ecse321.gamenight.repo.PersonRepository;
 import ca.mcgill.ecse321.gamenight.repo.PlayerRepository;
+
 import ca.mcgill.ecse321.gamenight.dto.AuthRequest;
 import ca.mcgill.ecse321.gamenight.dto.LoginResponse;
+import ca.mcgill.ecse321.gamenight.model.GameOwner;
 import ca.mcgill.ecse321.gamenight.model.Person;
+import ca.mcgill.ecse321.gamenight.model.Player;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
@@ -86,19 +89,26 @@ public class UserAccountIntegrationTests {
     public void testDeleteUser() {
         Person user = new Person("deleteuser@gmail.com", "password123", "mrUser");
         personRepository.save(user);
+        int userId = user.getId();
+
+        GameOwner owner = new GameOwner(user);
+        gameOwnerRepo.save(owner);
+
+        Player player = new Player(user);
+        playerRepo.save(player);
 
         HttpHeaders headers = new HttpHeaders();
-        headers.set("User-Id", String.valueOf(user.getId()));
+        headers.set("User-Id", String.valueOf(userId));
         HttpEntity<?> requestEntity = new HttpEntity<>(headers);
 
         ResponseEntity<Void> response = restTemplate.exchange(
-                createURLWithPort("/users/" + user.getId()),
+                createURLWithPort("/users/" + userId),
                 HttpMethod.DELETE,
                 requestEntity,
                 Void.class);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertFalse(personRepository.findById(user.getId()).isPresent());
+        assertFalse(personRepository.findById(userId).isPresent());
     }
 
     @Test

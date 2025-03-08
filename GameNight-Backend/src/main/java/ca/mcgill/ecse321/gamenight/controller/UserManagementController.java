@@ -15,11 +15,6 @@ import ca.mcgill.ecse321.gamenight.dto.PersonResponseDto;
 import ca.mcgill.ecse321.gamenight.middleware.RequireUser;
 import ca.mcgill.ecse321.gamenight.service.UserManagementService;
 import ca.mcgill.ecse321.gamenight.model.Person;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 public class UserManagementController {
@@ -32,28 +27,11 @@ public class UserManagementController {
     }
 
     /**
-     * Delete a Player with the given ID.
-     *
-     * @param id The primary key of the Player to delete.
-     * @return empty body
+     * Creates a new user. The GameOwner and Player are also generated.
+     * 
+     * @param request
+     * @return a ResponseEntity with HTTP status 201 (Created)
      */
-    @DeleteMapping("/players/{id}")
-    public ResponseEntity<Void> deletePlayer(@PathVariable int id) {
-        userService.deletePlayer(id);
-        return ResponseEntity.noContent().build();
-    }
-
-    /**
-     * Delete a GameOwner with the given ID.
-     *
-     * @param id The primary key of the GameOwner to delete.
-     */
-    @DeleteMapping("/users/gameowners/{id}")
-    public ResponseEntity<Void> deleteGameOwner(@PathVariable int gameOwnerId) {
-        userService.deleteGameOwner(gameOwnerId);
-        return ResponseEntity.noContent().build();
-    }
-
     @PostMapping("/users")
     public ResponseEntity<?> createPerson(
             @RequestBody AuthRequest request) {
@@ -61,6 +39,12 @@ public class UserManagementController {
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
+    /**
+     * Deletes a Person by ID. The GameOwner and Player are also deleted.
+     * 
+     * @param userId
+     * @return a ResponseEntity with HTTP status 200 (OK)
+     */
     @DeleteMapping("/users/{userId}")
     @RequireUser
     public ResponseEntity<?> deletePerson(@PathVariable int userId) {
@@ -68,6 +52,12 @@ public class UserManagementController {
         return ResponseEntity.ok().build();
     }
 
+    /**
+     * Authenticates a user and returns login response.
+     * 
+     * @param request
+     * @return a ResponseEntity containing the login response with user ID and email
+     */
     @PostMapping("/users/login")
     public ResponseEntity<LoginResponse> login(
             @RequestBody AuthRequest request) {
