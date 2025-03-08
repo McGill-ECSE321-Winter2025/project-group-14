@@ -1,9 +1,9 @@
 package ca.mcgill.ecse321.gamenight.controller;
 
+import ca.mcgill.ecse321.gamenight.dto.AuthRequest;
+import ca.mcgill.ecse321.gamenight.dto.LoginResponse;
 import ca.mcgill.ecse321.gamenight.middleware.RequireUser;
 import ca.mcgill.ecse321.gamenight.model.Person;
-import ca.mcgill.ecse321.gamenight.requests.AuthRequest;
-import ca.mcgill.ecse321.gamenight.responses.LoginResponse;
 import ca.mcgill.ecse321.gamenight.service.UserManagementService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
