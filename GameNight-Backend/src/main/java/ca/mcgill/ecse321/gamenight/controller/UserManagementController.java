@@ -27,7 +27,6 @@ public class UserManagementController {
     @Autowired
     private UserManagementService userService;
 
-    @Autowired
     public UserManagementController(UserManagementService userManagementService) {
         this.userService = userManagementService;
     }
