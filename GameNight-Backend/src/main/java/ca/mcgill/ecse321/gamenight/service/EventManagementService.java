@@ -135,4 +135,13 @@ public class EventManagementService {
                 .map(Registration::getEvent)
                 .collect(Collectors.toList());
     }
+
+    @Transactional
+    public List<Player> getPlayersForEvent(int eventId) {
+        Event event = getEventById(eventId);
+        return registrationRepository.findByEvent(event)
+                .stream()
+                .map(Registration::getPlayer)
+                .collect(Collectors.toList());
+    }
 }

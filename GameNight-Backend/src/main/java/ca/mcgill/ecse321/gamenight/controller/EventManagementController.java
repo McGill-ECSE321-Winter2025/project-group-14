@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.*;
 import ca.mcgill.ecse321.gamenight.dto.EventRequestDto;
 import ca.mcgill.ecse321.gamenight.dto.EventResponseDto;
 import ca.mcgill.ecse321.gamenight.model.Event;
+import ca.mcgill.ecse321.gamenight.model.Player;
 import ca.mcgill.ecse321.gamenight.model.ScheduledGame;
 import ca.mcgill.ecse321.gamenight.service.EventManagementService;
 
@@ -81,5 +82,10 @@ public class EventManagementController {
         return eventService.getEventsForPlayer(playerId).stream()
                 .map(EventResponseDto::new)
                 .collect(Collectors.toList());
+    }
+
+    @GetMapping("/{eventId}/players")
+    public List<Player> getPlayersForEvent(@PathVariable int eventId) {
+        return eventService.getPlayersForEvent(eventId);
     }
 }
