@@ -65,12 +65,12 @@ public class EventManagementController {
         return eventService.getScheduledEventsForAGame(gameId);
     }
 
-    @PostMapping("/{eventId}/register/{playerId}")
+    @PostMapping("/{eventId}/player/{playerId}")
     public void registerForEvent(@PathVariable int eventId, @PathVariable int playerId) {
         eventService.registerForEvent(eventId, playerId);
     }
 
-    @DeleteMapping("/{eventId}/unregister/{playerId}")
+    @DeleteMapping("/{eventId}/player/{playerId}")
     public void unregisterForEvent(@PathVariable int eventId, @PathVariable int playerId) {
         eventService.unregisterForEvent(eventId, playerId);
     }
