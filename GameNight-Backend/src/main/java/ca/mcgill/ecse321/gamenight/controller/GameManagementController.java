@@ -23,6 +23,12 @@ import ca.mcgill.ecse321.gamenight.model.Game;
 import ca.mcgill.ecse321.gamenight.model.GameCopy;
 import ca.mcgill.ecse321.gamenight.service.GameManagementService;
 
+/**
+ * REST controller for managing games and game copies
+ * 
+ * This controller handles endpoints related to creating, accessing, updating,
+ * and deleting games and game copies.
+ */
 @RestController
 public class GameManagementController {
 
@@ -49,7 +55,6 @@ public class GameManagementController {
      * @return The game with the given ID
      */
     @GetMapping("/games/{id}")
-    @ResponseStatus(HttpStatus.FOUND)
     public GameResponseDto findGameById(@PathVariable int id) {
         Game g = gameManagementService.findGameById(id);
         return new GameResponseDto(g);
@@ -74,7 +79,6 @@ public class GameManagementController {
      * @return All games in the system
      */
     @GetMapping("/games")
-    @ResponseStatus(HttpStatus.FOUND)
     public ArrayList<GameResponseDto> findAllGames() {
         ArrayList<GameResponseDto> games = new ArrayList<GameResponseDto>();
         Iterator<Game> iterator = gameManagementService.findAllGames().iterator();
@@ -104,7 +108,6 @@ public class GameManagementController {
      * @return The game copy with the given ID
      */
     @GetMapping("/game-copies/{id}")
-    @ResponseStatus(HttpStatus.FOUND)
     public GameCopyResponseDto findGameCopyById(@PathVariable int id) {
         GameCopy g = gameManagementService.findGameCopyById(id);
         return new GameCopyResponseDto(g);
@@ -130,7 +133,6 @@ public class GameManagementController {
      * @return The game copies of the given game owner
      */
     @GetMapping("/game-copies/")
-    @ResponseStatus(HttpStatus.FOUND)
     public ArrayList<GameCopyResponseDto> findGameCopyByOwner(@RequestParam(name = "owner_id") int ownerId) {
         ArrayList<GameCopyResponseDto> games = new ArrayList<>();
         Iterator<GameCopy> iterator = gameManagementService.findGameCopiesByOwner(ownerId).iterator();

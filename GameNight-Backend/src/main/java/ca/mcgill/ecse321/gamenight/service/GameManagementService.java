@@ -49,7 +49,7 @@ public class GameManagementService {
 
     public Game findGameById(int id) {
         Optional<Game> g = gameRepository.findById(id);
-        if (!g.isPresent()) {
+        if (g.isEmpty()) {
             throw new GameNightException(HttpStatus.NOT_FOUND, "There is no game with ID " + id);
         }
         return g.get();
@@ -101,7 +101,7 @@ public class GameManagementService {
     private GameOwner getGameOwnerById(int ownerId) {
         // TODO: replace this once the service is there???
         Optional<GameOwner> owner = gameOwnerRepository.findById(ownerId);
-        if (!owner.isPresent()) {
+        if (owner.isEmpty()) {
             throw new GameNightException(HttpStatus.NOT_FOUND, "There is no owner with ID " + ownerId);
         }
         return owner.get();
