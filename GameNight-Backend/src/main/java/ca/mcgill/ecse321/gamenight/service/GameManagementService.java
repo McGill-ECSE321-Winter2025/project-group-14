@@ -4,10 +4,10 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
-import ca.mcgill.ecse321.gamenight.exception.GameNightException;
+import ca.mcgill.ecse321.gamenight.exception.MissingFieldsException;
+import ca.mcgill.ecse321.gamenight.exception.ObjectNotFoundException;
 import ca.mcgill.ecse321.gamenight.model.Game;
 import ca.mcgill.ecse321.gamenight.model.GameCopy;
 import ca.mcgill.ecse321.gamenight.model.GameOwner;
@@ -31,7 +31,7 @@ public class GameManagementService {
     @Transactional
     public Game createGame(String name, String description) {
         if (name == null || name.isEmpty()) {
-            throw new GameNightException(HttpStatus.BAD_REQUEST, "Game must have a name");
+            throw new MissingFieldsException("Game must have a name");
         }
         Game game = new Game(name, description);
         gameRepository.save(game);
@@ -50,7 +50,7 @@ public class GameManagementService {
     public Game findGameById(int id) {
         Optional<Game> g = gameRepository.findById(id);
         if (g.isEmpty()) {
-            throw new GameNightException(HttpStatus.NOT_FOUND, "There is no game with ID " + id);
+            throw new ObjectNotFoundException("There is no game with ID " + id);
         }
         return g.get();
     }
@@ -70,7 +70,7 @@ public class GameManagementService {
 
     @Transactional
     public GameCopy updateGameCopy(int id, String description) {
-        // i'm assuming we can only modify the description, otherwise it should be deleted
+        // can only modify the description, otherwise it should be deleted
         GameCopy gameCopy = findGameCopyById(id);
         gameCopy.setDescription(description);
         gameCopyRepository.save(gameCopy);
@@ -85,7 +85,7 @@ public class GameManagementService {
     public GameCopy findGameCopyById(int id) {
         Optional<GameCopy> g = gameCopyRepository.findById(id);
         if (!g.isPresent()) {
-            throw new GameNightException(HttpStatus.NOT_FOUND, "There is no game copy with ID " + id);
+            throw new ObjectNotFoundException("There is no game copy with ID " + id);
         }
         return g.get();
     }
@@ -99,7 +99,7 @@ public class GameManagementService {
         // TODO: replace this once the service is there???
         Optional<GameOwner> owner = gameOwnerRepository.findById(ownerId);
         if (owner.isEmpty()) {
-            throw new GameNightException(HttpStatus.NOT_FOUND, "There is no owner with ID " + ownerId);
+            throw new ObjectNotFoundException("There is no owner with ID " + ownerId);
         }
         return owner.get();
     }

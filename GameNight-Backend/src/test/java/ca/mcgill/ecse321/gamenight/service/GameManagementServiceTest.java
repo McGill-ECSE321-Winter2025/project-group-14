@@ -19,7 +19,8 @@ import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
 
-import ca.mcgill.ecse321.gamenight.exception.GameNightException;
+import ca.mcgill.ecse321.gamenight.exception.MissingFieldsException;
+import ca.mcgill.ecse321.gamenight.exception.ObjectNotFoundException;
 import ca.mcgill.ecse321.gamenight.model.Game;
 import ca.mcgill.ecse321.gamenight.model.GameCopy;
 import ca.mcgill.ecse321.gamenight.model.GameOwner;
@@ -73,10 +74,9 @@ public class GameManagementServiceTest {
 
     @Test
     public void creatingGameWithNoNameTest() {
-        GameNightException e = assertThrows(GameNightException.class, () ->
+        MissingFieldsException e = assertThrows(MissingFieldsException.class, () ->
             gameManagementService.createGame(null, "A  card game"));
         
-        assertEquals(HttpStatus.BAD_REQUEST, e.getStatus());
         assertEquals("Game must have a name", e.getMessage());
     }
 
@@ -110,10 +110,9 @@ public class GameManagementServiceTest {
         int id = 5;
         when(gameRepository.findById(id)).thenReturn(Optional.ofNullable(null));
 
-        GameNightException e = assertThrows(GameNightException.class, () ->
+        ObjectNotFoundException e = assertThrows(ObjectNotFoundException.class, () ->
             gameManagementService.findGameById(id));
             
-        assertEquals(HttpStatus.NOT_FOUND, e.getStatus());
         assertEquals("There is no game with ID " + id , e.getMessage());
     }
 
@@ -191,10 +190,9 @@ public class GameManagementServiceTest {
         int id = 5;
         when(gameCopyRepository.findById(id)).thenReturn(Optional.ofNullable(null));
 
-        GameNightException e = assertThrows(GameNightException.class, () ->
+        ObjectNotFoundException e = assertThrows(ObjectNotFoundException.class, () ->
             gameManagementService.findGameCopyById(id));
 
-        assertEquals(HttpStatus.NOT_FOUND, e.getStatus());
         assertEquals("There is no game copy with ID " + id , e.getMessage());
     }
 

@@ -15,9 +15,14 @@ import jakarta.validation.ConstraintViolationException;
 @ControllerAdvice
 public class GameNightExceptionHandler {
     
-    @ExceptionHandler(GameNightException.class)
-	public ResponseEntity<ErrorDto> handleGameNightException(GameNightException e) {
-		return new ResponseEntity<ErrorDto>(new ErrorDto(e.getMessage()), e.getStatus());
+    @ExceptionHandler(ObjectNotFoundException.class)
+	public ResponseEntity<ErrorDto> handleObjectNotFoundException(ObjectNotFoundException e) {
+		return new ResponseEntity<ErrorDto>(new ErrorDto(e.getMessage()), HttpStatus.NOT_FOUND);
+	}
+
+	@ExceptionHandler(MissingFieldsException.class)
+	public ResponseEntity<ErrorDto> handleGameNightException(MissingFieldsException e) {
+		return new ResponseEntity<ErrorDto>(new ErrorDto(e.getMessage()), HttpStatus.BAD_REQUEST);
 	}
 
 	@ExceptionHandler(ConstraintViolationException.class)
