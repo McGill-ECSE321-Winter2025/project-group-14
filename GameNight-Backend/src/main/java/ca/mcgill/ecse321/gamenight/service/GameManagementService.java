@@ -79,10 +79,7 @@ public class GameManagementService {
 
     @Transactional
     public void deleteGameCopy(int id) {
-        Optional<GameCopy> g = gameCopyRepository.findById(id);
-        if (g.isPresent()) {
-            gameCopyRepository.delete(g.get());
-        }
+        gameCopyRepository.deleteById(id);
     }
 
     public GameCopy findGameCopyById(int id) {

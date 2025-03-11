@@ -168,13 +168,11 @@ public class GameManagementServiceTest {
 
     @Test
     public void deleteGameCopyTest() {
-        Game game = new Game("Uno", "A card game");
-        GameCopy gameCopy = new GameCopy("Lost a card", game, owner);
-        when(gameCopyRepository.findById(gameCopy.getId())).thenReturn(Optional.ofNullable(gameCopy));
+        int gameCopyId = 5;
 
-        gameManagementService.deleteGameCopy(gameCopy.getId());
+        gameManagementService.deleteGameCopy(gameCopyId);
 
-        verify(gameCopyRepository, times(1)).delete(gameCopy);
+        verify(gameCopyRepository, times(1)).deleteById(gameCopyId);;
     }
 
     @Test
