@@ -132,7 +132,7 @@ public class GameManagementController {
      * @param ownerId The primary key of the game owner
      * @return The game copies of the given game owner
      */
-    @GetMapping("/game-copies/")
+    @GetMapping("/game-copies")
     public ArrayList<GameCopyResponseDto> findGameCopyByOwner(@RequestParam(name = "owner_id") int ownerId) {
         ArrayList<GameCopyResponseDto> games = new ArrayList<>();
         Iterator<GameCopy> iterator = gameManagementService.findGameCopiesByOwner(ownerId).iterator();
@@ -148,6 +148,7 @@ public class GameManagementController {
      * @param id The primary key of the game copy to delete
      */
     @DeleteMapping("/game-copies/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteGameCopy(@PathVariable int id) {
         gameManagementService.deleteGameCopy(id);
     }
