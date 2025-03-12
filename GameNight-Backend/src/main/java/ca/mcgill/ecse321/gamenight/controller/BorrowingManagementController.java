@@ -44,8 +44,8 @@ public class BorrowingManagementController {
                     return new BorrowingRequestResponseDto(savedRequest);
 
         }
-
-        @PutMapping("/{requestId}/respond")
+        
+        @PutMapping("/{requestId}/")
         public BorrowingRequestResponseDto respondToBorrowingRequest(@PathVariable int requestId,
                         @RequestParam BorrowingRequestStatus status) {
                                 BorrowingRequest request = borrowingManagementService.getBorrowingRequestById(requestId);
@@ -53,7 +53,7 @@ public class BorrowingManagementController {
                                 return new BorrowingRequestResponseDto(updatedRequest);
         }
         
-        @PutMapping("/{requestId}/update")
+        @PutMapping("/{requestId}/status")
         public BorrowingRequestResponseDto updateBorrowingRequestStatus(@PathVariable int requestId,
                         @RequestParam BorrowingRequestStatus status) {
                                 BorrowingRequest request = borrowingManagementService.getBorrowingRequestById(requestId);
@@ -61,15 +61,15 @@ public class BorrowingManagementController {
                 return new BorrowingRequestResponseDto(updatedRequest);
         }
 
-        @GetMapping("/delivered/{borrowerId}")
+        @GetMapping("/{borrowerId}/status/delivered")
         public List<BorrowingRequestResponseDto> getDeliveredRequestsForBorrower(@PathVariable int borrowerId) {
                 List<BorrowingRequest> requests = borrowingManagementService.findDeliveredBorrowingRequestsForBorrower(borrowerId);
                 return requests.stream()
                 .map(request -> new BorrowingRequestResponseDto(request))
                 .collect(Collectors.toList());
         }
-
-        @GetMapping("/rejected/{borrowerId}")
+        
+        @GetMapping("/{borrowerId}/status/rejected")
         public List<BorrowingRequestResponseDto> getRejectedRequestsForBorrower(@PathVariable int borrowerId) {
                 List<BorrowingRequest> requests = borrowingManagementService.findRejectedBorrowingRequestsForBorrower(borrowerId);
                 return requests.stream()
@@ -77,7 +77,7 @@ public class BorrowingManagementController {
                 .collect(Collectors.toList());
         }
 
-        @GetMapping("/accepted/{borrowerId}")
+        @GetMapping("/{borrowerId}/status/accepted")
         public List<BorrowingRequestResponseDto> getAcceptedRequestsForBorrower(@PathVariable int borrowerId) {
                 List<BorrowingRequest> requests = borrowingManagementService.findAcceptedBorrowingRequestsForBorrower(borrowerId);
                 return requests.stream()
@@ -85,20 +85,19 @@ public class BorrowingManagementController {
                 .collect(Collectors.toList());
         }
         
-        @GetMapping("/lendingHistory/{ownerId}")
+        @GetMapping("/{ownerId}/lending-history")
         public List<BorrowingRequestResponseDto> getLendingHistoryForOwner(@PathVariable int ownerId) {
                 List<BorrowingRequest> ownerLendingHistory = borrowingManagementService.findLendingHistory(ownerId);
                 return ownerLendingHistory.stream().map(BorrowingRequestResponseDto::new).collect(Collectors.toList());
         }
         
-        @GetMapping("/accepted/{gameCopyId}/status")
+        @GetMapping("/{gameCopyId}/lending-status")
         public BorrowingRequestResponseDto getGameCopyLendingStatus(@PathVariable int gameCopyId) {
                 GameCopy gameCopy = gameCopyRepository.findById(gameCopyId).orElseThrow(() -> new IllegalArgumentException("Game copy not found with ID: " + gameCopyId));
                 BorrowingRequest request = borrowingManagementService.findGameCopyLendingStatus(gameCopy);
-                if (request == null) {
+                if (request == null){
                         throw new IllegalArgumentException("No active borrowing request found for Game Copy ID: " + gameCopyId);
                 }
         return new BorrowingRequestResponseDto(request);
         }
-
         }
