@@ -10,7 +10,7 @@ public class ReqGameCopyNotFoundException extends RuntimeException {
 
     private final String message;
     
-    public ReqGameCopyNotFoundException(int gameCopyId) {
+    public ReqGameCopyNotFoundException(String gameCopyId) {
         super("No active borrowing request found for Game Copy ID: " + gameCopyId);
         this.message = "No active borrowing request found for Game Copy ID: " + gameCopyId;
     }
