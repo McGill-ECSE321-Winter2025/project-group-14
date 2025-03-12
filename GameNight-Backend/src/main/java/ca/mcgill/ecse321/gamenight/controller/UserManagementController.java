@@ -26,6 +26,7 @@ public class UserManagementController {
         this.userService = userManagementService;
     }
 
+    // tested
     /**
      * Creates a new user. The GameOwner and Player are also generated.
      * 
@@ -39,6 +40,7 @@ public class UserManagementController {
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
+    // tested
     /**
      * Deletes a Person by ID. The GameOwner and Player are also deleted.
      * 
@@ -52,6 +54,7 @@ public class UserManagementController {
         return ResponseEntity.ok().build();
     }
 
+    // tested
     /**
      * Authenticates a user and returns login response.
      * 
@@ -66,6 +69,7 @@ public class UserManagementController {
                 new LoginResponse(user.getId(), user.getEmailAddress()));
     }
 
+    // tested
     /**
      * Updates a user's email or password after verifying their old password.
      *
@@ -95,6 +99,7 @@ public class UserManagementController {
         return ResponseEntity.ok("User updated successfully.");
     }
 
+    // Hamza will test
     /**
      * Toggle the role of a user. If they are a Player, they become a GameOwner.
      * If they are a GameOwner, they revert to being a Player.
@@ -108,6 +113,7 @@ public class UserManagementController {
         return ResponseEntity.ok("User role updated successfully.");
     }
 
+    // Hamza will test
     /**
      * Return all users in the system.
      *
@@ -122,6 +128,7 @@ public class UserManagementController {
         return ResponseEntity.ok(userDtos);
     }
 
+    // Hamza will test
     /**
      * Retrieves user details if the authenticated user matches the requested ID.
      *

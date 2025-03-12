@@ -12,8 +12,11 @@ import ca.mcgill.ecse321.gamenight.model.GameOwner;
 import ca.mcgill.ecse321.gamenight.model.Person;
 import ca.mcgill.ecse321.gamenight.model.Player;
 
-import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.TestInstance.Lifecycle;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
@@ -21,7 +24,8 @@ import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.http.*;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-public class UserAccountIntegrationTests {
+@TestInstance(Lifecycle.PER_CLASS)
+public class UserManagementIntegrationTest {
 
     @LocalServerPort
     private int port;
@@ -34,15 +38,35 @@ public class UserAccountIntegrationTests {
 
     @Autowired
     private GameOwnerRepository gameOwnerRepo;
+
     @Autowired
     private PlayerRepository playerRepo;
 
-    @AfterEach
-    public void clearDatabase() {
+    private int testUserId;
+    private static final String ORIGINAL_EMAIL = "updateuser@gmail.com";
+    private static final String ORIGINAL_PASSWORD = "oldpassword";
+    private static final String NEW_EMAIL = "newemail@gmail.com";
+    private static final String WRONG_PASSWORD = "wrongpassword";
+    private static final String SUCCESS_MESSAGE = "User updated successfully.";
+    private static final String ERROR_MESSAGE = "Incorrect old password.";
+
+    @BeforeEach
+    public void setup() {
         gameOwnerRepo.deleteAll();
         playerRepo.deleteAll();
         personRepository.deleteAll();
 
+        // Create and save test user
+        Person user = new Person(ORIGINAL_EMAIL, ORIGINAL_PASSWORD, "Test User");
+        personRepository.save(user);
+        testUserId = user.getId();
+    }
+
+    @AfterAll
+    public void clearDatabase() {
+        gameOwnerRepo.deleteAll();
+        playerRepo.deleteAll();
+        personRepository.deleteAll();
     }
 
     private String createURLWithPort(String uri) {
@@ -128,5 +152,37 @@ public class UserAccountIntegrationTests {
                 Void.class);
 
         assertEquals(HttpStatus.CONFLICT, response.getStatusCode());
+    }
+
+    @Test
+    public void testUpdateUserSuccess() {
+        String url = createURLWithPort(
+                "/users/" + testUserId + "?newEmail=" + NEW_EMAIL + "&oldPassword=" + ORIGINAL_PASSWORD);
+
+        ResponseEntity<String> response = restTemplate.exchange(
+                url,
+                HttpMethod.PUT,
+                HttpEntity.EMPTY,
+                String.class);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertNotNull(response.getBody());
+        assertEquals(SUCCESS_MESSAGE, response.getBody());
+    }
+
+    @Test
+    public void testUpdateUserUnauthorized() {
+        String url = createURLWithPort(
+                "/users/" + testUserId + "?newEmail=" + NEW_EMAIL + "&oldPassword=" + WRONG_PASSWORD);
+
+        ResponseEntity<String> response = restTemplate.exchange(
+                url,
+                HttpMethod.PUT,
+                HttpEntity.EMPTY,
+                String.class);
+
+        assertEquals(HttpStatus.UNAUTHORIZED, response.getStatusCode());
+        assertNotNull(response.getBody());
+        assertEquals(ERROR_MESSAGE, response.getBody());
     }
 }
