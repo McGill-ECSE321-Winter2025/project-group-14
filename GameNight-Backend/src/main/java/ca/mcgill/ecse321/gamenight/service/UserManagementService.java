@@ -1,6 +1,7 @@
 package ca.mcgill.ecse321.gamenight.service;
 
 import java.util.List;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -31,13 +32,17 @@ public class UserManagementService {
     @Autowired
     private GameOwnerRepository gameOwnerRepository;
 
-    public UserManagementService(PersonRepository personRepository) {
+    public UserManagementService(PersonRepository personRepository,
+            PlayerRepository playerRepository,
+            GameOwnerRepository gameOwnerRepository) {
         this.personRepository = personRepository;
+        this.playerRepository = playerRepository;
+        this.gameOwnerRepository = gameOwnerRepository;
     }
 
     @Transactional
     public void createPerson(AuthRequest request) {
-        validateUsernameAndPassword(
+        validateEmailAndPassword(
                 request.getEmailAdress(),
                 request.getPassword());
 
@@ -61,7 +66,7 @@ public class UserManagementService {
 
     @Transactional
     public Person login(AuthRequest request) {
-        validateUsernameAndPassword(
+        validateEmailAndPassword(
                 request.getEmailAdress(),
                 request.getPassword());
 
@@ -85,15 +90,20 @@ public class UserManagementService {
         if (!person.getPassword().equals(oldPassword)) {
             return false; // Password mismatch
         }
+        boolean updated = false;
         // Update
         if (newEmail != null && !newEmail.equals(person.getEmailAddress())) {
             person.setEmailAddress(newEmail);
+            updated = true;
         }
-        if (newPassword != null && !newPassword.isBlank()) {
+        if (newPassword != null && !newPassword.isBlank() && !newPassword.equals(person.getPassword())) {
             person.setPassword(newPassword);
+            updated = true;
         }
 
-        personRepository.save(person);
+        if (updated)
+            personRepository.save(person);
+
         return true;
     }
 
@@ -129,15 +139,24 @@ public class UserManagementService {
                 .orElseThrow(() -> new RuntimeException("Person not found with ID: " + userId));
     }
 
-    private void validateUsernameAndPassword(String username, String password) {
-        String cleanUsername = StringUtils.trimToNull(username);
+    private void validateEmailAndPassword(String email, String password) {
+        String cleanEmail = StringUtils.trimToNull(email);
         String cleanPassword = StringUtils.trimToNull(password);
 
-        if (cleanUsername == null) {
-            throw new IllegalArgumentException("Username cannot be empty");
+        if (cleanEmail == null) {
+            throw new IllegalArgumentException("Email adress cannot be empty");
         }
         if (cleanPassword == null) {
             throw new IllegalArgumentException("Password cannot be empty");
+        }
+
+        // pattern from:
+        // https://www.geeksforgeeks.org/check-email-address-valid-not-java/
+        String pattern = "^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@" +
+                "(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,7}$";
+        Pattern p = Pattern.compile(pattern);
+        if (!p.matcher(cleanEmail).matches()) {
+            throw new IllegalArgumentException("Invalid email pattern");
         }
     }
 
