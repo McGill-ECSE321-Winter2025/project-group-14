@@ -57,4 +57,34 @@ public class BorrowingRequestRequestDto {
     public int getGameCopyId() {
         return gameCopyId;
     }
+    public void setId(int id) {
+        this.id = id;
+    }
+    public void setSendTime(Date sendTime) {
+        this.sendTime = sendTime;
+    }
+    public void setStartTime(Date startTime) {
+        this.startTime = startTime;
+    }
+    public void setEndTime(Date endTime) {
+        this.endTime = endTime;
+    }
+    public void setGameName(String gameName) {
+        this.gameName = gameName;
+    }
+    public void setSenderName(String senderName) {
+        this.senderName = senderName;
+    }
+    public void setStatus(BorrowingRequestStatus status) {
+        this.status = status;
+    }
+    public void setSenderId(int senderId) {
+        this.senderId = senderId;
+    }
+    public void setGameCopyId(int gameCopyId) {
+        this.gameCopyId = gameCopyId;
+    }
+    public static BorrowingRequestRequestDto create() {
+        return new BorrowingRequestRequestDto();
+    }
 }
