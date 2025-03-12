@@ -9,22 +9,31 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import ca.mcgill.ecse321.gamenight.dto.BorrowingRequestRequestDto;
 import ca.mcgill.ecse321.gamenight.dto.BorrowingRequestResponseDto;
+import ca.mcgill.ecse321.gamenight.exceptions.GameOwnerNotFoundException;
+import ca.mcgill.ecse321.gamenight.exceptions.ReqGameCopyNotFoundException;
 import ca.mcgill.ecse321.gamenight.model.BorrowingRequest;
 import ca.mcgill.ecse321.gamenight.model.BorrowingRequest.BorrowingRequestStatus;
+import ca.mcgill.ecse321.gamenight.model.GameCopy;
+import ca.mcgill.ecse321.gamenight.repo.GameCopyRepository;
 import ca.mcgill.ecse321.gamenight.service.BorrowingManagementService;
 
 @RestController
+@RequestMapping("/borrowingRequests")
 public class BorrowingManagementController {
 
         @Autowired
         private BorrowingManagementService borrowingManagementService;
 
+        @Autowired
+        private GameCopyRepository gameCopyRepository;
         
-        @PostMapping("/request")
+        @PostMapping("")
         public BorrowingRequestResponseDto sendBorrowingRequest(@RequestBody BorrowingRequestRequestDto borrowingRequest) {
                 BorrowingRequest savedRequest = borrowingManagementService.sendBorrowingRequest(
                         borrowingRequest.getGameCopyId(),
@@ -37,28 +46,32 @@ public class BorrowingManagementController {
                     return new BorrowingRequestResponseDto(savedRequest);
 
         }
-
-        @PutMapping("/{requestId}/respond")
+        
+        @PutMapping("/{requestId}/")
         public BorrowingRequestResponseDto respondToBorrowingRequest(@PathVariable int requestId,
-                        @PathVariable BorrowingRequestStatus status) {
-                return null;
+                        @RequestParam BorrowingRequestStatus status) {
+                                BorrowingRequest request = borrowingManagementService.getBorrowingRequestById(requestId);
+                                BorrowingRequest updatedRequest = borrowingManagementService.respondToBorrowingRequest(request, status);
+                                return new BorrowingRequestResponseDto(updatedRequest);
         }
-
-        @PutMapping("/{requestId}/update")
+        
+        @PutMapping("/{requestId}/status")
         public BorrowingRequestResponseDto updateBorrowingRequestStatus(@PathVariable int requestId,
-                        @PathVariable BorrowingRequestStatus status) {
-                return null;
+                        @RequestParam BorrowingRequestStatus status) {
+                                BorrowingRequest request = borrowingManagementService.getBorrowingRequestById(requestId);
+                                BorrowingRequest updatedRequest = borrowingManagementService.updateBorrowingRequestStatus(request,status);
+                return new BorrowingRequestResponseDto(updatedRequest);
         }
 
-        @GetMapping("/delivered/{borrowerId}")
+        @GetMapping("/{borrowerId}/status/delivered")
         public List<BorrowingRequestResponseDto> getDeliveredRequestsForBorrower(@PathVariable int borrowerId) {
                 List<BorrowingRequest> requests = borrowingManagementService.findDeliveredBorrowingRequestsForBorrower(borrowerId);
                 return requests.stream()
                 .map(request -> new BorrowingRequestResponseDto(request))
                 .collect(Collectors.toList());
         }
-
-        @GetMapping("/rejected/{borrowerId}")
+        
+        @GetMapping("/{borrowerId}/status/rejected")
         public List<BorrowingRequestResponseDto> getRejectedRequestsForBorrower(@PathVariable int borrowerId) {
                 List<BorrowingRequest> requests = borrowingManagementService.findRejectedBorrowingRequestsForBorrower(borrowerId);
                 return requests.stream()
@@ -66,22 +79,27 @@ public class BorrowingManagementController {
                 .collect(Collectors.toList());
         }
 
-        @GetMapping("/accepted/{borrowerId}")
+        @GetMapping("/{borrowerId}/status/accepted")
         public List<BorrowingRequestResponseDto> getAcceptedRequestsForBorrower(@PathVariable int borrowerId) {
                 List<BorrowingRequest> requests = borrowingManagementService.findAcceptedBorrowingRequestsForBorrower(borrowerId);
                 return requests.stream()
                 .map(request -> new BorrowingRequestResponseDto(request))
                 .collect(Collectors.toList());
         }
-
-       //@GetMapping
-       // public List<BorrowingRequestResponseDto> getLendingHistoryForOwner(@PathVariable int ownerId) {
-       //     return null;
-       // }
-
-       // @GetMapping
-       //public List<BorrowingRequestResponseDto> getGameCopyLendingStatus(@PathVariable int gameCopyId) {
-        //    return null;
-        //}
-
-}
+        
+        @GetMapping("/{ownerId}/lending-history")
+        public List<BorrowingRequestResponseDto> getLendingHistoryForOwner(@PathVariable int ownerId) {
+                List<BorrowingRequest> ownerLendingHistory = borrowingManagementService.findLendingHistory(ownerId);
+                return ownerLendingHistory.stream().map(BorrowingRequestResponseDto::new).collect(Collectors.toList());
+        }
+        
+        @GetMapping("/{gameCopyId}/lending-status")
+        public BorrowingRequestResponseDto getGameCopyLendingStatus(@PathVariable int gameCopyId) {
+                GameCopy gameCopy = gameCopyRepository.findById(gameCopyId).orElseThrow(() -> new GameOwnerNotFoundException("Game copy not found with ID: " + gameCopyId));
+                BorrowingRequest request = borrowingManagementService.findGameCopyLendingStatus(gameCopy);
+                if (request == null){
+                        throw new ReqGameCopyNotFoundException("No active borrowing request found for Game Copy ID: " + gameCopyId);
+                }
+        return new BorrowingRequestResponseDto(request);
+        }
+        }

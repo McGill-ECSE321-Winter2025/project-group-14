@@ -149,5 +149,4 @@ public class BorrowingManagementServiceTest {
         String expectedMessage = "Player not found with ID: " + senderId;
         assertEquals(expectedMessage, e.getMessage());
     }
-    
 }
