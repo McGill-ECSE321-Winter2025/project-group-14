@@ -17,7 +17,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.HttpStatus;
 
 import ca.mcgill.ecse321.gamenight.exception.MissingFieldsException;
 import ca.mcgill.ecse321.gamenight.exception.ObjectNotFoundException;
@@ -211,5 +210,16 @@ public class GameManagementServiceTest {
         Iterable<GameCopy> result = gameManagementService.findGameCopiesByOwner(owner.getId());
 
         assertEquals(expected, result);
+    }
+
+    @Test
+    public void tryToFindGameCopiesForOwnerNotInDbTest() {
+        int ownerId = 8;
+        when(gameOwnerRepository.findById(ownerId)).thenReturn(Optional.ofNullable(null));
+
+        ObjectNotFoundException e = assertThrows(ObjectNotFoundException.class, () ->
+        gameManagementService.findGameCopiesByOwner(ownerId));
+
+        assertEquals("There is no owner with ID " + ownerId , e.getMessage());
     }
 }
