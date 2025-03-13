@@ -33,7 +33,7 @@ public class BorrowingManagementService {
     @Autowired
     private EmailService emailService;
 
-    @Transactional
+    @Transactional //done
     public BorrowingRequest sendBorrowingRequest(int gameCopyId, int senderId, Date sendTime, Date startTime, Date endTime){
         Optional<GameCopy> gameCopyOpt = gameCopyRepository.findById(gameCopyId);
         if (!gameCopyOpt.isPresent()) {
@@ -67,7 +67,7 @@ public class BorrowingManagementService {
         return savedRequest;
     }
 
-   @Transactional
+   @Transactional //done
    public BorrowingRequest respondToBorrowingRequest(BorrowingRequest request, BorrowingRequestStatus status){
         if (request == null || request.getGameCopy() == null || request.getGameCopy().getOwner() == null || request.getSender() == null) {
             throw new IllegalArgumentException("Invalid borrowing request or missing game details.");

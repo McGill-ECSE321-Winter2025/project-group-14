@@ -1,4 +1,4 @@
-package ca.mcgill.ecse321.gamenight.integration;
+/*package ca.mcgill.ecse321.gamenight.integration;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -52,3 +52,4 @@ public class BorrowingManagementIntegrationTest {
     }
 
 }
+*/

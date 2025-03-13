@@ -39,14 +39,44 @@ public class BorrowingManagementServiceTest {
     
     @Mock
     private EmailService emailService;
-    
+
     @InjectMocks
-    private BorrowingManagementService service;
+    private BorrowingManagementService borrowingManagementService;
     
+    private Person senderPerson;
+    private Person ownerPerson;
+    private BorrowingRequest request;
+    private Game game;
+
     @BeforeEach
     public void setUp() {
         org.mockito.MockitoAnnotations.openMocks(this);
-    }
+        game = new Game();
+        game.setName("Uno");
+
+        ownerPerson = new Person();
+        ownerPerson.setName("Hamza");
+        ownerPerson.setEmailAddress("hamza@example.com");
+
+        senderPerson = new Person();
+        senderPerson.setName("John");
+        senderPerson.setEmailAddress("john@example.com");
+
+        GameOwner gameOwner = new GameOwner();
+        gameOwner.setPerson(ownerPerson);
+
+        GameCopy gameCopy = new GameCopy();
+        gameCopy.setGame(game);
+        gameCopy.setGameOwner(gameOwner);
+
+        Player sender = new Player();
+        sender.setPerson(senderPerson);
+
+        request = new BorrowingRequest();
+        request.setGameCopy(gameCopy);
+        request.setSender(sender);
+        request.setStatus(BorrowingRequestStatus.Delivered);
+        }
     
     @Test
     public void testSendValidBorrowingRequest() {
@@ -90,7 +120,7 @@ public class BorrowingManagementServiceTest {
         when(playerRepository.findById(senderId)).thenReturn(Optional.of(sender));
         when(borrowingRequestRepository.save(any(BorrowingRequest.class))).thenReturn(request);
         
-        BorrowingRequest result = service.sendBorrowingRequest(gameCopyId, senderId, sendTime, startTime, endTime);
+        BorrowingRequest result = borrowingManagementService.sendBorrowingRequest(gameCopyId, senderId, sendTime, startTime, endTime);
         
         assertNotNull(result);
         assertEquals(BorrowingRequestStatus.Delivered, result.getStatus());
@@ -113,7 +143,7 @@ public class BorrowingManagementServiceTest {
         when(gameCopyRepository.findById(gameCopyId)).thenReturn(Optional.empty());
         
         Exception e = assertThrows(IllegalArgumentException.class, () -> {
-            service.sendBorrowingRequest(gameCopyId, senderId, sendTime, startTime, endTime);
+            borrowingManagementService.sendBorrowingRequest(gameCopyId, senderId, sendTime, startTime, endTime);
         });
         
         String expectedMessage = "Game copy not found with ID: " + gameCopyId;
@@ -144,9 +174,40 @@ public class BorrowingManagementServiceTest {
         when(playerRepository.findById(senderId)).thenReturn(Optional.empty());
         
         Exception e = assertThrows(IllegalArgumentException.class, () -> {
-            service.sendBorrowingRequest(gameCopyId, senderId, sendTime, startTime, endTime);
+            borrowingManagementService.sendBorrowingRequest(gameCopyId, senderId, sendTime, startTime, endTime);
         });
         String expectedMessage = "Player not found with ID: " + senderId;
         assertEquals(expectedMessage, e.getMessage());
+    }
+
+    @Test
+    void testRespondToBorrowingRequest_Accepted() {
+        when(borrowingRequestRepository.save(any(BorrowingRequest.class))).thenReturn(request);
+
+        BorrowingRequest result = borrowingManagementService.respondToBorrowingRequest(request, BorrowingRequestStatus.Accepted);
+        
+        assertEquals(BorrowingRequestStatus.Accepted, result.getStatus());
+        verify(emailService).sendRequestAcceptedEmail(
+            senderPerson.getEmailAddress(), ownerPerson.getName(), game.getName());
+    }
+
+    @Test
+    void testRespondToBorrowingRequest_Rejected() {
+        when(borrowingRequestRepository.save(any(BorrowingRequest.class))).thenReturn(request);
+
+        BorrowingRequest result = borrowingManagementService.respondToBorrowingRequest(request, BorrowingRequestStatus.Rejected);
+        
+        assertEquals(BorrowingRequestStatus.Rejected, result.getStatus());
+        verify(emailService).sendRequestRejectedEmail(
+            senderPerson.getEmailAddress(), ownerPerson.getName(), game.getName());
+    }
+
+    @Test
+    void testRespondToBorrowingRequest_InvalidRequest() {
+        Exception exception = assertThrows(IllegalArgumentException.class, () -> 
+            borrowingManagementService.respondToBorrowingRequest(null, BorrowingRequestStatus.Accepted)
+        );
+        
+        assertEquals("Invalid borrowing request or missing game details.", exception.getMessage());
     }
 }

@@ -14,7 +14,8 @@ public class BorrowingRequestRequestDto {
     private BorrowingRequestStatus status;
     private int senderId;
     private int gameCopyId;
-
+    private int id;
+    
     @SuppressWarnings("unused")
     private BorrowingRequestRequestDto(){
     }
