@@ -80,34 +80,42 @@ public class GameReviewRepositoryTest {
 
     @Test
     public void testFindByGame() {
+        // Create GameReview objects
         GameReview gameReview1 = new GameReview(5, "Great game!", player, game);
         GameReview gameReview2 = new GameReview(4, "Good game!", player, game);
+
         gameReviewRepo.save(gameReview1);
         gameReviewRepo.save(gameReview2);
 
         List<GameReview> reviews = gameReviewRepo.findByGame(game);
 
         assertEquals(2, reviews.size());
-        assertTrue(reviews.contains(gameReview1));
-        assertTrue(reviews.contains(gameReview2));
+
+        assertTrue(reviews.stream().anyMatch(review -> matchesGameReview(review, gameReview1)),
+                "GameReview1 not found in the list");
+        assertTrue(reviews.stream().anyMatch(review -> matchesGameReview(review, gameReview2)),
+                "GameReview2 not found in the list");
     }
 
     @Test
     public void testFindByGameOrderByDatePostedDesc() {
+
         GameReview gameReview1 = new GameReview(5, "Great game!", player, game);
-        GameReview gameReview2 = new GameReview(4, "Good game!", player, game);
         gameReviewRepo.save(gameReview1);
+
+        GameReview gameReview2 = new GameReview(4, "Good game!", player, game);
         gameReviewRepo.save(gameReview2);
 
         List<GameReview> reviews = gameReviewRepo.findByGameOrderByDatePostedDesc(game);
 
-        assertEquals(2, reviews.size());
-        assertEquals(gameReview2.getId(), reviews.get(0).getId());
-        assertEquals(gameReview1.getId(), reviews.get(1).getId());
+        assertEquals(2, reviews.size(), "There should be exactly 2 reviews");
+        assertTrue(matchesGameReview(reviews.get(0), gameReview2), "First review should be the most recent one");
+        assertTrue(matchesGameReview(reviews.get(1), gameReview1), "Second review should be the older one");
     }
 
     @Test
     public void testFindByReviewer() {
+
         GameReview gameReview1 = new GameReview(5, "Great game!", player, game);
         GameReview gameReview2 = new GameReview(4, "Good game!", player, game);
         gameReviewRepo.save(gameReview1);
@@ -116,8 +124,9 @@ public class GameReviewRepositoryTest {
         List<GameReview> reviews = gameReviewRepo.findByReviewer(player);
 
         assertEquals(2, reviews.size());
-        assertTrue(reviews.contains(gameReview1));
-        assertTrue(reviews.contains(gameReview2));
+
+        assertTrue(reviews.stream().anyMatch(review -> matchesGameReview(review, gameReview1)));
+        assertTrue(reviews.stream().anyMatch(review -> matchesGameReview(review, gameReview2)));
     }
 
     @Test
@@ -131,7 +140,9 @@ public class GameReviewRepositoryTest {
 
         assertEquals(2, reviews.size());
         assertEquals(gameReview2.getId(), reviews.get(0).getId());
+        assertEquals(4, reviews.get(0).getRating());
         assertEquals(gameReview1.getId(), reviews.get(1).getId());
+        assertEquals(5, reviews.get(1).getRating());
     }
 
     @Test
@@ -145,6 +156,34 @@ public class GameReviewRepositoryTest {
 
         assertEquals(2, reviews.size());
         assertEquals(gameReview1.getId(), reviews.get(0).getId());
+        assertEquals(5, reviews.get(0).getRating());
         assertEquals(gameReview2.getId(), reviews.get(1).getId());
+        assertEquals(4, reviews.get(1).getRating());
     }
+
+    @Test
+    public void testUpdateGameReview() {
+        GameReview gameReview = new GameReview(5, "Great game!", player, game);
+        gameReviewRepo.save(gameReview);
+
+        gameReview.setRating(3);
+        gameReview.setComment("Decent game.");
+        gameReviewRepo.save(gameReview);
+
+        GameReview updatedGameReview = gameReviewRepo.findById(gameReview.getId()).orElse(null);
+
+        assertNotNull(updatedGameReview);
+        assertEquals(3, updatedGameReview.getRating());
+        assertEquals("Decent game.", updatedGameReview.getComment());
+    }
+
+    // helper
+    private boolean matchesGameReview(GameReview actual, GameReview expected) {
+        return actual.getId() == expected.getId() &&
+                actual.getRating() == expected.getRating() &&
+                actual.getComment().equals(expected.getComment()) &&
+                actual.getGame().getId() == expected.getGame().getId() &&
+                actual.getReviewer().getId() == expected.getReviewer().getId();
+    }
+
 }

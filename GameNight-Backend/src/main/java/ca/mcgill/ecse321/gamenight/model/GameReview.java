@@ -1,6 +1,6 @@
 package ca.mcgill.ecse321.gamenight.model;
 
-import java.sql.Date;
+import java.util.Date;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -8,6 +8,8 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Temporal;
+import jakarta.persistence.TemporalType;
 
 @Entity
 public class GameReview {
@@ -15,6 +17,7 @@ public class GameReview {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
+    @Temporal(TemporalType.TIMESTAMP)
     private Date datePosted;
     private int rating;
     private String comment;
@@ -43,6 +46,10 @@ public class GameReview {
 
     public Date getDatePosted() {
         return datePosted;
+    }
+
+    public void setDatePosted(Date date) {
+        this.datePosted = date;
     }
 
     public int getRating() {
