@@ -6,9 +6,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import ca.mcgill.ecse321.gamenight.dto.EventRequestDto;
 import ca.mcgill.ecse321.gamenight.dto.EventResponseDto;
+import ca.mcgill.ecse321.gamenight.dto.GameResponseDto;
+import ca.mcgill.ecse321.gamenight.dto.PlayerResponseDto;
 import ca.mcgill.ecse321.gamenight.model.Event;
-import ca.mcgill.ecse321.gamenight.model.Player;
-import ca.mcgill.ecse321.gamenight.model.ScheduledGame;
 import ca.mcgill.ecse321.gamenight.service.EventManagementService;
 
 @RestController
@@ -59,11 +59,21 @@ public class EventManagementController {
             .map(EventResponseDto::new)
             .collect(Collectors.toList());
     }
-
-    @GetMapping("/scheduled/{gameId}")
-    public List<ScheduledGame> getScheduledEventsForAGame(@PathVariable int gameId) {
-        return eventService.getScheduledEventsForAGame(gameId);
+    @GetMapping("/scheduled/{eventId}")
+    public List<GameResponseDto> getGamesForEvent(@PathVariable int eventId) {
+        return eventService.getGamesForEvent(eventId)
+            .stream()
+            .map(GameResponseDto::new)
+            .collect(Collectors.toList());
     }
+    @GetMapping("/scheduled/{gameId}")
+    public List<EventResponseDto> getScheduledEventsForAGame(@PathVariable int gameId) {
+        return eventService.getScheduledEventsForAGame(gameId)
+            .stream()
+            .map(EventResponseDto::new)
+            .collect(Collectors.toList());
+    }
+    
 
     @PostMapping("/{eventId}/player/{playerId}")
     public void registerForEvent(@PathVariable int eventId, @PathVariable int playerId) {
@@ -84,7 +94,11 @@ public class EventManagementController {
     }
 
     @GetMapping("/{eventId}/players")
-    public List<Player> getPlayersForEvent(@PathVariable int eventId) {
-        return eventService.getPlayersForEvent(eventId);
+    public List<PlayerResponseDto> getPlayersForEvent(@PathVariable int eventId) {
+        return eventService.getPlayersForEvent(eventId)
+                .stream()
+                .map(PlayerResponseDto::new)
+                .collect(Collectors.toList());
     }
+
 }

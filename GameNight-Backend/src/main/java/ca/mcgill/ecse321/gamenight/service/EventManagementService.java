@@ -7,10 +7,10 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ca.mcgill.ecse321.gamenight.model.Event;
+import ca.mcgill.ecse321.gamenight.model.Game;
 import ca.mcgill.ecse321.gamenight.model.Player;
 import ca.mcgill.ecse321.gamenight.model.Registration;
 import ca.mcgill.ecse321.gamenight.model.Registration.Key;
-import ca.mcgill.ecse321.gamenight.model.ScheduledGame;
 import ca.mcgill.ecse321.gamenight.repo.EventRepository;
 import ca.mcgill.ecse321.gamenight.repo.PlayerRepository;
 import ca.mcgill.ecse321.gamenight.repo.RegistrationRepository;
@@ -34,7 +34,14 @@ public class EventManagementService {
         Event newEvent = new Event(name, description, startTime, endTime);
         return eventRepository.save(newEvent);
     }
-
+    @Transactional
+    public List<Game> getGamesForEvent(int eventId) {
+        getEventById(eventId);
+        return scheduledGameRepository.findByKey_EventId(eventId)
+            .stream()
+            .map(sg -> sg.getKey().getGame())
+            .collect(Collectors.toList());
+    }
     @Transactional
     public Event getEventById(int eventId) {
         return eventRepository.findById(eventId)
@@ -83,9 +90,13 @@ public class EventManagementService {
     private RegistrationRepository registrationRepository;
 
     @Transactional
-    public List<ScheduledGame> getScheduledEventsForAGame(int gameId) {
-        return scheduledGameRepository.findByKey_GameId(gameId);
+    public List<Event> getScheduledEventsForAGame(int gameId) {
+        return scheduledGameRepository.findByKey_GameId(gameId)
+            .stream()
+            .map(sg -> sg.getKey().getEvent())
+            .collect(Collectors.toList());
     }
+    
 
     @Transactional
     public void registerForEvent(int eventId, int playerId) {
