@@ -94,10 +94,10 @@ public class BorrowingManagementController {
         
         @GetMapping("/{gameCopyId}/lending-status")
         public BorrowingRequestResponseDto getGameCopyLendingStatus(@PathVariable int gameCopyId) {
-                GameCopy gameCopy = gameCopyRepository.findById(gameCopyId).orElseThrow(() -> new GameOwnerNotFoundException(gameCopyId));
+                GameCopy gameCopy = gameCopyRepository.findById(gameCopyId).orElseThrow(() -> new GameOwnerNotFoundException(String.valueOf(gameCopyId)));
                 BorrowingRequest request = borrowingManagementService.findGameCopyLendingStatus(gameCopy);
                 if (request == null){
-                        throw new ReqGameCopyNotFoundException(gameCopyId);
+                        throw new ReqGameCopyNotFoundException(String.valueOf(gameCopyId));
                 }
         return new BorrowingRequestResponseDto(request);
         }
