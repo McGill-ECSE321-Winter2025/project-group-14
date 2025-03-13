@@ -175,6 +175,9 @@ public class UserManagementServiceTest {
         assertThrows(java.lang.IllegalArgumentException.class, () -> userManagementService.login(request));
     }
 
+    /*
+     * Tests login failure due to empty email
+     */
     @Test
     public void testLoginEmptyEmail() {
         AuthRequestDto request = new AuthRequestDto();
@@ -184,6 +187,9 @@ public class UserManagementServiceTest {
         assertThrows(java.lang.IllegalArgumentException.class, () -> userManagementService.login(request));
     }
 
+    /*
+     * Tests login failure due to wrong password
+     */
     @Test
     public void testLoginWrongPassword() {
         AuthRequestDto request = new AuthRequestDto();
@@ -235,6 +241,9 @@ public class UserManagementServiceTest {
         verify(personRepository, times(0)).save(any(Person.class));
     }
 
+    /*
+     * Tests that updating a user with the same email and password does not trigger a save operation.
+     */
     @Test
     public void testUpdateUserWithSameEmailAndPassword() {
         boolean result = userManagementService.updatePerson(testUser.getId(), VALID_PASSWORD, VALID_EMAIL,
@@ -246,6 +255,9 @@ public class UserManagementServiceTest {
         verify(personRepository, times(0)).save(any(Person.class));
     }
 
+    /*
+     * Tests that updating a user without providing new email or password does not trigger a save operation.
+     */
     @Test
     public void testUpdateUserNoChanges() {
         boolean result = userManagementService.updatePerson(testUser.getId(), VALID_PASSWORD, null, null);
@@ -256,6 +268,9 @@ public class UserManagementServiceTest {
         verify(personRepository, times(0)).save(any(Person.class));
     }
 
+    /*
+     * Tests updating the user's new password and keeping same email
+     */
     @Test
     public void testUpdateUserWithSameEmailNewPassword() {
         boolean result = userManagementService.updatePerson(testUser.getId(), VALID_PASSWORD, VALID_EMAIL,
@@ -267,6 +282,9 @@ public class UserManagementServiceTest {
         verify(personRepository, times(1)).save(testUser);
     }
 
+    /*
+     * Tests updating a user's email and keeping same password
+     */
     @Test
     public void testUpdateUserWithSamePasswordNewEmail() {
         boolean result = userManagementService.updatePerson(testUser.getId(), VALID_PASSWORD, NEW_EMAIL,
@@ -310,7 +328,10 @@ public class UserManagementServiceTest {
 
         verify(personRepository, times(0)).delete(any(Person.class));
     }
-
+    
+    /*
+     * Tests deleting a non-existing user
+     */
     @Test
     public void testDeleteAnotherUser() {
         when(personRepository.findPersonById(999)).thenReturn(Optional.empty());
