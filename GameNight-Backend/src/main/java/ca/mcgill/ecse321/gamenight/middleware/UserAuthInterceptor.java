@@ -22,14 +22,18 @@ public class UserAuthInterceptor implements HandlerInterceptor {
 
     @Autowired
     public UserAuthInterceptor(
-            PersonRepository userAccountRepository,
+            PersonRepository personRepository,
             UserContext userContext) {
-        this.personRepository = userAccountRepository;
+        this.personRepository = personRepository;
         this.userContext = userContext;
     }
 
     @Override
     public boolean preHandle(
+            /*
+             * I had to add these NonNull myself, it would be yellow otherwise. Idk how the
+             * tutorial got away with it.
+             */
             @NonNull HttpServletRequest request,
             @NonNull HttpServletResponse response,
             @NonNull Object handler) throws UnauthedException {
@@ -48,6 +52,11 @@ public class UserAuthInterceptor implements HandlerInterceptor {
                     .getAnnotation(RequireUser.class);
         }
 
+        /*
+         * Headers can be manually set so this is not very secure.
+         * It can't even be called authentification.
+         * It grants access as long as the user-id is in the request header.
+         */
         if (requireUser != null) {
             String userIdHeader = request.getHeader("User-Id");
 

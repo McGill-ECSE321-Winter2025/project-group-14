@@ -37,7 +37,7 @@ public class PlayerRepositoryTest {
         Player hamza = new Player(person);
         hamza = playerRepository.save(hamza);
 
-        Player hamzaFromDb = playerRepository.findById(hamza.getId()).orElse(null);
+        Player hamzaFromDb = playerRepository.findByPersonId(person.getId());
 
         assertNotNull(hamzaFromDb);
         assertNotNull(hamzaFromDb.getPerson());

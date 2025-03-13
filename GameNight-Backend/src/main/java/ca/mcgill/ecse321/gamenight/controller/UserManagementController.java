@@ -9,8 +9,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import jakarta.servlet.http.HttpServletRequest;
-
+import ca.mcgill.ecse321.gamenight.dto.AuthRequest;
+import ca.mcgill.ecse321.gamenight.dto.LoginResponse;
 import ca.mcgill.ecse321.gamenight.dto.PersonResponseDto;
+import ca.mcgill.ecse321.gamenight.middleware.RequireUser;
 import ca.mcgill.ecse321.gamenight.service.UserManagementService;
 import ca.mcgill.ecse321.gamenight.model.Person;
 
@@ -20,29 +22,54 @@ public class UserManagementController {
     @Autowired
     private UserManagementService userService;
 
-    /**
-     * Delete a Player with the given ID.
-     *
-     * @param id The primary key of the Player to delete.
-     * @return empty body
-     */
-    @DeleteMapping("/players/{id}")
-    public ResponseEntity<Void> deletePlayer(@PathVariable int id) {
-        userService.deletePlayer(id);
-        return ResponseEntity.noContent().build();
+    public UserManagementController(UserManagementService userManagementService) {
+        this.userService = userManagementService;
     }
 
+    // tested
     /**
-     * Delete a GameOwner with the given ID.
-     *
-     * @param id The primary key of the GameOwner to delete.
+     * Creates a new user. The GameOwner and Player are also generated.
+     * 
+     * @param request
+     * @return a ResponseEntity with HTTP status 201 (Created)
      */
-    @DeleteMapping("/gameowners/{id}")
-    public ResponseEntity<Void> deleteGameOwner(@PathVariable int gameOwnerId) {
-        userService.deleteGameOwner(gameOwnerId);
-        return ResponseEntity.noContent().build();
+    @PostMapping("/users")
+    public ResponseEntity<?> createPerson(
+            @RequestBody AuthRequest request) {
+        userService.createPerson(request);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
+    // tested
+    /**
+     * Deletes a Person by ID. The GameOwner and Player are also deleted.
+     * 
+     * @param userId
+     * @return a ResponseEntity with HTTP status 200 (OK)
+     */
+    @DeleteMapping("/users/{userId}")
+    @RequireUser
+    public ResponseEntity<?> deletePerson(@PathVariable int userId) {
+        userService.deletePerson(userId);
+        return ResponseEntity.ok().build();
+    }
+
+    // tested
+    /**
+     * Authenticates a user and returns login response.
+     * 
+     * @param request
+     * @return a ResponseEntity containing the login response with user ID and email
+     */
+    @PostMapping("/users/login")
+    public ResponseEntity<LoginResponse> login(
+            @RequestBody AuthRequest request) {
+        Person user = userService.login(request);
+        return ResponseEntity.ok(
+                new LoginResponse(user.getId(), user.getEmailAddress()));
+    }
+
+    // tested
     /**
      * Updates a user's email or password after verifying their old password.
      *
@@ -72,6 +99,7 @@ public class UserManagementController {
         return ResponseEntity.ok("User updated successfully.");
     }
 
+    // Hamza will test
     /**
      * Toggle the role of a user. If they are a Player, they become a GameOwner.
      * If they are a GameOwner, they revert to being a Player.
@@ -85,6 +113,7 @@ public class UserManagementController {
         return ResponseEntity.ok("User role updated successfully.");
     }
 
+    // Hamza will test
     /**
      * Return all users in the system.
      *
@@ -99,6 +128,7 @@ public class UserManagementController {
         return ResponseEntity.ok(userDtos);
     }
 
+    // Hamza will test
     /**
      * Retrieves user details if the authenticated user matches the requested ID.
      *
