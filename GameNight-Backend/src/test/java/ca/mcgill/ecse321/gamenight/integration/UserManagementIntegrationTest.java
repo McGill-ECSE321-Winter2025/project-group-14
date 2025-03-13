@@ -5,7 +5,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import ca.mcgill.ecse321.gamenight.repo.GameOwnerRepository;
 import ca.mcgill.ecse321.gamenight.repo.PersonRepository;
 import ca.mcgill.ecse321.gamenight.repo.PlayerRepository;
-
+import ca.mcgill.ecse321.gamenight.service.UserManagementService;
 import ca.mcgill.ecse321.gamenight.dto.AuthRequestDto;
 import ca.mcgill.ecse321.gamenight.dto.LoginResponseDto;
 import ca.mcgill.ecse321.gamenight.model.GameOwner;
@@ -17,11 +17,16 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.test.web.server.LocalServerPort;
+import java.util.Optional;
 import org.springframework.http.*;
+
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @TestInstance(Lifecycle.PER_CLASS)
@@ -42,6 +47,12 @@ public class UserManagementIntegrationTest {
     @Autowired
     private PlayerRepository playerRepo;
 
+    @Mock
+    private GameOwnerRepository gameOwnerRepository;
+
+    @InjectMocks
+    private UserManagementService userService;
+
     private int testUserId;
     private static final String ORIGINAL_EMAIL = "updateuser@gmail.com";
     private static final String ORIGINAL_PASSWORD = "oldpassword";
@@ -49,18 +60,29 @@ public class UserManagementIntegrationTest {
     private static final String WRONG_PASSWORD = "wrongpassword";
     private static final String SUCCESS_MESSAGE = "User updated successfully.";
     private static final String ERROR_MESSAGE = "Incorrect old password.";
+    private static final int USERID = 123;
 
     @BeforeEach
-    public void setup() {
-        gameOwnerRepo.deleteAll();
-        playerRepo.deleteAll();
-        personRepository.deleteAll();
+public void setup() {
+    gameOwnerRepo.deleteAll();
+    playerRepo.deleteAll();
+    personRepository.deleteAll();
 
-        // Create and save test user
-        Person user = new Person(ORIGINAL_EMAIL, ORIGINAL_PASSWORD, "Test User");
-        personRepository.save(user);
-        testUserId = user.getId();
-    }
+    Person user = new Person(ORIGINAL_EMAIL, ORIGINAL_PASSWORD, "Test User");
+    personRepository.save(user);
+    testUserId = user.getId();
+
+    Optional<Person> savedUser = personRepository.findById(testUserId);
+    assertTrue(savedUser.isPresent(), "User should be saved in the repository.");
+
+    GameOwner gameOwner = new GameOwner(user);
+    gameOwner.setActive(true);
+    gameOwnerRepo.save(gameOwner);
+}
+
+    
+
+
 
     @AfterAll
     public void clearDatabase() {
@@ -140,7 +162,6 @@ public class UserManagementIntegrationTest {
         Person user = new Person("duplicate@gmail.com", "password123", "mrUser");
         personRepository.save(user);
 
-        // Attempt duplicate registration
         AuthRequestDto request = new AuthRequestDto();
         request.setEmailAdress("duplicate@gmail.com");
         request.setPassword("differentpassword");
@@ -170,6 +191,7 @@ public class UserManagementIntegrationTest {
         assertEquals(SUCCESS_MESSAGE, response.getBody());
     }
 
+
     @Test
     public void testUpdateUserUnauthorized() {
         String url = createURLWithPort(
@@ -185,4 +207,31 @@ public class UserManagementIntegrationTest {
         assertNotNull(response.getBody());
         assertEquals(ERROR_MESSAGE, response.getBody());
     }
+
+    @Test
+    public void testToggleRoleGameOwner() {
+        Person person = new Person("toggleuser@gmail.com", "password123", "Test User");
+        personRepository.save(person);
+
+        GameOwner gameOwner = new GameOwner(person);
+        gameOwner.setActive(true);
+        gameOwnerRepo.save(gameOwner);
+
+        int userId = gameOwner.getId();
+
+        Mockito.when(gameOwnerRepository.findById(userId)).thenReturn(Optional.of(gameOwner));
+        Mockito.when(gameOwnerRepository.save(Mockito.any(GameOwner.class))).thenReturn(gameOwner);
+
+        String url = createURLWithPort("/users/" + userId + "/role");
+
+        ResponseEntity<String> response = restTemplate.exchange(
+                url,
+                HttpMethod.PUT,
+                HttpEntity.EMPTY,
+                String.class);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertNotNull(response.getBody());
+}
+
 }

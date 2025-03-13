@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import jakarta.servlet.http.HttpServletRequest;
 import ca.mcgill.ecse321.gamenight.dto.AuthRequestDto;
@@ -99,7 +100,7 @@ public class UserManagementController {
         return ResponseEntity.ok("User updated successfully.");
     }
 
-    // Hamza will test
+    // tested
     /**
      * Toggle the role of a user. If they are a Player, they become a GameOwner.
      * If they are a GameOwner, they revert to being a Player.
@@ -107,13 +108,18 @@ public class UserManagementController {
      * @param id The primary key of the Person whose role is being toggled.
      * @return HTTP 200 if successful, or an error message if failed.
      */
-    @PatchMapping("/users/{id}/role")
+    @PutMapping("/users/{id}/role")
     public ResponseEntity<String> toggleAccountRole(@PathVariable int id) {
-        userService.toggleAccountRole(id);
-        return ResponseEntity.ok("User role updated successfully.");
+        try {
+            userService.toggleAccountRole(id);
+            return ResponseEntity.ok("User role updated successfully.");
+        } catch (ResponseStatusException e) {
+            return ResponseEntity.status(e.getStatusCode()).body(e.getReason());
+        }
     }
+    
 
-    // Hamza will test
+    // tested
     /**
      * Return all users in the system.
      *
@@ -128,7 +134,7 @@ public class UserManagementController {
         return ResponseEntity.ok(userDtos);
     }
 
-    // Hamza will test
+    // tested
     /**
      * Retrieves user details if the authenticated user matches the requested ID.
      *
@@ -139,20 +145,17 @@ public class UserManagementController {
      */
     @GetMapping("/users/{id}")
     public ResponseEntity<?> getUserDetail(@PathVariable int id, HttpServletRequest request) {
-        // Retrieve the authenticated user's ID from the request attributes
         Integer authenticatedUserId = (Integer) request.getAttribute("userId");
 
         if (authenticatedUserId == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized: No valid authentication.");
         }
 
-        // Find the requested user by ID
         Person person = userService.getUserById(id);
         if (person == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found.");
         }
 
-        // Ensure the authenticated user is requesting their own profile
         if (!authenticatedUserId.equals(id)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("You can only view your own profile.");
         }

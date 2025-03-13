@@ -7,7 +7,9 @@ import java.util.stream.StreamSupport;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import ca.mcgill.ecse321.gamenight.dto.AuthRequestDto;
 import ca.mcgill.ecse321.gamenight.exceptions.InvalidCredentialsException;
@@ -119,13 +121,16 @@ public class UserManagementService {
 
     @Transactional
     public void toggleAccountRole(int id) {
-        GameOwner gameOwnerRole = gameOwnerRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("GameOwner not found with ID: " + id));
+        GameOwner gameOwnerRole = gameOwnerRepository.findById(id).orElse(null);
+
+        if (gameOwnerRole == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "GameOwner not found with ID: " + id);
+        }
 
         gameOwnerRole.setActive(!gameOwnerRole.isActive());
+ 
         gameOwnerRepository.save(gameOwnerRole);
     }
-
 
     public List<Person> getAllUsers() {
         Iterable<Person> iterable = personRepository.findAll();
