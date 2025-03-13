@@ -6,6 +6,9 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 import java.sql.Date;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -310,4 +313,130 @@ public class BorrowingManagementServiceTest {
     });
     verify(borrowingRequestRepository, never()).save(any(BorrowingRequest.class));
     }
+
+    @Test
+    void testfindDeliveredBorrowingRequestsForBorrowerValid(){
+        int borrowerId = 1;
+        BorrowingRequest request = new BorrowingRequest();
+        request.setStatus(BorrowingRequestStatus.Delivered);
+        BorrowingRequest request2 = new BorrowingRequest();
+        request2.setStatus(BorrowingRequestStatus.Delivered);
+        List<BorrowingRequest> deliveredList = Arrays.asList(request, request2);
+        
+        when(borrowingRequestRepository.findAllRequestsByStatusAndSender(BorrowingRequestStatus.Delivered, borrowerId))
+            .thenReturn(deliveredList);
+        
+        List<BorrowingRequest> result = borrowingManagementService.findDeliveredBorrowingRequestsForBorrower(borrowerId);
+        assertNotNull(result);
+        assertEquals(2, result.size());
+        result.forEach(req -> assertEquals(BorrowingRequestStatus.Delivered, req.getStatus()));
+        
+    }
+
+    @Test
+    void testfindDeliveredBorrowingRequestsForBorrowerInvalid(){
+        int borrowerId = 999; 
+        when(borrowingRequestRepository.findAllRequestsByStatusAndSender(BorrowingRequestStatus.Delivered, borrowerId))
+            .thenReturn(Collections.emptyList());
+        
+        List<BorrowingRequest> result = borrowingManagementService.findDeliveredBorrowingRequestsForBorrower(borrowerId);
+        assertNotNull(result);
+        assertTrue(result.isEmpty());
+    }
+
+    @Test
+    void testfindRejectedBorrowingRequestsForBorrowerValid(){
+        int borrowerId = 2;
+        BorrowingRequest request = new BorrowingRequest();
+        request.setStatus(BorrowingRequestStatus.Rejected);
+        List<BorrowingRequest> rejectedList = Collections.singletonList(request);
+        
+        when(borrowingRequestRepository.findAllRequestsByStatusAndSender(BorrowingRequestStatus.Rejected, borrowerId))
+            .thenReturn(rejectedList);
+        
+        List<BorrowingRequest> result = borrowingManagementService.findRejectedBorrowingRequestsForBorrower(borrowerId);
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        assertEquals(BorrowingRequestStatus.Rejected, result.get(0).getStatus());
+    }
+
+    @Test
+    void testfindRejectedBorrowingRequestsForBorrowerInvalid(){
+        int borrowerId = 999; 
+        when(borrowingRequestRepository.findAllRequestsByStatusAndSender(BorrowingRequestStatus.Rejected, borrowerId))
+            .thenReturn(Collections.emptyList());
+        
+        List<BorrowingRequest> result = borrowingManagementService.findRejectedBorrowingRequestsForBorrower(borrowerId);
+        assertNotNull(result);
+        assertTrue(result.isEmpty());
+    }
+    @Test
+    void testfindAcceptedBorrowingRequestsForBorrowerValid(){
+        int borrowerId = 3;
+        when(borrowingRequestRepository.findAllRequestsByStatusAndSender(BorrowingRequestStatus.Accepted, borrowerId))
+            .thenReturn(Collections.emptyList());
+        
+        List<BorrowingRequest> result = borrowingManagementService.findAcceptedBorrowingRequestsForBorrower(borrowerId);
+        assertNotNull(result);
+        assertTrue(result.isEmpty());
+    }
+    @Test
+    void testfindAcceptedBorrowingRequestsForBorrowerInvalid(){
+        int borrowerId = 999; 
+    when(borrowingRequestRepository.findAllRequestsByStatusAndSender(BorrowingRequestStatus.Accepted, borrowerId))
+        .thenReturn(Collections.emptyList());
+    
+    List<BorrowingRequest> result = borrowingManagementService.findAcceptedBorrowingRequestsForBorrower(borrowerId);
+    assertNotNull(result);
+    assertTrue(result.isEmpty());
+    }
+
+    @Test
+    void testfindLendingHistoryValid(){
+        int ownerId = 10;
+        BorrowingRequest request = new BorrowingRequest();
+        request.setStatus(BorrowingRequestStatus.Accepted);
+        List<BorrowingRequest> history = Collections.singletonList(request);
+        
+        when(borrowingRequestRepository.findAllRequestsByStatusAndGameOwner(BorrowingRequestStatus.Accepted, ownerId))
+            .thenReturn(history);
+        List<BorrowingRequest> result = borrowingManagementService.findLendingHistory(ownerId);
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        assertEquals(BorrowingRequestStatus.Accepted, result.get(0).getStatus());
+    }
+
+    @Test
+    void testLendingHistoryInvalidOwner(){
+        GameCopy gameCopy = mock(GameCopy.class);
+        when(borrowingRequestRepository.findByGameCopy(gameCopy)).thenReturn(Collections.emptyList());
+        BorrowingRequest result = borrowingManagementService.findGameCopyLendingStatus(gameCopy);
+        assertNull(result);
+    }
+
+    @Test
+    public void testGetBorrowingRequestByIdValid() {
+        int requestId = 100;
+        BorrowingRequest request = new BorrowingRequest();
+        request.setId(requestId);
+        
+        when(borrowingRequestRepository.findById(requestId)).thenReturn(Optional.of(request));
+        BorrowingRequest result = borrowingManagementService.getBorrowingRequestById(requestId);
+        assertNotNull(result);
+        assertEquals(requestId, result.getId());
+    }
+
+    @Test
+    public void testGetBorrowingRequestByIdInvalid() {
+        int requestId = 100;
+        when(borrowingRequestRepository.findById(requestId)).thenReturn(Optional.empty());
+        
+        Exception e = assertThrows(IllegalArgumentException.class, () -> {
+            borrowingManagementService.getBorrowingRequestById(requestId);
+        });
+        String expectedMessage = "Borrowing request not found with ID: " + requestId;
+        assertEquals(expectedMessage, e.getMessage());
+    }
+    
+    
 }
