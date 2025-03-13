@@ -54,4 +54,16 @@ public class GameCopy {
     public GameOwner getOwner() {
         return gameOwner;
     }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public void setGame(Game game) {
+        this.game = game;
+    }
+
+    public void setGameOwner(GameOwner gameOwner) {
+        this.gameOwner = gameOwner;
+    }
 }
