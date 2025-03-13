@@ -9,7 +9,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import ca.mcgill.ecse321.gamenight.dto.AuthRequest;
+import ca.mcgill.ecse321.gamenight.dto.AuthRequestDto;
 import ca.mcgill.ecse321.gamenight.exceptions.InvalidCredentialsException;
 import ca.mcgill.ecse321.gamenight.exceptions.UsernameTakenException;
 import ca.mcgill.ecse321.gamenight.model.GameOwner;
@@ -41,7 +41,7 @@ public class UserManagementService {
     }
 
     @Transactional
-    public void createPerson(AuthRequest request) {
+    public void createPerson(AuthRequestDto request) {
         validateEmailAndPassword(
                 request.getEmailAdress(),
                 request.getPassword());
@@ -65,7 +65,7 @@ public class UserManagementService {
     }
 
     @Transactional
-    public Person login(AuthRequest request) {
+    public Person login(AuthRequestDto request) {
         validateEmailAndPassword(
                 request.getEmailAdress(),
                 request.getPassword());

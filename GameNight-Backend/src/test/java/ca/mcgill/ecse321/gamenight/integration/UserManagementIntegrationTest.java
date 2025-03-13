@@ -6,8 +6,8 @@ import ca.mcgill.ecse321.gamenight.repo.GameOwnerRepository;
 import ca.mcgill.ecse321.gamenight.repo.PersonRepository;
 import ca.mcgill.ecse321.gamenight.repo.PlayerRepository;
 
-import ca.mcgill.ecse321.gamenight.dto.AuthRequest;
-import ca.mcgill.ecse321.gamenight.dto.LoginResponse;
+import ca.mcgill.ecse321.gamenight.dto.AuthRequestDto;
+import ca.mcgill.ecse321.gamenight.dto.LoginResponseDto;
 import ca.mcgill.ecse321.gamenight.model.GameOwner;
 import ca.mcgill.ecse321.gamenight.model.Person;
 import ca.mcgill.ecse321.gamenight.model.Player;
@@ -75,7 +75,7 @@ public class UserManagementIntegrationTest {
 
     @Test
     public void testCreateUserAccount() {
-        AuthRequest request = new AuthRequest();
+        AuthRequestDto request = new AuthRequestDto();
         request.setEmailAdress("newuser@gmail.com");
         request.setPassword("password123");
         request.setName("mrUser");
@@ -95,14 +95,14 @@ public class UserManagementIntegrationTest {
         Person user = new Person("loginuser@gmail.com", "password123", "mrUser");
         personRepository.save(user);
 
-        AuthRequest loginRequest = new AuthRequest();
+        AuthRequestDto loginRequest = new AuthRequestDto();
         loginRequest.setEmailAdress("loginuser@gmail.com");
         loginRequest.setPassword("password123");
 
-        ResponseEntity<LoginResponse> response = restTemplate.postForEntity(
+        ResponseEntity<LoginResponseDto> response = restTemplate.postForEntity(
                 createURLWithPort("/users/login"),
                 loginRequest,
-                LoginResponse.class);
+                LoginResponseDto.class);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody());
@@ -141,7 +141,7 @@ public class UserManagementIntegrationTest {
         personRepository.save(user);
 
         // Attempt duplicate registration
-        AuthRequest request = new AuthRequest();
+        AuthRequestDto request = new AuthRequestDto();
         request.setEmailAdress("duplicate@gmail.com");
         request.setPassword("differentpassword");
         request.setName("mrUser");

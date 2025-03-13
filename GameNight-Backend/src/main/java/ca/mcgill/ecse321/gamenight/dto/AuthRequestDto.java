@@ -5,8 +5,8 @@ import lombok.AllArgsConstructor;
 
 @Data
 @AllArgsConstructor
-public class AuthRequest {
-    public AuthRequest() {
+public class AuthRequestDto {
+    public AuthRequestDto() {
     }
 
     private String emailAdress;

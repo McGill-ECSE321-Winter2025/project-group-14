@@ -12,7 +12,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import ca.mcgill.ecse321.gamenight.dto.AuthRequest;
+import ca.mcgill.ecse321.gamenight.dto.AuthRequestDto;
 import ca.mcgill.ecse321.gamenight.exceptions.InvalidCredentialsException;
 import ca.mcgill.ecse321.gamenight.exceptions.UsernameTakenException;
 import ca.mcgill.ecse321.gamenight.model.GameOwner;
@@ -56,7 +56,7 @@ public class UserManagementServiceTest {
      */
     @Test
     public void testValidateEmailAndPasswordSuccess() {
-        AuthRequest request = new AuthRequest("1" + VALID_EMAIL, VALID_PASSWORD, "User");
+        AuthRequestDto request = new AuthRequestDto("1" + VALID_EMAIL, VALID_PASSWORD, "User");
         assertDoesNotThrow(() -> userManagementService.createPerson(request));
     }
 
@@ -65,7 +65,7 @@ public class UserManagementServiceTest {
      */
     @Test
     public void testValidateEmptyEmail() {
-        AuthRequest request = new AuthRequest(EMPTY_STRING, VALID_PASSWORD, "User");
+        AuthRequestDto request = new AuthRequestDto(EMPTY_STRING, VALID_PASSWORD, "User");
 
         IllegalArgumentException exception = assertThrows(
                 IllegalArgumentException.class,
@@ -79,7 +79,7 @@ public class UserManagementServiceTest {
      */
     @Test
     public void testValidateBadFormatEmail() {
-        AuthRequest request = new AuthRequest(INVALID_EMAIL, VALID_PASSWORD, "User");
+        AuthRequestDto request = new AuthRequestDto(INVALID_EMAIL, VALID_PASSWORD, "User");
 
         IllegalArgumentException exception = assertThrows(
                 IllegalArgumentException.class,
@@ -94,9 +94,9 @@ public class UserManagementServiceTest {
     @Test
     public void testValidateWhitespaceEmailAndPassword() {
         assertThrows(IllegalArgumentException.class,
-                () -> userManagementService.createPerson(new AuthRequest("  ", VALID_PASSWORD, "User")));
+                () -> userManagementService.createPerson(new AuthRequestDto("  ", VALID_PASSWORD, "User")));
         assertThrows(IllegalArgumentException.class,
-                () -> userManagementService.createPerson(new AuthRequest(VALID_EMAIL, "  ", "User")));
+                () -> userManagementService.createPerson(new AuthRequestDto(VALID_EMAIL, "  ", "User")));
     }
 
     /**
@@ -104,7 +104,7 @@ public class UserManagementServiceTest {
      */
     @Test
     public void testValidateEmptyPassword() {
-        AuthRequest request = new AuthRequest("1" + VALID_EMAIL, EMPTY_STRING, "User");
+        AuthRequestDto request = new AuthRequestDto("1" + VALID_EMAIL, EMPTY_STRING, "User");
 
         IllegalArgumentException exception = assertThrows(
                 IllegalArgumentException.class,
@@ -120,7 +120,7 @@ public class UserManagementServiceTest {
     public void testCreatePersonSuccess() {
         when(playerRepository.save(any(Player.class))).thenReturn(new Player(testUser));
         when(gameOwnerRepository.save(any(GameOwner.class))).thenReturn(new GameOwner(testUser));
-        AuthRequest request = new AuthRequest();
+        AuthRequestDto request = new AuthRequestDto();
         request.setEmailAdress("newuser@gmail.com");
         request.setPassword("securePassword");
         request.setName("New User");
@@ -140,7 +140,7 @@ public class UserManagementServiceTest {
      */
     @Test
     public void testCreatePersonDuplicateEmail() {
-        AuthRequest request = new AuthRequest();
+        AuthRequestDto request = new AuthRequestDto();
         request.setEmailAdress(VALID_EMAIL);
         request.setPassword(VALID_PASSWORD);
         request.setName("Duplicate User");
@@ -153,7 +153,7 @@ public class UserManagementServiceTest {
      */
     @Test
     public void testLoginSuccess() {
-        AuthRequest request = new AuthRequest();
+        AuthRequestDto request = new AuthRequestDto();
         request.setEmailAdress(VALID_EMAIL);
         request.setPassword(VALID_PASSWORD);
 
@@ -168,7 +168,7 @@ public class UserManagementServiceTest {
      */
     @Test
     public void testLoginEmptyPassword() {
-        AuthRequest request = new AuthRequest();
+        AuthRequestDto request = new AuthRequestDto();
         request.setEmailAdress(VALID_EMAIL);
         request.setPassword(EMPTY_STRING);
 
@@ -177,7 +177,7 @@ public class UserManagementServiceTest {
 
     @Test
     public void testLoginEmptyEmail() {
-        AuthRequest request = new AuthRequest();
+        AuthRequestDto request = new AuthRequestDto();
         request.setEmailAdress(EMPTY_STRING);
         request.setPassword(VALID_PASSWORD);
 
@@ -186,7 +186,7 @@ public class UserManagementServiceTest {
 
     @Test
     public void testLoginWrongPassword() {
-        AuthRequest request = new AuthRequest();
+        AuthRequestDto request = new AuthRequestDto();
         request.setEmailAdress(VALID_EMAIL);
         request.setPassword("defNotCorrect");
 
@@ -198,7 +198,7 @@ public class UserManagementServiceTest {
      */
     @Test
     public void testLoginUserNotFound() {
-        AuthRequest request = new AuthRequest();
+        AuthRequestDto request = new AuthRequestDto();
         request.setEmailAdress("nonexistent@gmail.com");
         request.setPassword(VALID_PASSWORD);
 

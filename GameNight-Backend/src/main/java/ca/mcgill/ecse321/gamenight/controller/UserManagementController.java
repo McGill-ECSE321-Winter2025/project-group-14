@@ -9,8 +9,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import jakarta.servlet.http.HttpServletRequest;
-import ca.mcgill.ecse321.gamenight.dto.AuthRequest;
-import ca.mcgill.ecse321.gamenight.dto.LoginResponse;
+import ca.mcgill.ecse321.gamenight.dto.AuthRequestDto;
+import ca.mcgill.ecse321.gamenight.dto.LoginResponseDto;
 import ca.mcgill.ecse321.gamenight.dto.PersonResponseDto;
 import ca.mcgill.ecse321.gamenight.middleware.RequireUser;
 import ca.mcgill.ecse321.gamenight.service.UserManagementService;
@@ -35,7 +35,7 @@ public class UserManagementController {
      */
     @PostMapping("/users")
     public ResponseEntity<?> createPerson(
-            @RequestBody AuthRequest request) {
+            @RequestBody AuthRequestDto request) {
         userService.createPerson(request);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
@@ -62,11 +62,11 @@ public class UserManagementController {
      * @return a ResponseEntity containing the login response with user ID and email
      */
     @PostMapping("/users/login")
-    public ResponseEntity<LoginResponse> login(
-            @RequestBody AuthRequest request) {
+    public ResponseEntity<LoginResponseDto> login(
+            @RequestBody AuthRequestDto request) {
         Person user = userService.login(request);
         return ResponseEntity.ok(
-                new LoginResponse(user.getId(), user.getEmailAddress()));
+                new LoginResponseDto(user.getId(), user.getEmailAddress()));
     }
 
     // tested
