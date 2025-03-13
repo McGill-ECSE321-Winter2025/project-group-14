@@ -26,7 +26,7 @@ import ca.mcgill.ecse321.gamenight.model.BorrowingRequest.BorrowingRequestStatus
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @TestInstance(Lifecycle.PER_CLASS)
-public class BorrowingManagementIntegrationTests {
+public class BorrowingManagementIntegrationTest {
     @Autowired
     private TestRestTemplate client;
 
