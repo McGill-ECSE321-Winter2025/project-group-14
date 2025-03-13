@@ -19,5 +19,4 @@ public interface GameReviewRepository extends CrudRepository<GameReview, Integer
 
     List<GameReview> findByGameOrderByRatingDesc(Game game);
 
-    void deleteByGame(Game game);
 }

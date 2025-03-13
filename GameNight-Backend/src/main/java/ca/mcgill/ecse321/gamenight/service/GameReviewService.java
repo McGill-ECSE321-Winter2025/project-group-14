@@ -46,14 +46,6 @@ public class GameReviewService {
     }
 
     @Transactional
-    public void deleteReviewsForGame(Game game) {
-        if (game == null) {
-            throw new IllegalArgumentException("Game cannot be null.");
-        }
-        gameReviewRepository.deleteByGame(game);
-    }
-
-    @Transactional
     public GameReview updateReview(int reviewId, int rating, String comment) {
         GameReview review = gameReviewRepository.findById(reviewId)
                 .orElseThrow(() -> new IllegalArgumentException("Review not found."));
