@@ -7,12 +7,12 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import ca.mcgill.ecse321.gamenight.exceptions.ReqGameCopyNotFoundException;
 import ca.mcgill.ecse321.gamenight.model.BorrowingRequest;
 import ca.mcgill.ecse321.gamenight.model.GameCopy;
 import ca.mcgill.ecse321.gamenight.model.GameOwner;
 import ca.mcgill.ecse321.gamenight.model.Player;
 import ca.mcgill.ecse321.gamenight.model.BorrowingRequest.BorrowingRequestStatus;
-import ca.mcgill.ecse321.gamenight.model.Game;
 import ca.mcgill.ecse321.gamenight.repo.BorrowingRequestRepository;
 import ca.mcgill.ecse321.gamenight.repo.GameCopyRepository;
 import ca.mcgill.ecse321.gamenight.repo.PlayerRepository;
@@ -34,10 +34,10 @@ public class BorrowingManagementService {
     private EmailService emailService;
 
     @Transactional
-    public BorrowingRequest sendBorrowingRequest(int gameCopyId, int senderId, Date sendTime, Date startTime, Date endTime){
+    public BorrowingRequest sendBorrowingRequest(int gameCopyId, int senderId, Date startTime, Date endTime){
         Optional<GameCopy> gameCopyOpt = gameCopyRepository.findById(gameCopyId);
         if (!gameCopyOpt.isPresent()) {
-            throw new IllegalArgumentException("Game copy not found with ID: " + gameCopyId);
+            throw new ReqGameCopyNotFoundException(gameCopyId);
         }
         GameCopy gameCopy = gameCopyOpt.get();
 
@@ -49,11 +49,14 @@ public class BorrowingManagementService {
         BorrowingRequest request = new BorrowingRequest();
         request.setGameCopy(gameCopy);
         request.setSender(sender);
+        // find current time when sending request 
+        Date sendTime = new Date(System.currentTimeMillis());
         request.setSendTime(sendTime);
+
         request.setStartTime(startTime);
         request.setEndTime(endTime);
-    
         request.setStatus(BorrowingRequestStatus.Delivered);
+
         BorrowingRequest savedRequest = borrowingRequestRepository.save(request);
 
         GameOwner owner = gameCopy.getOwner();

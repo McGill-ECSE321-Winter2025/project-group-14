@@ -38,7 +38,6 @@ public class BorrowingManagementController {
                 BorrowingRequest savedRequest = borrowingManagementService.sendBorrowingRequest(
                         borrowingRequest.getGameCopyId(),
                         borrowingRequest.getSenderId(),
-                        borrowingRequest.getSendTime(),
                         borrowingRequest.getStartTime(),
                         borrowingRequest.getEndTime()
                     );
@@ -95,10 +94,10 @@ public class BorrowingManagementController {
         
         @GetMapping("/{gameCopyId}/lending-status")
         public BorrowingRequestResponseDto getGameCopyLendingStatus(@PathVariable int gameCopyId) {
-                GameCopy gameCopy = gameCopyRepository.findById(gameCopyId).orElseThrow(() -> new GameOwnerNotFoundException("Game copy not found with ID: " + gameCopyId));
+                GameCopy gameCopy = gameCopyRepository.findById(gameCopyId).orElseThrow(() -> new GameOwnerNotFoundException(gameCopyId));
                 BorrowingRequest request = borrowingManagementService.findGameCopyLendingStatus(gameCopy);
                 if (request == null){
-                        throw new ReqGameCopyNotFoundException("No active borrowing request found for Game Copy ID: " + gameCopyId);
+                        throw new ReqGameCopyNotFoundException(gameCopyId);
                 }
         return new BorrowingRequestResponseDto(request);
         }

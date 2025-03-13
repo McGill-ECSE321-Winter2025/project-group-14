@@ -14,6 +14,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import ca.mcgill.ecse321.gamenight.exceptions.ReqGameCopyNotFoundException;
 import ca.mcgill.ecse321.gamenight.model.BorrowingRequest;
 import ca.mcgill.ecse321.gamenight.model.BorrowingRequest.BorrowingRequestStatus;
 import ca.mcgill.ecse321.gamenight.model.Game;
@@ -49,14 +50,13 @@ public class BorrowingManagementServiceTest {
     }
     
     @Test
-    public void testSendValidBorrowingRequest() {
+    public void sendValidBorrowingRequestTest() {
         int gameCopyId = 10;
         int senderId = 5;
-        Date sendTime = Date.valueOf("2025-03-10");
         Date startTime = Date.valueOf("2025-03-12");
         Date endTime = Date.valueOf("2025-03-15");
         
-        //Gameowner
+        //Game and Gameowner
         Game game = new Game();
         game.setName("uno");
         Person ownerPerson = new Person();
@@ -82,19 +82,30 @@ public class BorrowingManagementServiceTest {
         request.setStatus(BorrowingRequestStatus.Delivered);
         request.setGameCopy(gameCopy);
         request.setSender(sender);
-        request.setSendTime(sendTime);
+
         request.setStartTime(startTime);
         request.setEndTime(endTime);
         
         when(gameCopyRepository.findById(gameCopyId)).thenReturn(Optional.of(gameCopy));
         when(playerRepository.findById(senderId)).thenReturn(Optional.of(sender));
-        when(borrowingRequestRepository.save(any(BorrowingRequest.class))).thenReturn(request);
+        when(borrowingRequestRepository.save(any(BorrowingRequest.class)))
+        .thenAnswer(invocation -> {
+            BorrowingRequest savedRequest = invocation.getArgument(0);
+            savedRequest.setId(120);
+            return savedRequest;
+        });
         
-        BorrowingRequest result = service.sendBorrowingRequest(gameCopyId, senderId, sendTime, startTime, endTime);
+        BorrowingRequest result = service.sendBorrowingRequest(gameCopyId, senderId, startTime, endTime);
         
         assertNotNull(result);
         assertEquals(BorrowingRequestStatus.Delivered, result.getStatus());
         assertEquals("uno", result.getGameCopy().getGame().getName());
+        assertEquals("john", result.getSender().getPerson().getName());
+
+        assertNotNull(result.getSendTime());
+        long currentTime= System.currentTimeMillis();
+        long sendTimeMillis = result.getSendTime().getTime();
+        assertTrue(Math.abs(currentTime - sendTimeMillis)< 2000, "Send time must be within 2 sec of current time");
         verify(emailService, times(1)).sendBorrowingRequestEmail(
             eq("hamza@example.com"),
             eq(senderPerson),
@@ -103,28 +114,26 @@ public class BorrowingManagementServiceTest {
     }
     
     @Test
-    public void testSendBorrowingRequestInvalidGameCopy() {
+    public void sendBorrowingRequestInvalidGameCopyTest() {
         int gameCopyId = 10;
         int senderId = 5;
-        Date sendTime = Date.valueOf("2025-03-10");
         Date startTime = Date.valueOf("2025-03-12");
         Date endTime = Date.valueOf("2025-03-15");
         
         when(gameCopyRepository.findById(gameCopyId)).thenReturn(Optional.empty());
         
-        Exception e = assertThrows(IllegalArgumentException.class, () -> {
-            service.sendBorrowingRequest(gameCopyId, senderId, sendTime, startTime, endTime);
+        Exception e = assertThrows(ReqGameCopyNotFoundException.class, () -> {
+            service.sendBorrowingRequest(gameCopyId, senderId, startTime, endTime);
         });
         
-        String expectedMessage = "Game copy not found with ID: " + gameCopyId;
+        String expectedMessage = "No active borrowing request found for Game Copy ID: " + gameCopyId;
         assertEquals(expectedMessage, e.getMessage());
     }
     
     @Test
-    public void testSendBorrowingRequestInvalidSender() {
+    public void sendBorrowingRequestInvalidSenderTest() {
         int gameCopyId = 10;
         int senderId = 5;
-        Date sendTime = Date.valueOf("2025-03-10");
         Date startTime = Date.valueOf("2025-03-12");
         Date endTime = Date.valueOf("2025-03-15");
         
@@ -144,7 +153,7 @@ public class BorrowingManagementServiceTest {
         when(playerRepository.findById(senderId)).thenReturn(Optional.empty());
         
         Exception e = assertThrows(IllegalArgumentException.class, () -> {
-            service.sendBorrowingRequest(gameCopyId, senderId, sendTime, startTime, endTime);
+            service.sendBorrowingRequest(gameCopyId, senderId, startTime, endTime);
         });
         String expectedMessage = "Player not found with ID: " + senderId;
         assertEquals(expectedMessage, e.getMessage());

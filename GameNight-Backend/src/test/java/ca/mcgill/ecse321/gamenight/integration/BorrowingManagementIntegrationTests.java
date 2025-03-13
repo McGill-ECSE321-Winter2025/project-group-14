@@ -21,7 +21,6 @@ import org.junit.jupiter.api.TestInstance.Lifecycle;
 
 import ca.mcgill.ecse321.gamenight.dto.BorrowingRequestRequestDto;
 import ca.mcgill.ecse321.gamenight.dto.BorrowingRequestResponseDto;
-import ca.mcgill.ecse321.gamenight.model.BorrowingRequest.BorrowingRequestStatus;
 
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
@@ -31,24 +30,23 @@ public class BorrowingManagementIntegrationTests {
     private TestRestTemplate client;
 
     @Test
-    @Order(1)
-    public void testSendBorrowingRequest() {
-        BorrowingRequestRequestDto request =BorrowingRequestRequestDto.create();
-        request.setId(10);
-        request.setSenderId(5);
-        request.setGameCopyId(1);
-        request.setSendTime(Date.valueOf("2025-03-10"));
-        request.setStartTime(Date.valueOf("2025-03-12"));
-        request.setEndTime(Date.valueOf("2025-03-15"));
-        request.setStatus(BorrowingRequestStatus.Delivered);
-
+    @Order(0)
+    public void testsendValidBorrowingRequest() {
+        
+        Date startTime = Date.valueOf("2025-01-05");
+        Date endTime = Date.valueOf("2025-01-10");
+        int senderId =1;
+        int gameCopyId = 5;
+        
+        BorrowingRequestRequestDto request = new BorrowingRequestRequestDto(startTime, endTime, senderId, gameCopyId);
         ResponseEntity<BorrowingRequestResponseDto> response = 
-                client.postForEntity("/request", request, BorrowingRequestResponseDto.class);
+                client.postForEntity("/borrowingRequests", request, BorrowingRequestResponseDto.class);
 
         assertNotNull(response);
         assertEquals(HttpStatus.CREATED, response.getStatusCode());
         BorrowingRequestResponseDto responseBody = response.getBody();
         assertNotNull(responseBody);
+        assertNotNull(responseBody.getSendTime());
     }
 
 }
