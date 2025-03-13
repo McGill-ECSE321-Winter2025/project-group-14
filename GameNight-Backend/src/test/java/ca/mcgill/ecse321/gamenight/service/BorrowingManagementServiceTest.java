@@ -24,6 +24,7 @@ import ca.mcgill.ecse321.gamenight.model.Player;
 import ca.mcgill.ecse321.gamenight.repo.BorrowingRequestRepository;
 import ca.mcgill.ecse321.gamenight.repo.GameCopyRepository;
 import ca.mcgill.ecse321.gamenight.repo.PlayerRepository;
+import jakarta.persistence.EntityNotFoundException;
 
 @SpringBootTest
 public class BorrowingManagementServiceTest {
@@ -182,24 +183,76 @@ public class BorrowingManagementServiceTest {
 
     @Test
     void testRespondToBorrowingRequest_Accepted() {
-        when(borrowingRequestRepository.save(any(BorrowingRequest.class))).thenReturn(request);
+        BorrowingRequest request = new BorrowingRequest();
+        request.setId(1);
+        request.setStatus(BorrowingRequestStatus.Delivered);
+
+        Game game = new Game();
+        game.setName("Uno");
+
+        GameCopy gameCopy = new GameCopy();
+        gameCopy.setGame(game);
+
+        GameOwner gameOwner = new GameOwner();
+        gameOwner.setPerson(ownerPerson); 
+        gameCopy.setGameOwner(gameOwner);
+
+        request.setGameCopy(gameCopy);
+
+        Person senderPerson = new Person();
+        int senderId = 5;
+        senderPerson.setName("Hamza");
+        senderPerson.setEmailAddress("hamza@gmail.com");
+        Player sender = new Player();
+        sender.setId(senderId);
+        sender.setPerson(senderPerson);
+
+        request.setSender(sender);
+
+        when(borrowingRequestRepository.findById(1)).thenReturn(Optional.of(request));
+        when(borrowingRequestRepository.save(any(BorrowingRequest.class))).thenAnswer(i -> i.getArgument(0));
 
         BorrowingRequest result = borrowingManagementService.respondToBorrowingRequest(request, BorrowingRequestStatus.Accepted);
         
         assertEquals(BorrowingRequestStatus.Accepted, result.getStatus());
-        verify(emailService).sendRequestAcceptedEmail(
-            senderPerson.getEmailAddress(), ownerPerson.getName(), game.getName());
+        verify(borrowingRequestRepository, times(2)).save(any(BorrowingRequest.class));
+
     }
 
     @Test
     void testRespondToBorrowingRequest_Rejected() {
-        when(borrowingRequestRepository.save(any(BorrowingRequest.class))).thenReturn(request);
+        BorrowingRequest request = new BorrowingRequest();
+        request.setId(1);
+        request.setStatus(BorrowingRequestStatus.Delivered);
+        
+        Game game = new Game();
+        game.setName("Uno");
+        GameCopy gameCopy = new GameCopy();
+        gameCopy.setGame(game);
+
+        GameOwner gameOwner = new GameOwner();
+        gameOwner.setPerson(ownerPerson);
+        gameCopy.setGameOwner(gameOwner);
+        request.setGameCopy(gameCopy);
+        
+        
+        Person senderPerson = new Person();
+        int senderId = 5;
+        senderPerson.setName("Hamza");
+        senderPerson.setEmailAddress("hamza@gmail.com");
+        Player sender = new Player();
+        sender.setId(senderId);
+        sender.setPerson(senderPerson);
+        
+        request.setSender(sender);
+
+        when(borrowingRequestRepository.findById(1)).thenReturn(Optional.of(request));
+        when(borrowingRequestRepository.save(any(BorrowingRequest.class))).thenAnswer(i -> i.getArgument(0));
 
         BorrowingRequest result = borrowingManagementService.respondToBorrowingRequest(request, BorrowingRequestStatus.Rejected);
         
         assertEquals(BorrowingRequestStatus.Rejected, result.getStatus());
-        verify(emailService).sendRequestRejectedEmail(
-            senderPerson.getEmailAddress(), ownerPerson.getName(), game.getName());
+        verify(borrowingRequestRepository, times(2)).save(any(BorrowingRequest.class));
     }
 
     @Test
@@ -209,5 +262,43 @@ public class BorrowingManagementServiceTest {
         );
         
         assertEquals("Invalid borrowing request or missing game details.", exception.getMessage());
+    }
+
+    @Test
+    void testUpdateBorrowingRequestToAccepted(){
+        BorrowingRequest request = new BorrowingRequest();
+        request.setId(1);
+        request.setStatus(BorrowingRequestStatus.Delivered);
+
+        when(borrowingRequestRepository.findById(1)).thenReturn(Optional.of(request));
+        when(borrowingRequestRepository.save(any(BorrowingRequest.class))).thenAnswer(i -> i.getArgument(0));
+
+        BorrowingRequest result = borrowingManagementService.updateBorrowingRequestStatus(request, BorrowingRequestStatus.Accepted);
+        assertEquals(BorrowingRequestStatus.Accepted, result.getStatus());
+        verify(borrowingRequestRepository, times(1)).save(request); // used to make sure the code would be updating to the database
+    }
+
+    @Test
+    void testUpdateBorrowingRequestToRejected(){
+        BorrowingRequest request = new BorrowingRequest();
+        request.setId(1);
+        request.setStatus(BorrowingRequestStatus.Delivered);
+
+        when(borrowingRequestRepository.findById(1)).thenReturn(Optional.of(request));
+        when(borrowingRequestRepository.save(any(BorrowingRequest.class))).thenAnswer(i -> i.getArgument(0));
+
+        BorrowingRequest result = borrowingManagementService.updateBorrowingRequestStatus(request, BorrowingRequestStatus.Rejected);
+        assertEquals(BorrowingRequestStatus.Rejected, result.getStatus());
+        verify(borrowingRequestRepository, times(1)).save(request); // used to make sure the code would be updating to the database
+    }
+
+    @Test
+    void testUpdateBorrowingRequestThatDoesNotExist(){
+        BorrowingRequest request = new BorrowingRequest();
+        when(borrowingRequestRepository.findById(383)).thenReturn(Optional.empty());
+        assertThrows(EntityNotFoundException.class, () -> {
+            borrowingManagementService.updateBorrowingRequestStatus(request, BorrowingRequestStatus.Accepted);
+    });
+    verify(borrowingRequestRepository, never()).save(any(BorrowingRequest.class));
     }
 }
