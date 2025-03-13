@@ -16,6 +16,7 @@ import ca.mcgill.ecse321.gamenight.model.BorrowingRequest.BorrowingRequestStatus
 import ca.mcgill.ecse321.gamenight.repo.BorrowingRequestRepository;
 import ca.mcgill.ecse321.gamenight.repo.GameCopyRepository;
 import ca.mcgill.ecse321.gamenight.repo.PlayerRepository;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 
 @Service
@@ -37,7 +38,7 @@ public class BorrowingManagementService {
     public BorrowingRequest sendBorrowingRequest(int gameCopyId, int senderId, Date startTime, Date endTime){
         Optional<GameCopy> gameCopyOpt = gameCopyRepository.findById(gameCopyId);
         if (!gameCopyOpt.isPresent()) {
-            throw new ReqGameCopyNotFoundException(gameCopyId);
+            throw new ReqGameCopyNotFoundException(String.valueOf(gameCopyId));
         }
         GameCopy gameCopy = gameCopyOpt.get();
 
@@ -70,12 +71,12 @@ public class BorrowingManagementService {
         return savedRequest;
     }
 
-   @Transactional
+   @Transactional //done
    public BorrowingRequest respondToBorrowingRequest(BorrowingRequest request, BorrowingRequestStatus status){
-        if (request == null || request.getGameCopy() == null || request.getGameCopy().getOwner() == null || request.getSender() == null) {
+        if (request == null) {
             throw new IllegalArgumentException("Invalid borrowing request or missing game details.");
         }
-
+    
         GameCopy gameCopy = request.getGameCopy();
         GameOwner owner = gameCopy.getOwner();
         Player sender = request.getSender();
@@ -93,10 +94,12 @@ public class BorrowingManagementService {
         return savedRequest;
    }
    
-    @Transactional
+    @Transactional //done
     public BorrowingRequest updateBorrowingRequestStatus(BorrowingRequest request, BorrowingRequestStatus status){
-        request.setStatus(status);
-        return request;
+        BorrowingRequest existingRequest = borrowingRequestRepository.findById(request.getId())
+        .orElseThrow(() -> new EntityNotFoundException("Borrowing request not found"));
+        existingRequest.setStatus(status);
+        return borrowingRequestRepository.save(existingRequest);
     }
 
     public List<BorrowingRequest> findDeliveredBorrowingRequestsForBorrower(int BorrowerId){

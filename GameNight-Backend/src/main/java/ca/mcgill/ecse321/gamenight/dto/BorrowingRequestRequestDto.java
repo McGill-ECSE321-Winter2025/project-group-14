@@ -6,7 +6,8 @@ public class BorrowingRequestRequestDto {
     private Date endTime;
     private int senderId;
     private int gameCopyId;
-
+    private int id;
+    
     @SuppressWarnings("unused")
     private BorrowingRequestRequestDto(){
     }

@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 public class GameOwnerNotFoundException extends RuntimeException {
     private final String message;
     
-    public GameOwnerNotFoundException(int gameCopyId) {
+    public GameOwnerNotFoundException(String gameCopyId) {
         super("Game copy not found with ID: " + gameCopyId);
         this.message = "Game copy not found with ID: " + gameCopyId;
     }
