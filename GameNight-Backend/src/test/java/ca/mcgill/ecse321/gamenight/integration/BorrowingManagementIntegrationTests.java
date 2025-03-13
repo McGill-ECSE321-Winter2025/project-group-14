@@ -73,7 +73,8 @@ public class BorrowingManagementIntegrationTests {
     private static final String VALID_GAMECOPYDESCRIPTION =  "Good condition";
     private static final String VALID_PASSWORD2 = "1234RE";
     private static final String VALID_NAME2 = "jane doe";
-    
+    private static final Date START_TIME = Date.valueOf("2025-01-05");
+    private static final Date END_TIME = Date.valueOf("2025-01-10");
 
 
 
@@ -108,12 +109,9 @@ public class BorrowingManagementIntegrationTests {
     }
     @Test
     @Order(0)
-    public void testsendValidBorrowingRequest() {
+    public void testSendValidBorrowingRequest() {
         
-        Date startTime = Date.valueOf("2025-01-05");
-        Date endTime = Date.valueOf("2025-01-10");
-
-        BorrowingRequestRequestDto request = new BorrowingRequestRequestDto(startTime, endTime, validSenderId, validGameCopyId);
+        BorrowingRequestRequestDto request = new BorrowingRequestRequestDto(START_TIME, END_TIME, validSenderId, validGameCopyId);
         ResponseEntity<BorrowingRequestResponseDto> response = 
                 client.postForEntity("/borrowingRequests", request, BorrowingRequestResponseDto.class);
 
@@ -122,6 +120,22 @@ public class BorrowingManagementIntegrationTests {
         BorrowingRequestResponseDto responseBody = response.getBody();
         assertNotNull(responseBody);
         assertNotNull(responseBody.getSendTime());
+    }
+
+    @Test
+    @Order(1)
+    public void testSendBorrowingRequestInvalidGameCopyTest(){
+        BorrowingRequestRequestDto requestDto = new BorrowingRequestRequestDto(START_TIME, END_TIME, validSenderId, 99999);
+        ResponseEntity<String> response = client.postForEntity("/borrowingRequests", requestDto, String.class);
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+    }
+
+    @Test
+    @Order(2)
+    public void testSendBorrowingRequestInvalidSenderTest(){
+        BorrowingRequestRequestDto requestDto = new BorrowingRequestRequestDto(START_TIME, END_TIME, 99999, validGameCopyId);
+        ResponseEntity<String> response = client.postForEntity("/borrowingRequests", requestDto, String.class);
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     }
 
 

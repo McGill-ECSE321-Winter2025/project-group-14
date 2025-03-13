@@ -7,6 +7,7 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import ca.mcgill.ecse321.gamenight.exceptions.PlayerNotFoundException;
 import ca.mcgill.ecse321.gamenight.exceptions.ReqGameCopyNotFoundException;
 import ca.mcgill.ecse321.gamenight.model.BorrowingRequest;
 import ca.mcgill.ecse321.gamenight.model.GameCopy;
@@ -44,7 +45,7 @@ public class BorrowingManagementService {
 
         Optional<Player> senderOpt = playerRepository.findById(senderId);
         if (!senderOpt.isPresent()) {
-            throw new IllegalArgumentException("Player not found with ID: " + senderId);
+            throw new PlayerNotFoundException(senderId);
         }
         Player sender = senderOpt.get();
         BorrowingRequest request = new BorrowingRequest();

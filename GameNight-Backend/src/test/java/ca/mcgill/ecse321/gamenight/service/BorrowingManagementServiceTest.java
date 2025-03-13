@@ -17,6 +17,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import ca.mcgill.ecse321.gamenight.exceptions.PlayerNotFoundException;
 import ca.mcgill.ecse321.gamenight.exceptions.ReqGameCopyNotFoundException;
 import ca.mcgill.ecse321.gamenight.model.BorrowingRequest;
 import ca.mcgill.ecse321.gamenight.model.BorrowingRequest.BorrowingRequestStatus;
@@ -186,7 +187,7 @@ public class BorrowingManagementServiceTest {
         when(gameCopyRepository.findById(gameCopyId)).thenReturn(Optional.of(gameCopy));
         when(playerRepository.findById(senderId)).thenReturn(Optional.empty());
         
-        Exception e = assertThrows(IllegalArgumentException.class, () -> {
+        Exception e = assertThrows(PlayerNotFoundException.class, () -> {
             borrowingManagementService.sendBorrowingRequest(gameCopyId, senderId, startTime, endTime);
         });
         String expectedMessage = "Player not found with ID: " + senderId;
