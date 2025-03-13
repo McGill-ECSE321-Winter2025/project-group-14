@@ -119,14 +119,13 @@ public class UserManagementService {
 
     @Transactional
     public void toggleAccountRole(int id) {
-        personRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Person not found with ID: " + id));
-
-        GameOwner gameOwnerRole = gameOwnerRepository.findById(id).orElse(null);
+        GameOwner gameOwnerRole = gameOwnerRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("GameOwner not found with ID: " + id));
 
         gameOwnerRole.setActive(!gameOwnerRole.isActive());
-
+        gameOwnerRepository.save(gameOwnerRole);
     }
+
 
     public List<Person> getAllUsers() {
         Iterable<Person> iterable = personRepository.findAll();

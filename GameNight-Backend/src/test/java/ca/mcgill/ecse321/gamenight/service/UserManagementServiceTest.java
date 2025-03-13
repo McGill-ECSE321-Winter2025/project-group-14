@@ -6,6 +6,8 @@ import static org.mockito.Mockito.*;
 
 import java.util.Optional;
 
+import java.util.List;
+import java.util.Arrays;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -328,7 +330,7 @@ public class UserManagementServiceTest {
 
         verify(personRepository, times(0)).delete(any(Person.class));
     }
-    
+
     /*
      * Tests deleting a non-existing user
      */
@@ -339,4 +341,103 @@ public class UserManagementServiceTest {
         assertThrows(IllegalArgumentException.class, () -> userManagementService.deletePerson(999));
     }
 
+    /*
+     * Tests toggling to a gameOwner from player
+     */
+    @Test
+    public void testToggleRoleToGameOwner() {
+        Person person = new Person(VALID_EMAIL, VALID_PASSWORD, "Test User");
+        GameOwner gameOwnerRole = new GameOwner(person);
+        gameOwnerRole.setActive(false);
+        
+        when(gameOwnerRepository.findById(person.getId())).thenReturn(Optional.of(gameOwnerRole));
+        when(gameOwnerRepository.save(any(GameOwner.class))).thenReturn(gameOwnerRole);
+
+        userManagementService.toggleAccountRole(person.getId());
+        assertTrue(gameOwnerRole.isActive());
+        verify(gameOwnerRepository, times(1)).save(gameOwnerRole);
+    }
+
+    /*
+     * Tests toggling to a player from gameOwner
+     */
+    @Test
+    public void testToggleRoleToPlayer(){
+        Person person = new Person(VALID_EMAIL, VALID_PASSWORD, "Test User");
+        GameOwner gameOwnerRole = new GameOwner(person);
+        gameOwnerRole.setActive(true);
+        
+        when(gameOwnerRepository.findById(person.getId())).thenReturn(Optional.of(gameOwnerRole));
+        when(gameOwnerRepository.save(any(GameOwner.class))).thenReturn(gameOwnerRole);
+
+        userManagementService.toggleAccountRole(person.getId());
+        assertTrue(!gameOwnerRole.isActive());
+        verify(gameOwnerRepository, times(1)).save(gameOwnerRole);
+    }
+
+    /*
+     * Tests getting all existing users
+     */
+    @Test
+    public void testGettingAllUsers(){
+        Person hamza = new Person("hamza@gmail.com","Helloworld2223","Hamza");
+        Person deniz = new Person("deniz@gmail.com","Helloworld","Deniz");
+        List<Person> testUsers = Arrays.asList(hamza,deniz);
+
+        when(personRepository.findAll()).thenReturn(testUsers);
+
+        List<Person> allUsers = userManagementService.getAllUsers();
+        assertNotNull(allUsers);
+        assertEquals(2,testUsers.size());
+        assertEquals("Hamza", testUsers.get(0).getName());
+        assertEquals("Deniz", testUsers.get(1).getName());
+        verify(personRepository, times(1)).findAll();
+    }
+
+    /*
+     * Tests getting all users but none exist yet
+     */
+    @Test
+    public void testGettingAllUsersWhenThereIsNoUsers(){
+        when(personRepository.findAll()).thenReturn(List.of());
+        List<Person> allUsers= userManagementService.getAllUsers();
+
+        assertNotNull(allUsers,"The returned list should not be null");
+        assertTrue(allUsers.isEmpty(), "The returned list should be empty.");
+        verify(personRepository, times(1)).findAll();
+    }
+
+    /*
+     * Tests getting an existing user from their Id
+     */
+    @Test
+    public void testGetExistingUserById(){
+        Person hamza = new Person("testuser@gmail.com","password123","Test User");
+        
+        when(personRepository.findPersonById(hamza.getId())).thenReturn(Optional.of(hamza));
+        Person foundUser = userManagementService.getUserById(hamza.getId());
+
+        assertNotNull(foundUser, "The returned user should not be null.");
+        assertEquals(hamza.getId(), foundUser.getId(), "The IDs should match.");
+        assertEquals(hamza.getEmailAddress(),foundUser.getEmailAddress(),"The emails should match.");
+        assertEquals(hamza.getPassword(), foundUser.getPassword(),"The passwords should match.");
+        assertEquals(hamza.getName(), foundUser.getName(), "The names should match.");
+
+        verify(personRepository,times(1)).findById(hamza.getId());
+    }
+
+    /*
+     * Tests getting user from an invalid Id
+     */
+    @Test
+    public void testGetNonExistingUserById(){
+        int nonExistingId = 3;
+
+        when(personRepository.findById(nonExistingId)).thenReturn(Optional.empty());
+
+        assertThrows(RuntimeException.class, () -> {
+            userManagementService.getUserById(nonExistingId);
+        }, "Expected RuntimeException when user is not found");
+        verify(personRepository, times(1)).findById(nonExistingId);
+    }
 }
