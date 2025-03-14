@@ -8,6 +8,7 @@ import ca.mcgill.ecse321.gamenight.repo.PlayerRepository;
 import ca.mcgill.ecse321.gamenight.service.UserManagementService;
 import ca.mcgill.ecse321.gamenight.dto.AuthRequestDto;
 import ca.mcgill.ecse321.gamenight.dto.LoginResponseDto;
+import ca.mcgill.ecse321.gamenight.dto.PersonResponseDto;
 import ca.mcgill.ecse321.gamenight.model.GameOwner;
 import ca.mcgill.ecse321.gamenight.model.Person;
 import ca.mcgill.ecse321.gamenight.model.Player;
@@ -24,9 +25,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.test.web.server.LocalServerPort;
+
+import java.util.Arrays;
 import java.util.Optional;
 import org.springframework.http.*;
-
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @TestInstance(Lifecycle.PER_CLASS)
@@ -60,29 +62,24 @@ public class UserManagementIntegrationTest {
     private static final String WRONG_PASSWORD = "wrongpassword";
     private static final String SUCCESS_MESSAGE = "User updated successfully.";
     private static final String ERROR_MESSAGE = "Incorrect old password.";
-    private static final int USERID = 123;
 
     @BeforeEach
-public void setup() {
-    gameOwnerRepo.deleteAll();
-    playerRepo.deleteAll();
-    personRepository.deleteAll();
+    public void setup() {
+        gameOwnerRepo.deleteAll();
+        playerRepo.deleteAll();
+        personRepository.deleteAll();
 
-    Person user = new Person(ORIGINAL_EMAIL, ORIGINAL_PASSWORD, "Test User");
-    personRepository.save(user);
-    testUserId = user.getId();
+        Person user = new Person(ORIGINAL_EMAIL, ORIGINAL_PASSWORD, "Test User");
+        personRepository.save(user);
+        testUserId = user.getId();
 
-    Optional<Person> savedUser = personRepository.findById(testUserId);
-    assertTrue(savedUser.isPresent(), "User should be saved in the repository.");
+        Optional<Person> savedUser = personRepository.findById(testUserId);
+        assertTrue(savedUser.isPresent(), "User should be saved in the repository.");
 
-    GameOwner gameOwner = new GameOwner(user);
-    gameOwner.setActive(true);
-    gameOwnerRepo.save(gameOwner);
-}
-
-    
-
-
+        GameOwner gameOwner = new GameOwner(user);
+        gameOwner.setActive(true);
+        gameOwnerRepo.save(gameOwner);
+    }
 
     @AfterAll
     public void clearDatabase() {
@@ -111,7 +108,6 @@ public void setup() {
         assertTrue(personRepository.findPersonByEmailAddress("newuser@gmail.com").isPresent());
     }
 
-    @SuppressWarnings("null")
     @Test
     public void testLoginSuccess() {
         Person user = new Person("loginuser@gmail.com", "password123", "mrUser");
@@ -191,7 +187,6 @@ public void setup() {
         assertEquals(SUCCESS_MESSAGE, response.getBody());
     }
 
-
     @Test
     public void testUpdateUserUnauthorized() {
         String url = createURLWithPort(
@@ -232,6 +227,20 @@ public void setup() {
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody());
-}
+    }
 
+    @Test
+    public void testGetAllUsers() {
+        
+    }
+
+    @Test
+    public void testGetUserById() {
+        
+    }
+
+    @Test
+    public void testGetUserByIdNotFound() {
+        
+}
 }

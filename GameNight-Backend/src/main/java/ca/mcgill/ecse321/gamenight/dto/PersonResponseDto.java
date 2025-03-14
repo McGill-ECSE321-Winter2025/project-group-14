@@ -12,7 +12,10 @@ public class PersonResponseDto {
         this.name = person.getName();
         this.email = person.getEmailAddress();
     }
-
+    public PersonResponseDto() {
+        // Default constructor for Jackson
+    }
+    
     public int getPersonId() {
         return personId;
     }
