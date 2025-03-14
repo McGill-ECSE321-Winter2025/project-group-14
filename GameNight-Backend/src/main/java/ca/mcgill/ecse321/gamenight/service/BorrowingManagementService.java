@@ -8,7 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import ca.mcgill.ecse321.gamenight.exceptions.PlayerNotFoundException;
-import ca.mcgill.ecse321.gamenight.exceptions.ReqGameCopyNotFoundException;
+import ca.mcgill.ecse321.gamenight.exceptions.BorrowingRequestNotFoundException;
+import ca.mcgill.ecse321.gamenight.exceptions.GameCopyNotFoundException;
 import ca.mcgill.ecse321.gamenight.model.BorrowingRequest;
 import ca.mcgill.ecse321.gamenight.model.GameCopy;
 import ca.mcgill.ecse321.gamenight.model.GameOwner;
@@ -39,7 +40,7 @@ public class BorrowingManagementService {
     public BorrowingRequest sendBorrowingRequest(int gameCopyId, int senderId, Date startTime, Date endTime){
         Optional<GameCopy> gameCopyOpt = gameCopyRepository.findById(gameCopyId);
         if (!gameCopyOpt.isPresent()) {
-            throw new ReqGameCopyNotFoundException(String.valueOf(gameCopyId));
+            throw new GameCopyNotFoundException(String.valueOf(gameCopyId));
         }
         GameCopy gameCopy = gameCopyOpt.get();
 
@@ -72,7 +73,7 @@ public class BorrowingManagementService {
         return savedRequest;
     }
 
-   @Transactional //done
+   @Transactional 
    public BorrowingRequest respondToBorrowingRequest(BorrowingRequest request, BorrowingRequestStatus status){
         if (request == null) {
             throw new IllegalArgumentException("Invalid borrowing request or missing game details.");
@@ -137,7 +138,7 @@ public class BorrowingManagementService {
     
     public BorrowingRequest getBorrowingRequestById(int requestId) {
         return borrowingRequestRepository.findById(requestId)
-                .orElseThrow(() -> new IllegalArgumentException("Borrowing request not found with ID: " + requestId));
+                .orElseThrow(() -> new BorrowingRequestNotFoundException(requestId));
     }
     
 }

@@ -6,11 +6,11 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 
 
 @ResponseStatus(value = HttpStatus.NOT_FOUND)
-public class ReqGameCopyNotFoundException extends RuntimeException {
+public class GameCopyNotFoundException extends RuntimeException {
 
     private final String message;
     
-    public ReqGameCopyNotFoundException(String gameCopyId) {
+    public GameCopyNotFoundException(String gameCopyId) {
         super("No active borrowing request found for Game Copy ID: " + gameCopyId);
         this.message = "No active borrowing request found for Game Copy ID: " + gameCopyId;
     }

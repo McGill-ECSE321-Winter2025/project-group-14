@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 import ca.mcgill.ecse321.gamenight.dto.BorrowingRequestRequestDto;
 import ca.mcgill.ecse321.gamenight.dto.BorrowingRequestResponseDto;
 import ca.mcgill.ecse321.gamenight.exceptions.GameOwnerNotFoundException;
-import ca.mcgill.ecse321.gamenight.exceptions.ReqGameCopyNotFoundException;
+import ca.mcgill.ecse321.gamenight.exceptions.GameCopyNotFoundException;
 import ca.mcgill.ecse321.gamenight.model.BorrowingRequest;
 import ca.mcgill.ecse321.gamenight.model.BorrowingRequest.BorrowingRequestStatus;
 import ca.mcgill.ecse321.gamenight.model.GameCopy;
@@ -100,8 +100,15 @@ public class BorrowingManagementController {
                 GameCopy gameCopy = gameCopyRepository.findById(gameCopyId).orElseThrow(() -> new GameOwnerNotFoundException(String.valueOf(gameCopyId)));
                 BorrowingRequest request = borrowingManagementService.findGameCopyLendingStatus(gameCopy);
                 if (request == null){
-                        throw new ReqGameCopyNotFoundException(String.valueOf(gameCopyId));
+                        throw new GameCopyNotFoundException(String.valueOf(gameCopyId));
                 }
-        return new BorrowingRequestResponseDto(request);
+                return new BorrowingRequestResponseDto(request);
         }
+
+        @GetMapping("/{requestId}")
+        public BorrowingRequestResponseDto getBorrowingRequestById(@PathVariable int requestId) {
+                BorrowingRequest request = borrowingManagementService.getBorrowingRequestById(requestId);
+                return new BorrowingRequestResponseDto(request);
+        }
+
         }

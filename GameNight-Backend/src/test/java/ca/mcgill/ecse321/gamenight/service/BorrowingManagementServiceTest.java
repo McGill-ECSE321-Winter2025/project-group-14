@@ -18,7 +18,8 @@ import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import ca.mcgill.ecse321.gamenight.exceptions.PlayerNotFoundException;
-import ca.mcgill.ecse321.gamenight.exceptions.ReqGameCopyNotFoundException;
+import ca.mcgill.ecse321.gamenight.exceptions.BorrowingRequestNotFoundException;
+import ca.mcgill.ecse321.gamenight.exceptions.GameCopyNotFoundException;
 import ca.mcgill.ecse321.gamenight.model.BorrowingRequest;
 import ca.mcgill.ecse321.gamenight.model.BorrowingRequest.BorrowingRequestStatus;
 import ca.mcgill.ecse321.gamenight.model.Game;
@@ -157,7 +158,7 @@ public class BorrowingManagementServiceTest {
         
         when(gameCopyRepository.findById(gameCopyId)).thenReturn(Optional.empty());
         
-        Exception e = assertThrows(ReqGameCopyNotFoundException.class, () -> {
+        Exception e = assertThrows(GameCopyNotFoundException.class, () -> {
             borrowingManagementService.sendBorrowingRequest(gameCopyId, senderId, startTime, endTime);
         });
         
@@ -432,7 +433,7 @@ public class BorrowingManagementServiceTest {
         int requestId = 100;
         when(borrowingRequestRepository.findById(requestId)).thenReturn(Optional.empty());
         
-        Exception e = assertThrows(IllegalArgumentException.class, () -> {
+        Exception e = assertThrows(BorrowingRequestNotFoundException.class, () -> {
             borrowingManagementService.getBorrowingRequestById(requestId);
         });
         String expectedMessage = "Borrowing request not found with ID: " + requestId;
