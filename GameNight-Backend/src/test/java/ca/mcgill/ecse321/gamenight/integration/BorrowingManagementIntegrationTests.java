@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.sql.Date;
 
@@ -138,5 +139,33 @@ public class BorrowingManagementIntegrationTests {
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     }
 
+    @Test 
+    @Order(3)
+    public void testFindDeliveredRequestsForBorrowerValid(){
 
-}
+        BorrowingRequestRequestDto requestDto = new BorrowingRequestRequestDto(START_TIME, END_TIME, validSenderId, validGameCopyId);
+        ResponseEntity<BorrowingRequestResponseDto> response = client.postForEntity("/borrowingRequests", requestDto, BorrowingRequestResponseDto.class);
+        assertEquals(HttpStatus.CREATED, response.getStatusCode());
+       
+        String url = String.format("/borrowingRequests/%d/status/delivered", validSenderId);
+        ResponseEntity<BorrowingRequestResponseDto[]> getResponse = client.getForEntity(url, BorrowingRequestResponseDto[].class);
+        assertEquals(HttpStatus.OK, getResponse.getStatusCode());
+        BorrowingRequestResponseDto[] requests = getResponse.getBody();
+        assertNotNull(requests);
+        assertTrue(requests.length > 0, "Expected at least one delivered request");
+    }
+    
+
+    @Test 
+    @Order(4)
+    public void testFindDeliveredRequestsForBorrowerInvalid(){
+        
+        String url = String.format("/borrowingRequests/%d/status/delivered", 9999);
+        ResponseEntity<BorrowingRequestResponseDto[]> getResponse = client.getForEntity(url, BorrowingRequestResponseDto[].class);
+        assertEquals(HttpStatus.OK, getResponse.getStatusCode());
+        BorrowingRequestResponseDto[] requests = getResponse.getBody();
+        assertNotNull(requests);
+        assertEquals(0, requests.length, "Expected no delivered requests for borrower ID " + 9999);
+    }
+    }
+
