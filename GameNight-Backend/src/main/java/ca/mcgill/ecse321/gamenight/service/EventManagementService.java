@@ -12,6 +12,7 @@ import ca.mcgill.ecse321.gamenight.model.Player;
 import ca.mcgill.ecse321.gamenight.model.Registration;
 import ca.mcgill.ecse321.gamenight.model.Registration.Key;
 import ca.mcgill.ecse321.gamenight.repo.EventRepository;
+import ca.mcgill.ecse321.gamenight.repo.GameRepository;
 import ca.mcgill.ecse321.gamenight.repo.PlayerRepository;
 import ca.mcgill.ecse321.gamenight.repo.RegistrationRepository;
 import ca.mcgill.ecse321.gamenight.repo.ScheduledGameRepository;
@@ -51,6 +52,9 @@ public class EventManagementService {
     @Transactional
     public Event updateEvent(int eventId, String name, String description, Date startTime, Date endTime) {
         Event existingEvent = getEventById(eventId);
+        if (name == null || name.trim().isEmpty()) {
+            throw new IllegalArgumentException("Event name cannot be empty.");
+        }
         if (name != null && !name.trim().isEmpty()) {
             existingEvent.setName(name);
         }
@@ -89,8 +93,13 @@ public class EventManagementService {
     @Autowired
     private RegistrationRepository registrationRepository;
 
+    @Autowired
+    private GameRepository gameRepository;
+    
     @Transactional
     public List<Event> getScheduledEventsForAGame(int gameId) {
+        gameRepository.findById(gameId)
+            .orElseThrow(() -> new NoSuchElementException("No Game found with ID: " + gameId));
         return scheduledGameRepository.findByKey_GameId(gameId)
             .stream()
             .map(sg -> sg.getKey().getEvent())
