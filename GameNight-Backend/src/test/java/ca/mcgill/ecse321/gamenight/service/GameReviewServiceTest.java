@@ -55,9 +55,17 @@ public class GameReviewServiceTest {
     }
 
     @Test
-    public void testSubmitReviewWithInvalidRating() {
+    public void testSubmitReviewWithTooLowRating() {
         IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
                 () -> gameReviewService.submitReview(0, "Great game!", reviewer, game));
+
+        assertEquals("Rating must be between 1 and 5.", e.getMessage());
+    }
+
+    @Test
+    public void testSubmitReviewWithTooHighRating() {
+        IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
+                () -> gameReviewService.submitReview(6, "Great game!", reviewer, game));
 
         assertEquals("Rating must be between 1 and 5.", e.getMessage());
     }
@@ -66,6 +74,14 @@ public class GameReviewServiceTest {
     public void testSubmitReviewWithEmptyComment() {
         IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
                 () -> gameReviewService.submitReview(5, "", reviewer, game));
+
+        assertEquals("Comment cannot be empty.", e.getMessage());
+    }
+
+    @Test
+    public void testSubmitReviewWithNullComment() {
+        IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
+                () -> gameReviewService.submitReview(5, null, reviewer, game));
 
         assertEquals("Comment cannot be empty.", e.getMessage());
     }
@@ -123,13 +139,25 @@ public class GameReviewServiceTest {
     }
 
     @Test
-    public void testUpdateReviewWithInvalidRating() {
+    public void testUpdateReviewWithTooHighRating() {
         int reviewId = 1;
         GameReview review = new GameReview(3, "Average game", reviewer, game);
         when(gameReviewRepository.findById(reviewId)).thenReturn(Optional.of(review));
 
         IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
                 () -> gameReviewService.updateReview(reviewId, 6, "Improved game"));
+
+        assertEquals("Rating must be between 1 and 5.", e.getMessage());
+    }
+
+    @Test
+    public void testUpdateReviewWithTooLowRating() {
+        int reviewId = 1;
+        GameReview review = new GameReview(3, "Average game", reviewer, game);
+        when(gameReviewRepository.findById(reviewId)).thenReturn(Optional.of(review));
+
+        IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
+                () -> gameReviewService.updateReview(reviewId, 0, "Worst game"));
 
         assertEquals("Rating must be between 1 and 5.", e.getMessage());
     }
@@ -144,6 +172,29 @@ public class GameReviewServiceTest {
                 () -> gameReviewService.updateReview(reviewId, 4, ""));
 
         assertEquals("Comment cannot be empty.", e.getMessage());
+    }
+
+    @Test
+    public void testUpdateReviewWithNullComment() {
+        int reviewId = 1;
+        GameReview review = new GameReview(3, "Average game", reviewer, game);
+        when(gameReviewRepository.findById(reviewId)).thenReturn(Optional.of(review));
+
+        IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
+                () -> gameReviewService.updateReview(reviewId, 4, null));
+
+        assertEquals("Comment cannot be empty.", e.getMessage());
+    }
+
+    @Test
+    public void testUpdateReviewNotFound() {
+        int nonExistingReviewId = 999; // An ID that does not exist in the repository
+        when(gameReviewRepository.findById(nonExistingReviewId)).thenReturn(Optional.empty());
+
+        IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
+                () -> gameReviewService.updateReview(nonExistingReviewId, 4, "Updated comment"));
+
+        assertEquals("Review not found.", e.getMessage());
     }
 
     @Test
@@ -191,6 +242,14 @@ public class GameReviewServiceTest {
     }
 
     @Test
+    public void testGetAverageRatingForNullGame() {
+        IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
+                () -> gameReviewService.getAverageRatingForGame(null));
+
+        assertEquals("Game cannot be null.", e.getMessage());
+    }
+
+    @Test
     public void testGetReviewsForGame() {
         List<GameReview> reviews = new ArrayList<>();
         reviews.add(new GameReview(5, "Great game!", reviewer, game));
@@ -203,6 +262,14 @@ public class GameReviewServiceTest {
     }
 
     @Test
+    public void testGetReviewsForNullGame() {
+        IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
+                () -> gameReviewService.getReviewsForGame(null));
+
+        assertEquals("Game cannot be null.", e.getMessage());
+    }
+
+    @Test
     public void testGetReviewsByPlayer() {
         List<GameReview> reviews = new ArrayList<>();
         reviews.add(new GameReview(5, "Great game!", reviewer, game));
@@ -212,6 +279,14 @@ public class GameReviewServiceTest {
         List<GameReview> foundReviews = gameReviewService.getReviewsByPlayer(reviewer);
 
         assertEquals(2, foundReviews.size());
+    }
+
+    @Test
+    public void testGetReviewsForNullPlayer() {
+        IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
+                () -> gameReviewService.getReviewsByPlayer(null));
+
+        assertEquals("Reviewer cannot be null.", e.getMessage());
     }
 
     @Test
@@ -239,4 +314,13 @@ public class GameReviewServiceTest {
         assertEquals(5, sortedReviews.get(0).getRating());
         assertEquals(3, sortedReviews.get(1).getRating());
     }
+
+    @Test
+    public void testGetReviewsSortedForNullGame() {
+        IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
+                () -> gameReviewService.getReviewsSortedByRating(null, true));
+
+        assertEquals("Game cannot be null.", e.getMessage());
+    }
+
 }
