@@ -48,9 +48,6 @@ public class EventManagementIntegrationTest {
     private GameRepository gameRepository;
 
     @Autowired
-    private GameOwnerRepository gameOwnerRepository;
-
-    @Autowired
     private PersonRepository personRepository;
 
     @Autowired
@@ -82,7 +79,6 @@ public class EventManagementIntegrationTest {
         eventRepository.deleteAll();
         
         playerRepository.deleteAll();
-        gameOwnerRepository.deleteAll();
         gameRepository.deleteAll();
         personRepository.deleteAll();
 
@@ -112,7 +108,6 @@ public void clearDatabase() {
     eventRepository.deleteAll();
 
     playerRepository.deleteAll();
-    gameOwnerRepository.deleteAll();
     gameRepository.deleteAll();
     personRepository.deleteAll();
 }
