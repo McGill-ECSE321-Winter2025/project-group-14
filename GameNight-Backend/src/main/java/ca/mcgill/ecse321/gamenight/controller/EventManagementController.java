@@ -96,8 +96,13 @@ public class EventManagementController {
             .collect(Collectors.toList());
     }
 
-
-    @GetMapping("/scheduled/{eventId}")
+    /**
+     * Return all games scheduled for the event with the given ID
+     * 
+     * @param eventId The primary key of the event
+     * @return A list of games for the given event
+     */
+    @GetMapping("/scheduledevent/{eventId}")
     public List<GameResponseDto> getGamesForEvent(@PathVariable int eventId) {
         return eventService.getGamesForEvent(eventId)
             .stream()
@@ -105,8 +110,13 @@ public class EventManagementController {
             .collect(Collectors.toList());
     }
 
-
-    @GetMapping("/scheduled/{gameId}")
+    /**
+     * Return all events scheduled for the game with the given ID
+     * 
+     * @param gameId The primary key of the game
+     * @return A list of events scheduled for the given game
+     */
+    @GetMapping("/scheduledgame/{gameId}")
     public List<EventResponseDto> getScheduledEventsForAGame(@PathVariable int gameId) {
         return eventService.getScheduledEventsForAGame(gameId)
             .stream()
@@ -125,13 +135,23 @@ public class EventManagementController {
         eventService.registerForEvent(eventId, playerId);
     }
 
-
+    /**
+     * Unregister the player with the given ID from the event with the given ID
+     * 
+     * @param eventId  The primary key of the event
+     * @param playerId The primary key of the player
+     */
     @DeleteMapping("/{eventId}/player/{playerId}")
     public void unregisterForEvent(@PathVariable int eventId, @PathVariable int playerId) {
         eventService.unregisterForEvent(eventId, playerId);
     }
 
-
+    /**
+     * Return all events that the player with the given ID is registered for
+     * 
+     * @param playerId The primary key of the player
+     * @return A list of events that the player is registered for
+     */
     @GetMapping("/player/{playerId}")
     public List<EventResponseDto> getEventsForPlayer(@PathVariable int playerId) {
         return eventService.getEventsForPlayer(playerId)
@@ -140,7 +160,12 @@ public class EventManagementController {
                 .collect(Collectors.toList());
     }
 
-
+    /**
+     * Return all players registered for the event with the given ID
+     * 
+     * @param eventId The primary key of the event
+     * @return A list of players for the given event
+     */
     @GetMapping("/{eventId}/players")
     public List<PlayerResponseDto> getPlayersForEvent(@PathVariable int eventId) {
         return eventService.getPlayersForEvent(eventId)
