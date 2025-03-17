@@ -6,7 +6,6 @@ import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.mail.javamail.JavaMailSender;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -26,7 +25,6 @@ import org.junit.jupiter.api.TestInstance.Lifecycle;
 
 import ca.mcgill.ecse321.gamenight.dto.BorrowingRequestRequestDto;
 import ca.mcgill.ecse321.gamenight.dto.BorrowingRequestResponseDto;
-import ca.mcgill.ecse321.gamenight.exceptions.EmailSendingFailedException;
 import ca.mcgill.ecse321.gamenight.model.Game;
 import ca.mcgill.ecse321.gamenight.model.GameCopy;
 import ca.mcgill.ecse321.gamenight.model.GameOwner;
@@ -63,9 +61,6 @@ public class BorrowingManagementIntegrationTests {
 
     @Autowired
     private BorrowingRequestRepository borrowingRequestRepository;
-
-    private JavaMailSender eMailSender;
-
 
     private int validSenderId;
     private int validGameCopyId;
@@ -407,5 +402,166 @@ public class BorrowingManagementIntegrationTests {
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
     }
 
+    @Test
+    @Order(20)
+    public void testGetGameCopyLendingStatusGameCopyNotFound() {
+        int nonExistentGameCopyId = 99999;
+        
+        String lendingStatusUrl = String.format("/borrowingRequests/gameCopy/%d/lending-status", nonExistentGameCopyId);
+        ResponseEntity<String> response = client.getForEntity(lendingStatusUrl, String.class);
+    
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+    }
+
+    @Test
+    @Order(21)
+    public void testGetRejectedRequestsForBorrowerMapsCorrectly() {
+
+        BorrowingRequestRequestDto requestDto = new BorrowingRequestRequestDto(START_TIME, END_TIME, validSenderId, validGameCopyId);
+        ResponseEntity<BorrowingRequestResponseDto> createResponse = 
+                client.postForEntity("/borrowingRequests", requestDto, BorrowingRequestResponseDto.class);
+        assertEquals(HttpStatus.CREATED, createResponse.getStatusCode());
+        BorrowingRequestResponseDto createdRequest = createResponse.getBody();
+        assertNotNull(createdRequest);
+        String updateUrl = String.format("/borrowingRequests/%d/status?status=Rejected", createdRequest.getId());
+        ResponseEntity<BorrowingRequestResponseDto> updateResponse = client.exchange(updateUrl, 
+                org.springframework.http.HttpMethod.PUT, null, BorrowingRequestResponseDto.class);
+        assertEquals(HttpStatus.OK, updateResponse.getStatusCode());
+        String rejectedUrl = String.format("/borrowingRequests/%d/status/rejected", validSenderId);
+        ResponseEntity<BorrowingRequestResponseDto[]> rejectedResponse = 
+                client.getForEntity(rejectedUrl, BorrowingRequestResponseDto[].class);
+        assertEquals(HttpStatus.OK, rejectedResponse.getStatusCode());
+        
+        BorrowingRequestResponseDto[] rejectedRequests = rejectedResponse.getBody();
+        assertNotNull(rejectedRequests);
+        assertTrue(rejectedRequests.length > 0);
+
+        boolean found = false;
+        for (BorrowingRequestResponseDto dto : rejectedRequests) {
+            if (dto.getId() == createdRequest.getId()) {
+                found = true;
+                assertEquals(createdRequest.getGameName(), dto.getGameName());
+                assertEquals(createdRequest.getSenderName(), dto.getSenderName());
+                assertTrue(dto.getStatus().toString().contains("Rejected"), 
+                    "Status should be Rejected but was: " + dto.getStatus());
+                break;
+            }
+        }
+        assertTrue(found, "Created request should be found in rejected requests");
+    }
+
+    @Test
+    @Order(22)
+    public void testGetAcceptedRequestsForBorrowerMapsCorrectly() {
+        BorrowingRequestRequestDto requestDto = new BorrowingRequestRequestDto(START_TIME, END_TIME, validSenderId, validGameCopyId);
+        ResponseEntity<BorrowingRequestResponseDto> createResponse = 
+                client.postForEntity("/borrowingRequests", requestDto, BorrowingRequestResponseDto.class);
+        assertEquals(HttpStatus.CREATED, createResponse.getStatusCode());
+        BorrowingRequestResponseDto createdRequest = createResponse.getBody();
+        assertNotNull(createdRequest);
+
+        String updateUrl = String.format("/borrowingRequests/%d/status?status=Accepted", createdRequest.getId());
+        ResponseEntity<BorrowingRequestResponseDto> updateResponse = client.exchange(updateUrl, 
+                org.springframework.http.HttpMethod.PUT, null, BorrowingRequestResponseDto.class);
+        assertEquals(HttpStatus.OK, updateResponse.getStatusCode());
+
+        String acceptedUrl = String.format("/borrowingRequests/%d/status/accepted", validSenderId);
+        ResponseEntity<BorrowingRequestResponseDto[]> acceptedResponse = 
+                client.getForEntity(acceptedUrl, BorrowingRequestResponseDto[].class);
+        assertEquals(HttpStatus.OK, acceptedResponse.getStatusCode());
+        
+        BorrowingRequestResponseDto[] acceptedRequests = acceptedResponse.getBody();
+        assertNotNull(acceptedRequests);
+        assertTrue(acceptedRequests.length > 0);
+        
+        boolean found = false;
+        for (BorrowingRequestResponseDto dto : acceptedRequests) {
+            if (dto.getId() == createdRequest.getId()) {
+                found = true;
+                assertEquals(createdRequest.getGameName(), dto.getGameName());
+                assertEquals(createdRequest.getSenderName(), dto.getSenderName());
+                assertTrue(dto.getStatus().toString().contains("Accepted"), 
+                    "Status should be Accepted but was: " + dto.getStatus());
+                break;
+            }
+        }
+        assertTrue(found, "Created request should be found in accepted requests");
+    }
+    @Test
+    @Order(23)
+    public void testHandleBorrowingRequestStatusWithRespondAction() {
+        BorrowingRequestRequestDto requestDto = new BorrowingRequestRequestDto(START_TIME, END_TIME, validSenderId, validGameCopyId);
+        ResponseEntity<BorrowingRequestResponseDto> createResponse = 
+                client.postForEntity("/borrowingRequests", requestDto, BorrowingRequestResponseDto.class);
+        assertEquals(HttpStatus.CREATED, createResponse.getStatusCode());
+        BorrowingRequestResponseDto createdRequest = createResponse.getBody();
+        assertNotNull(createdRequest);
+    
+        String updateUrl = String.format("/borrowingRequests/%d/status?status=Accepted&action=respond", createdRequest.getId());
+        ResponseEntity<BorrowingRequestResponseDto> updateResponse = client.exchange(updateUrl, 
+                org.springframework.http.HttpMethod.PUT, null, BorrowingRequestResponseDto.class);
+        
+        assertEquals(HttpStatus.OK, updateResponse.getStatusCode());
+        BorrowingRequestResponseDto updatedRequest = updateResponse.getBody();
+        assertNotNull(updatedRequest);
+        
+        assertTrue(updatedRequest.getStatus().toString().contains("Accepted"), 
+                "Status should be Accepted but was: " + updatedRequest.getStatus());
+        
+        String acceptedUrl = String.format("/borrowingRequests/%d/status/accepted", validSenderId);
+        ResponseEntity<BorrowingRequestResponseDto[]> acceptedResponse = 
+                client.getForEntity(acceptedUrl, BorrowingRequestResponseDto[].class);
+        assertEquals(HttpStatus.OK, acceptedResponse.getStatusCode());
+        
+        BorrowingRequestResponseDto[] acceptedRequests = acceptedResponse.getBody();
+        assertNotNull(acceptedRequests);
+        
+        boolean found = false;
+        for (BorrowingRequestResponseDto dto : acceptedRequests) {
+            if (dto.getId() == createdRequest.getId()) {
+                found = true;
+                break;
+            }
+        }
+        assertTrue(found, "Created request should be found in accepted requests after using respond action");
+    }
+    @Test
+    @Order(24)
+    public void testHandleBorrowingRequestStatusWithRespondActionRejected() {
+        BorrowingRequestRequestDto requestDto = new BorrowingRequestRequestDto(START_TIME, END_TIME, validSenderId, validGameCopyId);
+        ResponseEntity<BorrowingRequestResponseDto> createResponse = 
+                client.postForEntity("/borrowingRequests", requestDto, BorrowingRequestResponseDto.class);
+        assertEquals(HttpStatus.CREATED, createResponse.getStatusCode());
+        BorrowingRequestResponseDto createdRequest = createResponse.getBody();
+        assertNotNull(createdRequest);
+        
+        String updateUrl = String.format("/borrowingRequests/%d/status?status=Rejected&action=respond", createdRequest.getId());
+        ResponseEntity<BorrowingRequestResponseDto> updateResponse = client.exchange(updateUrl, 
+                org.springframework.http.HttpMethod.PUT, null, BorrowingRequestResponseDto.class);
+    
+        assertEquals(HttpStatus.OK, updateResponse.getStatusCode());
+        BorrowingRequestResponseDto updatedRequest = updateResponse.getBody();
+        assertNotNull(updatedRequest);
+    
+        assertTrue(updatedRequest.getStatus().toString().contains("Rejected"), 
+                "Status should be Rejected but was: " + updatedRequest.getStatus());
+    
+        String rejectedUrl = String.format("/borrowingRequests/%d/status/rejected", validSenderId);
+        ResponseEntity<BorrowingRequestResponseDto[]> rejectedResponse = 
+                client.getForEntity(rejectedUrl, BorrowingRequestResponseDto[].class);
+        assertEquals(HttpStatus.OK, rejectedResponse.getStatusCode());
+        
+        BorrowingRequestResponseDto[] rejectedRequests = rejectedResponse.getBody();
+        assertNotNull(rejectedRequests);
+        
+        boolean found = false;
+        for (BorrowingRequestResponseDto dto : rejectedRequests) {
+            if (dto.getId() == createdRequest.getId()) {
+                found = true;
+                break;
+            }
+        }
+        assertTrue(found, "Created request should be found in rejected requests after using respond action");
+    }
 }
 

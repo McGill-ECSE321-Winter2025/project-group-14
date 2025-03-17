@@ -6,6 +6,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 import java.sql.Date;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -470,5 +471,54 @@ public class BorrowingManagementServiceTest {
         String expectedMessage = "Borrowing request not found with ID: " + requestId;
         assertEquals(expectedMessage, e.getMessage());
     } 
+
+    @Test
+    public void testFindGameCopyLendingStatus_GameCopyNotFound() {
+    int nonExistentGameCopyId = 999;
+
+    when(gameCopyRepository.findById(nonExistentGameCopyId)).thenReturn(Optional.empty());
+    assertThrows(GameCopyNotFoundException.class, () -> {
+        GameCopy gameCopy = gameCopyRepository.findById(nonExistentGameCopyId)
+            .orElseThrow(() -> new GameCopyNotFoundException(String.valueOf(nonExistentGameCopyId)));
+        borrowingManagementService.findGameCopyLendingStatus(gameCopy);
+    });
+        verify(gameCopyRepository).findById(nonExistentGameCopyId);
+    }
     
+    @Test
+    public void testFindGameCopyLendingStatus_NoAcceptedRequest() {
+    int gameCopyId = 1;
+    GameCopy gameCopy = new GameCopy();
+    gameCopy.setId(gameCopyId);
+    
+    List<BorrowingRequest> requests = new ArrayList<>();
+    BorrowingRequest request = new BorrowingRequest();
+    request.setStatus(BorrowingRequestStatus.Delivered);
+    requests.add(request);
+
+    when(gameCopyRepository.findById(gameCopyId)).thenReturn(Optional.of(gameCopy));
+    when(borrowingRequestRepository.findByGameCopy(gameCopy)).thenReturn(requests);
+    BorrowingRequest result = borrowingManagementService.findGameCopyLendingStatus(gameCopy);
+    assertNull(result, "Should return null when no accepted borrowing request exists");
+    verify(borrowingRequestRepository).findByGameCopy(gameCopy);
+    }
+
+    @Test
+    public void testFindGameCopyLendingStatus_AcceptedRequestFound() {
+    int gameCopyId = 1;
+    GameCopy gameCopy = new GameCopy();
+    gameCopy.setId(gameCopyId);
+    
+    List<BorrowingRequest> requests = new ArrayList<>();
+    BorrowingRequest acceptedRequest = new BorrowingRequest();
+    acceptedRequest.setStatus(BorrowingRequestStatus.Accepted);
+    requests.add(acceptedRequest);
+    
+    when(gameCopyRepository.findById(gameCopyId)).thenReturn(Optional.of(gameCopy));
+    when(borrowingRequestRepository.findByGameCopy(gameCopy)).thenReturn(requests);
+    BorrowingRequest result = borrowingManagementService.findGameCopyLendingStatus(gameCopy);
+    assertNotNull(result, "Should return the accepted borrowing request");
+    assertEquals(BorrowingRequestStatus.Accepted, result.getStatus());
+    verify(borrowingRequestRepository).findByGameCopy(gameCopy);
+    }
 }
