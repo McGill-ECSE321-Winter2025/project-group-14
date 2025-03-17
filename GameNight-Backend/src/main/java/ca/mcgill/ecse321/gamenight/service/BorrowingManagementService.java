@@ -1,6 +1,7 @@
 package ca.mcgill.ecse321.gamenight.service;
 
 import java.sql.Date;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -116,24 +117,28 @@ public class BorrowingManagementService {
         return borrowingRequestRepository.findAllRequestsByStatusAndSender(BorrowingRequestStatus.Accepted, BorrowerId);
     }
 
-    public List<BorrowingRequest> findLendingHistory(int ownerId){
-        return borrowingRequestRepository.findAllRequestsByStatusAndGameOwner(BorrowingRequestStatus.Accepted, ownerId);
+    public List<BorrowingRequest> findLendingHistory(int ownerId) {
+        return Optional.ofNullable(
+            borrowingRequestRepository.findAllRequestsByStatusAndGameOwner(BorrowingRequestStatus.Accepted, ownerId)
+        ).orElse(Collections.emptyList());
     }
+    
+    
 
 
-    public BorrowingRequest findGameCopyLendingStatus(GameCopy gameCopy){
-        List <BorrowingRequest> requests = borrowingRequestRepository.findByGameCopy(gameCopy);
-        for (BorrowingRequest request: requests){
-            if(request.getStatus() == BorrowingRequestStatus.Accepted){
-                return request;
-            }
-        }
-        return null;
+    public BorrowingRequest findGameCopyLendingStatus(GameCopy gameCopy) {
+        return borrowingRequestRepository.findByGameCopy(gameCopy)
+            .stream()
+            .filter(request -> request.getStatus() == BorrowingRequestStatus.Accepted)
+            .findFirst()
+            .orElse(null);
     }
+    
     
     public BorrowingRequest getBorrowingRequestById(int requestId) {
         return borrowingRequestRepository.findById(requestId)
-                .orElseThrow(() -> new BorrowingRequestNotFoundException(requestId));
+                .orElseThrow(() -> new BorrowingRequestNotFoundException("Borrowing request not found with ID: " + requestId));
     }
+    
     
 }
