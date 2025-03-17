@@ -5,10 +5,9 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.*;
 
-import java.util.ArrayList;
+// import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -27,6 +26,7 @@ import ca.mcgill.ecse321.gamenight.repo.GameRepository;
 import ca.mcgill.ecse321.gamenight.repo.PlayerRepository;
 import ca.mcgill.ecse321.gamenight.repo.RegistrationRepository;
 import ca.mcgill.ecse321.gamenight.repo.ScheduledGameRepository;
+import ca.mcgill.ecse321.gamenight.exceptions.*;
 
 class EventManagementServiceTest {
 
@@ -92,17 +92,18 @@ class EventManagementServiceTest {
 
     @Test
     void testCreateEventInvalidName() {
-        assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(InvalidEventNameException.class, () -> {
             eventService.createEvent(null, "desc", start, end);
         });
     }
-
+    
     @Test
     void testCreateEventEndBeforeStart() {
-        assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(InvalidEventTimesException.class, () -> {
             eventService.createEvent("Game Night", "desc", start, past);
         });
     }
+    
 
     @Test
     void testGetEventByIdSuccess() {
@@ -116,10 +117,11 @@ class EventManagementServiceTest {
     @Test
     void testGetEventByIdNotFound() {
         when(eventRepository.findById(99)).thenReturn(Optional.empty());
-        assertThrows(NoSuchElementException.class, () -> {
+        assertThrows(EventNotFoundException.class, () -> {
             eventService.getEventById(99);
         });
     }
+    
 
     @Test
     void testDeleteEventSuccess() {
@@ -130,11 +132,12 @@ class EventManagementServiceTest {
     @Test
     void testDeleteEventNotFound() {
         when(eventRepository.findById(55)).thenReturn(Optional.empty());
-        assertThrows(NoSuchElementException.class, () -> {
+        assertThrows(EventNotFoundException.class, () -> {
             eventService.deleteEvent(55);
         });
         verify(eventRepository, never()).delete(any(Event.class));
-}
+    }
+    
 
 
     @Test
@@ -149,19 +152,21 @@ class EventManagementServiceTest {
     @Test
     void testRegisterForEventNotFound() {
         when(eventRepository.findById(1)).thenReturn(Optional.empty());
-        assertThrows(NoSuchElementException.class, () -> {
+        assertThrows(EventNotFoundException.class, () -> {
             eventService.registerForEvent(1, 2);
         });
     }
+    
     @Test
     void testRegisterForEventPlayerNotFound() {
         when(eventRepository.findById(1)).thenReturn(Optional.of(eventOne));
         when(playerRepository.findById(2)).thenReturn(Optional.empty());
-        assertThrows(NoSuchElementException.class, () -> {
+        assertThrows(PlayerNotFoundException.class, () -> {
             eventService.registerForEvent(1, 2);
         });
         verify(registrationRepository, never()).save(any());
-}
+    }
+    
 
 
     @Test
@@ -183,11 +188,12 @@ class EventManagementServiceTest {
     @Test
     void testGetGamesForEventEventNotFound() {
         when(eventRepository.findById(999)).thenReturn(Optional.empty());
-        assertThrows(NoSuchElementException.class, () -> {
+        assertThrows(EventNotFoundException.class, () -> {
             eventService.getGamesForEvent(999);
         });
         verify(scheduledGameRepository, never()).findByKey_EventId(anyInt());
     }
+    
 
     @Test
     void testUpdateEventSuccess() {
@@ -203,25 +209,27 @@ class EventManagementServiceTest {
     @Test
     void testUpdateEventNotFound() {
         when(eventRepository.findById(200)).thenReturn(Optional.empty());
-        assertThrows(NoSuchElementException.class, () -> {
+        assertThrows(EventNotFoundException.class, () -> {
             eventService.updateEvent(200, "Name", "Desc", start, end);
         });
     }
-
+    
     @Test
     void testUpdateEventInvalidTimes() {
         when(eventRepository.findById(300)).thenReturn(Optional.of(updateEvent));
-        assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(InvalidEventTimesException.class, () -> {
             eventService.updateEvent(300, "AnotherName", "AnotherDesc", start, past);
         });
     }
+    
     @Test
     void testUpdateEventInvalidName() {
         when(eventRepository.findById(100)).thenReturn(Optional.of(updateEvent));
-        assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(InvalidEventNameException.class, () -> {
             eventService.updateEvent(100, "   ", "New Description", start, end);
         });
-}
+    }
+    
 
 
     @Test
@@ -264,11 +272,12 @@ class EventManagementServiceTest {
     @Test
     void testGetScheduledEventsForAGameGameNotFound() {
         when(gameRepository.findById(60)).thenReturn(Optional.empty());
-        assertThrows(NoSuchElementException.class, () -> {
+        assertThrows(GameNotFoundException.class, () -> {
             eventService.getScheduledEventsForAGame(60);
         });
         verify(scheduledGameRepository, never()).findByKey_GameId(anyInt());
     }
+    
     
 
     // @Test
@@ -294,11 +303,11 @@ class EventManagementServiceTest {
     @Test
     void testUnregisterForEventNoEvent() {
         when(eventRepository.findById(5)).thenReturn(Optional.empty());
-        assertThrows(NoSuchElementException.class, () -> {
+        assertThrows(EventNotFoundException.class, () -> {
             eventService.unregisterForEvent(5, 6);
         });
     }
-
+    
     @Test
     void testUnregisterForEventNoRegistration() {
         Event e = new Event("Event", "desc", new Date(), new Date());
@@ -306,10 +315,24 @@ class EventManagementServiceTest {
         when(eventRepository.findById(7)).thenReturn(Optional.of(e));
         when(playerRepository.findById(8)).thenReturn(Optional.of(p));
         when(registrationRepository.findByKey(any(Key.class))).thenReturn(null);
-        assertThrows(NoSuchElementException.class, () -> {
+    
+        assertThrows(RegistrationNotFoundException.class, () -> {
             eventService.unregisterForEvent(7, 8);
         });
     }
+    
+    @Test
+    void testUnregisterForEventPlayerNotFound() {
+    when(eventRepository.findById(10)).thenReturn(Optional.of(eventOne));
+    when(playerRepository.findById(100)).thenReturn(Optional.empty());
+
+    assertThrows(PlayerNotFoundException.class, () -> {
+        eventService.unregisterForEvent(10, 100);
+    });
+    verify(registrationRepository, never()).findByKey(any(Key.class));
+    verify(registrationRepository, never()).delete(any());
+}
+
 
     @Test
     void testGetEventsForPlayerSuccess() {
@@ -327,10 +350,11 @@ class EventManagementServiceTest {
     @Test
     void testGetEventsForPlayerNotFound() {
         when(playerRepository.findById(30)).thenReturn(Optional.empty());
-        assertThrows(NoSuchElementException.class, () -> {
+        assertThrows(PlayerNotFoundException.class, () -> {
             eventService.getEventsForPlayer(30);
         });
     }
+    
 
     // @Test
     // void testGetEventsForPlayerEmpty() {
@@ -358,10 +382,11 @@ class EventManagementServiceTest {
     @Test
     void testGetPlayersForEventNoEvent() {
         when(eventRepository.findById(95)).thenReturn(Optional.empty());
-        assertThrows(NoSuchElementException.class, () -> {
+        assertThrows(EventNotFoundException.class, () -> {
             eventService.getPlayersForEvent(95);
         });
     }
+    
 
     // @Test
     // void testGetPlayersForEventEmpty() {
