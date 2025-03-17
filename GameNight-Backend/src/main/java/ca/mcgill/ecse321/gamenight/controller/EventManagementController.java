@@ -11,6 +11,13 @@ import ca.mcgill.ecse321.gamenight.dto.PlayerResponseDto;
 import ca.mcgill.ecse321.gamenight.model.Event;
 import ca.mcgill.ecse321.gamenight.service.EventManagementService;
 
+/**
+ * REST controller for managing events
+ * 
+ * This controller handles endpoints related to creating, accessing, updating,
+ * and deleting events, as well as retrieving scheduled games and managing
+ * player registrations for events.
+ */
 @RestController
 @RequestMapping("/events")
 public class EventManagementController {
@@ -18,6 +25,12 @@ public class EventManagementController {
     @Autowired
     private EventManagementService eventService;
 
+    /**
+     * Create a new event
+     * 
+     * @param requestDto The request body containing the new event data
+     * @return The created event
+     */
     @PostMapping
     public EventResponseDto createEvent(@RequestBody EventRequestDto requestDto) {
         Event created = eventService.createEvent(
@@ -29,12 +42,25 @@ public class EventManagementController {
         return new EventResponseDto(created);
     }
 
+    /**
+     * Return the event with the given ID
+     * 
+     * @param eventId The primary key of the event to find
+     * @return The event with the given ID
+     */
     @GetMapping("/{eventId}")
     public EventResponseDto getEvent(@PathVariable int eventId) {
         Event e = eventService.getEventById(eventId);
         return new EventResponseDto(e);
     }
 
+    /**
+     * Update the event with the given ID
+     * 
+     * @param eventId    The primary key of the event to update
+     * @param requestDto The updated event information
+     * @return The updated event
+     */
     @PutMapping("/{eventId}")
     public EventResponseDto updateEvent(@PathVariable int eventId, @RequestBody EventRequestDto requestDto) {
         Event updated = eventService.updateEvent(
@@ -47,18 +73,30 @@ public class EventManagementController {
         return new EventResponseDto(updated);
     }
 
+    /**
+     * Delete the event with the given ID
+     * 
+     * @param eventId The primary key of the event to delete
+     */
     @DeleteMapping("/{eventId}")
     public void deleteEvent(@PathVariable int eventId) {
         eventService.deleteEvent(eventId);
     }
 
+    /**
+     * Return all events in the system
+     * 
+     * @return A list of all events
+     */
     @GetMapping
     public List<EventResponseDto> getAllEvents() {
-        return ((List<Event>) eventService.getAllEvents())
+        return eventService.getAllEvents()
             .stream()
             .map(EventResponseDto::new)
             .collect(Collectors.toList());
     }
+
+
     @GetMapping("/scheduled/{eventId}")
     public List<GameResponseDto> getGamesForEvent(@PathVariable int eventId) {
         return eventService.getGamesForEvent(eventId)
@@ -66,6 +104,8 @@ public class EventManagementController {
             .map(GameResponseDto::new)
             .collect(Collectors.toList());
     }
+
+
     @GetMapping("/scheduled/{gameId}")
     public List<EventResponseDto> getScheduledEventsForAGame(@PathVariable int gameId) {
         return eventService.getScheduledEventsForAGame(gameId)
@@ -73,17 +113,24 @@ public class EventManagementController {
             .map(EventResponseDto::new)
             .collect(Collectors.toList());
     }
-    
 
+    /**
+     * Register the player with the given ID for the event with the given ID
+     * 
+     * @param eventId  The primary key of the event
+     * @param playerId The primary key of the player
+     */
     @PostMapping("/{eventId}/player/{playerId}")
     public void registerForEvent(@PathVariable int eventId, @PathVariable int playerId) {
         eventService.registerForEvent(eventId, playerId);
     }
 
+
     @DeleteMapping("/{eventId}/player/{playerId}")
     public void unregisterForEvent(@PathVariable int eventId, @PathVariable int playerId) {
         eventService.unregisterForEvent(eventId, playerId);
     }
+
 
     @GetMapping("/player/{playerId}")
     public List<EventResponseDto> getEventsForPlayer(@PathVariable int playerId) {
@@ -92,6 +139,7 @@ public class EventManagementController {
                 .map(EventResponseDto::new)
                 .collect(Collectors.toList());
     }
+
 
     @GetMapping("/{eventId}/players")
     public List<PlayerResponseDto> getPlayersForEvent(@PathVariable int eventId) {
