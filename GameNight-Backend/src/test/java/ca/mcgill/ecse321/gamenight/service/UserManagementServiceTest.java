@@ -19,6 +19,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import ca.mcgill.ecse321.gamenight.controller.UserManagementController;
 import ca.mcgill.ecse321.gamenight.dto.AuthRequestDto;
+import ca.mcgill.ecse321.gamenight.exceptions.BadRequestException;
 import ca.mcgill.ecse321.gamenight.exceptions.InvalidCredentialsException;
 import ca.mcgill.ecse321.gamenight.exceptions.UsernameTakenException;
 import ca.mcgill.ecse321.gamenight.model.GameOwner;
@@ -85,8 +86,8 @@ public class UserManagementServiceTest {
     public void testValidateEmptyEmail() {
         AuthRequestDto request = new AuthRequestDto(EMPTY_STRING, VALID_PASSWORD, "User");
 
-        IllegalArgumentException exception = assertThrows(
-                IllegalArgumentException.class,
+        BadRequestException exception = assertThrows(
+            BadRequestException.class,
                 () -> userManagementService.createPerson(request));
 
         assertEquals("Email adress cannot be empty", exception.getMessage());
@@ -99,9 +100,10 @@ public class UserManagementServiceTest {
     public void testValidateBadFormatEmail() {
         AuthRequestDto request = new AuthRequestDto(INVALID_EMAIL, VALID_PASSWORD, "User");
 
-        IllegalArgumentException exception = assertThrows(
-                IllegalArgumentException.class,
+        BadRequestException exception = assertThrows(
+            BadRequestException.class,
                 () -> userManagementService.createPerson(request));
+
 
         assertEquals("Invalid email pattern", exception.getMessage());
     }
@@ -111,10 +113,11 @@ public class UserManagementServiceTest {
      */
     @Test
     public void testValidateWhitespaceEmailAndPassword() {
-        assertThrows(IllegalArgumentException.class,
-                () -> userManagementService.createPerson(new AuthRequestDto("  ", VALID_PASSWORD, "User")));
-        assertThrows(IllegalArgumentException.class,
-                () -> userManagementService.createPerson(new AuthRequestDto(VALID_EMAIL, "  ", "User")));
+        assertThrows(BadRequestException.class,
+            () -> userManagementService.createPerson(new AuthRequestDto("  ", VALID_PASSWORD, "User")));
+        assertThrows(BadRequestException.class,
+        () -> userManagementService.createPerson(new AuthRequestDto(VALID_EMAIL, "  ", "User")));
+
     }
 
     /**
@@ -124,8 +127,8 @@ public class UserManagementServiceTest {
     public void testValidateEmptyPassword() {
         AuthRequestDto request = new AuthRequestDto("1" + VALID_EMAIL, EMPTY_STRING, "User");
 
-        IllegalArgumentException exception = assertThrows(
-                IllegalArgumentException.class,
+        BadRequestException exception = assertThrows(
+            BadRequestException.class,
                 () -> userManagementService.createPerson(request));
 
         assertEquals("Password cannot be empty", exception.getMessage());
@@ -193,7 +196,7 @@ public class UserManagementServiceTest {
         request.setEmailAdress(VALID_EMAIL);
         request.setPassword(EMPTY_STRING);
 
-        assertThrows(IllegalArgumentException.class, () -> userManagementService.login(request));
+        assertThrows(BadRequestException.class, () -> userManagementService.login(request));
     }
 
     /**
@@ -205,7 +208,7 @@ public class UserManagementServiceTest {
         request.setEmailAdress(EMPTY_STRING);
         request.setPassword(VALID_PASSWORD);
 
-        assertThrows(IllegalArgumentException.class, () -> userManagementService.login(request));
+        assertThrows(BadRequestException.class, () -> userManagementService.login(request));
     }
 
     /**
@@ -344,7 +347,7 @@ public class UserManagementServiceTest {
     public void testDeletePersonNotFound() {
         when(personRepository.findPersonById(testUser.getId())).thenReturn(Optional.empty());
 
-        assertThrows(IllegalArgumentException.class, () -> userManagementService.deletePerson(testUser.getId()));
+        assertThrows(BadRequestException.class, () -> userManagementService.deletePerson(999));
 
         verify(personRepository, never()).delete(any(Person.class));
     }
@@ -356,7 +359,7 @@ public class UserManagementServiceTest {
     public void testDeleteAnotherUser() {
         when(personRepository.findPersonById(999)).thenReturn(Optional.empty());
 
-        assertThrows(IllegalArgumentException.class, () -> userManagementService.deletePerson(999));
+        assertThrows(BadRequestException.class, () -> userManagementService.deletePerson(999));
     }
 
     /**

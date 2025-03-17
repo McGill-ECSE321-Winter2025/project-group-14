@@ -13,6 +13,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import ca.mcgill.ecse321.gamenight.dto.AuthRequestDto;
 import ca.mcgill.ecse321.gamenight.dto.LoginResponseDto;
 import ca.mcgill.ecse321.gamenight.dto.PersonResponseDto;
+import ca.mcgill.ecse321.gamenight.exceptions.ForbiddenAccessException;
+import ca.mcgill.ecse321.gamenight.exceptions.UnauthedException;
 import ca.mcgill.ecse321.gamenight.middleware.RequireUser;
 import ca.mcgill.ecse321.gamenight.service.UserManagementService;
 import ca.mcgill.ecse321.gamenight.model.Person;
@@ -144,29 +146,23 @@ public class UserManagementController {
      */
     @GetMapping("/users/{id}")
     public ResponseEntity<?> getUserDetail(@PathVariable int id, HttpServletRequest request) {
-        try {
-            String headerUserId = request.getHeader("User-Id");
-            if (headerUserId == null) {
-                throw new ResponseStatusException(
-                        org.springframework.http.HttpStatus.UNAUTHORIZED,
-                        "No valid authentication."
-                );
-            }
+      
+        String headerUserId = request.getHeader("User-Id");
+        if (headerUserId == null) {
+            throw new UnauthedException("No valid authentication.");
 
-            Person authUser = userService.getUserById(Integer.parseInt(headerUserId)); 
-            Person targetUser = userService.getUserById(id);
-
-            if (authUser.getId() != id) {
-                throw new ResponseStatusException(
-                        org.springframework.http.HttpStatus.FORBIDDEN,
-                        "You can only view your own profile."
-                );
-            }
-
-            return ResponseEntity.ok(new PersonResponseDto(targetUser));
-
-        } catch (ResponseStatusException ex) {
-            return ResponseEntity.status(ex.getStatusCode()).body(ex.getReason());
         }
+
+        Person authUser = userService.getUserById(Integer.parseInt(headerUserId)); 
+        Person targetUser = userService.getUserById(id);
+
+        if (authUser.getId() != id) {
+            throw new ForbiddenAccessException("You can only view your own profile.");
+
+        }
+
+        return ResponseEntity.ok(new PersonResponseDto(targetUser));
+
+       
     }
 }

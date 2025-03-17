@@ -27,6 +27,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.test.web.server.LocalServerPort;
+
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.util.Optional;
@@ -52,14 +54,13 @@ public class UserManagementIntegrationTest {
     @Autowired
     private PlayerRepository playerRepo;
 
-
     @Autowired
     private UserManagementService userService;
 
     @Autowired
     private UserManagementController userController;
 
-
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
 
 
@@ -370,15 +371,10 @@ public void setup() {
         assertTrue(foundUser2, "User Two should be in the response");
     }
     @Test
-    public void testGetUserDetail_UserNotFound() {
-        Person authUser = new Person("authuser@example.com", "passA", "Authenticated User");
-        personRepository.save(authUser);
-
+    public void testGetUserDetail_UserNotFound() throws Exception {
         int nonExistentUserId = 99999;
-        assertFalse(personRepository.findById(nonExistentUserId).isPresent());
-
         HttpHeaders headers = new HttpHeaders();
-        headers.set("User-Id", String.valueOf(authUser.getId()));
+        headers.set("User-Id", "123");
         HttpEntity<?> requestEntity = new HttpEntity<>(headers);
 
         ResponseEntity<String> response = restTemplate.exchange(
@@ -389,12 +385,13 @@ public void setup() {
         );
 
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
-        assertEquals("User not found.", response.getBody());
+        JsonNode jsonNode = objectMapper.readTree(response.getBody());
+        assertEquals("Not Found", jsonNode.get("error").asText());
     }
     
     
     @Test
-    public void testGetUserDetail_UnauthorizedAccess() {
+    public void testGetUserDetail_UnauthorizedAccess() throws Exception {
         Person userA = new Person("userA@example.com", "passA", "User A");
         personRepository.save(userA);
         Person userB = new Person("userB@example.com", "passB", "User B");
@@ -410,29 +407,33 @@ public void setup() {
             requestEntity,
             String.class
         );
-        
+
         assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
-            assertEquals("You can only view your own profile.", response.getBody());
+        JsonNode jsonNode = objectMapper.readTree(response.getBody());
+        assertEquals("Forbidden", jsonNode.get("error").asText());
     }
+
     
     @Test
-    public void testGetUserDetail_NoHeader() {
+    public void testGetUserDetail_NoHeader() throws Exception {
         int someUserId = 123;
         HttpHeaders headers = new HttpHeaders();
         HttpEntity<?> requestEntity = new HttpEntity<>(headers);
 
         ResponseEntity<String> response = restTemplate.exchange(
-            createURLWithPort("/users/" + someUserId),
-            HttpMethod.GET,
-            requestEntity,
-            String.class
+                createURLWithPort("/users/" + someUserId),
+                HttpMethod.GET,
+                requestEntity,
+                String.class
         );
 
         assertEquals(HttpStatus.UNAUTHORIZED, response.getStatusCode());
-        assertEquals("No valid authentication.", response.getBody());
+        JsonNode jsonNode = objectMapper.readTree(response.getBody());
+        assertEquals("Unauthorized", jsonNode.get("error").asText());
     }
+
     @Test
-    public void testGetUserDetail_UserIsNull() {
+    public void testGetUserDetail_UserIsNull() throws Exception {
         HttpHeaders headers = new HttpHeaders();
         headers.set("User-Id", "999");
         HttpEntity<?> requestEntity = new HttpEntity<>(headers);
@@ -445,21 +446,35 @@ public void setup() {
         );
 
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
-        assertEquals("User not found.", response.getBody());
+        JsonNode jsonNode = objectMapper.readTree(response.getBody());
+        assertEquals("Not Found", jsonNode.get("error").asText());
+    }
+
+
+    @Test
+    public void testGetUserDetail_nonExistentUser_returns404() throws Exception {
+        int nonExistentUserId = 9999;
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("User-Id", "123");
+        HttpEntity<?> requestEntity = new HttpEntity<>(headers);
+    
+        ResponseEntity<String> response = restTemplate.exchange(
+            createURLWithPort("/users/" + nonExistentUserId),
+            HttpMethod.GET,
+            requestEntity,
+            String.class
+        );
+    
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        JsonNode jsonNode = objectMapper.readTree(response.getBody());
+        assertEquals("Not Found", jsonNode.get("error").asText());
     }
 
     @Test
-    void testGetUserDetail_nonExistentUser_returns404() {
-        Person authUser = new Person("authUser@example.com", "somePassword", "Auth User");
-        personRepository.save(authUser);
-        int authUserId = authUser.getId();
-
+    public void testGetUserById_notFound_returns404() throws Exception {
         int nonExistentUserId = 9999;
-        assertFalse(personRepository.findById(nonExistentUserId).isPresent(),
-                "No user should exist with ID " + nonExistentUserId);
-
         HttpHeaders headers = new HttpHeaders();
-        headers.set("User-Id", String.valueOf(authUserId));
+        headers.set("User-Id", "123");
         HttpEntity<?> requestEntity = new HttpEntity<>(headers);
 
         ResponseEntity<String> response = restTemplate.exchange(
@@ -469,28 +484,9 @@ public void setup() {
                 String.class
         );
 
-        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode(), 
-                "Expected 404 when requesting a non-existent user.");
-        assertEquals("User not found.", response.getBody(), 
-                "Expected 'User not found.' in the response body.");
-    }
-    @Test
-    public void testGetUserById_notFound_returns404() {
-        int nonExistentUserId = 9999;
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.set("User-Id", "123");
-        HttpEntity<?> requestEntity = new HttpEntity<>(headers);
-
-        ResponseEntity<String> response = restTemplate.exchange(
-            createURLWithPort("/users/" + nonExistentUserId),
-            HttpMethod.GET,
-            requestEntity,
-            String.class
-        );
-
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
-        assertEquals("User not found.", response.getBody());
+        JsonNode jsonNode = objectMapper.readTree(response.getBody());
+        assertEquals("Not Found", jsonNode.get("error").asText());
     }
 
 
