@@ -32,7 +32,7 @@ public class UserManagementController {
 
     // tested
     /**
-     * Creates a new user. The GameOwner and Player are also generated.
+     * Add a user to the application. The GameOwner and Player are also created.
      * 
      * @param request
      * @return a ResponseEntity with HTTP status 201 (Created)
@@ -73,22 +73,19 @@ public class UserManagementController {
         return ResponseEntity.ok(response);
     }
 
-    
-
-
     // tested
     /**
      * Updates a user's email or password after verifying their old password.
      *
-     * @param id The ID of the user to update.
-     * @param newEmail The new email (optional).
+     * @param id          The ID of the user to update.
+     * @param newEmail    The new email (optional).
      * @param newPassword The new password (optional).
      * @param oldPassword The user's current password for verification.
      * @return A ResponseEntity with a success message if the update is successful.
-     * @throws UnauthedException if the provided old password is incorrect.
+     * @throws UnauthedException     if the provided old password is incorrect.
      * @throws UserNotFoundException if the user does not exist.
-     * @throws BadRequestException if no new values are provided for update.
-    */
+     * @throws BadRequestException   if no new values are provided for update.
+     */
     @PutMapping("/users/{id}")
     public ResponseEntity<?> updateUser(
             @PathVariable int id,
@@ -112,15 +109,15 @@ public class UserManagementController {
      *
      * @param id The ID of the Person whose role is being toggled.
      * @return A ResponseEntity with a success message.
-     * @throws GameOwnerNotFoundException if the user does not have a GameOwner role.
+     * @throws GameOwnerNotFoundException if the user does not have a GameOwner
+     *                                    role.
      */
     @PutMapping("/users/{id}/role")
     public ResponseEntity<?> toggleAccountRole(@PathVariable int id) {
         userService.toggleAccountRole(id);
         return ResponseEntity.ok("Role toggled successfully.");
-        
+
     }
-    
 
     // tested
     /**
@@ -141,23 +138,24 @@ public class UserManagementController {
     /**
      * Retrieves user details if the authenticated user matches the requested ID.
      *
-     * @param id The ID of the user to retrieve.
+     * @param id      The ID of the user to retrieve.
      * @param request The HTTP request containing authentication headers.
      * @return A ResponseEntity with the user's details.
-     * @throws UnauthedException if no authentication is provided.
-     * @throws UserNotFoundException if the user does not exist.
-     * @throws ForbiddenAccessException if the authenticated user attempts to view another user's profile.
+     * @throws UnauthedException        if no authentication is provided.
+     * @throws UserNotFoundException    if the user does not exist.
+     * @throws ForbiddenAccessException if the authenticated user attempts to view
+     *                                  another user's profile.
      */
     @GetMapping("/users/{id}")
     public ResponseEntity<?> getUserDetail(@PathVariable int id, HttpServletRequest request) {
-      
+
         String headerUserId = request.getHeader("User-Id");
         if (headerUserId == null) {
             throw new UnauthedException("No valid authentication.");
 
         }
 
-        Person authUser = userService.getUserById(Integer.parseInt(headerUserId)); 
+        Person authUser = userService.getUserById(Integer.parseInt(headerUserId));
         Person targetUser = userService.getUserById(id);
 
         if (authUser.getId() != id) {
@@ -167,6 +165,5 @@ public class UserManagementController {
 
         return ResponseEntity.ok(new PersonResponseDto(targetUser));
 
-       
     }
 }
