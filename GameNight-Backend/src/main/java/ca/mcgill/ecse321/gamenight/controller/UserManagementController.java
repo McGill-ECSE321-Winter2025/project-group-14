@@ -111,12 +111,12 @@ public class UserManagementController {
      * @return HTTP 200 if successful, or an error message if failed.
      */
     @PutMapping("/users/{id}/role")
-    public ResponseEntity<String> toggleAccountRole(@PathVariable int id) {
+    public ResponseEntity<?> toggleAccountRole(@PathVariable int id) {
         try {
             userService.toggleAccountRole(id);
-            return ResponseEntity.ok("User role updated successfully.");
-        } catch (ResponseStatusException e) {
-            return ResponseEntity.status(e.getStatusCode()).body(e.getReason());
+            return ResponseEntity.ok("Role toggled successfully.");
+        } catch (ResponseStatusException ex) {
+            return ResponseEntity.status(ex.getStatusCode()).body(ex.getReason());
         }
     }
     
@@ -147,21 +147,29 @@ public class UserManagementController {
      */
     @GetMapping("/users/{id}")
     public ResponseEntity<?> getUserDetail(@PathVariable int id, HttpServletRequest request) {
-        Integer authenticatedUserId = (Integer) request.getAttribute("userId");
+        try {
+            String headerUserId = request.getHeader("User-Id");
+            if (headerUserId == null) {
+                throw new ResponseStatusException(
+                        org.springframework.http.HttpStatus.UNAUTHORIZED,
+                        "No valid authentication."
+                );
+            }
 
-        if (authenticatedUserId == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized: No valid authentication.");
+            Person authUser = userService.getUserById(Integer.parseInt(headerUserId)); 
+            Person targetUser = userService.getUserById(id);
+
+            if (authUser.getId() != id) {
+                throw new ResponseStatusException(
+                        org.springframework.http.HttpStatus.FORBIDDEN,
+                        "You can only view your own profile."
+                );
+            }
+
+            return ResponseEntity.ok(new PersonResponseDto(targetUser));
+
+        } catch (ResponseStatusException ex) {
+            return ResponseEntity.status(ex.getStatusCode()).body(ex.getReason());
         }
-
-        Person person = userService.getUserById(id);
-        if (person == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found.");
-        }
-
-        if (!authenticatedUserId.equals(id)) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("You can only view your own profile.");
-        }
-
-        return ResponseEntity.ok(new PersonResponseDto(person));
     }
 }

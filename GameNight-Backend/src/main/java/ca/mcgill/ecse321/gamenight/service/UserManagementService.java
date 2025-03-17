@@ -120,17 +120,16 @@ public class UserManagementService {
     }
 
     @Transactional
-    public void toggleAccountRole(int id) {
-        GameOwner gameOwnerRole = gameOwnerRepository.findById(id).orElse(null);
+public void toggleAccountRole(int id) {
+    GameOwner owner = gameOwnerRepository.findById(id)
+        .orElseThrow(() -> new ResponseStatusException(
+            HttpStatus.NOT_FOUND, "GameOwner not found with ID: " + id
+        ));
+    owner.setActive(!owner.isActive());
+    gameOwnerRepository.save(owner);
+}
 
-        if (gameOwnerRole == null) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "GameOwner not found with ID: " + id);
-        }
 
-        gameOwnerRole.setActive(!gameOwnerRole.isActive());
- 
-        gameOwnerRepository.save(gameOwnerRole);
-    }
 
     public List<Person> getAllUsers() {
         Iterable<Person> iterable = personRepository.findAll();
@@ -140,8 +139,10 @@ public class UserManagementService {
 
     public Person getUserById(int userId) {
         return personRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("Person not found with ID: " + userId));
-    }
+            .orElseThrow(() -> new ResponseStatusException(
+                HttpStatus.NOT_FOUND,
+                "User not found."
+            ));}
 
     private void validateEmailAndPassword(String email, String password) {
         String cleanEmail = StringUtils.trimToNull(email);

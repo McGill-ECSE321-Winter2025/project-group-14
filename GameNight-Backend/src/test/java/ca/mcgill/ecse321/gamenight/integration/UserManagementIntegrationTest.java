@@ -1,11 +1,14 @@
 package ca.mcgill.ecse321.gamenight.integration;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import ca.mcgill.ecse321.gamenight.repo.GameOwnerRepository;
 import ca.mcgill.ecse321.gamenight.repo.PersonRepository;
 import ca.mcgill.ecse321.gamenight.repo.PlayerRepository;
 import ca.mcgill.ecse321.gamenight.service.UserManagementService;
+import jakarta.servlet.http.HttpServletRequest;
 import ca.mcgill.ecse321.gamenight.dto.AuthRequestDto;
 import ca.mcgill.ecse321.gamenight.dto.LoginResponseDto;
 import ca.mcgill.ecse321.gamenight.dto.PersonResponseDto;
@@ -18,16 +21,12 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import java.util.Arrays;
 import java.util.Optional;
 import org.springframework.http.*;
 
@@ -50,11 +49,10 @@ public class UserManagementIntegrationTest {
     @Autowired
     private PlayerRepository playerRepo;
 
-    @Mock
-    private GameOwnerRepository gameOwnerRepository;
 
-    @InjectMocks
-    private UserManagementService userService;
+
+
+
 
     private int testUserId;
     private static final String ORIGINAL_EMAIL = "updateuser@gmail.com";
@@ -65,22 +63,24 @@ public class UserManagementIntegrationTest {
     private static final String ERROR_MESSAGE = "Incorrect old password.";
 
     @BeforeEach
-    public void setup() {
-        gameOwnerRepo.deleteAll();
-        playerRepo.deleteAll();
-        personRepository.deleteAll();
+public void setup() {
+    gameOwnerRepo.deleteAll();
+    playerRepo.deleteAll();
+    personRepository.deleteAll();
+    
 
-        Person user = new Person(ORIGINAL_EMAIL, ORIGINAL_PASSWORD, "Test User");
-        personRepository.save(user);
-        testUserId = user.getId();
+    Person user = new Person(ORIGINAL_EMAIL, ORIGINAL_PASSWORD, "Test User");
+    personRepository.save(user);
+    testUserId = user.getId();
 
-        Optional<Person> savedUser = personRepository.findById(testUserId);
-        assertTrue(savedUser.isPresent(), "User should be saved in the repository.");
+    Optional<Person> savedUser = personRepository.findById(testUserId);
+    assertTrue(savedUser.isPresent(), "User should be saved in the repository.");
 
-        GameOwner gameOwner = new GameOwner(user);
-        gameOwner.setActive(true);
-        gameOwnerRepo.save(gameOwner);
-    }
+    GameOwner gameOwner = new GameOwner(user);
+    gameOwner.setActive(true);
+    gameOwnerRepo.save(gameOwner);
+}
+
 
     @AfterAll
     public void clearDatabase() {
@@ -214,21 +214,22 @@ public class UserManagementIntegrationTest {
         gameOwnerRepo.save(gameOwner);
 
         int userId = gameOwner.getId();
-
-        Mockito.when(gameOwnerRepository.findById(userId)).thenReturn(Optional.of(gameOwner));
-        Mockito.when(gameOwnerRepository.save(Mockito.any(GameOwner.class))).thenReturn(gameOwner);
-
         String url = createURLWithPort("/users/" + userId + "/role");
 
         ResponseEntity<String> response = restTemplate.exchange(
                 url,
                 HttpMethod.PUT,
                 HttpEntity.EMPTY,
-                String.class);
+                String.class
+        );
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertNotNull(response.getBody());
+
+        GameOwner updatedOwner = gameOwnerRepo.findById(userId).orElse(null);
+        assertNotNull(updatedOwner);
+        assertFalse(updatedOwner.isActive());
     }
+
 
     @Test
     public void testGetUserById() {
@@ -255,7 +256,7 @@ public class UserManagementIntegrationTest {
                 String.class);
 
         if (response.getStatusCode() != HttpStatus.OK) {
-            assertEquals(HttpStatus.UNAUTHORIZED, response.getStatusCode(), "Expected Unauthorized error.");
+            assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode(), "Expected Unauthorized error.");
             assertTrue(response.getBody().contains("Unauthorized"), "Expected 'Unauthorized' message.");
         } else {
             try {
@@ -298,7 +299,7 @@ public class UserManagementIntegrationTest {
                 requestEntity,
                 String.class);
     
-        assertEquals(HttpStatus.UNAUTHORIZED, response.getStatusCode());
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
     }
 
     @Test
@@ -358,4 +359,86 @@ public class UserManagementIntegrationTest {
         assertTrue(foundUser1, "User One should be in the response");
         assertTrue(foundUser2, "User Two should be in the response");
     }
+    @Test
+public void testGetUserDetail_UserNotFound() {
+    Person authUser = new Person("authuser@example.com", "passA", "Authenticated User");
+    personRepository.save(authUser);
+
+    int nonExistentUserId = 99999;
+    assertFalse(personRepository.findById(nonExistentUserId).isPresent());
+
+    HttpHeaders headers = new HttpHeaders();
+    headers.set("User-Id", String.valueOf(authUser.getId()));
+    HttpEntity<?> requestEntity = new HttpEntity<>(headers);
+
+    ResponseEntity<String> response = restTemplate.exchange(
+            createURLWithPort("/users/" + nonExistentUserId),
+            HttpMethod.GET,
+            requestEntity,
+            String.class
+    );
+
+    assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+    assertEquals("User not found.", response.getBody());
 }
+    
+    
+    @Test
+    public void testGetUserDetail_UnauthorizedAccess() {
+        Person userA = new Person("userA@example.com", "passA", "User A");
+        personRepository.save(userA);
+        Person userB = new Person("userB@example.com", "passB", "User B");
+        personRepository.save(userB);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("User-Id", String.valueOf(userA.getId()));
+        HttpEntity<?> requestEntity = new HttpEntity<>(headers);
+
+        ResponseEntity<String> response = restTemplate.exchange(
+            createURLWithPort("/users/" + userB.getId()),
+            HttpMethod.GET,
+            requestEntity,
+            String.class
+        );
+        
+        assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
+            assertEquals("You can only view your own profile.", response.getBody());
+    }
+    
+    @Test
+    public void testGetUserDetail_NoHeader() {
+        int someUserId = 123;
+        HttpHeaders headers = new HttpHeaders();
+        HttpEntity<?> requestEntity = new HttpEntity<>(headers);
+
+        ResponseEntity<String> response = restTemplate.exchange(
+            createURLWithPort("/users/" + someUserId),
+            HttpMethod.GET,
+            requestEntity,
+            String.class
+        );
+
+        assertEquals(HttpStatus.UNAUTHORIZED, response.getStatusCode());
+        assertEquals("No valid authentication.", response.getBody());
+    }
+    @Test
+    public void testGetUserDetail_UserIsNull() {
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("User-Id", "999");
+        HttpEntity<?> requestEntity = new HttpEntity<>(headers);
+
+        ResponseEntity<String> response = restTemplate.exchange(
+            createURLWithPort("/users/999"),
+            HttpMethod.GET,
+            requestEntity,
+            String.class
+        );
+
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        assertEquals("User not found.", response.getBody());
+    }
+
+}
+
+
+

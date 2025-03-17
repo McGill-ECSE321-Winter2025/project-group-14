@@ -5,14 +5,14 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 import java.util.Optional;
-
 import java.util.List;
 import java.util.Arrays;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.mockito.MockitoAnnotations;
 
 import ca.mcgill.ecse321.gamenight.dto.AuthRequestDto;
 import ca.mcgill.ecse321.gamenight.exceptions.InvalidCredentialsException;
@@ -24,13 +24,14 @@ import ca.mcgill.ecse321.gamenight.repo.GameOwnerRepository;
 import ca.mcgill.ecse321.gamenight.repo.PersonRepository;
 import ca.mcgill.ecse321.gamenight.repo.PlayerRepository;
 
-@SpringBootTest
 public class UserManagementServiceTest {
 
     @Mock
     private PersonRepository personRepository;
+
     @Mock
     private PlayerRepository playerRepository;
+
     @Mock
     private GameOwnerRepository gameOwnerRepository;
 
@@ -47,9 +48,13 @@ public class UserManagementServiceTest {
 
     @BeforeEach
     public void setup() {
+        MockitoAnnotations.openMocks(this);
+
         testUser = new Person(VALID_EMAIL, VALID_PASSWORD, "Test User");
-        when(personRepository.findPersonByEmailAddress(VALID_EMAIL)).thenReturn(Optional.of(testUser));
-        when(personRepository.findById(testUser.getId())).thenReturn(Optional.of(testUser));
+        when(personRepository.findPersonByEmailAddress(VALID_EMAIL))
+            .thenReturn(Optional.of(testUser));
+        when(personRepository.findById(testUser.getId()))
+            .thenReturn(Optional.of(testUser));
         when(personRepository.save(any(Person.class))).thenReturn(testUser);
     }
 
@@ -77,7 +82,7 @@ public class UserManagementServiceTest {
     }
 
     /**
-     * Tests validation failure when email is empty.
+     * Tests validation failure when email format is invalid.
      */
     @Test
     public void testValidateBadFormatEmail() {
@@ -91,7 +96,7 @@ public class UserManagementServiceTest {
     }
 
     /**
-     * Tests validation failure when email format is invalid.
+     * Tests validation failure when email or password has only whitespace.
      */
     @Test
     public void testValidateWhitespaceEmailAndPassword() {
@@ -122,11 +127,13 @@ public class UserManagementServiceTest {
     public void testCreatePersonSuccess() {
         when(playerRepository.save(any(Player.class))).thenReturn(new Player(testUser));
         when(gameOwnerRepository.save(any(GameOwner.class))).thenReturn(new GameOwner(testUser));
+
         AuthRequestDto request = new AuthRequestDto();
         request.setEmailAdress("newuser@gmail.com");
         request.setPassword("securePassword");
         request.setName("New User");
 
+        // This ensures the user doesn't exist, so creation should succeed
         when(personRepository.findPersonByEmailAddress(request.getEmailAdress()))
                 .thenReturn(Optional.empty());
 
@@ -147,6 +154,7 @@ public class UserManagementServiceTest {
         request.setPassword(VALID_PASSWORD);
         request.setName("Duplicate User");
 
+        // Because testUser is found for this email, we expect an exception
         assertThrows(UsernameTakenException.class, () -> userManagementService.createPerson(request));
     }
 
@@ -166,7 +174,7 @@ public class UserManagementServiceTest {
     }
 
     /**
-     * Tests login failure due to incorrect password
+     * Tests login failure due to empty password
      */
     @Test
     public void testLoginEmptyPassword() {
@@ -174,10 +182,10 @@ public class UserManagementServiceTest {
         request.setEmailAdress(VALID_EMAIL);
         request.setPassword(EMPTY_STRING);
 
-        assertThrows(java.lang.IllegalArgumentException.class, () -> userManagementService.login(request));
+        assertThrows(IllegalArgumentException.class, () -> userManagementService.login(request));
     }
 
-    /*
+    /**
      * Tests login failure due to empty email
      */
     @Test
@@ -186,10 +194,10 @@ public class UserManagementServiceTest {
         request.setEmailAdress(EMPTY_STRING);
         request.setPassword(VALID_PASSWORD);
 
-        assertThrows(java.lang.IllegalArgumentException.class, () -> userManagementService.login(request));
+        assertThrows(IllegalArgumentException.class, () -> userManagementService.login(request));
     }
 
-    /*
+    /**
      * Tests login failure due to wrong password
      */
     @Test
@@ -221,8 +229,8 @@ public class UserManagementServiceTest {
      */
     @Test
     public void testUpdateUserSuccess() {
-        when(personRepository.findById(testUser.getId()))
-                .thenReturn(Optional.of(testUser));
+        // The user is found => we can update
+        when(personRepository.findById(testUser.getId())).thenReturn(Optional.of(testUser));
 
         boolean result = userManagementService.updatePerson(testUser.getId(), VALID_PASSWORD, NEW_EMAIL, null);
 
@@ -240,24 +248,25 @@ public class UserManagementServiceTest {
 
         assertFalse(result);
         assertNotEquals(NEW_EMAIL, testUser.getEmailAddress());
-        verify(personRepository, times(0)).save(any(Person.class));
+        verify(personRepository, never()).save(any(Person.class));
     }
 
-    /*
+    /**
      * Tests that updating a user with the same email and password does not trigger a save operation.
      */
     @Test
     public void testUpdateUserWithSameEmailAndPassword() {
-        boolean result = userManagementService.updatePerson(testUser.getId(), VALID_PASSWORD, VALID_EMAIL,
-                VALID_PASSWORD);
+        boolean result = userManagementService.updatePerson(
+                testUser.getId(), VALID_PASSWORD, VALID_EMAIL, VALID_PASSWORD);
 
         assertTrue(result);
+        // Email & password remain the same
         assertEquals(VALID_EMAIL, testUser.getEmailAddress());
         assertEquals(VALID_PASSWORD, testUser.getPassword());
-        verify(personRepository, times(0)).save(any(Person.class));
+        verify(personRepository, never()).save(any(Person.class));
     }
 
-    /*
+    /**
      * Tests that updating a user without providing new email or password does not trigger a save operation.
      */
     @Test
@@ -267,16 +276,16 @@ public class UserManagementServiceTest {
         assertTrue(result);
         assertEquals(VALID_EMAIL, testUser.getEmailAddress());
         assertEquals(VALID_PASSWORD, testUser.getPassword());
-        verify(personRepository, times(0)).save(any(Person.class));
+        verify(personRepository, never()).save(any(Person.class));
     }
 
-    /*
-     * Tests updating the user's new password and keeping same email
+    /**
+     * Tests updating the user's new password while keeping same email
      */
     @Test
     public void testUpdateUserWithSameEmailNewPassword() {
-        boolean result = userManagementService.updatePerson(testUser.getId(), VALID_PASSWORD, VALID_EMAIL,
-                "newSecurePassword");
+        boolean result = userManagementService.updatePerson(
+                testUser.getId(), VALID_PASSWORD, VALID_EMAIL, "newSecurePassword");
 
         assertTrue(result);
         assertEquals(VALID_EMAIL, testUser.getEmailAddress());
@@ -284,13 +293,13 @@ public class UserManagementServiceTest {
         verify(personRepository, times(1)).save(testUser);
     }
 
-    /*
+    /**
      * Tests updating a user's email and keeping same password
      */
     @Test
     public void testUpdateUserWithSamePasswordNewEmail() {
-        boolean result = userManagementService.updatePerson(testUser.getId(), VALID_PASSWORD, NEW_EMAIL,
-                VALID_PASSWORD);
+        boolean result = userManagementService.updatePerson(
+                testUser.getId(), VALID_PASSWORD, NEW_EMAIL, VALID_PASSWORD);
 
         assertTrue(result);
         assertEquals(NEW_EMAIL, testUser.getEmailAddress());
@@ -308,8 +317,7 @@ public class UserManagementServiceTest {
 
         when(gameOwnerRepository.findByPersonId(testUser.getId())).thenReturn(testGameOwner);
         when(playerRepository.findByPersonId(testUser.getId())).thenReturn(testPlayer);
-        when(personRepository.findPersonById(testUser.getId()))
-                .thenReturn(Optional.of(testUser));
+        when(personRepository.findPersonById(testUser.getId())).thenReturn(Optional.of(testUser));
 
         userManagementService.deletePerson(testUser.getId());
 
@@ -323,15 +331,14 @@ public class UserManagementServiceTest {
      */
     @Test
     public void testDeletePersonNotFound() {
-        when(personRepository.findPersonById(testUser.getId()))
-                .thenReturn(Optional.empty());
+        when(personRepository.findPersonById(testUser.getId())).thenReturn(Optional.empty());
 
         assertThrows(IllegalArgumentException.class, () -> userManagementService.deletePerson(testUser.getId()));
 
-        verify(personRepository, times(0)).delete(any(Person.class));
+        verify(personRepository, never()).delete(any(Person.class));
     }
 
-    /*
+    /**
      * Tests deleting a non-existing user
      */
     @Test
@@ -341,96 +348,100 @@ public class UserManagementServiceTest {
         assertThrows(IllegalArgumentException.class, () -> userManagementService.deletePerson(999));
     }
 
-    /*
-     * Tests toggling to a gameOwner from player
+    /**
+     * Tests toggling to a GameOwner from Player
      */
     @Test
     public void testToggleRoleToGameOwner() {
         Person person = new Person(VALID_EMAIL, VALID_PASSWORD, "Test User");
         GameOwner gameOwnerRole = new GameOwner(person);
         gameOwnerRole.setActive(false);
-        
+
+        // The method expects to find the GameOwner by ID => use person.getId()
         when(gameOwnerRepository.findById(person.getId())).thenReturn(Optional.of(gameOwnerRole));
         when(gameOwnerRepository.save(any(GameOwner.class))).thenReturn(gameOwnerRole);
 
         userManagementService.toggleAccountRole(person.getId());
+
         assertTrue(gameOwnerRole.isActive());
         verify(gameOwnerRepository, times(1)).save(gameOwnerRole);
     }
 
-    /*
+    /**
      * Tests toggling to a player from gameOwner
      */
     @Test
-    public void testToggleRoleToPlayer(){
+    public void testToggleRoleToPlayer() {
         Person person = new Person(VALID_EMAIL, VALID_PASSWORD, "Test User");
         GameOwner gameOwnerRole = new GameOwner(person);
         gameOwnerRole.setActive(true);
-        
+
         when(gameOwnerRepository.findById(person.getId())).thenReturn(Optional.of(gameOwnerRole));
         when(gameOwnerRepository.save(any(GameOwner.class))).thenReturn(gameOwnerRole);
 
         userManagementService.toggleAccountRole(person.getId());
-        assertTrue(!gameOwnerRole.isActive());
+
+        assertFalse(gameOwnerRole.isActive());
         verify(gameOwnerRepository, times(1)).save(gameOwnerRole);
     }
 
-    /*
+    /**
      * Tests getting all existing users
      */
     @Test
-    public void testGettingAllUsers(){
+    public void testGettingAllUsers() {
         Person hamza = new Person("hamza@gmail.com","Helloworld2223","Hamza");
         Person deniz = new Person("deniz@gmail.com","Helloworld","Deniz");
-        List<Person> testUsers = Arrays.asList(hamza,deniz);
+        List<Person> testUsers = Arrays.asList(hamza, deniz);
 
         when(personRepository.findAll()).thenReturn(testUsers);
 
         List<Person> allUsers = userManagementService.getAllUsers();
         assertNotNull(allUsers);
-        assertEquals(2,testUsers.size());
-        assertEquals("Hamza", testUsers.get(0).getName());
-        assertEquals("Deniz", testUsers.get(1).getName());
+        assertEquals(2, allUsers.size());
+        assertEquals("Hamza", allUsers.get(0).getName());
+        assertEquals("Deniz", allUsers.get(1).getName());
         verify(personRepository, times(1)).findAll();
     }
 
-    /*
+    /**
      * Tests getting all users but none exist yet
      */
     @Test
-    public void testGettingAllUsersWhenThereIsNoUsers(){
+    public void testGettingAllUsersWhenThereIsNoUsers() {
         when(personRepository.findAll()).thenReturn(List.of());
-        List<Person> allUsers= userManagementService.getAllUsers();
+        List<Person> allUsers = userManagementService.getAllUsers();
 
         assertNotNull(allUsers,"The returned list should not be null");
         assertTrue(allUsers.isEmpty(), "The returned list should be empty.");
         verify(personRepository, times(1)).findAll();
     }
 
-    /*
-     * Tests getting an existing user from their Id
+    /**
+     * Tests getting an existing user by ID
      */
     @Test
-    public void testGetExistingUserById(){
+    public void testGetExistingUserById() {
         Person hamza = new Person("testuser@gmail.com","password123","Test User");
-        
-        when(personRepository.findPersonById(hamza.getId())).thenReturn(Optional.of(hamza));
+
+        when(personRepository.findById(hamza.getId())).thenReturn(Optional.of(hamza));
+
         Person foundUser = userManagementService.getUserById(hamza.getId());
 
         assertNotNull(foundUser, "The returned user should not be null.");
         assertEquals(hamza.getId(), foundUser.getId(), "The IDs should match.");
-        assertEquals(hamza.getEmailAddress(),foundUser.getEmailAddress(),"The emails should match.");
+        assertEquals(hamza.getEmailAddress(), foundUser.getEmailAddress(),"The emails should match.");
         assertEquals(hamza.getPassword(), foundUser.getPassword(),"The passwords should match.");
         assertEquals(hamza.getName(), foundUser.getName(), "The names should match.");
 
-        verify(personRepository,times(1)).findById(hamza.getId());
+        verify(personRepository, times(1)).findById(hamza.getId());
     }
 
-    /*
-     * Tests getting user from an invalid Id
+    /**
+     * Tests getting user from an invalid ID
      */
     @Test
-    public void testGetNonExistingUserById(){
+    public void testGetNonExistingUserById() {
         int nonExistingId = 3;
 
         when(personRepository.findById(nonExistingId)).thenReturn(Optional.empty());
