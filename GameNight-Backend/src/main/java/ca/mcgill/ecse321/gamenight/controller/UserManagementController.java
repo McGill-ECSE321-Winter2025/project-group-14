@@ -63,12 +63,14 @@ public class UserManagementController {
      * @return a ResponseEntity containing the login response with user ID and email
      */
     @PostMapping("/users/login")
-    public ResponseEntity<LoginResponseDto> login(
-            @RequestBody AuthRequestDto request) {
+    public ResponseEntity<LoginResponseDto> login(@RequestBody AuthRequestDto request) {
         Person user = userService.login(request);
-        return ResponseEntity.ok(
-                new LoginResponseDto(user.getId(), user.getEmailAddress()));
+        LoginResponseDto response = new LoginResponseDto(user.getId(), user.getEmailAddress());
+        return ResponseEntity.ok(response);
     }
+
+    
+
 
     // tested
     /**

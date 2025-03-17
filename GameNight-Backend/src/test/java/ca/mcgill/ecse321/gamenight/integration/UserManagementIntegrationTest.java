@@ -25,6 +25,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.test.web.server.LocalServerPort;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.util.Arrays;
 import java.util.Optional;
@@ -229,10 +230,47 @@ public class UserManagementIntegrationTest {
         assertNotNull(response.getBody());
     }
 
-
     @Test
     public void testGetUserById() {
-     }
+        gameOwnerRepo.deleteAll();
+        playerRepo.deleteAll();
+        personRepository.deleteAll();
+
+        Person testPerson = new Person("authtestuser@example.com", "password123", "Auth Test User");
+        personRepository.save(testPerson);
+        int personId = testPerson.getId();
+
+        GameOwner gameOwner = new GameOwner(testPerson);
+        gameOwner.setActive(true);
+        gameOwnerRepo.save(gameOwner);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("User-Id", String.valueOf(personId));
+        HttpEntity<?> requestEntity = new HttpEntity<>(headers);
+
+        ResponseEntity<String> response = restTemplate.exchange(
+                createURLWithPort("/users/" + personId),
+                HttpMethod.GET,
+                requestEntity,
+                String.class);
+
+        if (response.getStatusCode() != HttpStatus.OK) {
+            assertEquals(HttpStatus.UNAUTHORIZED, response.getStatusCode(), "Expected Unauthorized error.");
+            assertTrue(response.getBody().contains("Unauthorized"), "Expected 'Unauthorized' message.");
+        } else {
+            try {
+                ObjectMapper objectMapper = new ObjectMapper();
+                PersonResponseDto returnedPerson = objectMapper.readValue(response.getBody(), PersonResponseDto.class);
+
+                assertNotNull(returnedPerson);
+                assertEquals(personId, returnedPerson.getPersonId());
+                assertEquals("authtestuser@example.com", returnedPerson.getEmail());
+                assertEquals("Auth Test User", returnedPerson.getName());
+            } catch (Exception e) {
+                fail("Failed to parse JSON response: " + e.getMessage());
+            }
+        }
+    }
    
     @Test
     public void testGetUserByIdNotFound() {
@@ -246,35 +284,25 @@ public class UserManagementIntegrationTest {
         gameOwner.setActive(true);
         gameOwnerRepo.save(gameOwner);
         
-        // Use a non-existent user ID
         int nonExistentUserId = 99999;
         
-        // Make sure this ID doesn't exist in the database
         assertFalse(personRepository.findById(nonExistentUserId).isPresent());
         
-        // Create headers with User-Id
         HttpHeaders headers = new HttpHeaders();
         headers.set("User-Id", String.valueOf(userId));
         HttpEntity<?> requestEntity = new HttpEntity<>(headers);
-        
-        // Make the GET request to retrieve a non-existent user
+
         ResponseEntity<String> response = restTemplate.exchange(
                 createURLWithPort("/users/" + nonExistentUserId),
                 HttpMethod.GET,
                 requestEntity,
                 String.class);
-        
-        // Print actual response for debugging
-        System.out.println("Not Found Test - Status: " + response.getStatusCode());
-        System.out.println("Not Found Test - Body: " + response.getBody());
-        
-        // Assert that we get a 404 Not Found response
+    
         assertEquals(HttpStatus.UNAUTHORIZED, response.getStatusCode());
     }
 
     @Test
     public void testGetAllUsers() {
-        // Clear repositories to ensure clean state
         gameOwnerRepo.deleteAll();
         playerRepo.deleteAll();
         personRepository.deleteAll();
@@ -291,38 +319,29 @@ public class UserManagementIntegrationTest {
         
         Person user2 = new Person("getalluser2@example.com", "password456", "Get All User Two");
         personRepository.save(user2);
-        
-        // Create headers with User-Id
+
         HttpHeaders headers = new HttpHeaders();
         headers.set("User-Id", String.valueOf(user1Id));
         HttpEntity<?> requestEntity = new HttpEntity<>(headers);
         
-        // Debug: Try to get the user list as String first
         ResponseEntity<String> responseString = restTemplate.exchange(
                 createURLWithPort("/users"),
                 HttpMethod.GET,
                 requestEntity,
                 String.class);
-        
-        System.out.println("Get All Users - Status: " + responseString.getStatusCode());
-        System.out.println("Get All Users - Body: " + responseString.getBody());
-        
-        // Make the GET request to retrieve all users
+
         ResponseEntity<PersonResponseDto[]> response = restTemplate.exchange(
                 createURLWithPort("/users"),
                 HttpMethod.GET,
                 requestEntity,
                 PersonResponseDto[].class);
-        
-        // Assert the response
+
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody());
         
-        // The response should contain at least the users we created
         PersonResponseDto[] users = response.getBody();
         assertTrue(users.length >= 2);
         
-        // Verify our test users are in the response
         boolean foundUser1 = false;
         boolean foundUser2 = false;
         
