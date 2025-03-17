@@ -19,6 +19,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import ca.mcgill.ecse321.gamenight.exceptions.PlayerNotFoundException;
 import ca.mcgill.ecse321.gamenight.exceptions.BorrowingRequestNotFoundException;
+import ca.mcgill.ecse321.gamenight.exceptions.EmailSendingFailedException;
 import ca.mcgill.ecse321.gamenight.exceptions.GameCopyNotFoundException;
 import ca.mcgill.ecse321.gamenight.model.BorrowingRequest;
 import ca.mcgill.ecse321.gamenight.model.BorrowingRequest.BorrowingRequestStatus;
@@ -148,6 +149,44 @@ public class BorrowingManagementServiceTest {
             eq("uno")
         );
     }
+
+    @Test
+    void testSendBorrowingRequest_EmailFailure() {
+    int gameCopyId = 10;
+    int senderId = 5;
+    Date startTime = Date.valueOf("2025-03-12");
+    Date endTime = Date.valueOf("2025-03-15");
+    
+    Game game = new Game();
+    game.setName("Uno");
+    Person ownerPerson = new Person();
+    ownerPerson.setName("Owner");
+    ownerPerson.setEmailAddress("owner@example.com");
+    GameOwner gameOwner = new GameOwner();
+    gameOwner.setPerson(ownerPerson);
+    GameCopy gameCopy = new GameCopy();
+    gameCopy.setId(gameCopyId);
+    gameCopy.setGame(game);
+    gameCopy.setGameOwner(gameOwner);
+    
+    Person senderPerson = new Person();
+    senderPerson.setName("John");
+    senderPerson.setEmailAddress("john@example.com");
+    Player sender = new Player();
+    sender.setId(senderId);
+    sender.setPerson(senderPerson);
+
+    when(gameCopyRepository.findById(gameCopyId)).thenReturn(Optional.of(gameCopy));
+    when(playerRepository.findById(senderId)).thenReturn(Optional.of(sender));
+    doThrow(new EmailSendingFailedException("Failed to send email"))
+         .when(emailService).sendBorrowingRequestEmail(any(String.class), any(Person.class), any(String.class));
+    Exception e = assertThrows(EmailSendingFailedException.class, () -> {
+         borrowingManagementService.sendBorrowingRequest(gameCopyId, senderId, startTime, endTime);
+    });
+    
+    assertEquals("Failed to send email", e.getMessage());
+}
+
     
     @Test
     public void sendBorrowingRequestInvalidGameCopyTest() {
@@ -269,14 +308,6 @@ public class BorrowingManagementServiceTest {
         verify(borrowingRequestRepository, times(2)).save(any(BorrowingRequest.class));
     }
 
-    @Test
-    void testRespondToBorrowingRequest_InvalidRequest() {
-        Exception exception = assertThrows(IllegalArgumentException.class, () -> 
-            borrowingManagementService.respondToBorrowingRequest(null, BorrowingRequestStatus.Accepted)
-        );
-        
-        assertEquals("Invalid borrowing request or missing game details.", exception.getMessage());
-    }
 
     @Test
     void testUpdateBorrowingRequestToAccepted(){
@@ -438,7 +469,6 @@ public class BorrowingManagementServiceTest {
         });
         String expectedMessage = "Borrowing request not found with ID: " + requestId;
         assertEquals(expectedMessage, e.getMessage());
-    }
-    
+    } 
     
 }

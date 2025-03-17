@@ -75,10 +75,7 @@ public class BorrowingManagementService {
 
    @Transactional 
    public BorrowingRequest respondToBorrowingRequest(BorrowingRequest request, BorrowingRequestStatus status){
-        if (request == null) {
-            throw new IllegalArgumentException("Invalid borrowing request or missing game details.");
-        }
-    
+
         GameCopy gameCopy = request.getGameCopy();
         GameOwner owner = gameCopy.getOwner();
         Player sender = request.getSender();

@@ -3,13 +3,19 @@ package ca.mcgill.ecse321.gamenight.integration;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doThrow;
 
 import java.sql.Date;
 
@@ -24,6 +30,7 @@ import org.junit.jupiter.api.TestInstance.Lifecycle;
 
 import ca.mcgill.ecse321.gamenight.dto.BorrowingRequestRequestDto;
 import ca.mcgill.ecse321.gamenight.dto.BorrowingRequestResponseDto;
+import ca.mcgill.ecse321.gamenight.exceptions.EmailSendingFailedException;
 import ca.mcgill.ecse321.gamenight.model.Game;
 import ca.mcgill.ecse321.gamenight.model.GameCopy;
 import ca.mcgill.ecse321.gamenight.model.GameOwner;
@@ -61,10 +68,13 @@ public class BorrowingManagementIntegrationTests {
     @Autowired
     private BorrowingRequestRepository borrowingRequestRepository;
 
+    private JavaMailSender eMailSender;
+
 
     private int validSenderId;
     private int validGameCopyId;
     private GameOwner createdGameOwner;
+
     private static final String VALID_EMAIL1 = "johnash@gmail.com";
     private static final String VALID_EMAIL2 = "sender@gmail.com";
     private static final String VALID_PASSWORD1 = "1234RE";
@@ -224,6 +234,7 @@ public class BorrowingManagementIntegrationTests {
     }
 
     @Test
+    @Order(9)
     public void testGetBorrowingRequestByIdValid() {
         BorrowingRequestRequestDto requestDto = new BorrowingRequestRequestDto(START_TIME, END_TIME, validSenderId, validGameCopyId);
         ResponseEntity<BorrowingRequestResponseDto> createResponse = client.postForEntity("/borrowingRequests", requestDto, BorrowingRequestResponseDto.class);
@@ -240,14 +251,88 @@ public class BorrowingManagementIntegrationTests {
     }
 
     @Test
+    @Order(10)
     public void testGetBorrowingRequestByIdInvalid() {
         String url = String.format("/borrowingRequests/%d", 99999);
         ResponseEntity<String> response = client.getForEntity(url, String.class);
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
     }
+    @Test
+    @Order(11)
+    public void testRespondToBorrowingRequestAccepted(){
+        BorrowingRequestRequestDto requestDto = new BorrowingRequestRequestDto(START_TIME, END_TIME, validSenderId, validGameCopyId);
+        ResponseEntity<BorrowingRequestResponseDto> createResponse = client.postForEntity("/borrowingRequests", requestDto, BorrowingRequestResponseDto.class);
+        assertEquals(HttpStatus.CREATED, createResponse.getStatusCode());
+        BorrowingRequestResponseDto createdRequest = createResponse.getBody();
+        assertNotNull(createdRequest);
+        String updateUrl = String.format("/borrowingRequests/%d/status?status=Accepted", createdRequest.getId());
+        ResponseEntity<BorrowingRequestResponseDto> response = client.exchange(updateUrl, org.springframework.http.HttpMethod.PUT, null, BorrowingRequestResponseDto.class);
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        BorrowingRequestResponseDto updated = response.getBody();
+        assertNotNull(updated);
+    }
 
+    @Test
+    @Order(12)
+    public void testRespondToBorrowingRequestRejected(){
+        BorrowingRequestRequestDto requestDto = new BorrowingRequestRequestDto(START_TIME, END_TIME, validSenderId, validGameCopyId);
+        ResponseEntity<BorrowingRequestResponseDto> createResponse = client.postForEntity("/borrowingRequests", requestDto, BorrowingRequestResponseDto.class);
+        assertEquals(HttpStatus.CREATED, createResponse.getStatusCode());
+        BorrowingRequestResponseDto createdRequest = createResponse.getBody();
+        assertNotNull(createdRequest);
+        String updateUrl = String.format("/borrowingRequests/%d/status?status=Rejected", createdRequest.getId());
+        ResponseEntity<BorrowingRequestResponseDto> response = client.exchange(updateUrl, org.springframework.http.HttpMethod.PUT, null, BorrowingRequestResponseDto.class);
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        BorrowingRequestResponseDto updated = response.getBody();
+        assertNotNull(updated);
+    }
 
+    @Test
+    @Order(13)
+    void testUpdateBorrowingRequestToAccepted(){
+        BorrowingRequestRequestDto requestDto = new BorrowingRequestRequestDto(START_TIME, END_TIME, validSenderId, validGameCopyId);
+        ResponseEntity<BorrowingRequestResponseDto> createResponse = client.postForEntity("/borrowingRequests", requestDto, BorrowingRequestResponseDto.class);
+        assertEquals(HttpStatus.CREATED, createResponse.getStatusCode());
+        BorrowingRequestResponseDto createdRequest = createResponse.getBody();
+        assertNotNull(createdRequest);
+        String updateUrlRejected = String.format("/borrowingRequests/%d/status?status=Rejected", createdRequest.getId());
+        ResponseEntity<BorrowingRequestResponseDto> rejectedResponse = client.exchange(updateUrlRejected, org.springframework.http.HttpMethod.PUT, null, BorrowingRequestResponseDto.class);
+        assertEquals(HttpStatus.OK, rejectedResponse.getStatusCode());
+        String updateUrlAccepted = String.format("/borrowingRequests/%d/status?status=Accepted", createdRequest.getId());
+        ResponseEntity<BorrowingRequestResponseDto> acceptedResponse = client.exchange(updateUrlAccepted, org.springframework.http.HttpMethod.PUT, null, BorrowingRequestResponseDto.class);
+        assertEquals(HttpStatus.OK, acceptedResponse.getStatusCode());
+        BorrowingRequestResponseDto updated = acceptedResponse.getBody();
+        assertNotNull(updated);
 
+    }
+
+    @Test
+    @Order(14)
+    void testUpdateBorrowingRequestToRejected(){
+        BorrowingRequestRequestDto requestDto = new BorrowingRequestRequestDto(START_TIME, END_TIME, validSenderId, validGameCopyId);
+        ResponseEntity<BorrowingRequestResponseDto> createResponse = client.postForEntity("/borrowingRequests", requestDto, BorrowingRequestResponseDto.class);
+        assertEquals(HttpStatus.CREATED, createResponse.getStatusCode());
+        BorrowingRequestResponseDto createdRequest = createResponse.getBody();
+        assertNotNull(createdRequest);
+        String updateUrlAccepted = String.format("/borrowingRequests/%d/status?status=Accepted", createdRequest.getId());
+        ResponseEntity<BorrowingRequestResponseDto> acceptedResponse = client.exchange(updateUrlAccepted, org.springframework.http.HttpMethod.PUT, null, BorrowingRequestResponseDto.class);
+        assertEquals(HttpStatus.OK, acceptedResponse.getStatusCode());
+        String updateUrlRejected = String.format("/borrowingRequests/%d/status?status=Rejected", createdRequest.getId());
+        ResponseEntity<BorrowingRequestResponseDto> rejectedResponse = client.exchange(updateUrlRejected, org.springframework.http.HttpMethod.PUT, null, BorrowingRequestResponseDto.class);
+        assertEquals(HttpStatus.OK, rejectedResponse.getStatusCode());
+        BorrowingRequestResponseDto updated = rejectedResponse.getBody();
+        assertNotNull(updated);
+
+    }
+
+    @Test
+    @Order(15)
+    void testUpdateBorrowingRequestThatDoesNotExist(){
+        String updateUrl = String.format("/borrowingRequests/%d/status?status=Accepted", 99999);
+        ResponseEntity<String> response = client.exchange(updateUrl, org.springframework.http.HttpMethod.PUT, null, String.class);
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+
+    }
 
 }
 
