@@ -79,12 +79,10 @@ public class BorrowingManagementService {
         GameCopy gameCopy = request.getGameCopy();
         GameOwner owner = gameCopy.getOwner();
         Player sender = request.getSender();
-
+        request.setStatus(status);
         if (status.equals(BorrowingRequestStatus.Accepted)){
-            updateBorrowingRequestStatus(request,BorrowingRequestStatus.Accepted);
             emailService.sendRequestAcceptedEmail(sender.getPerson().getEmailAddress(),owner.getPerson().getName(),gameCopy.getGame().getName());
         } else if (status.equals(BorrowingRequestStatus.Rejected)){
-            updateBorrowingRequestStatus(request,BorrowingRequestStatus.Rejected);
             emailService.sendRequestRejectedEmail(sender.getPerson().getEmailAddress(),owner.getPerson().getName(),gameCopy.getGame().getName());
         }
 

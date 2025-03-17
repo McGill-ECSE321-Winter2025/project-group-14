@@ -61,38 +61,31 @@ public class BorrowingManagementController {
                 return new BorrowingRequestResponseDto(savedRequest);
 
         }
-
         /**
-         * Responding to a new borrowing request.
-         * 
-         * @param requestId The ID of the borrowing request to respond to.
-         * @param status    The new status for the borrowing request.
-         * @return The updated request
-         */
-        @PutMapping("/{requestId}/")
-        public BorrowingRequestResponseDto respondToBorrowingRequest(@PathVariable int requestId,
-                        @RequestParam BorrowingRequestStatus status) {
-                BorrowingRequest request = borrowingManagementService.getBorrowingRequestById(requestId);
-                BorrowingRequest updatedRequest = borrowingManagementService.respondToBorrowingRequest(request, status);
-                return new BorrowingRequestResponseDto(updatedRequest);
-        }
-
-        /**
-         * Update a new borrowing request.
-         * 
+         * Handle borrowing request status changes.
+         *
          * @param requestId The ID of the borrowing request to update.
-         * @param status    The new status for the borrowing request.
+         * @param status The new status for the borrowing request.
+         * @param action The action to perform: "respond" or "update" (default is "update")
          * @return The updated request
          */
         @PutMapping("/{requestId}/status")
-        public BorrowingRequestResponseDto updateBorrowingRequestStatus(@PathVariable int requestId,
-                        @RequestParam BorrowingRequestStatus status) {
+        public BorrowingRequestResponseDto handleBorrowingRequestStatus(
+                @PathVariable int requestId,
+                @RequestParam BorrowingRequestStatus status,
+                @RequestParam(required = false, defaultValue = "update") String action) {
+        
                 BorrowingRequest request = borrowingManagementService.getBorrowingRequestById(requestId);
-                BorrowingRequest updatedRequest = borrowingManagementService.updateBorrowingRequestStatus(request,
-                                status);
+                BorrowingRequest updatedRequest;
+                
+                if ("respond".equals(action)) {
+                        updatedRequest = borrowingManagementService.respondToBorrowingRequest(request, status);
+                } else {
+                        updatedRequest = borrowingManagementService.updateBorrowingRequestStatus(request, status);
+                }
+                
                 return new BorrowingRequestResponseDto(updatedRequest);
         }
-
         /**
          * Retrieve all delivered borrowing requests for a given borrower.
          * 
@@ -145,7 +138,7 @@ public class BorrowingManagementController {
          * @param ownerId The ID of the game owner.
          * @return A list of lending history.
          */
-        @GetMapping("/{ownerId}/lending-history")
+        @GetMapping("/owner/{ownerId}/lending-history")
         public List<BorrowingRequestResponseDto> getLendingHistoryForOwner(@PathVariable int ownerId) {
                 List<BorrowingRequest> ownerLendingHistory = borrowingManagementService.findLendingHistory(ownerId);
                 return ownerLendingHistory.stream().map(BorrowingRequestResponseDto::new).collect(Collectors.toList());
@@ -161,7 +154,7 @@ public class BorrowingManagementController {
          *                                           found for the game copy.
          */
 
-        @GetMapping("/{gameCopyId}/lending-status")
+        @GetMapping("/gameCopy/{gameCopyId}/lending-status")
         public BorrowingRequestResponseDto getGameCopyLendingStatus(@PathVariable int gameCopyId) {
                 GameCopy gameCopy = gameCopyRepository.findById(gameCopyId)
                                 .orElseThrow(() -> new GameCopyNotFoundException(String.valueOf(gameCopyId)));

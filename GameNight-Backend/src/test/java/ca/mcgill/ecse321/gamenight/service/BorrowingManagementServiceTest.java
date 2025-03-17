@@ -268,7 +268,7 @@ public class BorrowingManagementServiceTest {
         BorrowingRequest result = borrowingManagementService.respondToBorrowingRequest(request, BorrowingRequestStatus.Accepted);
         
         assertEquals(BorrowingRequestStatus.Accepted, result.getStatus());
-        verify(borrowingRequestRepository, times(2)).save(any(BorrowingRequest.class));
+        verify(borrowingRequestRepository, times(1)).save(any(BorrowingRequest.class));
 
     }
 
@@ -305,7 +305,7 @@ public class BorrowingManagementServiceTest {
         BorrowingRequest result = borrowingManagementService.respondToBorrowingRequest(request, BorrowingRequestStatus.Rejected);
         
         assertEquals(BorrowingRequestStatus.Rejected, result.getStatus());
-        verify(borrowingRequestRepository, times(2)).save(any(BorrowingRequest.class));
+        verify(borrowingRequestRepository, times(1)).save(any(BorrowingRequest.class));
     }
 
 

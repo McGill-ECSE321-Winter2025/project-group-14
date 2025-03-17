@@ -3,24 +3,20 @@ package ca.mcgill.ecse321.gamenight.integration;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doThrow;
 
 import java.sql.Date;
 
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
@@ -108,6 +104,10 @@ public class BorrowingManagementIntegrationTests {
         Player sender = new Player(senderPerson);
         sender = playerRepository.save(sender);
         validSenderId = sender.getId();
+    }
+    @BeforeEach
+    public void cleanData() {
+        borrowingRequestRepository.deleteAll();
     }
     @AfterAll
     public void cleanup(){
@@ -332,6 +332,79 @@ public class BorrowingManagementIntegrationTests {
         ResponseEntity<String> response = client.exchange(updateUrl, org.springframework.http.HttpMethod.PUT, null, String.class);
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
 
+    }
+ 
+    @Test
+    @Order(16)
+    public void testGetLendingHistoryForOwnerValid() {
+        BorrowingRequestRequestDto requestDto = new BorrowingRequestRequestDto(START_TIME, END_TIME, validSenderId, validGameCopyId);
+        ResponseEntity<BorrowingRequestResponseDto> createResponse =
+                client.postForEntity("/borrowingRequests", requestDto, BorrowingRequestResponseDto.class);
+        assertEquals(HttpStatus.CREATED, createResponse.getStatusCode());
+        BorrowingRequestResponseDto createdRequest = createResponse.getBody();
+        assertNotNull(createdRequest);
+        String updateUrl = String.format("/borrowingRequests/%d/status?status=Accepted", createdRequest.getId());
+        ResponseEntity<BorrowingRequestResponseDto> updateResponse =
+                client.exchange(updateUrl, org.springframework.http.HttpMethod.PUT, null, BorrowingRequestResponseDto.class);
+        assertEquals(HttpStatus.OK, updateResponse.getStatusCode());
+        int ownerId = createdGameOwner.getId();
+        String lendingHistoryUrl = String.format("/borrowingRequests/owner/%d/lending-history", ownerId);
+        ResponseEntity<BorrowingRequestResponseDto[]> historyResponse =
+                client.getForEntity(lendingHistoryUrl, BorrowingRequestResponseDto[].class);
+        assertEquals(HttpStatus.OK, historyResponse.getStatusCode());
+        BorrowingRequestResponseDto[] history = historyResponse.getBody();
+        assertNotNull(history);
+        assertTrue(history.length > 0, "Expected at least one lending history record for owner.");
+    }
+
+    @Test
+    @Order(17)
+    public void testGetLendingHistoryForOwnerInvalid() {
+        int invalidOwnerId = 99999;
+        String lendingHistoryUrl = String.format("/borrowingRequests/owner/%d/lending-history", invalidOwnerId);
+        ResponseEntity<BorrowingRequestResponseDto[]> response =
+                client.getForEntity(lendingHistoryUrl, BorrowingRequestResponseDto[].class);
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        BorrowingRequestResponseDto[] history = response.getBody();
+        assertNotNull(history);
+        assertEquals(0, history.length, "Expected empty lending history for invalid owner.");
+    }
+
+
+    @Test
+    @Order(18)
+    public void testGetGameCopyLendingStatusValid() {
+        BorrowingRequestRequestDto requestDto = new BorrowingRequestRequestDto(START_TIME, END_TIME, validSenderId, validGameCopyId);
+        ResponseEntity<BorrowingRequestResponseDto> createResponse =
+                client.postForEntity("/borrowingRequests", requestDto, BorrowingRequestResponseDto.class);
+        assertEquals(HttpStatus.CREATED, createResponse.getStatusCode());
+        BorrowingRequestResponseDto createdRequest = createResponse.getBody();
+        assertNotNull(createdRequest);
+        String updateUrl = String.format("/borrowingRequests/%d/status?status=Accepted", createdRequest.getId());
+        ResponseEntity<BorrowingRequestResponseDto> updateResponse =
+                client.exchange(updateUrl, org.springframework.http.HttpMethod.PUT, null, BorrowingRequestResponseDto.class);
+        assertEquals(HttpStatus.OK, updateResponse.getStatusCode());
+        String lendingStatusUrl = String.format("/borrowingRequests/gameCopy/%d/lending-status", validGameCopyId);
+        ResponseEntity<BorrowingRequestResponseDto> statusResponse =
+                client.getForEntity(lendingStatusUrl, BorrowingRequestResponseDto.class);
+        assertEquals(HttpStatus.OK, statusResponse.getStatusCode());
+        BorrowingRequestResponseDto statusDto = statusResponse.getBody();
+        assertNotNull(statusDto, "Expected a lending status for the game copy.");
+        assertEquals(createdRequest.getId(), statusDto.getId());
+    }
+
+
+    @Test
+    @Order(19)
+    public void testGetGameCopyLendingStatusInvalid() {
+        BorrowingRequestRequestDto requestDto = new BorrowingRequestRequestDto(START_TIME, END_TIME, validSenderId, validGameCopyId);
+        ResponseEntity<BorrowingRequestResponseDto> createResponse =
+                client.postForEntity("/borrowingRequests", requestDto, BorrowingRequestResponseDto.class);
+        assertEquals(HttpStatus.CREATED, createResponse.getStatusCode());
+        String lendingStatusUrl = String.format("/borrowingRequests/gameCopy/%d/lending-status", validGameCopyId);
+        ResponseEntity<String> response =
+                client.getForEntity(lendingStatusUrl, String.class);
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
     }
 
 }
