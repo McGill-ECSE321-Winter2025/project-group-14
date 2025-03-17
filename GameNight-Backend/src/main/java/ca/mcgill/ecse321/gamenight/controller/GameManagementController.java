@@ -41,7 +41,7 @@ public class GameManagementController {
      * @param game The game to create
      * @return The created game
      */
-    @PostMapping("/games/")
+    @PostMapping("/games")
     @ResponseStatus(HttpStatus.CREATED)
     public GameResponseDto createGame(@RequestBody GameRequestDto game) {
         Game g = gameManagementService.createGame(game.getName(), game.getDescription());
