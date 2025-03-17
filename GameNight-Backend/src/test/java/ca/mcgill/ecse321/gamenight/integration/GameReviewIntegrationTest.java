@@ -29,7 +29,7 @@ import ca.mcgill.ecse321.gamenight.service.GameManagementService;
 import ca.mcgill.ecse321.gamenight.service.UserManagementService;
 
 @SpringBootTest
-public class ReviewIntegrationTest {
+public class GameReviewIntegrationTest {
 
     @Mock
     private GameReviewService gameReviewService;
@@ -177,6 +177,15 @@ public class ReviewIntegrationTest {
     }
 
     @Test
+    public void testGetReviewsForInvalidGame() {
+        when(gameService.findGameById(anyInt())).thenThrow(new IllegalArgumentException("Game not found."));
+
+        ResponseEntity<List<GameReviewDto>> response = gameReviewController.getReviewsForGame(999);
+
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+    }
+
+    @Test
     public void testGetReviewsByUser() {
 
         List<GameReview> reviews = new ArrayList<>();
@@ -192,6 +201,15 @@ public class ReviewIntegrationTest {
     }
 
     @Test
+    public void testGetReviewsForInvalidUser() {
+        when(userService.getPlayerById(anyInt())).thenThrow(new IllegalArgumentException("Player not found."));
+
+        ResponseEntity<List<GameReviewDto>> response = gameReviewController.getReviewsByUser(999);
+
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+    }
+
+    @Test
     public void testGetAverageRatingForGame() {
 
         when(gameService.findGameById(anyInt())).thenReturn(game);
@@ -201,6 +219,15 @@ public class ReviewIntegrationTest {
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(4.5, response.getBody());
+    }
+
+    @Test
+    public void testGetAverageRatingForInvalidGame() {
+        when(gameService.findGameById(anyInt())).thenThrow(new IllegalArgumentException("Game not found."));
+
+        ResponseEntity<Double> response = gameReviewController.getAverageRatingForGame(999);
+
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     }
 
     @Test
@@ -216,5 +243,14 @@ public class ReviewIntegrationTest {
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody());
         assertEquals(1, response.getBody().size());
+    }
+
+    @Test
+    public void testGetReviewsSortedByRatingInvalid() {
+        when(gameService.findGameById(anyInt())).thenThrow(new IllegalArgumentException("Game not found."));
+
+        ResponseEntity<List<GameReviewDto>> response = gameReviewController.getReviewsSortedByRating(999, true);
+
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     }
 }
