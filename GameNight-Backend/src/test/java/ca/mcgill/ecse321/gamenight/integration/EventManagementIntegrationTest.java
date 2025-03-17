@@ -1,8 +1,12 @@
 package ca.mcgill.ecse321.gamenight.integration;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Date;
+import java.util.Objects;
 
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -24,7 +28,6 @@ import ca.mcgill.ecse321.gamenight.dto.GameResponseDto;
 import ca.mcgill.ecse321.gamenight.dto.PlayerResponseDto;
 import ca.mcgill.ecse321.gamenight.model.Event;
 import ca.mcgill.ecse321.gamenight.model.Game;
-import ca.mcgill.ecse321.gamenight.model.GameOwner;
 import ca.mcgill.ecse321.gamenight.model.Person;
 import ca.mcgill.ecse321.gamenight.model.Player;
 import ca.mcgill.ecse321.gamenight.repo.*;
@@ -87,8 +90,6 @@ public class EventManagementIntegrationTest {
         Player player = playerRepository.save(new Player(playerPerson));
         validPlayerId = player.getId();
 
-        Person ownerPerson = personRepository.save(new Person("owner@email.com", "pass456", "OwnerOne"));
-        GameOwner owner = gameOwnerRepository.save(new GameOwner(ownerPerson));
 
         Game newGame = new Game("SomeGame", "A test game");
         gameRepository.save(newGame);
@@ -117,15 +118,33 @@ public void clearDatabase() {
 }
 
 
-    @Test
-    @Order(1)
-    public void testCreateValidEvent() {
-        EventRequestDto requestDto = new EventRequestDto("New Event", "Description", START_TIME, END_TIME);
-        ResponseEntity<EventResponseDto> response =
-                client.postForEntity("/events", requestDto, EventResponseDto.class);
+@Test
+@Order(1)
+public void testCreateValidEvent() {
+    EventRequestDto requestDto = new EventRequestDto(
+        "New Event", 
+        "Description", 
+        START_TIME, 
+        END_TIME
+    );
 
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-    }
+    ResponseEntity<EventResponseDto> response =
+        client.postForEntity("/events", requestDto, EventResponseDto.class);
+
+
+    assertEquals(HttpStatus.OK, response.getStatusCode());
+
+    EventResponseDto createdEvent = response.getBody();
+    assertNotNull(createdEvent, "Expected a non-null EventResponseDto in the response.");
+
+    assertEquals("New Event", createdEvent.getName(), "Event name should match the request.");
+    assertEquals("Description", createdEvent.getDescription(), "Description should match the request.");
+    assertEquals(START_TIME, createdEvent.getStartTime(), "Start time should match the request.");
+    assertEquals(END_TIME, createdEvent.getEndTime(), "End time should match the request.");
+
+    assertTrue(createdEvent.getId() > 0, "Newly created event should have a valid ID > 0.");
+}
+
 
     @Test
     @Order(2)
@@ -153,11 +172,23 @@ public void clearDatabase() {
     @Order(4)
     public void testGetEventByIdValid() {
         String url = String.format("/events/%d", validEventId);
+    
         ResponseEntity<EventResponseDto> response =
                 client.getForEntity(url, EventResponseDto.class);
-
+    
         assertEquals(HttpStatus.OK, response.getStatusCode());
+    
+        EventResponseDto eventDto = response.getBody();
+        assertNotNull(eventDto, "Expected a non-null EventResponseDto in the response.");
+    
+        assertEquals(validEventId, eventDto.getId(), "Event ID should match the one we requested.");
+        assertEquals(VALID_EVENT_NAME, eventDto.getName(), "Name should match the event we created previously.");
+        assertEquals(VALID_EVENT_DESC, eventDto.getDescription(), "Description should match the original event's description.");
+    
+        assertNotNull(eventDto.getStartTime(), "Expected a non-null start time.");
+        assertNotNull(eventDto.getEndTime(), "Expected a non-null end time.");
     }
+    
 
     @Test
     @Order(5)
@@ -173,13 +204,42 @@ public void clearDatabase() {
     @Test
     @Order(6)
     public void testUpdateEventSuccess() {
-        EventRequestDto requestDto = new EventRequestDto(UPDATED_EVENT_NAME, UPDATED_EVENT_DESC, START_TIME, END_TIME);
+        EventRequestDto requestDto = new EventRequestDto(
+            UPDATED_EVENT_NAME,
+            UPDATED_EVENT_DESC,
+            START_TIME,
+            END_TIME
+        );
         String url = String.format("/events/%d", validEventId);
+    
         ResponseEntity<EventResponseDto> response = client.exchange(
-                url, HttpMethod.PUT, new HttpEntity<>(requestDto), EventResponseDto.class);
-
+                url,
+                HttpMethod.PUT,
+                new HttpEntity<>(requestDto),
+                EventResponseDto.class
+        );
+    
         assertEquals(HttpStatus.OK, response.getStatusCode());
+    
+        EventResponseDto updatedEvent = response.getBody();
+        assertNotNull(updatedEvent, "Expected a non-null EventResponseDto in the response.");
+    
+        assertEquals(validEventId, updatedEvent.getId(), 
+            "The event ID should remain unchanged after update.");
+    
+        assertEquals(UPDATED_EVENT_NAME, updatedEvent.getName(),
+            "Event name should match the newly updated name.");
+        assertEquals(UPDATED_EVENT_DESC, updatedEvent.getDescription(),
+            "Event description should match the newly updated description.");
+    
+        assertNotNull(updatedEvent.getStartTime(), "Expected non-null start time.");
+        assertNotNull(updatedEvent.getEndTime(), "Expected non-null end time.");
+        assertEquals(START_TIME, updatedEvent.getStartTime(),
+            "The start time should match what was sent in the request.");
+        assertEquals(END_TIME, updatedEvent.getEndTime(),
+            "The end time should match what was sent in the request.");
     }
+    
 
     @Test
     @Order(7)
@@ -220,10 +280,16 @@ public void clearDatabase() {
     @Order(10)
     public void testDeleteEventSuccess() {
         String url = String.format("/events/%d", validEventIdToDelete);
-        ResponseEntity<Void> response = client.exchange(url, HttpMethod.DELETE, null, Void.class);
-
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-    }
+        ResponseEntity<Void> deleteResponse = client.exchange(url, HttpMethod.DELETE, null, Void.class);
+        assertEquals(HttpStatus.OK, deleteResponse.getStatusCode(),
+            "Expected a 200 OK when deleting an existing event.");
+    
+        ResponseEntity<String> getResponse = client.getForEntity(url, String.class);
+        assertEquals(HttpStatus.BAD_REQUEST, getResponse.getStatusCode(),
+            "Expected 400/404 when retrieving a deleted event.");
+        
+            }
+    
 
     @Test
     @Order(11)
@@ -242,6 +308,8 @@ public void clearDatabase() {
                 client.getForEntity("/events", EventResponseDto[].class);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
+        EventResponseDto[] events = response.getBody();
+        assertNotNull(events, "Expected non-null array of events.");
     }
 
 
@@ -253,6 +321,9 @@ public void testGetGamesForEventSuccess() {
     ResponseEntity<GameResponseDto[]> response = client.getForEntity(url, GameResponseDto[].class);
 
     assertEquals(HttpStatus.OK, response.getStatusCode());
+    GameResponseDto[] games = response.getBody();
+    assertNotNull(games, "Expected non-null array of GameResponseDto.");
+
 
 }
 
@@ -275,6 +346,8 @@ public void testGetScheduledEventsForGameSuccess() {
     ResponseEntity<EventResponseDto[]> response = client.getForEntity(url, EventResponseDto[].class);
 
     assertEquals(HttpStatus.OK, response.getStatusCode());
+    EventResponseDto[] events = response.getBody();
+    assertNotNull(events, "Expected a non-null array of EventResponseDto.");
 
 }
 
@@ -290,21 +363,46 @@ public void testGetScheduledEventsForGameNotFound() {
 
 
 
-    @Test
-    @Order(17)
-    public void testRegisterForEventSuccess() {
-        EventRequestDto newEvent = new EventRequestDto("RegEvent", "desc", START_TIME, END_TIME);
-        ResponseEntity<EventResponseDto> created =
-                client.postForEntity("/events", newEvent, EventResponseDto.class);
+@Test
+@Order(17)
+public void testRegisterForEventSuccess() {
+    EventRequestDto newEvent = new EventRequestDto("RegEvent", "desc", START_TIME, END_TIME);
+    ResponseEntity<EventResponseDto> createdResponse =
+            client.postForEntity("/events", newEvent, EventResponseDto.class);
 
-        assertEquals(HttpStatus.OK, created.getStatusCode());
-        int newEventId = (created.getBody() != null) ? created.getBody().getId() : -1;
+    assertEquals(HttpStatus.OK, createdResponse.getStatusCode(),
+        "Expected 200 OK when creating a new event.");
+    EventResponseDto createdEvent = createdResponse.getBody();
+    assertNotNull(createdEvent, "Expected a non-null EventResponseDto after creation.");
+    assertTrue(createdEvent.getId() > 0, "Expected a valid event ID (> 0).");
 
-        String url = String.format("/events/%d/player/%d", newEventId, validPlayerId);
-        ResponseEntity<Void> response = client.postForEntity(url, null, Void.class);
+    int newEventId = createdEvent.getId();
+    String registerUrl = String.format("/events/%d/player/%d", newEventId, validPlayerId);
+    ResponseEntity<Void> registerResponse = client.postForEntity(registerUrl, null, Void.class);
 
-        assertEquals(HttpStatus.OK, response.getStatusCode());
+    assertEquals(HttpStatus.OK, registerResponse.getStatusCode(),
+        "Expected 200 OK when registering for the event.");
+
+    String getPlayerEventsUrl = String.format("/events/player/%d", validPlayerId);
+    ResponseEntity<EventResponseDto[]> eventsResponse =
+        client.getForEntity(getPlayerEventsUrl, EventResponseDto[].class);
+
+    assertEquals(HttpStatus.OK, eventsResponse.getStatusCode(),
+        "Expected 200 OK when retrieving events for the player.");
+    EventResponseDto[] playerEvents = eventsResponse.getBody();
+    assertNotNull(playerEvents, "Expected a non-null array of events for the player.");
+
+    boolean foundNewEvent = false;
+    for (EventResponseDto e : playerEvents) {
+        if (e.getId() == newEventId) {
+            foundNewEvent = true;
+            break;
+        }
     }
+    assertTrue(foundNewEvent,
+        "Expected the newly created event to be in the player's list of registered events.");
+}
+
 
     @Test
     @Order(18)
@@ -319,39 +417,67 @@ public void testGetScheduledEventsForGameNotFound() {
     @Order(19)
     public void testRegisterForEventPlayerNotFound() {
         EventRequestDto newEvent = new EventRequestDto("AnotherEvent", "desc", START_TIME, END_TIME);
-        ResponseEntity<EventResponseDto> created =
-                client.postForEntity("/events", newEvent, EventResponseDto.class);
-
+        ResponseEntity<EventResponseDto> created = client.postForEntity("/events", newEvent, EventResponseDto.class);
+    
         assertEquals(HttpStatus.OK, created.getStatusCode());
-        int newEventId = (created.getBody() != null) ? created.getBody().getId() : -1;
-
+    
+        EventResponseDto body = Objects.requireNonNull(created.getBody(), "Expected non-null body in response.");
+        int newEventId = body.getId();
+    
         String url = String.format("/events/%d/player/%d", newEventId, 99999);
-        ResponseEntity<String> response =
-                client.postForEntity(url, null, String.class);
-
+        ResponseEntity<String> response = client.postForEntity(url, null, String.class);
+    
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     }
 
 
-    @Test
-    @Order(20)
-    public void testUnregisterForEventSuccess() {
-        EventRequestDto newEvent = new EventRequestDto("ToUnregister", "desc", START_TIME, END_TIME);
-        ResponseEntity<EventResponseDto> created =
-                client.postForEntity("/events", newEvent, EventResponseDto.class);
+@Test
+@Order(20)
+public void testUnregisterForEventSuccess() {
+    EventRequestDto newEvent = new EventRequestDto("ToUnregister", "desc", START_TIME, END_TIME);
+    ResponseEntity<EventResponseDto> createdResponse =
+            client.postForEntity("/events", newEvent, EventResponseDto.class);
 
-        assertEquals(HttpStatus.OK, created.getStatusCode());
-        int newEventId = (created.getBody() != null) ? created.getBody().getId() : -1;
+    assertEquals(HttpStatus.OK, createdResponse.getStatusCode(),
+            "Expected 200 OK when creating a new event.");
+    EventResponseDto createdEvent = createdResponse.getBody();
+    assertNotNull(createdEvent, "Expected a non-null EventResponseDto after creation.");
+    assertTrue(createdEvent.getId() > 0, "Expected a valid event ID (> 0).");
 
-        String registerUrl = String.format("/events/%d/player/%d", newEventId, validPlayerId);
-        ResponseEntity<Void> regResponse = client.postForEntity(registerUrl, null, Void.class);
-        assertEquals(HttpStatus.OK, regResponse.getStatusCode());
+    int newEventId = createdEvent.getId();
 
-        String unregisterUrl = String.format("/events/%d/player/%d", newEventId, validPlayerId);
-        ResponseEntity<Void> delResponse = client.exchange(unregisterUrl, HttpMethod.DELETE, null, Void.class);
+    String registerUrl = String.format("/events/%d/player/%d", newEventId, validPlayerId);
+    ResponseEntity<Void> regResponse = client.postForEntity(registerUrl, null, Void.class);
+    assertEquals(HttpStatus.OK, regResponse.getStatusCode(),
+            "Expected 200 OK when registering for the event.");
 
-        assertEquals(HttpStatus.OK, delResponse.getStatusCode());
+    String unregisterUrl = String.format("/events/%d/player/%d", newEventId, validPlayerId);
+    ResponseEntity<Void> delResponse =
+            client.exchange(unregisterUrl, HttpMethod.DELETE, null, Void.class);
+
+    assertEquals(HttpStatus.OK, delResponse.getStatusCode(),
+            "Expected 200 OK when unregistering from the event.");
+
+    String getPlayerEventsUrl = String.format("/events/player/%d", validPlayerId);
+    ResponseEntity<EventResponseDto[]> eventsResponse =
+        client.getForEntity(getPlayerEventsUrl, EventResponseDto[].class);
+
+    assertEquals(HttpStatus.OK, eventsResponse.getStatusCode(),
+        "Expected 200 OK when retrieving events for the player.");
+    EventResponseDto[] playerEvents = eventsResponse.getBody();
+    assertNotNull(playerEvents, "Expected a non-null array of events for the player.");
+
+    boolean foundEvent = false;
+    for (EventResponseDto e : playerEvents) {
+        if (e.getId() == newEventId) {
+            foundEvent = true;
+            break;
+        }
     }
+    assertFalse(foundEvent,
+        "Expected that the event would NOT be in the player's list of registered events after unregistering.");
+}
+
 
     @Test
     @Order(21)
@@ -366,39 +492,41 @@ public void testGetScheduledEventsForGameNotFound() {
     @Test
     @Order(22)
     public void testUnregisterForEventPlayerNotFound() {
-        // create new event
         EventRequestDto newEvent = new EventRequestDto("AnotherOne", "desc", START_TIME, END_TIME);
         ResponseEntity<EventResponseDto> created =
                 client.postForEntity("/events", newEvent, EventResponseDto.class);
-
+    
         assertEquals(HttpStatus.OK, created.getStatusCode());
-        int newEventId = (created.getBody() != null) ? created.getBody().getId() : -1;
-
+    
+        int newEventId = Objects.requireNonNull(created.getBody()).getId();
+    
         String url = String.format("/events/%d/player/%d", newEventId, 99999);
         ResponseEntity<String> response =
                 client.exchange(url, HttpMethod.DELETE, null, String.class);
-
+    
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     }
+    
 
     @Test
     @Order(23)
     public void testUnregisterForEventNoRegistration() {
-        // create new event
         EventRequestDto newEvent = new EventRequestDto("NoRegistration", "desc", START_TIME, END_TIME);
-        ResponseEntity<EventResponseDto> created =
-                client.postForEntity("/events", newEvent, EventResponseDto.class);
-
+        ResponseEntity<EventResponseDto> created = client.postForEntity("/events", newEvent, EventResponseDto.class);
+    
         assertEquals(HttpStatus.OK, created.getStatusCode());
-        int newEventId = (created.getBody() != null) ? created.getBody().getId() : -1;
-
-        // attempt to unregister without registering first
+    
+        EventResponseDto createdBody = 
+            Objects.requireNonNull(created.getBody(), "Expected a non-null EventResponseDto body");
+        int newEventId = createdBody.getId();
+    
         String url = String.format("/events/%d/player/%d", newEventId, validPlayerId);
         ResponseEntity<String> response =
                 client.exchange(url, HttpMethod.DELETE, null, String.class);
-
+    
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     }
+    
 
 
     @Test
@@ -409,6 +537,9 @@ public void testGetScheduledEventsForGameNotFound() {
                 client.getForEntity(url, EventResponseDto[].class);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
+        EventResponseDto[] eventDtos = response.getBody();
+        assertNotNull(eventDtos, "Expected a non-null array of EventResponseDto for the player's events.");
+    
     }
 
     @Test
@@ -430,6 +561,10 @@ public void testGetScheduledEventsForGameNotFound() {
                 client.getForEntity(url, PlayerResponseDto[].class);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
+
+        PlayerResponseDto[] playerDtos = response.getBody();
+        assertNotNull(playerDtos, "Expected a non-null array of PlayerResponseDto for this event.");
+    
     }
 
     @Test
