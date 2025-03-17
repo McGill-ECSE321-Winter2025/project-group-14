@@ -1,14 +1,11 @@
 package ca.mcgill.ecse321.gamenight.integration;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 import ca.mcgill.ecse321.gamenight.repo.GameOwnerRepository;
 import ca.mcgill.ecse321.gamenight.repo.PersonRepository;
 import ca.mcgill.ecse321.gamenight.repo.PlayerRepository;
 import ca.mcgill.ecse321.gamenight.service.UserManagementService;
-import jakarta.servlet.http.HttpServletRequest;
 import ca.mcgill.ecse321.gamenight.controller.UserManagementController;
 import ca.mcgill.ecse321.gamenight.dto.AuthRequestDto;
 import ca.mcgill.ecse321.gamenight.dto.LoginResponseDto;
@@ -22,7 +19,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
-import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
@@ -33,7 +29,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.util.Optional;
 import org.springframework.http.*;
-import org.springframework.web.server.ResponseStatusException;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @TestInstance(Lifecycle.PER_CLASS)
@@ -53,12 +48,6 @@ public class UserManagementIntegrationTest {
 
     @Autowired
     private PlayerRepository playerRepo;
-
-    @Autowired
-    private UserManagementService userService;
-
-    @Autowired
-    private UserManagementController userController;
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 

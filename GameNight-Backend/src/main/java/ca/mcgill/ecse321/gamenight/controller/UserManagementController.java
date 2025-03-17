@@ -7,14 +7,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 
 import jakarta.servlet.http.HttpServletRequest;
 import ca.mcgill.ecse321.gamenight.dto.AuthRequestDto;
 import ca.mcgill.ecse321.gamenight.dto.LoginResponseDto;
 import ca.mcgill.ecse321.gamenight.dto.PersonResponseDto;
 import ca.mcgill.ecse321.gamenight.exceptions.ForbiddenAccessException;
+import ca.mcgill.ecse321.gamenight.exceptions.GameOwnerNotFoundException;
 import ca.mcgill.ecse321.gamenight.exceptions.UnauthedException;
+import ca.mcgill.ecse321.gamenight.exceptions.UserNotFoundException;
 import ca.mcgill.ecse321.gamenight.middleware.RequireUser;
 import ca.mcgill.ecse321.gamenight.service.UserManagementService;
 import ca.mcgill.ecse321.gamenight.model.Person;
@@ -47,8 +48,9 @@ public class UserManagementController {
     /**
      * Deletes a Person by ID. The GameOwner and Player are also deleted.
      * 
-     * @param userId
-     * @return a ResponseEntity with HTTP status 200 (OK)
+     * @param userId The ID of the user to delete.
+     * @return A ResponseEntity with HTTP 200 OK if the deletion is successful.
+     * @throws UserNotFoundException if the user does not exist.
      */
     @DeleteMapping("/users/{userId}")
     @RequireUser
@@ -78,16 +80,15 @@ public class UserManagementController {
     /**
      * Updates a user's email or password after verifying their old password.
      *
-     * @param id
-     * @param newEmail
-     * @param newPassword
-     * @param oldPassword
-     * @return A {@link ResponseEntity}:
-     *         - 200 OK if the update is successful.
-     *         - 401 Unauthorized if the old password is incorrect.
-     *         - 404 Not Found if the user does not exist.
-     *         - 400 Bad Request if no new values are provided.
-     */
+     * @param id The ID of the user to update.
+     * @param newEmail The new email (optional).
+     * @param newPassword The new password (optional).
+     * @param oldPassword The user's current password for verification.
+     * @return A ResponseEntity with a success message if the update is successful.
+     * @throws UnauthedException if the provided old password is incorrect.
+     * @throws UserNotFoundException if the user does not exist.
+     * @throws BadRequestException if no new values are provided for update.
+    */
     @PutMapping("/users/{id}")
     public ResponseEntity<?> updateUser(
             @PathVariable int id,
@@ -109,8 +110,9 @@ public class UserManagementController {
      * Toggle the role of a user. If they are a Player, they become a GameOwner.
      * If they are a GameOwner, they revert to being a Player.
      *
-     * @param id The primary key of the Person whose role is being toggled.
-     * @return HTTP 200 if successful, or an error message if failed.
+     * @param id The ID of the Person whose role is being toggled.
+     * @return A ResponseEntity with a success message.
+     * @throws GameOwnerNotFoundException if the user does not have a GameOwner role.
      */
     @PutMapping("/users/{id}/role")
     public ResponseEntity<?> toggleAccountRole(@PathVariable int id) {
@@ -139,10 +141,12 @@ public class UserManagementController {
     /**
      * Retrieves user details if the authenticated user matches the requested ID.
      *
-     * @param id
-     * @param request
-     * @return A {@link ResponseEntity} with the user's details if authorized,
-     *         otherwise a 403 Forbidden or 404 Not Found response.
+     * @param id The ID of the user to retrieve.
+     * @param request The HTTP request containing authentication headers.
+     * @return A ResponseEntity with the user's details.
+     * @throws UnauthedException if no authentication is provided.
+     * @throws UserNotFoundException if the user does not exist.
+     * @throws ForbiddenAccessException if the authenticated user attempts to view another user's profile.
      */
     @GetMapping("/users/{id}")
     public ResponseEntity<?> getUserDetail(@PathVariable int id, HttpServletRequest request) {
