@@ -17,7 +17,7 @@ import ca.mcgill.ecse321.gamenight.repo.PlayerRepository;
 import ca.mcgill.ecse321.gamenight.repo.RegistrationRepository;
 import ca.mcgill.ecse321.gamenight.repo.ScheduledGameRepository;
 import jakarta.transaction.Transactional;
-
+import ca.mcgill.ecse321.gamenight.exceptions.*;
 @Service
 public class EventManagementService {
 
@@ -27,14 +27,15 @@ public class EventManagementService {
     @Transactional
     public Event createEvent(String name, String description, Date startTime, Date endTime) {
         if (name == null || name.trim().isEmpty()) {
-            throw new IllegalArgumentException("Event name cannot be null or empty.");
+            throw new InvalidEventNameException(); 
         }
         if (startTime != null && endTime != null && endTime.before(startTime)) {
-            throw new IllegalArgumentException("Event end time cannot be before the start time.");
+            throw new InvalidEventTimesException();
         }
         Event newEvent = new Event(name, description, startTime, endTime);
         return eventRepository.save(newEvent);
     }
+    
     @Transactional
     public List<Game> getGamesForEvent(int eventId) {
         getEventById(eventId);
@@ -46,14 +47,15 @@ public class EventManagementService {
     @Transactional
     public Event getEventById(int eventId) {
         return eventRepository.findById(eventId)
-                .orElseThrow(() -> new NoSuchElementException("No Event found with ID: " + eventId));
+            .orElseThrow(() -> new EventNotFoundException(eventId));
     }
+    
 
     @Transactional
     public Event updateEvent(int eventId, String name, String description, Date startTime, Date endTime) {
         Event existingEvent = getEventById(eventId);
         if (name == null || name.trim().isEmpty()) {
-            throw new IllegalArgumentException("Event name cannot be empty.");
+            throw new InvalidEventNameException(); 
         }
         if (name != null && !name.trim().isEmpty()) {
             existingEvent.setName(name);
@@ -62,7 +64,7 @@ public class EventManagementService {
             existingEvent.setDescription(description);
         }
         if (startTime != null && endTime != null && endTime.before(startTime)) {
-            throw new IllegalArgumentException("Event end time cannot be before the start time.");
+            throw new InvalidEventTimesException(); 
         }
         if (startTime != null) {
             existingEvent.setStartTime(startTime);
@@ -72,7 +74,7 @@ public class EventManagementService {
         }
         return eventRepository.save(existingEvent);
     }
-
+    
     @Transactional
     public void deleteEvent(int eventId) {
         Event event = getEventById(eventId);
@@ -99,44 +101,48 @@ public class EventManagementService {
     @Transactional
     public List<Event> getScheduledEventsForAGame(int gameId) {
         gameRepository.findById(gameId)
-            .orElseThrow(() -> new NoSuchElementException("No Game found with ID: " + gameId));
+            .orElseThrow(() -> new GameNotFoundException(gameId));
         return scheduledGameRepository.findByKey_GameId(gameId)
             .stream()
             .map(sg -> sg.getKey().getEvent())
             .collect(Collectors.toList());
     }
     
+    
 
     @Transactional
     public void registerForEvent(int eventId, int playerId) {
         Event event = getEventById(eventId);
         Player player = playerRepository.findById(playerId)
-                .orElseThrow(() -> new NoSuchElementException("No Player found with ID: " + playerId));
+            .orElseThrow(() -> new PlayerNotFoundException(playerId));
         Registration registration = new Registration(new Key(player, event));
         registrationRepository.save(registration);
     }
+    
 
     @Transactional
     public void unregisterForEvent(int eventId, int playerId) {
-        Event event = getEventById(eventId);
+        Event event = getEventById(eventId); // Already throws EventNotFoundException
         Player player = playerRepository.findById(playerId)
-                .orElseThrow(() -> new NoSuchElementException("No Player found with ID: " + playerId));
+            .orElseThrow(() -> new PlayerNotFoundException(playerId));
         Registration existing = registrationRepository.findByKey(new Key(player, event));
         if (existing == null) {
-            throw new NoSuchElementException("No registration found for this player and event");
+            throw new RegistrationNotFoundException(eventId, playerId);
         }
         registrationRepository.delete(existing);
     }
+    
 
     @Transactional
     public List<Event> getEventsForPlayer(int playerId) {
         playerRepository.findById(playerId)
-                .orElseThrow(() -> new NoSuchElementException("No Player found with ID: " + playerId));
+            .orElseThrow(() -> new PlayerNotFoundException(playerId));
         return registrationRepository.findByKey_PlayerId(playerId)
-                .stream()
-                .map(r -> r.getKey().getEvent())
-                .collect(Collectors.toList());
+            .stream()
+            .map(r -> r.getKey().getEvent())
+            .collect(Collectors.toList());
     }
+    
 
     @Transactional
     public List<Player> getPlayersForEvent(int eventId) {
