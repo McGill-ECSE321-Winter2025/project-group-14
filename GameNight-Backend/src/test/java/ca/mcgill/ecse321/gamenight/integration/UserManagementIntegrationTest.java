@@ -9,6 +9,7 @@ import ca.mcgill.ecse321.gamenight.repo.PersonRepository;
 import ca.mcgill.ecse321.gamenight.repo.PlayerRepository;
 import ca.mcgill.ecse321.gamenight.service.UserManagementService;
 import jakarta.servlet.http.HttpServletRequest;
+import ca.mcgill.ecse321.gamenight.controller.UserManagementController;
 import ca.mcgill.ecse321.gamenight.dto.AuthRequestDto;
 import ca.mcgill.ecse321.gamenight.dto.LoginResponseDto;
 import ca.mcgill.ecse321.gamenight.dto.PersonResponseDto;
@@ -21,6 +22,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
+import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
@@ -29,6 +31,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.util.Optional;
 import org.springframework.http.*;
+import org.springframework.web.server.ResponseStatusException;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @TestInstance(Lifecycle.PER_CLASS)
@@ -48,6 +51,13 @@ public class UserManagementIntegrationTest {
 
     @Autowired
     private PlayerRepository playerRepo;
+
+
+    @Autowired
+    private UserManagementService userService;
+
+    @Autowired
+    private UserManagementController userController;
 
 
 
@@ -360,27 +370,27 @@ public void setup() {
         assertTrue(foundUser2, "User Two should be in the response");
     }
     @Test
-public void testGetUserDetail_UserNotFound() {
-    Person authUser = new Person("authuser@example.com", "passA", "Authenticated User");
-    personRepository.save(authUser);
+    public void testGetUserDetail_UserNotFound() {
+        Person authUser = new Person("authuser@example.com", "passA", "Authenticated User");
+        personRepository.save(authUser);
 
-    int nonExistentUserId = 99999;
-    assertFalse(personRepository.findById(nonExistentUserId).isPresent());
+        int nonExistentUserId = 99999;
+        assertFalse(personRepository.findById(nonExistentUserId).isPresent());
 
-    HttpHeaders headers = new HttpHeaders();
-    headers.set("User-Id", String.valueOf(authUser.getId()));
-    HttpEntity<?> requestEntity = new HttpEntity<>(headers);
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("User-Id", String.valueOf(authUser.getId()));
+        HttpEntity<?> requestEntity = new HttpEntity<>(headers);
 
-    ResponseEntity<String> response = restTemplate.exchange(
-            createURLWithPort("/users/" + nonExistentUserId),
-            HttpMethod.GET,
-            requestEntity,
-            String.class
-    );
+        ResponseEntity<String> response = restTemplate.exchange(
+                createURLWithPort("/users/" + nonExistentUserId),
+                HttpMethod.GET,
+                requestEntity,
+                String.class
+        );
 
-    assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
-    assertEquals("User not found.", response.getBody());
-}
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        assertEquals("User not found.", response.getBody());
+    }
     
     
     @Test
@@ -437,6 +447,52 @@ public void testGetUserDetail_UserNotFound() {
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
         assertEquals("User not found.", response.getBody());
     }
+
+    @Test
+    void testGetUserDetail_nonExistentUser_returns404() {
+        Person authUser = new Person("authUser@example.com", "somePassword", "Auth User");
+        personRepository.save(authUser);
+        int authUserId = authUser.getId();
+
+        int nonExistentUserId = 9999;
+        assertFalse(personRepository.findById(nonExistentUserId).isPresent(),
+                "No user should exist with ID " + nonExistentUserId);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("User-Id", String.valueOf(authUserId));
+        HttpEntity<?> requestEntity = new HttpEntity<>(headers);
+
+        ResponseEntity<String> response = restTemplate.exchange(
+                createURLWithPort("/users/" + nonExistentUserId),
+                HttpMethod.GET,
+                requestEntity,
+                String.class
+        );
+
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode(), 
+                "Expected 404 when requesting a non-existent user.");
+        assertEquals("User not found.", response.getBody(), 
+                "Expected 'User not found.' in the response body.");
+    }
+    @Test
+    public void testGetUserById_notFound_returns404() {
+        int nonExistentUserId = 9999;
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("User-Id", "123");
+        HttpEntity<?> requestEntity = new HttpEntity<>(headers);
+
+        ResponseEntity<String> response = restTemplate.exchange(
+            createURLWithPort("/users/" + nonExistentUserId),
+            HttpMethod.GET,
+            requestEntity,
+            String.class
+        );
+
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        assertEquals("User not found.", response.getBody());
+    }
+
 
 }
 

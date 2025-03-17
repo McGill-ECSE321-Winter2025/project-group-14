@@ -112,12 +112,9 @@ public class UserManagementController {
      */
     @PutMapping("/users/{id}/role")
     public ResponseEntity<?> toggleAccountRole(@PathVariable int id) {
-        try {
-            userService.toggleAccountRole(id);
-            return ResponseEntity.ok("Role toggled successfully.");
-        } catch (ResponseStatusException ex) {
-            return ResponseEntity.status(ex.getStatusCode()).body(ex.getReason());
-        }
+        userService.toggleAccountRole(id);
+        return ResponseEntity.ok("Role toggled successfully.");
+        
     }
     
 

@@ -13,7 +13,11 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.server.ResponseStatusException;
 
+import ca.mcgill.ecse321.gamenight.controller.UserManagementController;
 import ca.mcgill.ecse321.gamenight.dto.AuthRequestDto;
 import ca.mcgill.ecse321.gamenight.exceptions.InvalidCredentialsException;
 import ca.mcgill.ecse321.gamenight.exceptions.UsernameTakenException;
@@ -23,6 +27,7 @@ import ca.mcgill.ecse321.gamenight.model.Player;
 import ca.mcgill.ecse321.gamenight.repo.GameOwnerRepository;
 import ca.mcgill.ecse321.gamenight.repo.PersonRepository;
 import ca.mcgill.ecse321.gamenight.repo.PlayerRepository;
+import jakarta.servlet.http.HttpServletRequest;
 
 public class UserManagementServiceTest {
 
@@ -34,6 +39,12 @@ public class UserManagementServiceTest {
 
     @Mock
     private GameOwnerRepository gameOwnerRepository;
+
+    @Mock
+    private UserManagementService userService;
+
+    @Mock
+    private UserManagementController userController;
 
     @InjectMocks
     private UserManagementService userManagementService;
@@ -451,4 +462,34 @@ public class UserManagementServiceTest {
         }, "Expected RuntimeException when user is not found");
         verify(personRepository, times(1)).findById(nonExistingId);
     }
+
+    /**
+     * Tests that toggling an account role for a non-existent user throws a ResponseStatusException.
+     */
+    @Test
+    void testToggleAccountRole_userNotFound_throwsResponseStatusException() {
+        int nonExistentId = 123;
+
+        when(gameOwnerRepository.findById(nonExistentId)).thenReturn(Optional.empty());
+
+        assertThrows(ResponseStatusException.class, () -> {
+            userManagementService.toggleAccountRole(nonExistentId);
+        });
+    }
+
+    /**
+     * Tests that attempting to update a non-existent user throws a RuntimeException.
+     */
+    @Test
+    void testUpdatePerson_userNotFound_throwsRuntimeException() {
+        int nonExistentId = 999;
+        when(personRepository.findById(nonExistentId)).thenReturn(Optional.empty());
+        assertThrows(RuntimeException.class, () -> {
+            userManagementService.updatePerson(nonExistentId, "someOldPassword", null, null);
+        });
+    }
 }
+
+
+
+
