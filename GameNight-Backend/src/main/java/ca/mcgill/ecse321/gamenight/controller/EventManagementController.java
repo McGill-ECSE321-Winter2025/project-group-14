@@ -90,7 +90,7 @@ public class EventManagementController {
      */
     @GetMapping
     public List<EventResponseDto> getAllEvents() {
-        return eventService.getAllEvents()
+        return ((List<Event>) eventService.getAllEvents())
             .stream()
             .map(EventResponseDto::new)
             .collect(Collectors.toList());
