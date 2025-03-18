@@ -1,15 +1,14 @@
 package ca.mcgill.ecse321.gamenight.service;
 
 import java.sql.Date;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import ca.mcgill.ecse321.gamenight.exceptions.PlayerNotFoundException;
-import ca.mcgill.ecse321.gamenight.exceptions.BorrowingRequestNotFoundException;
-import ca.mcgill.ecse321.gamenight.exceptions.GameCopyNotFoundException;
+import ca.mcgill.ecse321.gamenight.exception.ObjectNotFoundException;
 import ca.mcgill.ecse321.gamenight.model.BorrowingRequest;
 import ca.mcgill.ecse321.gamenight.model.GameCopy;
 import ca.mcgill.ecse321.gamenight.model.GameOwner;
@@ -18,7 +17,6 @@ import ca.mcgill.ecse321.gamenight.model.BorrowingRequest.BorrowingRequestStatus
 import ca.mcgill.ecse321.gamenight.repo.BorrowingRequestRepository;
 import ca.mcgill.ecse321.gamenight.repo.GameCopyRepository;
 import ca.mcgill.ecse321.gamenight.repo.PlayerRepository;
-import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 
 @Service
@@ -40,13 +38,13 @@ public class BorrowingManagementService {
     public BorrowingRequest sendBorrowingRequest(int gameCopyId, int senderId, Date startTime, Date endTime){
         Optional<GameCopy> gameCopyOpt = gameCopyRepository.findById(gameCopyId);
         if (!gameCopyOpt.isPresent()) {
-            throw new GameCopyNotFoundException(String.valueOf(gameCopyId));
+            throw new ObjectNotFoundException("GameCopy with id " + String.valueOf(gameCopyId) + " not found.");
         }
         GameCopy gameCopy = gameCopyOpt.get();
 
         Optional<Player> senderOpt = playerRepository.findById(senderId);
         if (!senderOpt.isPresent()) {
-            throw new PlayerNotFoundException(senderId);
+            throw new ObjectNotFoundException("Player not found with ID: " + String.valueOf(senderId));
         }
         Player sender = senderOpt.get();
         BorrowingRequest request = new BorrowingRequest();
@@ -94,7 +92,7 @@ public class BorrowingManagementService {
     @Transactional //done
     public BorrowingRequest updateBorrowingRequestStatus(BorrowingRequest request, BorrowingRequestStatus status){
         BorrowingRequest existingRequest = borrowingRequestRepository.findById(request.getId())
-        .orElseThrow(() -> new EntityNotFoundException("Borrowing request not found"));
+        .orElseThrow(() -> new ObjectNotFoundException("Borrowing request not found"));
         existingRequest.setStatus(status);
         return borrowingRequestRepository.save(existingRequest);
     }
@@ -116,24 +114,28 @@ public class BorrowingManagementService {
         return borrowingRequestRepository.findAllRequestsByStatusAndSender(BorrowingRequestStatus.Accepted, BorrowerId);
     }
 
-    public List<BorrowingRequest> findLendingHistory(int ownerId){
-        return borrowingRequestRepository.findAllRequestsByStatusAndGameOwner(BorrowingRequestStatus.Accepted, ownerId);
+    public List<BorrowingRequest> findLendingHistory(int ownerId) {
+        return Optional.ofNullable(
+            borrowingRequestRepository.findAllRequestsByStatusAndGameOwner(BorrowingRequestStatus.Accepted, ownerId)
+        ).orElse(Collections.emptyList());
     }
+    
+    
 
 
-    public BorrowingRequest findGameCopyLendingStatus(GameCopy gameCopy){
-        List <BorrowingRequest> requests = borrowingRequestRepository.findByGameCopy(gameCopy);
-        for (BorrowingRequest request: requests){
-            if(request.getStatus() == BorrowingRequestStatus.Accepted){
-                return request;
-            }
-        }
-        return null;
+    public BorrowingRequest findGameCopyLendingStatus(GameCopy gameCopy) {
+        return borrowingRequestRepository.findByGameCopy(gameCopy)
+            .stream()
+            .filter(request -> request.getStatus() == BorrowingRequestStatus.Accepted)
+            .findFirst()
+            .orElse(null);
     }
+    
     
     public BorrowingRequest getBorrowingRequestById(int requestId) {
         return borrowingRequestRepository.findById(requestId)
-                .orElseThrow(() -> new BorrowingRequestNotFoundException(requestId));
+                .orElseThrow(() -> new ObjectNotFoundException("Borrowing request not found with ID: " + String.valueOf(requestId)));
     }
+    
     
 }
