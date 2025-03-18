@@ -396,6 +396,7 @@ public class UserManagementIntegrationTest {
         assertEquals("Forbidden", jsonNode.get("error").asText());
     }
 
+    @SuppressWarnings("null")
     @Test
     public void testGetUserDetail_NoHeader() {
         ResponseEntity<String> response = restTemplate.exchange(
