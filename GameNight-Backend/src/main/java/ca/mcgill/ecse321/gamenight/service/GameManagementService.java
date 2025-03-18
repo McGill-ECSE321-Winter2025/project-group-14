@@ -47,7 +47,7 @@ public class GameManagementService {
         return game;
     }
 
-    public Game findGameById(int id) {
+    public Game findGameById(int id) throws ObjectNotFoundException {
         Optional<Game> g = gameRepository.findById(id);
         if (g.isEmpty()) {
             throw new ObjectNotFoundException("There is no game with ID " + id);
@@ -82,7 +82,7 @@ public class GameManagementService {
         gameCopyRepository.deleteById(id);
     }
 
-    public GameCopy findGameCopyById(int id) {
+    public GameCopy findGameCopyById(int id) throws ObjectNotFoundException {
         Optional<GameCopy> g = gameCopyRepository.findById(id);
         if (!g.isPresent()) {
             throw new ObjectNotFoundException("There is no game copy with ID " + id);
@@ -95,8 +95,7 @@ public class GameManagementService {
         return gameCopyRepository.findByGameOwner(gameOwner);
     }
 
-    private GameOwner getGameOwnerById(int ownerId) {
-        // TODO: replace this once the service is there???
+    private GameOwner getGameOwnerById(int ownerId) throws ObjectNotFoundException {
         Optional<GameOwner> owner = gameOwnerRepository.findById(ownerId);
         if (owner.isEmpty()) {
             throw new ObjectNotFoundException("There is no owner with ID " + ownerId);
