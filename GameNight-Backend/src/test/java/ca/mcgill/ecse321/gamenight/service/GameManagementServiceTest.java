@@ -58,7 +58,7 @@ public class GameManagementServiceTest {
     }
 
     @Test
-    public void createValidGameTest() {
+    public void testCreateValidGame() {
         String name = "Uno";
         String description = "A card game";
         Game game = new Game(name, description);
@@ -72,7 +72,7 @@ public class GameManagementServiceTest {
     }
 
     @Test
-    public void creatingGameWithNoNameTest() {
+    public void testCannotCreateGameWithNoName() {
         MissingFieldsException e = assertThrows(MissingFieldsException.class, () ->
             gameManagementService.createGame(null, "A  card game"));
         
@@ -80,7 +80,7 @@ public class GameManagementServiceTest {
     }
 
     @Test
-    public void updateGameTest() {
+    public void testUpdateExistingGame() {
         Game game = new Game("Uno", "A card game");
         when(gameRepository.findById(game.getId())).thenReturn(Optional.ofNullable(game));
 
@@ -93,7 +93,7 @@ public class GameManagementServiceTest {
     }
 
     @Test
-    public void findExistsingGameByIdTest() {
+    public void testFindExistsingGameById() {
         Game game = new Game("Uno", "A card game");
         when(gameRepository.findById(game.getId())).thenReturn(Optional.ofNullable(game));
 
@@ -105,7 +105,7 @@ public class GameManagementServiceTest {
     }
 
     @Test
-    public void tryToFindGameNotInDBTest() {
+    public void testTryToFindNonexistentGame() {
         int id = 5;
         when(gameRepository.findById(id)).thenReturn(Optional.ofNullable(null));
 
@@ -116,7 +116,7 @@ public class GameManagementServiceTest {
     }
 
     @Test
-    public void findAllGamesTest() {
+    public void testFindAllGames() {
         Game game1 = new Game("Uno", "A card game");
         Game game2 = new Game("Monopoly", "A board game");
         ArrayList<Game> gamesList = new ArrayList<>();
@@ -140,7 +140,7 @@ public class GameManagementServiceTest {
     }
 
     @Test
-    public void addGameCopyTest() {
+    public void testCreateGameCopy() {
         Game game = new Game("Uno", "A card game");
         when(gameRepository.findById(game.getId())).thenReturn(Optional.ofNullable(game));
         GameCopy gameCopy = new GameCopy("Lost a card", game, owner);
@@ -154,7 +154,7 @@ public class GameManagementServiceTest {
     }
 
     @Test
-    public void updateGameCopyTest() {
+    public void testUpdateExistingGameCopy() {
         Game game = new Game("Uno", "A card game");
         GameCopy gameCopy = new GameCopy("Lost a card", game, owner);
         when(gameCopyRepository.findById(gameCopy.getId())).thenReturn(Optional.ofNullable(gameCopy));
@@ -165,7 +165,7 @@ public class GameManagementServiceTest {
     }
 
     @Test
-    public void deleteGameCopyTest() {
+    public void testDeleteExistingGameCopy() {
         int gameCopyId = 5;
 
         gameManagementService.deleteGameCopy(gameCopyId);
@@ -174,7 +174,7 @@ public class GameManagementServiceTest {
     }
 
     @Test
-    public void findExistsingGameCopyByIdTest() {
+    public void testFindExistsingGameCopyById() {
         Game game = new Game("Uno", "A card game");
         GameCopy expected = new GameCopy("Lost a card", game, owner);
         when(gameCopyRepository.findById(expected.getId())).thenReturn(Optional.ofNullable(expected));
@@ -185,7 +185,7 @@ public class GameManagementServiceTest {
     }
 
     @Test
-    public void tryToFindGameCopyNotInDBTest() {
+    public void testTryToFindNonexistentGameCopy() {
         int id = 5;
         when(gameCopyRepository.findById(id)).thenReturn(Optional.ofNullable(null));
 
@@ -196,7 +196,7 @@ public class GameManagementServiceTest {
     }
 
     @Test
-    public void findGameCopiesByOwnerTest() {
+    public void testFindGameCopiesByOwner() {
         when(gameOwnerRepository.findById(owner.getId())).thenReturn(Optional.ofNullable(owner));
         Game game1 = new Game("Uno", "A card game");
         GameCopy gameCopy1 = new GameCopy("aaa", game1, owner);
@@ -213,7 +213,7 @@ public class GameManagementServiceTest {
     }
 
     @Test
-    public void tryToFindGameCopiesForOwnerNotInDbTest() {
+    public void testTryToFindGameCopiesForNonexistentOwner() {
         int ownerId = 8;
         when(gameOwnerRepository.findById(ownerId)).thenReturn(Optional.ofNullable(null));
 

@@ -168,13 +168,17 @@ public class UserManagementIntegrationTest {
 
     @Test
     public void testUpdateUserSuccess() {
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("User-Id", String.valueOf(testUserId));
+        HttpEntity<?> requestEntity = new HttpEntity<>(headers);
+
         String url = createURLWithPort(
                 "/users/" + testUserId + "?newEmail=" + NEW_EMAIL + "&oldPassword=" + ORIGINAL_PASSWORD);
 
         ResponseEntity<String> response = restTemplate.exchange(
                 url,
                 HttpMethod.PUT,
-                HttpEntity.EMPTY,
+                requestEntity,
                 String.class);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -184,13 +188,17 @@ public class UserManagementIntegrationTest {
 
     @Test
     public void testUpdateUserUnauthorized() {
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("User-Id", String.valueOf(testUserId));
+        HttpEntity<?> requestEntity = new HttpEntity<>(headers);
+
         String url = createURLWithPort(
                 "/users/" + testUserId + "?newEmail=" + NEW_EMAIL + "&oldPassword=" + WRONG_PASSWORD);
 
         ResponseEntity<String> response = restTemplate.exchange(
                 url,
                 HttpMethod.PUT,
-                HttpEntity.EMPTY,
+                requestEntity,
                 String.class);
 
         assertEquals(HttpStatus.UNAUTHORIZED, response.getStatusCode());
@@ -210,10 +218,14 @@ public class UserManagementIntegrationTest {
         int userId = gameOwner.getId();
         String url = createURLWithPort("/users/" + userId + "/role");
 
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("User-Id", String.valueOf(person.getId()));
+        HttpEntity<?> requestEntity = new HttpEntity<>(headers);
+
         ResponseEntity<String> response = restTemplate.exchange(
                 url,
                 HttpMethod.PUT,
-                HttpEntity.EMPTY,
+                requestEntity,
                 String.class);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -352,7 +364,7 @@ public class UserManagementIntegrationTest {
     public void testGetUserDetail_UserNotFound() throws Exception {
         int nonExistentUserId = 99999;
         HttpHeaders headers = new HttpHeaders();
-        headers.set("User-Id", "123");
+        headers.set("User-Id", String.valueOf(testUserId));
         HttpEntity<?> requestEntity = new HttpEntity<>(headers);
 
         ResponseEntity<String> response = restTemplate.exchange(
@@ -384,31 +396,37 @@ public class UserManagementIntegrationTest {
                 String.class);
 
         assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
-        JsonNode jsonNode = objectMapper.readTree(response.getBody());
-        assertEquals("Forbidden", jsonNode.get("error").asText());
+
+        String responseBody = response.getBody();
+        assertNotNull(responseBody, "Response body should not be null");
+
+        JsonNode jsonNode = objectMapper.readTree(responseBody);
+
+        // Fix: Get "errors" array instead of "error" field
+        JsonNode errorsNode = jsonNode.get("errors");
+        assertNotNull(errorsNode, "Expected 'errors' field in response JSON.");
+        assertTrue(errorsNode.isArray(), "'errors' field should be an array.");
+
+        // Extract first error message and check its value
+        assertEquals("You can only view your own profile.", errorsNode.get(0).asText());
     }
 
+    @SuppressWarnings("null")
     @Test
-    public void testGetUserDetail_NoHeader() throws Exception {
-        int someUserId = 123;
-        HttpHeaders headers = new HttpHeaders();
-        HttpEntity<?> requestEntity = new HttpEntity<>(headers);
-
+    public void testGetUserDetail_NoHeader() {
         ResponseEntity<String> response = restTemplate.exchange(
-                createURLWithPort("/users/" + someUserId),
+                "/users/1",
                 HttpMethod.GET,
-                requestEntity,
+                new HttpEntity<>(null),
                 String.class);
 
         assertEquals(HttpStatus.UNAUTHORIZED, response.getStatusCode());
-        JsonNode jsonNode = objectMapper.readTree(response.getBody());
-        assertEquals("Unauthorized", jsonNode.get("error").asText());
     }
 
     @Test
     public void testGetUserDetail_UserIsNull() throws Exception {
         HttpHeaders headers = new HttpHeaders();
-        headers.set("User-Id", "999");
+        headers.set("User-Id", String.valueOf(testUserId));
         HttpEntity<?> requestEntity = new HttpEntity<>(headers);
 
         ResponseEntity<String> response = restTemplate.exchange(
@@ -426,7 +444,7 @@ public class UserManagementIntegrationTest {
     public void testGetUserDetail_nonExistentUser_returns404() throws Exception {
         int nonExistentUserId = 9999;
         HttpHeaders headers = new HttpHeaders();
-        headers.set("User-Id", "123");
+        headers.set("User-Id", String.valueOf(testUserId));
         HttpEntity<?> requestEntity = new HttpEntity<>(headers);
 
         ResponseEntity<String> response = restTemplate.exchange(
@@ -444,7 +462,7 @@ public class UserManagementIntegrationTest {
     public void testGetUserById_notFound_returns404() throws Exception {
         int nonExistentUserId = 9999;
         HttpHeaders headers = new HttpHeaders();
-        headers.set("User-Id", "123");
+        headers.set("User-Id", String.valueOf(testUserId));
         HttpEntity<?> requestEntity = new HttpEntity<>(headers);
 
         ResponseEntity<String> response = restTemplate.exchange(

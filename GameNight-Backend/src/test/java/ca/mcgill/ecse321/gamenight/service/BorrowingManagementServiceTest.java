@@ -31,25 +31,24 @@ import ca.mcgill.ecse321.gamenight.repo.BorrowingRequestRepository;
 import ca.mcgill.ecse321.gamenight.repo.GameCopyRepository;
 import ca.mcgill.ecse321.gamenight.repo.PlayerRepository;
 
-
 @SpringBootTest
 public class BorrowingManagementServiceTest {
 
     @Mock
     private BorrowingRequestRepository borrowingRequestRepository;
-    
+
     @Mock
     private GameCopyRepository gameCopyRepository;
-    
+
     @Mock
     private PlayerRepository playerRepository;
-    
+
     @Mock
     private EmailService emailService;
 
     @InjectMocks
     private BorrowingManagementService borrowingManagementService;
-    
+
     private Person senderPerson;
     private Person ownerPerson;
     private BorrowingRequest request;
@@ -83,16 +82,16 @@ public class BorrowingManagementServiceTest {
         request.setGameCopy(gameCopy);
         request.setSender(sender);
         request.setStatus(BorrowingRequestStatus.Delivered);
-        }
-    
+    }
+
     @Test
     public void sendValidBorrowingRequestTest() {
         int gameCopyId = 10;
         int senderId = 5;
         Date startTime = Date.valueOf("2025-03-12");
         Date endTime = Date.valueOf("2025-03-15");
-        
-        //Game and Gameowner
+
+        // Game and Gameowner
         Game game = new Game();
         game.setName("uno");
         Person ownerPerson = new Person();
@@ -104,15 +103,15 @@ public class BorrowingManagementServiceTest {
         gameCopy.setId(gameCopyId);
         gameCopy.setGame(game);
         gameCopy.setGameOwner(gameOwner);
-        
-        //Sender
+
+        // Sender
         Person senderPerson = new Person();
         senderPerson.setName("john");
         senderPerson.setEmailAddress("john@example.com");
         Player sender = new Player();
         sender.setId(senderId);
         sender.setPerson(senderPerson);
-        
+
         BorrowingRequest request = new BorrowingRequest();
         request.setId(120);
         request.setStatus(BorrowingRequestStatus.Delivered);
@@ -121,96 +120,95 @@ public class BorrowingManagementServiceTest {
 
         request.setStartTime(startTime);
         request.setEndTime(endTime);
-        
+
         when(gameCopyRepository.findById(gameCopyId)).thenReturn(Optional.of(gameCopy));
         when(playerRepository.findById(senderId)).thenReturn(Optional.of(sender));
         when(borrowingRequestRepository.save(any(BorrowingRequest.class)))
-        .thenAnswer(invocation -> {
-            BorrowingRequest savedRequest = invocation.getArgument(0);
-            savedRequest.setId(120);
-            return savedRequest;
-        });
-        
-        BorrowingRequest result = borrowingManagementService.sendBorrowingRequest(gameCopyId, senderId, startTime, endTime);
-        
+                .thenAnswer(invocation -> {
+                    BorrowingRequest savedRequest = invocation.getArgument(0);
+                    savedRequest.setId(120);
+                    return savedRequest;
+                });
+
+        BorrowingRequest result = borrowingManagementService.sendBorrowingRequest(gameCopyId, senderId, startTime,
+                endTime);
+
         assertNotNull(result);
         assertEquals(BorrowingRequestStatus.Delivered, result.getStatus());
         assertEquals("uno", result.getGameCopy().getGame().getName());
         assertEquals("john", result.getSender().getPerson().getName());
 
         assertNotNull(result.getSendTime());
-        long currentTime= System.currentTimeMillis();
+        long currentTime = System.currentTimeMillis();
         long sendTimeMillis = result.getSendTime().getTime();
-        assertTrue(Math.abs(currentTime - sendTimeMillis)< 2000, "Send time must be within 2 sec of current time");
+        assertTrue(Math.abs(currentTime - sendTimeMillis) < 2000, "Send time must be within 2 sec of current time");
         verify(emailService, times(1)).sendBorrowingRequestEmail(
-            eq("hamza@example.com"),
-            eq(senderPerson),
-            eq("uno")
-        );
+                eq("hamza@example.com"),
+                eq(senderPerson),
+                eq("uno"));
     }
 
     @Test
     void testSendBorrowingRequest_EmailFailure() {
-    int gameCopyId = 10;
-    int senderId = 5;
-    Date startTime = Date.valueOf("2025-03-12");
-    Date endTime = Date.valueOf("2025-03-15");
-    
-    Game game = new Game();
-    game.setName("Uno");
-    Person ownerPerson = new Person();
-    ownerPerson.setName("Owner");
-    ownerPerson.setEmailAddress("owner@example.com");
-    GameOwner gameOwner = new GameOwner();
-    gameOwner.setPerson(ownerPerson);
-    GameCopy gameCopy = new GameCopy();
-    gameCopy.setId(gameCopyId);
-    gameCopy.setGame(game);
-    gameCopy.setGameOwner(gameOwner);
-    
-    Person senderPerson = new Person();
-    senderPerson.setName("John");
-    senderPerson.setEmailAddress("john@example.com");
-    Player sender = new Player();
-    sender.setId(senderId);
-    sender.setPerson(senderPerson);
+        int gameCopyId = 10;
+        int senderId = 5;
+        Date startTime = Date.valueOf("2025-03-12");
+        Date endTime = Date.valueOf("2025-03-15");
 
-    when(gameCopyRepository.findById(gameCopyId)).thenReturn(Optional.of(gameCopy));
-    when(playerRepository.findById(senderId)).thenReturn(Optional.of(sender));
-    doThrow(new EmailSendingFailedException("Failed to send email"))
-         .when(emailService).sendBorrowingRequestEmail(any(String.class), any(Person.class), any(String.class));
-    Exception e = assertThrows(EmailSendingFailedException.class, () -> {
-         borrowingManagementService.sendBorrowingRequest(gameCopyId, senderId, startTime, endTime);
-    });
-    
-    assertEquals("Failed to send email", e.getMessage());
-}
+        Game game = new Game();
+        game.setName("Uno");
+        Person ownerPerson = new Person();
+        ownerPerson.setName("Owner");
+        ownerPerson.setEmailAddress("owner@example.com");
+        GameOwner gameOwner = new GameOwner();
+        gameOwner.setPerson(ownerPerson);
+        GameCopy gameCopy = new GameCopy();
+        gameCopy.setId(gameCopyId);
+        gameCopy.setGame(game);
+        gameCopy.setGameOwner(gameOwner);
 
-    
+        Person senderPerson = new Person();
+        senderPerson.setName("John");
+        senderPerson.setEmailAddress("john@example.com");
+        Player sender = new Player();
+        sender.setId(senderId);
+        sender.setPerson(senderPerson);
+
+        when(gameCopyRepository.findById(gameCopyId)).thenReturn(Optional.of(gameCopy));
+        when(playerRepository.findById(senderId)).thenReturn(Optional.of(sender));
+        doThrow(new EmailSendingFailedException("Failed to send email"))
+                .when(emailService).sendBorrowingRequestEmail(any(String.class), any(Person.class), any(String.class));
+        Exception e = assertThrows(EmailSendingFailedException.class, () -> {
+            borrowingManagementService.sendBorrowingRequest(gameCopyId, senderId, startTime, endTime);
+        });
+
+        assertEquals("Failed to send email", e.getMessage());
+    }
+
     @Test
     public void sendBorrowingRequestInvalidGameCopyTest() {
         int gameCopyId = 10;
         int senderId = 5;
         Date startTime = Date.valueOf("2025-03-12");
         Date endTime = Date.valueOf("2025-03-15");
-        
+
         when(gameCopyRepository.findById(gameCopyId)).thenReturn(Optional.empty());
-        
+
         Exception e = assertThrows(ObjectNotFoundException.class, () -> {
             borrowingManagementService.sendBorrowingRequest(gameCopyId, senderId, startTime, endTime);
         });
-        
+
         String expectedMessage = "GameCopy with id " + gameCopyId + " not found.";
         assertEquals(expectedMessage, e.getMessage());
     }
-    
+
     @Test
     public void sendBorrowingRequestInvalidSenderTest() {
         int gameCopyId = 10;
         int senderId = 5;
         Date startTime = Date.valueOf("2025-03-12");
         Date endTime = Date.valueOf("2025-03-15");
-        
+
         Game game = new Game();
         game.setName("uno");
         Person ownerPerson = new Person();
@@ -222,10 +220,10 @@ public class BorrowingManagementServiceTest {
         gameCopy.setId(gameCopyId);
         gameCopy.setGame(game);
         gameCopy.setGameOwner(gameOwner);
-        
+
         when(gameCopyRepository.findById(gameCopyId)).thenReturn(Optional.of(gameCopy));
         when(playerRepository.findById(senderId)).thenReturn(Optional.empty());
-        
+
         Exception e = assertThrows(ObjectNotFoundException.class, () -> {
             borrowingManagementService.sendBorrowingRequest(gameCopyId, senderId, startTime, endTime);
         });
@@ -246,7 +244,7 @@ public class BorrowingManagementServiceTest {
         gameCopy.setGame(game);
 
         GameOwner gameOwner = new GameOwner();
-        gameOwner.setPerson(ownerPerson); 
+        gameOwner.setPerson(ownerPerson);
         gameCopy.setGameOwner(gameOwner);
 
         request.setGameCopy(gameCopy);
@@ -264,8 +262,9 @@ public class BorrowingManagementServiceTest {
         when(borrowingRequestRepository.findById(1)).thenReturn(Optional.of(request));
         when(borrowingRequestRepository.save(any(BorrowingRequest.class))).thenAnswer(i -> i.getArgument(0));
 
-        BorrowingRequest result = borrowingManagementService.respondToBorrowingRequest(request, BorrowingRequestStatus.Accepted);
-        
+        BorrowingRequest result = borrowingManagementService.respondToBorrowingRequest(request,
+                BorrowingRequestStatus.Accepted);
+
         assertEquals(BorrowingRequestStatus.Accepted, result.getStatus());
         verify(borrowingRequestRepository, times(1)).save(any(BorrowingRequest.class));
 
@@ -276,7 +275,7 @@ public class BorrowingManagementServiceTest {
         BorrowingRequest request = new BorrowingRequest();
         request.setId(1);
         request.setStatus(BorrowingRequestStatus.Delivered);
-        
+
         Game game = new Game();
         game.setName("Uno");
         GameCopy gameCopy = new GameCopy();
@@ -286,8 +285,7 @@ public class BorrowingManagementServiceTest {
         gameOwner.setPerson(ownerPerson);
         gameCopy.setGameOwner(gameOwner);
         request.setGameCopy(gameCopy);
-        
-        
+
         Person senderPerson = new Person();
         int senderId = 5;
         senderPerson.setName("Hamza");
@@ -295,21 +293,21 @@ public class BorrowingManagementServiceTest {
         Player sender = new Player();
         sender.setId(senderId);
         sender.setPerson(senderPerson);
-        
+
         request.setSender(sender);
 
         when(borrowingRequestRepository.findById(1)).thenReturn(Optional.of(request));
         when(borrowingRequestRepository.save(any(BorrowingRequest.class))).thenAnswer(i -> i.getArgument(0));
 
-        BorrowingRequest result = borrowingManagementService.respondToBorrowingRequest(request, BorrowingRequestStatus.Rejected);
-        
+        BorrowingRequest result = borrowingManagementService.respondToBorrowingRequest(request,
+                BorrowingRequestStatus.Rejected);
+
         assertEquals(BorrowingRequestStatus.Rejected, result.getStatus());
         verify(borrowingRequestRepository, times(1)).save(any(BorrowingRequest.class));
     }
 
-
     @Test
-    void testUpdateBorrowingRequestToAccepted(){
+    void testUpdateBorrowingRequestToAccepted() {
         BorrowingRequest request = new BorrowingRequest();
         request.setId(1);
         request.setStatus(BorrowingRequestStatus.Delivered);
@@ -317,13 +315,15 @@ public class BorrowingManagementServiceTest {
         when(borrowingRequestRepository.findById(1)).thenReturn(Optional.of(request));
         when(borrowingRequestRepository.save(any(BorrowingRequest.class))).thenAnswer(i -> i.getArgument(0));
 
-        BorrowingRequest result = borrowingManagementService.updateBorrowingRequestStatus(request, BorrowingRequestStatus.Accepted);
+        BorrowingRequest result = borrowingManagementService.updateBorrowingRequestStatus(request,
+                BorrowingRequestStatus.Accepted);
         assertEquals(BorrowingRequestStatus.Accepted, result.getStatus());
-        verify(borrowingRequestRepository, times(1)).save(request); // used to make sure the code would be updating to the database
+        verify(borrowingRequestRepository, times(1)).save(request); // used to make sure the code would be updating to
+                                                                    // the database
     }
 
     @Test
-    void testUpdateBorrowingRequestToRejected(){
+    void testUpdateBorrowingRequestToRejected() {
         BorrowingRequest request = new BorrowingRequest();
         request.setId(1);
         request.setStatus(BorrowingRequestStatus.Delivered);
@@ -331,61 +331,65 @@ public class BorrowingManagementServiceTest {
         when(borrowingRequestRepository.findById(1)).thenReturn(Optional.of(request));
         when(borrowingRequestRepository.save(any(BorrowingRequest.class))).thenAnswer(i -> i.getArgument(0));
 
-        BorrowingRequest result = borrowingManagementService.updateBorrowingRequestStatus(request, BorrowingRequestStatus.Rejected);
+        BorrowingRequest result = borrowingManagementService.updateBorrowingRequestStatus(request,
+                BorrowingRequestStatus.Rejected);
         assertEquals(BorrowingRequestStatus.Rejected, result.getStatus());
-        verify(borrowingRequestRepository, times(1)).save(request); // used to make sure the code would be updating to the database
+        verify(borrowingRequestRepository, times(1)).save(request); // used to make sure the code would be updating to
+                                                                    // the database
     }
 
     @Test
-    void testUpdateBorrowingRequestThatDoesNotExist(){
+    void testUpdateBorrowingRequestThatDoesNotExist() {
         BorrowingRequest request = new BorrowingRequest();
         when(borrowingRequestRepository.findById(383)).thenReturn(Optional.empty());
         assertThrows(ObjectNotFoundException.class, () -> {
             borrowingManagementService.updateBorrowingRequestStatus(request, BorrowingRequestStatus.Accepted);
-    });
-    verify(borrowingRequestRepository, never()).save(any(BorrowingRequest.class));
+        });
+        verify(borrowingRequestRepository, never()).save(any(BorrowingRequest.class));
     }
 
     @Test
-    void testfindDeliveredBorrowingRequestsForBorrowerValid(){
+    void testfindDeliveredBorrowingRequestsForBorrowerValid() {
         int borrowerId = 1;
         BorrowingRequest request = new BorrowingRequest();
         request.setStatus(BorrowingRequestStatus.Delivered);
         BorrowingRequest request2 = new BorrowingRequest();
         request2.setStatus(BorrowingRequestStatus.Delivered);
         List<BorrowingRequest> deliveredList = Arrays.asList(request, request2);
-        
+
         when(borrowingRequestRepository.findAllRequestsByStatusAndSender(BorrowingRequestStatus.Delivered, borrowerId))
-            .thenReturn(deliveredList);
-        
-        List<BorrowingRequest> result = borrowingManagementService.findDeliveredBorrowingRequestsForBorrower(borrowerId);
+                .thenReturn(deliveredList);
+
+        List<BorrowingRequest> result = borrowingManagementService
+                .findDeliveredBorrowingRequestsForBorrower(borrowerId);
         assertNotNull(result);
         assertEquals(2, result.size());
         result.forEach(req -> assertEquals(BorrowingRequestStatus.Delivered, req.getStatus()));
-        
+
     }
 
     @Test
-    void testfindDeliveredBorrowingRequestsForBorrowerInvalid(){
-        int borrowerId = 999; 
+    void testfindDeliveredBorrowingRequestsForBorrowerInvalid() {
+        int borrowerId = 999;
         when(borrowingRequestRepository.findAllRequestsByStatusAndSender(BorrowingRequestStatus.Delivered, borrowerId))
-            .thenReturn(Collections.emptyList());
-        
-        List<BorrowingRequest> result = borrowingManagementService.findDeliveredBorrowingRequestsForBorrower(borrowerId);
+                .thenReturn(Collections.emptyList());
+
+        List<BorrowingRequest> result = borrowingManagementService
+                .findDeliveredBorrowingRequestsForBorrower(borrowerId);
         assertNotNull(result);
         assertTrue(result.isEmpty());
     }
 
     @Test
-    void testfindRejectedBorrowingRequestsForBorrowerValid(){
+    void testfindRejectedBorrowingRequestsForBorrowerValid() {
         int borrowerId = 2;
         BorrowingRequest request = new BorrowingRequest();
         request.setStatus(BorrowingRequestStatus.Rejected);
         List<BorrowingRequest> rejectedList = Collections.singletonList(request);
-        
+
         when(borrowingRequestRepository.findAllRequestsByStatusAndSender(BorrowingRequestStatus.Rejected, borrowerId))
-            .thenReturn(rejectedList);
-        
+                .thenReturn(rejectedList);
+
         List<BorrowingRequest> result = borrowingManagementService.findRejectedBorrowingRequestsForBorrower(borrowerId);
         assertNotNull(result);
         assertEquals(1, result.size());
@@ -393,45 +397,47 @@ public class BorrowingManagementServiceTest {
     }
 
     @Test
-    void testfindRejectedBorrowingRequestsForBorrowerInvalid(){
-        int borrowerId = 999; 
+    void testfindRejectedBorrowingRequestsForBorrowerInvalid() {
+        int borrowerId = 999;
         when(borrowingRequestRepository.findAllRequestsByStatusAndSender(BorrowingRequestStatus.Rejected, borrowerId))
-            .thenReturn(Collections.emptyList());
-        
+                .thenReturn(Collections.emptyList());
+
         List<BorrowingRequest> result = borrowingManagementService.findRejectedBorrowingRequestsForBorrower(borrowerId);
         assertNotNull(result);
         assertTrue(result.isEmpty());
     }
+
     @Test
-    void testfindAcceptedBorrowingRequestsForBorrowerValid(){
+    void testfindAcceptedBorrowingRequestsForBorrowerValid() {
         int borrowerId = 3;
         when(borrowingRequestRepository.findAllRequestsByStatusAndSender(BorrowingRequestStatus.Accepted, borrowerId))
-            .thenReturn(Collections.emptyList());
-        
+                .thenReturn(Collections.emptyList());
+
         List<BorrowingRequest> result = borrowingManagementService.findAcceptedBorrowingRequestsForBorrower(borrowerId);
         assertNotNull(result);
         assertTrue(result.isEmpty());
     }
+
     @Test
-    void testfindAcceptedBorrowingRequestsForBorrowerInvalid(){
-        int borrowerId = 999; 
-    when(borrowingRequestRepository.findAllRequestsByStatusAndSender(BorrowingRequestStatus.Accepted, borrowerId))
-        .thenReturn(Collections.emptyList());
-    
-    List<BorrowingRequest> result = borrowingManagementService.findAcceptedBorrowingRequestsForBorrower(borrowerId);
-    assertNotNull(result);
-    assertTrue(result.isEmpty());
+    void testfindAcceptedBorrowingRequestsForBorrowerInvalid() {
+        int borrowerId = 999;
+        when(borrowingRequestRepository.findAllRequestsByStatusAndSender(BorrowingRequestStatus.Accepted, borrowerId))
+                .thenReturn(Collections.emptyList());
+
+        List<BorrowingRequest> result = borrowingManagementService.findAcceptedBorrowingRequestsForBorrower(borrowerId);
+        assertNotNull(result);
+        assertTrue(result.isEmpty());
     }
 
     @Test
-    void testfindLendingHistoryValid(){
+    void testfindLendingHistoryValid() {
         int ownerId = 10;
         BorrowingRequest request = new BorrowingRequest();
         request.setStatus(BorrowingRequestStatus.Accepted);
         List<BorrowingRequest> history = Collections.singletonList(request);
-        
+
         when(borrowingRequestRepository.findAllRequestsByStatusAndGameOwner(BorrowingRequestStatus.Accepted, ownerId))
-            .thenReturn(history);
+                .thenReturn(history);
         List<BorrowingRequest> result = borrowingManagementService.findLendingHistory(ownerId);
         assertNotNull(result);
         assertEquals(1, result.size());
@@ -439,7 +445,7 @@ public class BorrowingManagementServiceTest {
     }
 
     @Test
-    void testLendingHistoryInvalidOwner(){
+    void testLendingHistoryInvalidOwner() {
         GameCopy gameCopy = mock(GameCopy.class);
         when(borrowingRequestRepository.findByGameCopy(gameCopy)).thenReturn(Collections.emptyList());
         BorrowingRequest result = borrowingManagementService.findGameCopyLendingStatus(gameCopy);
@@ -451,7 +457,7 @@ public class BorrowingManagementServiceTest {
         int requestId = 100;
         BorrowingRequest request = new BorrowingRequest();
         request.setId(requestId);
-        
+
         when(borrowingRequestRepository.findById(requestId)).thenReturn(Optional.of(request));
         BorrowingRequest result = borrowingManagementService.getBorrowingRequestById(requestId);
         assertNotNull(result);
@@ -462,62 +468,62 @@ public class BorrowingManagementServiceTest {
     public void testGetBorrowingRequestByIdInvalid() {
         int requestId = 100;
         when(borrowingRequestRepository.findById(requestId)).thenReturn(Optional.empty());
-        
+
         Exception e = assertThrows(ObjectNotFoundException.class, () -> {
             borrowingManagementService.getBorrowingRequestById(requestId);
         });
         String expectedMessage = "Borrowing request not found with ID: " + requestId;
         assertEquals(expectedMessage, e.getMessage());
-    } 
+    }
 
     @Test
     public void testFindGameCopyLendingStatus_GameCopyNotFound() {
-    int nonExistentGameCopyId = 999;
+        int nonExistentGameCopyId = 999;
 
-    when(gameCopyRepository.findById(nonExistentGameCopyId)).thenReturn(Optional.empty());
-    assertThrows(ObjectNotFoundException.class, () -> {
-        GameCopy gameCopy = gameCopyRepository.findById(nonExistentGameCopyId)
-            .orElseThrow(() -> new ObjectNotFoundException(String.valueOf(nonExistentGameCopyId)));
-        borrowingManagementService.findGameCopyLendingStatus(gameCopy);
-    });
+        when(gameCopyRepository.findById(nonExistentGameCopyId)).thenReturn(Optional.empty());
+        assertThrows(ObjectNotFoundException.class, () -> {
+            GameCopy gameCopy = gameCopyRepository.findById(nonExistentGameCopyId)
+                    .orElseThrow(() -> new ObjectNotFoundException(String.valueOf(nonExistentGameCopyId)));
+            borrowingManagementService.findGameCopyLendingStatus(gameCopy);
+        });
         verify(gameCopyRepository).findById(nonExistentGameCopyId);
     }
-    
+
     @Test
     public void testFindGameCopyLendingStatus_NoAcceptedRequest() {
-    int gameCopyId = 1;
-    GameCopy gameCopy = new GameCopy();
-    gameCopy.setId(gameCopyId);
-    
-    List<BorrowingRequest> requests = new ArrayList<>();
-    BorrowingRequest request = new BorrowingRequest();
-    request.setStatus(BorrowingRequestStatus.Delivered);
-    requests.add(request);
+        int gameCopyId = 1;
+        GameCopy gameCopy = new GameCopy();
+        gameCopy.setId(gameCopyId);
 
-    when(gameCopyRepository.findById(gameCopyId)).thenReturn(Optional.of(gameCopy));
-    when(borrowingRequestRepository.findByGameCopy(gameCopy)).thenReturn(requests);
-    BorrowingRequest result = borrowingManagementService.findGameCopyLendingStatus(gameCopy);
-    assertNull(result, "Should return null when no accepted borrowing request exists");
-    verify(borrowingRequestRepository).findByGameCopy(gameCopy);
+        List<BorrowingRequest> requests = new ArrayList<>();
+        BorrowingRequest request = new BorrowingRequest();
+        request.setStatus(BorrowingRequestStatus.Delivered);
+        requests.add(request);
+
+        when(gameCopyRepository.findById(gameCopyId)).thenReturn(Optional.of(gameCopy));
+        when(borrowingRequestRepository.findByGameCopy(gameCopy)).thenReturn(requests);
+        BorrowingRequest result = borrowingManagementService.findGameCopyLendingStatus(gameCopy);
+        assertNull(result, "Should return null when no accepted borrowing request exists");
+        verify(borrowingRequestRepository).findByGameCopy(gameCopy);
     }
 
     @Test
     public void testFindGameCopyLendingStatus_AcceptedRequestFound() {
-    int gameCopyId = 1;
-    GameCopy gameCopy = new GameCopy();
-    gameCopy.setId(gameCopyId);
-    
-    List<BorrowingRequest> requests = new ArrayList<>();
-    BorrowingRequest acceptedRequest = new BorrowingRequest();
-    acceptedRequest.setStatus(BorrowingRequestStatus.Accepted);
-    requests.add(acceptedRequest);
-    
-    when(gameCopyRepository.findById(gameCopyId)).thenReturn(Optional.of(gameCopy));
-    when(borrowingRequestRepository.findByGameCopy(gameCopy)).thenReturn(requests);
-    BorrowingRequest result = borrowingManagementService.findGameCopyLendingStatus(gameCopy);
-    assertNotNull(result, "Should return the accepted borrowing request");
-    assertEquals(BorrowingRequestStatus.Accepted, result.getStatus());
-    verify(borrowingRequestRepository).findByGameCopy(gameCopy);
+        int gameCopyId = 1;
+        GameCopy gameCopy = new GameCopy();
+        gameCopy.setId(gameCopyId);
+
+        List<BorrowingRequest> requests = new ArrayList<>();
+        BorrowingRequest acceptedRequest = new BorrowingRequest();
+        acceptedRequest.setStatus(BorrowingRequestStatus.Accepted);
+        requests.add(acceptedRequest);
+
+        when(gameCopyRepository.findById(gameCopyId)).thenReturn(Optional.of(gameCopy));
+        when(borrowingRequestRepository.findByGameCopy(gameCopy)).thenReturn(requests);
+        BorrowingRequest result = borrowingManagementService.findGameCopyLendingStatus(gameCopy);
+        assertNotNull(result, "Should return the accepted borrowing request");
+        assertEquals(BorrowingRequestStatus.Accepted, result.getStatus());
+        verify(borrowingRequestRepository).findByGameCopy(gameCopy);
     }
 
     @Test

@@ -56,6 +56,7 @@ public class GameReviewIntegrationTest {
         review = new GameReview(5, "Great game!", reviewer, game);
     }
 
+    @SuppressWarnings("null")
     @Test
     public void testSubmitValidReview() {
 
@@ -109,6 +110,7 @@ public class GameReviewIntegrationTest {
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
     }
 
+    @SuppressWarnings("null")
     @Test
     public void testUpdateReview() {
 
@@ -137,6 +139,7 @@ public class GameReviewIntegrationTest {
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     }
 
+    @SuppressWarnings("null")
     @Test
     public void testGetReviewById() {
 
@@ -161,6 +164,7 @@ public class GameReviewIntegrationTest {
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
     }
 
+    @SuppressWarnings("null")
     @Test
     public void testGetReviewsForGame() {
 
@@ -185,6 +189,7 @@ public class GameReviewIntegrationTest {
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     }
 
+    @SuppressWarnings("null")
     @Test
     public void testGetReviewsByUser() {
 
@@ -230,6 +235,7 @@ public class GameReviewIntegrationTest {
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     }
 
+    @SuppressWarnings("null")
     @Test
     public void testGetReviewsSortedByRating() {
 
