@@ -34,4 +34,12 @@ public abstract class AccountRole {
         return id;
     }
 
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public void setPerson(Person person) {
+        this.person = person;
+    }
+
 }
