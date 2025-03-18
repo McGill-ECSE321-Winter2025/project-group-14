@@ -180,7 +180,7 @@ public class EventManagementIntegrationTest {
         String url = "/events/99999";
         ResponseEntity<String> response = client.getForEntity(url, String.class);
 
-        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
     }
 
     @Test
@@ -228,7 +228,7 @@ public class EventManagementIntegrationTest {
         ResponseEntity<String> response = client.exchange(
                 url, HttpMethod.PUT, new HttpEntity<>(requestDto), String.class);
 
-        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
     }
 
     @Test
@@ -263,7 +263,7 @@ public class EventManagementIntegrationTest {
                 "Expected a 200 OK when deleting an existing event.");
 
         ResponseEntity<String> getResponse = client.getForEntity(url, String.class);
-        assertEquals(HttpStatus.BAD_REQUEST, getResponse.getStatusCode(),
+        assertEquals(HttpStatus.NOT_FOUND, getResponse.getStatusCode(),
                 "Expected 400/404 when retrieving a deleted event.");
 
     }
@@ -274,7 +274,7 @@ public class EventManagementIntegrationTest {
         String url = "/events/99999";
         ResponseEntity<String> response = client.exchange(url, HttpMethod.DELETE, null, String.class);
 
-        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
     }
 
     @Test
@@ -307,7 +307,7 @@ public class EventManagementIntegrationTest {
 
         ResponseEntity<String> response = client.getForEntity(url, String.class);
 
-        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
     }
 
     @Test
@@ -330,7 +330,7 @@ public class EventManagementIntegrationTest {
 
         ResponseEntity<String> response = client.getForEntity(url, String.class);
 
-        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
     }
 
     @Test
@@ -379,7 +379,7 @@ public class EventManagementIntegrationTest {
         String url = String.format("/events/%d/player/%d", 99999, validPlayerId);
         ResponseEntity<String> response = client.postForEntity(url, null, String.class);
 
-        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
     }
 
     @Test
@@ -451,7 +451,7 @@ public class EventManagementIntegrationTest {
         String url = String.format("/events/%d/player/%d", 99999, validPlayerId);
         ResponseEntity<String> response = client.exchange(url, HttpMethod.DELETE, null, String.class);
 
-        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
     }
 
     @Test
@@ -485,7 +485,7 @@ public class EventManagementIntegrationTest {
         String url = String.format("/events/%d/player/%d", newEventId, validPlayerId);
         ResponseEntity<String> response = client.exchange(url, HttpMethod.DELETE, null, String.class);
 
-        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
     }
 
     @Test
@@ -528,6 +528,6 @@ public class EventManagementIntegrationTest {
         String url = "/events/99999/players";
         ResponseEntity<String> response = client.getForEntity(url, String.class);
 
-        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
     }
 }
