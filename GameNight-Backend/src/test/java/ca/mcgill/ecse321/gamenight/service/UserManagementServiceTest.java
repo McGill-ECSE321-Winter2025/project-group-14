@@ -17,9 +17,9 @@ import org.springframework.web.server.ResponseStatusException;
 
 import ca.mcgill.ecse321.gamenight.controller.UserManagementController;
 import ca.mcgill.ecse321.gamenight.dto.AuthRequestDto;
-import ca.mcgill.ecse321.gamenight.exceptions.BadRequestException;
-import ca.mcgill.ecse321.gamenight.exceptions.InvalidCredentialsException;
-import ca.mcgill.ecse321.gamenight.exceptions.UsernameTakenException;
+import ca.mcgill.ecse321.gamenight.exception.InvalidInputException;
+import ca.mcgill.ecse321.gamenight.exception.ObjectNotFoundException;
+import ca.mcgill.ecse321.gamenight.exception.UniquenessConstaintException;
 import ca.mcgill.ecse321.gamenight.model.GameOwner;
 import ca.mcgill.ecse321.gamenight.model.Person;
 import ca.mcgill.ecse321.gamenight.model.Player;
@@ -61,9 +61,9 @@ public class UserManagementServiceTest {
 
         testUser = new Person(VALID_EMAIL, VALID_PASSWORD, "Test User");
         when(personRepository.findPersonByEmailAddress(VALID_EMAIL))
-            .thenReturn(Optional.of(testUser));
+                .thenReturn(Optional.of(testUser));
         when(personRepository.findById(testUser.getId()))
-            .thenReturn(Optional.of(testUser));
+                .thenReturn(Optional.of(testUser));
         when(personRepository.save(any(Person.class))).thenReturn(testUser);
     }
 
@@ -83,8 +83,8 @@ public class UserManagementServiceTest {
     public void testValidateEmptyEmail() {
         AuthRequestDto request = new AuthRequestDto(EMPTY_STRING, VALID_PASSWORD, "User");
 
-        BadRequestException exception = assertThrows(
-            BadRequestException.class,
+        InvalidInputException exception = assertThrows(
+                InvalidInputException.class,
                 () -> userManagementService.createPerson(request));
 
         assertEquals("Email adress cannot be empty", exception.getMessage());
@@ -97,10 +97,9 @@ public class UserManagementServiceTest {
     public void testValidateBadFormatEmail() {
         AuthRequestDto request = new AuthRequestDto(INVALID_EMAIL, VALID_PASSWORD, "User");
 
-        BadRequestException exception = assertThrows(
-            BadRequestException.class,
+        InvalidInputException exception = assertThrows(
+                InvalidInputException.class,
                 () -> userManagementService.createPerson(request));
-
 
         assertEquals("Invalid email pattern", exception.getMessage());
     }
@@ -110,10 +109,10 @@ public class UserManagementServiceTest {
      */
     @Test
     public void testValidateWhitespaceEmailAndPassword() {
-        assertThrows(BadRequestException.class,
-            () -> userManagementService.createPerson(new AuthRequestDto("  ", VALID_PASSWORD, "User")));
-        assertThrows(BadRequestException.class,
-        () -> userManagementService.createPerson(new AuthRequestDto(VALID_EMAIL, "  ", "User")));
+        assertThrows(InvalidInputException.class,
+                () -> userManagementService.createPerson(new AuthRequestDto("  ", VALID_PASSWORD, "User")));
+        assertThrows(InvalidInputException.class,
+                () -> userManagementService.createPerson(new AuthRequestDto(VALID_EMAIL, "  ", "User")));
 
     }
 
@@ -124,8 +123,8 @@ public class UserManagementServiceTest {
     public void testValidateEmptyPassword() {
         AuthRequestDto request = new AuthRequestDto("1" + VALID_EMAIL, EMPTY_STRING, "User");
 
-        BadRequestException exception = assertThrows(
-            BadRequestException.class,
+        InvalidInputException exception = assertThrows(
+                InvalidInputException.class,
                 () -> userManagementService.createPerson(request));
 
         assertEquals("Password cannot be empty", exception.getMessage());
@@ -166,7 +165,7 @@ public class UserManagementServiceTest {
         request.setName("Duplicate User");
 
         // Because testUser is found for this email, we expect an exception
-        assertThrows(UsernameTakenException.class, () -> userManagementService.createPerson(request));
+        assertThrows(UniquenessConstaintException.class, () -> userManagementService.createPerson(request));
     }
 
     /**
@@ -193,7 +192,7 @@ public class UserManagementServiceTest {
         request.setEmailAdress(VALID_EMAIL);
         request.setPassword(EMPTY_STRING);
 
-        assertThrows(BadRequestException.class, () -> userManagementService.login(request));
+        assertThrows(InvalidInputException.class, () -> userManagementService.login(request));
     }
 
     /**
@@ -205,7 +204,7 @@ public class UserManagementServiceTest {
         request.setEmailAdress(EMPTY_STRING);
         request.setPassword(VALID_PASSWORD);
 
-        assertThrows(BadRequestException.class, () -> userManagementService.login(request));
+        assertThrows(InvalidInputException.class, () -> userManagementService.login(request));
     }
 
     /**
@@ -217,7 +216,7 @@ public class UserManagementServiceTest {
         request.setEmailAdress(VALID_EMAIL);
         request.setPassword("defNotCorrect");
 
-        assertThrows(InvalidCredentialsException.class, () -> userManagementService.login(request));
+        assertThrows(InvalidInputException.class, () -> userManagementService.login(request));
     }
 
     /**
@@ -232,7 +231,7 @@ public class UserManagementServiceTest {
         when(personRepository.findPersonByEmailAddress(request.getEmailAdress()))
                 .thenReturn(Optional.empty());
 
-        assertThrows(InvalidCredentialsException.class, () -> userManagementService.login(request));
+        assertThrows(InvalidInputException.class, () -> userManagementService.login(request));
     }
 
     /**
@@ -263,7 +262,8 @@ public class UserManagementServiceTest {
     }
 
     /**
-     * Tests that updating a user with the same email and password does not trigger a save operation.
+     * Tests that updating a user with the same email and password does not trigger
+     * a save operation.
      */
     @Test
     public void testUpdateUserWithSameEmailAndPassword() {
@@ -278,7 +278,8 @@ public class UserManagementServiceTest {
     }
 
     /**
-     * Tests that updating a user without providing new email or password does not trigger a save operation.
+     * Tests that updating a user without providing new email or password does not
+     * trigger a save operation.
      */
     @Test
     public void testUpdateUserNoChanges() {
@@ -319,6 +320,19 @@ public class UserManagementServiceTest {
     }
 
     /**
+     * Tests updating a user's email and password when the password is blank " "
+     */
+    @Test
+    public void testUpdateUserWithBlankPassword() {
+        boolean result = userManagementService.updatePerson(testUser.getId(), VALID_PASSWORD, NEW_EMAIL, "  ");
+
+        assertTrue(result);
+        assertEquals(NEW_EMAIL, testUser.getEmailAddress());
+        assertEquals(VALID_PASSWORD, testUser.getPassword()); // Password should remain unchanged
+        verify(personRepository, times(1)).save(testUser);
+    }
+
+    /**
      * Tests successful user deletion
      */
     @Test
@@ -344,7 +358,7 @@ public class UserManagementServiceTest {
     public void testDeletePersonNotFound() {
         when(personRepository.findPersonById(testUser.getId())).thenReturn(Optional.empty());
 
-        assertThrows(BadRequestException.class, () -> userManagementService.deletePerson(999));
+        assertThrows(ObjectNotFoundException.class, () -> userManagementService.deletePerson(999));
 
         verify(personRepository, never()).delete(any(Person.class));
     }
@@ -356,7 +370,7 @@ public class UserManagementServiceTest {
     public void testDeleteAnotherUser() {
         when(personRepository.findPersonById(999)).thenReturn(Optional.empty());
 
-        assertThrows(BadRequestException.class, () -> userManagementService.deletePerson(999));
+        assertThrows(ObjectNotFoundException.class, () -> userManagementService.deletePerson(999));
     }
 
     /**
@@ -401,8 +415,8 @@ public class UserManagementServiceTest {
      */
     @Test
     public void testGettingAllUsers() {
-        Person hamza = new Person("hamza@gmail.com","Helloworld2223","Hamza");
-        Person deniz = new Person("deniz@gmail.com","Helloworld","Deniz");
+        Person hamza = new Person("hamza@gmail.com", "Helloworld2223", "Hamza");
+        Person deniz = new Person("deniz@gmail.com", "Helloworld", "Deniz");
         List<Person> testUsers = Arrays.asList(hamza, deniz);
 
         when(personRepository.findAll()).thenReturn(testUsers);
@@ -423,7 +437,7 @@ public class UserManagementServiceTest {
         when(personRepository.findAll()).thenReturn(List.of());
         List<Person> allUsers = userManagementService.getAllUsers();
 
-        assertNotNull(allUsers,"The returned list should not be null");
+        assertNotNull(allUsers, "The returned list should not be null");
         assertTrue(allUsers.isEmpty(), "The returned list should be empty.");
         verify(personRepository, times(1)).findAll();
     }
@@ -433,7 +447,7 @@ public class UserManagementServiceTest {
      */
     @Test
     public void testGetExistingUserById() {
-        Person hamza = new Person("testuser@gmail.com","password123","Test User");
+        Person hamza = new Person("testuser@gmail.com", "password123", "Test User");
 
         when(personRepository.findById(hamza.getId())).thenReturn(Optional.of(hamza));
 
@@ -441,8 +455,8 @@ public class UserManagementServiceTest {
 
         assertNotNull(foundUser, "The returned user should not be null.");
         assertEquals(hamza.getId(), foundUser.getId(), "The IDs should match.");
-        assertEquals(hamza.getEmailAddress(), foundUser.getEmailAddress(),"The emails should match.");
-        assertEquals(hamza.getPassword(), foundUser.getPassword(),"The passwords should match.");
+        assertEquals(hamza.getEmailAddress(), foundUser.getEmailAddress(), "The emails should match.");
+        assertEquals(hamza.getPassword(), foundUser.getPassword(), "The passwords should match.");
         assertEquals(hamza.getName(), foundUser.getName(), "The names should match.");
 
         verify(personRepository, times(1)).findById(hamza.getId());
@@ -464,7 +478,8 @@ public class UserManagementServiceTest {
     }
 
     /**
-     * Tests that toggling an account role for a non-existent user throws a ResponseStatusException.
+     * Tests that toggling an account role for a non-existent user throws a
+     * ResponseStatusException.
      */
     @Test
     void testToggleAccountRole_userNotFound_throwsResponseStatusException() {
@@ -478,7 +493,8 @@ public class UserManagementServiceTest {
     }
 
     /**
-     * Tests that attempting to update a non-existent user throws a RuntimeException.
+     * Tests that attempting to update a non-existent user throws a
+     * RuntimeException.
      */
     @Test
     void testUpdatePerson_userNotFound_throwsRuntimeException() {
@@ -489,7 +505,3 @@ public class UserManagementServiceTest {
         });
     }
 }
-
-
-
-

@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerInterceptor;
 
-import ca.mcgill.ecse321.gamenight.exceptions.UnauthedException;
+import ca.mcgill.ecse321.gamenight.exception.UnauthorizedException;
 import ca.mcgill.ecse321.gamenight.model.Person;
 import ca.mcgill.ecse321.gamenight.repo.PersonRepository;
 
@@ -36,7 +36,7 @@ public class UserAuthInterceptor implements HandlerInterceptor {
              */
             @NonNull HttpServletRequest request,
             @NonNull HttpServletResponse response,
-            @NonNull Object handler) throws UnauthedException {
+            @NonNull Object handler) throws UnauthorizedException {
         if (!(handler instanceof HandlerMethod)) {
             return true;
         }
@@ -61,7 +61,7 @@ public class UserAuthInterceptor implements HandlerInterceptor {
             String userIdHeader = request.getHeader("User-Id");
 
             if (userIdHeader == null) {
-                throw new UnauthedException("No User-Id header provided");
+                throw new UnauthorizedException("No User-Id header provided");
             }
 
             try {
@@ -69,11 +69,11 @@ public class UserAuthInterceptor implements HandlerInterceptor {
 
                 Person user = personRepository
                         .findById(userId)
-                        .orElseThrow(() -> new UnauthedException("User not found"));
+                        .orElseThrow(() -> new UnauthorizedException("User not found"));
 
                 userContext.setCurrentUser(user);
             } catch (IllegalArgumentException e) {
-                throw new UnauthedException("Invalid User-Id format");
+                throw new UnauthorizedException("Invalid User-Id format");
             }
         }
         return true;

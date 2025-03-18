@@ -26,6 +26,7 @@ import ca.mcgill.ecse321.gamenight.repo.GameRepository;
 import ca.mcgill.ecse321.gamenight.repo.PlayerRepository;
 import ca.mcgill.ecse321.gamenight.repo.RegistrationRepository;
 import ca.mcgill.ecse321.gamenight.repo.ScheduledGameRepository;
+import ca.mcgill.ecse321.gamenight.exception.ObjectNotFoundException;
 import ca.mcgill.ecse321.gamenight.exceptions.*;
 
 class EventManagementServiceTest {
@@ -45,7 +46,6 @@ class EventManagementServiceTest {
     @Mock
     private GameRepository gameRepository;
 
-
     @InjectMocks
     private EventManagementService eventService;
 
@@ -58,7 +58,6 @@ class EventManagementServiceTest {
     private Event nightEvent;
     private Event eventOne;
     private Event updateEvent;
-
 
     @BeforeEach
     void setup() {
@@ -96,14 +95,13 @@ class EventManagementServiceTest {
             eventService.createEvent(null, "desc", start, end);
         });
     }
-    
+
     @Test
     void testCreateEventEndBeforeStart() {
         assertThrows(InvalidEventTimesException.class, () -> {
             eventService.createEvent("Game Night", "desc", start, past);
         });
     }
-    
 
     @Test
     void testGetEventByIdSuccess() {
@@ -121,7 +119,6 @@ class EventManagementServiceTest {
             eventService.getEventById(99);
         });
     }
-    
 
     @Test
     void testDeleteEventSuccess() {
@@ -129,6 +126,7 @@ class EventManagementServiceTest {
         eventService.deleteEvent(5);
         verify(eventRepository, times(1)).delete(nightEvent);
     }
+
     @Test
     void testDeleteEventNotFound() {
         when(eventRepository.findById(55)).thenReturn(Optional.empty());
@@ -137,8 +135,6 @@ class EventManagementServiceTest {
         });
         verify(eventRepository, never()).delete(any(Event.class));
     }
-    
-
 
     @Test
     void testRegisterForEvent() {
@@ -156,18 +152,16 @@ class EventManagementServiceTest {
             eventService.registerForEvent(1, 2);
         });
     }
-    
+
     @Test
     void testRegisterForEventPlayerNotFound() {
         when(eventRepository.findById(1)).thenReturn(Optional.of(eventOne));
         when(playerRepository.findById(2)).thenReturn(Optional.empty());
-        assertThrows(PlayerNotFoundException.class, () -> {
+        assertThrows(ObjectNotFoundException.class, () -> {
             eventService.registerForEvent(1, 2);
         });
         verify(registrationRepository, never()).save(any());
     }
-    
-
 
     @Test
     void testGetGamesForEvent() {
@@ -175,16 +169,14 @@ class EventManagementServiceTest {
         Game g1 = mock(Game.class);
         Game g2 = mock(Game.class);
         when(scheduledGameRepository.findByKey_EventId(10)).thenReturn(List.of(
-            new ca.mcgill.ecse321.gamenight.model.ScheduledGame(
-                new ca.mcgill.ecse321.gamenight.model.ScheduledGame.Key(g1, eventOne)
-            ),
-            new ca.mcgill.ecse321.gamenight.model.ScheduledGame(
-                new ca.mcgill.ecse321.gamenight.model.ScheduledGame.Key(g2, eventOne)
-            )
-        ));
+                new ca.mcgill.ecse321.gamenight.model.ScheduledGame(
+                        new ca.mcgill.ecse321.gamenight.model.ScheduledGame.Key(g1, eventOne)),
+                new ca.mcgill.ecse321.gamenight.model.ScheduledGame(
+                        new ca.mcgill.ecse321.gamenight.model.ScheduledGame.Key(g2, eventOne))));
         List<Game> result = eventService.getGamesForEvent(10);
         assertEquals(2, result.size());
     }
+
     @Test
     void testGetGamesForEventEventNotFound() {
         when(eventRepository.findById(999)).thenReturn(Optional.empty());
@@ -193,7 +185,6 @@ class EventManagementServiceTest {
         });
         verify(scheduledGameRepository, never()).findByKey_EventId(anyInt());
     }
-    
 
     @Test
     void testUpdateEventSuccess() {
@@ -213,7 +204,7 @@ class EventManagementServiceTest {
             eventService.updateEvent(200, "Name", "Desc", start, end);
         });
     }
-    
+
     @Test
     void testUpdateEventInvalidTimes() {
         when(eventRepository.findById(300)).thenReturn(Optional.of(updateEvent));
@@ -221,7 +212,7 @@ class EventManagementServiceTest {
             eventService.updateEvent(300, "AnotherName", "AnotherDesc", start, past);
         });
     }
-    
+
     @Test
     void testUpdateEventInvalidName() {
         when(eventRepository.findById(100)).thenReturn(Optional.of(updateEvent));
@@ -229,8 +220,6 @@ class EventManagementServiceTest {
             eventService.updateEvent(100, "   ", "New Description", start, end);
         });
     }
-    
-
 
     @Test
     void testGetAllEventsSuccess() {
@@ -245,10 +234,10 @@ class EventManagementServiceTest {
 
     // @Test
     // void testGetAllEventsEmpty() {
-    //     when(eventRepository.findAll()).thenReturn(new ArrayList<>());
-    //     Iterable<Event> result = eventService.getAllEvents();
-    //     assertNotNull(result);
-    //     assertTrue(((List<Event>) result).isEmpty());
+    // when(eventRepository.findAll()).thenReturn(new ArrayList<>());
+    // Iterable<Event> result = eventService.getAllEvents();
+    // assertNotNull(result);
+    // assertTrue(((List<Event>) result).isEmpty());
     // }
 
     @Test
@@ -258,17 +247,15 @@ class EventManagementServiceTest {
 
         Event e1 = new Event("A", "desc", new Date(), new Date());
         Event e2 = new Event("B", "desc", new Date(), new Date());
-        Game mockGame = mock(Game.class); 
+        Game mockGame = mock(Game.class);
         when(scheduledGameRepository.findByKey_GameId(50)).thenReturn(List.of(
-            new ScheduledGame(new ScheduledGame.Key(mockGame, e1)),
-            new ScheduledGame(new ScheduledGame.Key(mockGame, e2))
-        ));
+                new ScheduledGame(new ScheduledGame.Key(mockGame, e1)),
+                new ScheduledGame(new ScheduledGame.Key(mockGame, e2))));
 
         List<Event> scheduled = eventService.getScheduledEventsForAGame(50);
         assertEquals(2, scheduled.size());
     }
 
-    
     @Test
     void testGetScheduledEventsForAGameGameNotFound() {
         when(gameRepository.findById(60)).thenReturn(Optional.empty());
@@ -277,15 +264,14 @@ class EventManagementServiceTest {
         });
         verify(scheduledGameRepository, never()).findByKey_GameId(anyInt());
     }
-    
-    
 
     // @Test
     // void testGetScheduledEventsForAGameEmpty() {
-    //     when(scheduledGameRepository.findByKey_GameId(60)).thenReturn(new ArrayList<>());
-    //     List<Event> scheduled = eventService.getScheduledEventsForAGame(60);
-    //     assertNotNull(scheduled);
-    //     assertTrue(scheduled.isEmpty());
+    // when(scheduledGameRepository.findByKey_GameId(60)).thenReturn(new
+    // ArrayList<>());
+    // List<Event> scheduled = eventService.getScheduledEventsForAGame(60);
+    // assertNotNull(scheduled);
+    // assertTrue(scheduled.isEmpty());
     // }
 
     @Test
@@ -307,7 +293,7 @@ class EventManagementServiceTest {
             eventService.unregisterForEvent(5, 6);
         });
     }
-    
+
     @Test
     void testUnregisterForEventNoRegistration() {
         Event e = new Event("Event", "desc", new Date(), new Date());
@@ -315,24 +301,23 @@ class EventManagementServiceTest {
         when(eventRepository.findById(7)).thenReturn(Optional.of(e));
         when(playerRepository.findById(8)).thenReturn(Optional.of(p));
         when(registrationRepository.findByKey(any(Key.class))).thenReturn(null);
-    
+
         assertThrows(RegistrationNotFoundException.class, () -> {
             eventService.unregisterForEvent(7, 8);
         });
     }
-    
+
     @Test
     void testUnregisterForEventPlayerNotFound() {
-    when(eventRepository.findById(10)).thenReturn(Optional.of(eventOne));
-    when(playerRepository.findById(100)).thenReturn(Optional.empty());
+        when(eventRepository.findById(10)).thenReturn(Optional.of(eventOne));
+        when(playerRepository.findById(100)).thenReturn(Optional.empty());
 
-    assertThrows(PlayerNotFoundException.class, () -> {
-        eventService.unregisterForEvent(10, 100);
-    });
-    verify(registrationRepository, never()).findByKey(any(Key.class));
-    verify(registrationRepository, never()).delete(any());
-}
-
+        assertThrows(ObjectNotFoundException.class, () -> {
+            eventService.unregisterForEvent(10, 100);
+        });
+        verify(registrationRepository, never()).findByKey(any(Key.class));
+        verify(registrationRepository, never()).delete(any());
+    }
 
     @Test
     void testGetEventsForPlayerSuccess() {
@@ -350,20 +335,20 @@ class EventManagementServiceTest {
     @Test
     void testGetEventsForPlayerNotFound() {
         when(playerRepository.findById(30)).thenReturn(Optional.empty());
-        assertThrows(PlayerNotFoundException.class, () -> {
+        assertThrows(ObjectNotFoundException.class, () -> {
             eventService.getEventsForPlayer(30);
         });
     }
-    
 
     // @Test
     // void testGetEventsForPlayerEmpty() {
-    //     Player p = new Player();
-    //     when(playerRepository.findById(40)).thenReturn(Optional.of(p));
-    //     when(registrationRepository.findByKey_PlayerId(40)).thenReturn(new ArrayList<>());
-    //     List<Event> events = eventService.getEventsForPlayer(40);
-    //     assertNotNull(events);
-    //     assertTrue(events.isEmpty());
+    // Player p = new Player();
+    // when(playerRepository.findById(40)).thenReturn(Optional.of(p));
+    // when(registrationRepository.findByKey_PlayerId(40)).thenReturn(new
+    // ArrayList<>());
+    // List<Event> events = eventService.getEventsForPlayer(40);
+    // assertNotNull(events);
+    // assertTrue(events.isEmpty());
     // }
 
     @Test
@@ -386,15 +371,15 @@ class EventManagementServiceTest {
             eventService.getPlayersForEvent(95);
         });
     }
-    
 
     // @Test
     // void testGetPlayersForEventEmpty() {
-    //     Event e = new Event("E", "desc", new Date(), new Date());
-    //     when(eventRepository.findById(96)).thenReturn(Optional.of(e));
-    //     when(registrationRepository.findByKey_EventId(96)).thenReturn(new ArrayList<>());
-    //     List<Player> players = eventService.getPlayersForEvent(96);
-    //     assertNotNull(players);
-    //     assertTrue(players.isEmpty());
+    // Event e = new Event("E", "desc", new Date(), new Date());
+    // when(eventRepository.findById(96)).thenReturn(Optional.of(e));
+    // when(registrationRepository.findByKey_EventId(96)).thenReturn(new
+    // ArrayList<>());
+    // List<Player> players = eventService.getPlayersForEvent(96);
+    // assertNotNull(players);
+    // assertTrue(players.isEmpty());
     // }
 }
