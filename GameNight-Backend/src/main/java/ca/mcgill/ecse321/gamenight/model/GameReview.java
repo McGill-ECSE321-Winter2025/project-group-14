@@ -26,7 +26,7 @@ public class GameReview {
     private Game game;
 
     public GameReview() {
-        
+
     }
 
     public GameReview(int rating, String comment, Player reviewer, Game game) {

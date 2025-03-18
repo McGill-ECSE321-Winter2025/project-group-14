@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import ca.mcgill.ecse321.gamenight.model.Event;
+import ca.mcgill.ecse321.gamenight.model.Person;
 import ca.mcgill.ecse321.gamenight.model.Player;
 import ca.mcgill.ecse321.gamenight.model.Registration;
 import ca.mcgill.ecse321.gamenight.model.Registration.Key;
@@ -27,11 +28,15 @@ public class RegistrationRepositoryTest {
     @Autowired
     private PlayerRepository playerRepo;
 
+    @Autowired
+    private PersonRepository personRepo;
+
     @AfterEach
     public void clearDatabase() {
         registrationRepo.deleteAll();
         eventRepo.deleteAll();
         playerRepo.deleteAll();
+        personRepo.deleteAll();
     }
 
     @Test
@@ -41,7 +46,10 @@ public class RegistrationRepositoryTest {
         Event event = new Event("Test Event", "Test Event Description", startTime, endTime);
         event = eventRepo.save(event);
 
-        Player player = new Player();
+        Person person = new Person("player1@gmail.com", "password", "Player One");
+        person = personRepo.save(person);
+
+        Player player = new Player(person);
         player = playerRepo.save(player);
 
         Key key = new Key(player, event);
@@ -61,10 +69,14 @@ public class RegistrationRepositoryTest {
         Event event = new Event("Group Event", "Event for group registration", startTime, endTime);
         event = eventRepo.save(event);
 
-        Player player1 = new Player();
+        Person person1 = new Person("player1@gmail.com", "password", "Player One");
+        person1 = personRepo.save(person1);
+        Player player1 = new Player(person1);
         player1 = playerRepo.save(player1);
 
-        Player player2 = new Player();
+        Person person2 = new Person("player2@gmail.com", "password", "Player Two");
+        person2 = personRepo.save(person2);
+        Player player2 = new Player(person2);
         player2 = playerRepo.save(player2);
 
         Registration reg1 = new Registration(new Key(player1, event));
@@ -79,7 +91,9 @@ public class RegistrationRepositoryTest {
 
     @Test
     public void testFindByPlayer() {
-        Player player = new Player();
+        Person person = new Person("player1@gmail.com", "password", "Player One");
+        person = personRepo.save(person);
+        Player player = new Player(person);
         player = playerRepo.save(player);
 
         Date startTime1 = new Date();
