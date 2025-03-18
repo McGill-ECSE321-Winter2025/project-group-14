@@ -12,10 +12,11 @@ import jakarta.servlet.http.HttpServletRequest;
 import ca.mcgill.ecse321.gamenight.dto.AuthRequestDto;
 import ca.mcgill.ecse321.gamenight.dto.LoginResponseDto;
 import ca.mcgill.ecse321.gamenight.dto.PersonResponseDto;
+import ca.mcgill.ecse321.gamenight.exception.ForbiddenException;
 import ca.mcgill.ecse321.gamenight.exception.InvalidInputException;
 import ca.mcgill.ecse321.gamenight.exception.UnauthorizedException;
 import ca.mcgill.ecse321.gamenight.exception.UniquenessConstaintException;
-import ca.mcgill.ecse321.gamenight.exceptions.ForbiddenAccessException;
+import ca.mcgill.ecse321.gamenight.exception.ObjectNotFoundException;
 import ca.mcgill.ecse321.gamenight.middleware.RequireUser;
 import ca.mcgill.ecse321.gamenight.service.UserManagementService;
 import ca.mcgill.ecse321.gamenight.model.Person;
@@ -138,10 +139,10 @@ public class UserManagementController {
      * @param id      The ID of the user to retrieve.
      * @param request The HTTP request containing authentication headers.
      * @return A ResponseEntity with the user's details.
-     * @throws UnauthorizedException    if no authentication is provided.
-     * @throws ObjectNotFoundException  if the user does not exist.
-     * @throws ForbiddenAccessException if the authenticated user attempts to view
-     *                                  another user's profile.
+     * @throws UnauthorizedException   if no authentication is provided.
+     * @throws ObjectNotFoundException if the user does not exist.
+     * @throws ForbiddenException      if the authenticated user attempts to view
+     *                                 another user's profile.
      */
     @GetMapping("/users/{id}")
     public ResponseEntity<?> getUserDetail(@PathVariable int id, HttpServletRequest request) {
@@ -156,7 +157,7 @@ public class UserManagementController {
         Person targetUser = userService.getUserById(id);
 
         if (authUser.getId() != id) {
-            throw new ForbiddenAccessException("You can only view your own profile.");
+            throw new ForbiddenException("You can only view your own profile.");
         }
 
         return ResponseEntity.ok(new PersonResponseDto(targetUser));
