@@ -44,9 +44,18 @@ tasks.named('test') {
 		exceptionFormat = 'full'
 		events "passed", "skipped", "failed"
 	}
-    finalizedBy jacocoTestReport
+
+	finalizedBy jacocoTestReport
+
 }
 tasks.named('jacocoTestReport') {
     dependsOn test
 }
 
+tasks.named('jacocoTestReport') {
+	dependsOn test
+}
+
+tasks.named('jacocoTestReport') {
+    dependsOn test // tests are required to run before generating the report
+}
