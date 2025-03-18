@@ -17,5 +17,11 @@ public class GameOwnerNotFoundException extends RuntimeException {
     @Override
     public String getMessage(){
         return message;
+    }}
+//@ResponseStatus(value = HttpStatus.NOT_FOUND)
+/*public class GameOwnerNotFoundException extends RuntimeException {
+    public GameOwnerNotFoundException(String message) {
+        super(message);
     }
 }
+    */
