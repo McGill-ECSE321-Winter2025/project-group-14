@@ -49,7 +49,7 @@ public class UserManagementController {
      * 
      * @param userId The ID of the user to delete.
      * @return A ResponseEntity with HTTP 200 OK if the deletion is successful.
-     * @throws UserNotFoundException if the user does not exist.
+     * @throws ObjectNotFound if the user does not exist.
      */
     @DeleteMapping("/users/{id}")
     @RequireUser
@@ -81,9 +81,9 @@ public class UserManagementController {
      * @param newPassword The new password (optional).
      * @param oldPassword The user's current password for verification.
      * @return A ResponseEntity with a success message if the update is successful.
-     * @throws UnauthedException     if the provided old password is incorrect.
-     * @throws UserNotFoundException if the user does not exist.
-     * @throws BadRequestException   if no new values are provided for update.
+     * @throws UnauthorizedException   if the provided old password is incorrect.
+     * @throws ObjectNotFoundException if the user does not exist.
+     * @throws InvalidInputException   if no new values are provided for update.
      */
     @PutMapping("/users/{id}")
     public ResponseEntity<?> updateUser(
@@ -108,8 +108,8 @@ public class UserManagementController {
      *
      * @param id The ID of the Person whose role is being toggled.
      * @return A ResponseEntity with a success message.
-     * @throws GameOwnerNotFoundException if the user does not have a GameOwner
-     *                                    role.
+     * @throws ObjectNotFoundException if the user does not have a GameOwner
+     *                                 role.
      */
     @PutMapping("/users/{id}/role")
     public ResponseEntity<?> toggleAccountRole(@PathVariable int id) {
@@ -140,10 +140,10 @@ public class UserManagementController {
      * @param id      The ID of the user to retrieve.
      * @param request The HTTP request containing authentication headers.
      * @return A ResponseEntity with the user's details.
-     * @throws UnauthedException        if no authentication is provided.
-     * @throws UserNotFoundException    if the user does not exist.
-     * @throws ForbiddenAccessException if the authenticated user attempts to view
-     *                                  another user's profile.
+     * @throws UnauthorizedException   if no authentication is provided.
+     * @throws ObjectNotFoundException if the user does not exist.
+     * @throws ForbiddenException      if the authenticated user attempts to view
+     *                                 another user's profile.
      */
     @GetMapping("/users/{id}")
     public ResponseEntity<?> getUserDetail(@PathVariable int id, HttpServletRequest request) {
