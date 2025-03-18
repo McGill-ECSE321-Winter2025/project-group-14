@@ -18,8 +18,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import ca.mcgill.ecse321.gamenight.exception.EmailSendingFailedException;
 import ca.mcgill.ecse321.gamenight.exception.ObjectNotFoundException;
-import ca.mcgill.ecse321.gamenight.exceptions.EmailSendingFailedException;
 import ca.mcgill.ecse321.gamenight.model.BorrowingRequest;
 import ca.mcgill.ecse321.gamenight.model.BorrowingRequest.BorrowingRequestStatus;
 import ca.mcgill.ecse321.gamenight.model.Game;
@@ -525,4 +525,44 @@ public class BorrowingManagementServiceTest {
         assertEquals(BorrowingRequestStatus.Accepted, result.getStatus());
         verify(borrowingRequestRepository).findByGameCopy(gameCopy);
     }
+
+    @Test
+    void testRespondToBorrowingRequest_OtherStatus() {
+
+    BorrowingRequest request = new BorrowingRequest();
+    request.setId(1);
+    request.setStatus(BorrowingRequestStatus.Delivered);
+    Game game = new Game();
+    game.setName("Uno");
+    
+    GameCopy gameCopy = new GameCopy();
+    gameCopy.setGame(game);
+    
+    GameOwner gameOwner = new GameOwner();
+    Person ownerPerson = new Person();
+    ownerPerson.setName("Hamza");
+    ownerPerson.setEmailAddress("hamza@example.com");
+    gameOwner.setPerson(ownerPerson);
+    gameCopy.setGameOwner(gameOwner);
+
+    Person senderPerson = new Person();
+    senderPerson.setName("John");
+    senderPerson.setEmailAddress("john@example.com");
+    Player sender = new Player();
+    sender.setId(5);
+    sender.setPerson(senderPerson);
+
+    request.setGameCopy(gameCopy);
+    request.setSender(sender);
+
+    when(borrowingRequestRepository.save(any(BorrowingRequest.class)))
+            .thenAnswer(invocation -> invocation.getArgument(0));
+
+    BorrowingRequest result = borrowingManagementService.respondToBorrowingRequest(request, BorrowingRequestStatus.Delivered);
+
+    assertEquals(BorrowingRequestStatus.Delivered, result.getStatus());
+    verify(emailService, never()).sendRequestAcceptedEmail(anyString(), anyString(), anyString());
+    verify(emailService, never()).sendRequestRejectedEmail(anyString(), anyString(), anyString());
+}
+
 }
