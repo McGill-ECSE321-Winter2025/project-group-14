@@ -14,6 +14,27 @@ import jakarta.validation.ConstraintViolationException;
 
 @ControllerAdvice
 public class GameNightExceptionHandler {
+    
+	@ExceptionHandler(ForbiddenException.class)
+	public ResponseEntity<ErrorDto> handleForbiddenException(ForbiddenException e) {
+		return new ResponseEntity<ErrorDto>(new ErrorDto(e.getMessage()), HttpStatus.FORBIDDEN);
+	}
+
+	@ExceptionHandler(InvalidInputException.class)
+	public ResponseEntity<ErrorDto> handleInvalidInputException(InvalidInputException e) {
+		return new ResponseEntity<ErrorDto>(new ErrorDto(e.getMessage()), HttpStatus.BAD_REQUEST);
+	}
+
+	@ExceptionHandler(UnauthorizedException.class)
+	public ResponseEntity<ErrorDto> handleUnauthorizedException(UnauthorizedException e) {
+		return new ResponseEntity<ErrorDto>(new ErrorDto(e.getMessage()), HttpStatus.UNAUTHORIZED);
+	}
+
+	@ExceptionHandler(UniquenessConstaintException.class)
+	public ResponseEntity<ErrorDto> handleUniquenessConstaintException(UniquenessConstaintException e) {
+		return new ResponseEntity<ErrorDto>(new ErrorDto(e.getMessage()), HttpStatus.CONFLICT);
+	}
+
 
 	@ExceptionHandler(ObjectNotFoundException.class)
 	public ResponseEntity<ErrorDto> handleObjectNotFoundException(ObjectNotFoundException e) {
