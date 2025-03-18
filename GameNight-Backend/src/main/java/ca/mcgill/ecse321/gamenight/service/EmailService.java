@@ -7,7 +7,7 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
-import ca.mcgill.ecse321.gamenight.exceptions.EmailSendingFailedException;
+import ca.mcgill.ecse321.gamenight.exception.EmailSendingFailedException;
 import ca.mcgill.ecse321.gamenight.model.Person;
 
 @Service

@@ -18,8 +18,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import ca.mcgill.ecse321.gamenight.exception.EmailSendingFailedException;
 import ca.mcgill.ecse321.gamenight.exception.ObjectNotFoundException;
-import ca.mcgill.ecse321.gamenight.exceptions.EmailSendingFailedException;
 import ca.mcgill.ecse321.gamenight.model.BorrowingRequest;
 import ca.mcgill.ecse321.gamenight.model.BorrowingRequest.BorrowingRequestStatus;
 import ca.mcgill.ecse321.gamenight.model.Game;

@@ -4,7 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-import ca.mcgill.ecse321.gamenight.exceptions.EmailSendingFailedException;
+import ca.mcgill.ecse321.gamenight.exception.EmailSendingFailedException;
 import ca.mcgill.ecse321.gamenight.model.Person;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
