@@ -392,8 +392,19 @@ public class UserManagementIntegrationTest {
                 String.class);
 
         assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
-        JsonNode jsonNode = objectMapper.readTree(response.getBody());
-        assertEquals("Forbidden", jsonNode.get("error").asText());
+
+        String responseBody = response.getBody();
+        assertNotNull(responseBody, "Response body should not be null");
+
+        JsonNode jsonNode = objectMapper.readTree(responseBody);
+
+        // Fix: Get "errors" array instead of "error" field
+        JsonNode errorsNode = jsonNode.get("errors");
+        assertNotNull(errorsNode, "Expected 'errors' field in response JSON.");
+        assertTrue(errorsNode.isArray(), "'errors' field should be an array.");
+
+        // Extract first error message and check its value
+        assertEquals("You can only view your own profile.", errorsNode.get(0).asText());
     }
 
     @SuppressWarnings("null")
