@@ -19,6 +19,7 @@ import ca.mcgill.ecse321.gamenight.dto.GameCopyRequestDto;
 import ca.mcgill.ecse321.gamenight.dto.GameCopyResponseDto;
 import ca.mcgill.ecse321.gamenight.dto.GameRequestDto;
 import ca.mcgill.ecse321.gamenight.dto.GameResponseDto;
+import ca.mcgill.ecse321.gamenight.middleware.RequireUser;
 import ca.mcgill.ecse321.gamenight.model.Game;
 import ca.mcgill.ecse321.gamenight.model.GameCopy;
 import ca.mcgill.ecse321.gamenight.service.GameManagementService;
@@ -43,6 +44,7 @@ public class GameManagementController {
      */
     @PostMapping("/games")
     @ResponseStatus(HttpStatus.CREATED)
+    @RequireUser
     public GameResponseDto createGame(@RequestBody GameRequestDto game) {
         Game g = gameManagementService.createGame(game.getName(), game.getDescription());
         return new GameResponseDto(g);
@@ -55,6 +57,7 @@ public class GameManagementController {
      * @return The game with the given ID
      */
     @GetMapping("/games/{id}")
+    @RequireUser
     public GameResponseDto findGameById(@PathVariable int id) {
         Game g = gameManagementService.findGameById(id);
         return new GameResponseDto(g);
@@ -68,6 +71,7 @@ public class GameManagementController {
      * @return The updated game
      */
     @PutMapping("/games/{id}")
+    @RequireUser
     public GameResponseDto updateGame(@PathVariable int id, @RequestBody GameRequestDto game) {
         Game g = gameManagementService.updateGame(id, game.getName(), game.getDescription());
         return new GameResponseDto(g);
@@ -79,6 +83,7 @@ public class GameManagementController {
      * @return All games in the system
      */
     @GetMapping("/games")
+    @RequireUser
     public ArrayList<GameResponseDto> findAllGames() {
         ArrayList<GameResponseDto> games = new ArrayList<GameResponseDto>();
         Iterator<Game> iterator = gameManagementService.findAllGames().iterator();
@@ -96,6 +101,7 @@ public class GameManagementController {
      */
     @PostMapping("/game-copies/")
     @ResponseStatus(HttpStatus.CREATED)
+    @RequireUser
     public GameCopyResponseDto createGameCopy(@RequestBody GameCopyRequestDto gameCopy) {
         GameCopy g = gameManagementService.createGameCopy(gameCopy.getDescription(), gameCopy.getGameId(), gameCopy.getOwnerId());
         return new GameCopyResponseDto(g);
@@ -108,6 +114,7 @@ public class GameManagementController {
      * @return The game copy with the given ID
      */
     @GetMapping("/game-copies/{id}")
+    @RequireUser
     public GameCopyResponseDto findGameCopyById(@PathVariable int id) {
         GameCopy g = gameManagementService.findGameCopyById(id);
         return new GameCopyResponseDto(g);
@@ -121,6 +128,7 @@ public class GameManagementController {
      * @return The updated game copy
      */
     @PutMapping("/game-copies/{id}")
+    @RequireUser
     public GameCopyResponseDto updateGameCopy(@PathVariable int id, @RequestBody GameCopyRequestDto gameCopy) {
         GameCopy g = gameManagementService.updateGameCopy(id, gameCopy.getDescription());
         return new GameCopyResponseDto(g);
@@ -133,6 +141,7 @@ public class GameManagementController {
      * @return The game copies of the given game owner
      */
     @GetMapping("/game-copies")
+    @RequireUser
     public ArrayList<GameCopyResponseDto> findGameCopyByOwner(@RequestParam(name = "owner_id") int ownerId) {
         ArrayList<GameCopyResponseDto> games = new ArrayList<>();
         Iterator<GameCopy> iterator = gameManagementService.findGameCopiesByOwner(ownerId).iterator();
@@ -149,6 +158,7 @@ public class GameManagementController {
      */
     @DeleteMapping("/game-copies/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @RequireUser
     public void deleteGameCopy(@PathVariable int id) {
         gameManagementService.deleteGameCopy(id);
     }
