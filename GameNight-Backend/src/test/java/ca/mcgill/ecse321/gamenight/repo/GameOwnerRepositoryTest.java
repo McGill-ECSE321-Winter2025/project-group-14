@@ -39,7 +39,7 @@ public class GameOwnerRepositoryTest {
         hamza.setActive(true);
         hamza = gameOwnerRepository.save(hamza);
 
-        GameOwner hamzaFromDb = gameOwnerRepository.findById(hamza.getId()).orElse(null);
+        GameOwner hamzaFromDb = gameOwnerRepository.findByPersonId(person.getId());
 
         assertNotNull(hamzaFromDb);
         assertNotNull(hamzaFromDb.getPerson());
@@ -51,7 +51,8 @@ public class GameOwnerRepositoryTest {
         hamzaFromDb.setActive(false);
         gameOwnerRepository.save(hamzaFromDb);
 
-        GameOwner updatedHamza = gameOwnerRepository.findById(hamza.getId()).orElse(null);
+        GameOwner updatedHamza = gameOwnerRepository.findByPersonId(person.getId());
+
         assertNotNull(updatedHamza);
         assertEquals(false, updatedHamza.isActive());
     }

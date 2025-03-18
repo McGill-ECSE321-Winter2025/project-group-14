@@ -8,7 +8,6 @@ public class Player extends AccountRole {
     public Person getPerson() {
         return super.getPerson();
     }
-    
 
     public Player() {
 
