@@ -5,8 +5,6 @@ import static org.junit.jupiter.api.Assertions.*;
 import ca.mcgill.ecse321.gamenight.repo.GameOwnerRepository;
 import ca.mcgill.ecse321.gamenight.repo.PersonRepository;
 import ca.mcgill.ecse321.gamenight.repo.PlayerRepository;
-import ca.mcgill.ecse321.gamenight.service.UserManagementService;
-import ca.mcgill.ecse321.gamenight.controller.UserManagementController;
 import ca.mcgill.ecse321.gamenight.dto.AuthRequestDto;
 import ca.mcgill.ecse321.gamenight.dto.LoginResponseDto;
 import ca.mcgill.ecse321.gamenight.dto.PersonResponseDto;
@@ -51,9 +49,6 @@ public class UserManagementIntegrationTest {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-
-
-
     private int testUserId;
     private static final String ORIGINAL_EMAIL = "updateuser@gmail.com";
     private static final String ORIGINAL_PASSWORD = "oldpassword";
@@ -63,24 +58,22 @@ public class UserManagementIntegrationTest {
     private static final String ERROR_MESSAGE = "Incorrect old password.";
 
     @BeforeEach
-public void setup() {
-    gameOwnerRepo.deleteAll();
-    playerRepo.deleteAll();
-    personRepository.deleteAll();
-    
+    public void setup() {
+        gameOwnerRepo.deleteAll();
+        playerRepo.deleteAll();
+        personRepository.deleteAll();
 
-    Person user = new Person(ORIGINAL_EMAIL, ORIGINAL_PASSWORD, "Test User");
-    personRepository.save(user);
-    testUserId = user.getId();
+        Person user = new Person(ORIGINAL_EMAIL, ORIGINAL_PASSWORD, "Test User");
+        personRepository.save(user);
+        testUserId = user.getId();
 
-    Optional<Person> savedUser = personRepository.findById(testUserId);
-    assertTrue(savedUser.isPresent(), "User should be saved in the repository.");
+        Optional<Person> savedUser = personRepository.findById(testUserId);
+        assertTrue(savedUser.isPresent(), "User should be saved in the repository.");
 
-    GameOwner gameOwner = new GameOwner(user);
-    gameOwner.setActive(true);
-    gameOwnerRepo.save(gameOwner);
-}
-
+        GameOwner gameOwner = new GameOwner(user);
+        gameOwner.setActive(true);
+        gameOwnerRepo.save(gameOwner);
+    }
 
     @AfterAll
     public void clearDatabase() {
@@ -109,6 +102,7 @@ public void setup() {
         assertTrue(personRepository.findPersonByEmailAddress("newuser@gmail.com").isPresent());
     }
 
+    @SuppressWarnings("null")
     @Test
     public void testLoginSuccess() {
         Person user = new Person("loginuser@gmail.com", "password123", "mrUser");
@@ -220,8 +214,7 @@ public void setup() {
                 url,
                 HttpMethod.PUT,
                 HttpEntity.EMPTY,
-                String.class
-        );
+                String.class);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
 
@@ -230,7 +223,7 @@ public void setup() {
         assertFalse(updatedOwner.isActive());
     }
 
-
+    @SuppressWarnings("null")
     @Test
     public void testGetUserById() {
         gameOwnerRepo.deleteAll();
@@ -272,23 +265,23 @@ public void setup() {
             }
         }
     }
-   
+
     @Test
     public void testGetUserByIdNotFound() {
         // Create a test user for authentication
         Person user = new Person("authtestuser@example.com", "password123", "Auth Test User");
         personRepository.save(user);
         int userId = user.getId();
-        
+
         // Add a role for this user
         GameOwner gameOwner = new GameOwner(user);
         gameOwner.setActive(true);
         gameOwnerRepo.save(gameOwner);
-        
+
         int nonExistentUserId = 99999;
-        
+
         assertFalse(personRepository.findById(nonExistentUserId).isPresent());
-        
+
         HttpHeaders headers = new HttpHeaders();
         headers.set("User-Id", String.valueOf(userId));
         HttpEntity<?> requestEntity = new HttpEntity<>(headers);
@@ -298,38 +291,33 @@ public void setup() {
                 HttpMethod.GET,
                 requestEntity,
                 String.class);
-    
+
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
     }
 
+    @SuppressWarnings("null")
     @Test
     public void testGetAllUsers() {
         gameOwnerRepo.deleteAll();
         playerRepo.deleteAll();
         personRepository.deleteAll();
-        
+
         // Create test users
         Person user1 = new Person("getalluser1@example.com", "password123", "Get All User One");
         personRepository.save(user1);
         int user1Id = user1.getId();
-        
+
         // Add a role for this user
         GameOwner gameOwner = new GameOwner(user1);
         gameOwner.setActive(true);
         gameOwnerRepo.save(gameOwner);
-        
+
         Person user2 = new Person("getalluser2@example.com", "password456", "Get All User Two");
         personRepository.save(user2);
 
         HttpHeaders headers = new HttpHeaders();
         headers.set("User-Id", String.valueOf(user1Id));
         HttpEntity<?> requestEntity = new HttpEntity<>(headers);
-        
-        ResponseEntity<String> responseString = restTemplate.exchange(
-                createURLWithPort("/users"),
-                HttpMethod.GET,
-                requestEntity,
-                String.class);
 
         ResponseEntity<PersonResponseDto[]> response = restTemplate.exchange(
                 createURLWithPort("/users"),
@@ -339,13 +327,13 @@ public void setup() {
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody());
-        
+
         PersonResponseDto[] users = response.getBody();
         assertTrue(users.length >= 2);
-        
+
         boolean foundUser1 = false;
         boolean foundUser2 = false;
-        
+
         for (PersonResponseDto user : users) {
             if (user.getEmail().equals("getalluser1@example.com")) {
                 foundUser1 = true;
@@ -355,10 +343,11 @@ public void setup() {
                 assertEquals("Get All User Two", user.getName());
             }
         }
-        
+
         assertTrue(foundUser1, "User One should be in the response");
         assertTrue(foundUser2, "User Two should be in the response");
     }
+
     @Test
     public void testGetUserDetail_UserNotFound() throws Exception {
         int nonExistentUserId = 99999;
@@ -370,15 +359,13 @@ public void setup() {
                 createURLWithPort("/users/" + nonExistentUserId),
                 HttpMethod.GET,
                 requestEntity,
-                String.class
-        );
+                String.class);
 
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
         JsonNode jsonNode = objectMapper.readTree(response.getBody());
         assertEquals("Not Found", jsonNode.get("error").asText());
     }
-    
-    
+
     @Test
     public void testGetUserDetail_UnauthorizedAccess() throws Exception {
         Person userA = new Person("userA@example.com", "passA", "User A");
@@ -391,18 +378,16 @@ public void setup() {
         HttpEntity<?> requestEntity = new HttpEntity<>(headers);
 
         ResponseEntity<String> response = restTemplate.exchange(
-            createURLWithPort("/users/" + userB.getId()),
-            HttpMethod.GET,
-            requestEntity,
-            String.class
-        );
+                createURLWithPort("/users/" + userB.getId()),
+                HttpMethod.GET,
+                requestEntity,
+                String.class);
 
         assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
         JsonNode jsonNode = objectMapper.readTree(response.getBody());
         assertEquals("Forbidden", jsonNode.get("error").asText());
     }
 
-    
     @Test
     public void testGetUserDetail_NoHeader() throws Exception {
         int someUserId = 123;
@@ -413,8 +398,7 @@ public void setup() {
                 createURLWithPort("/users/" + someUserId),
                 HttpMethod.GET,
                 requestEntity,
-                String.class
-        );
+                String.class);
 
         assertEquals(HttpStatus.UNAUTHORIZED, response.getStatusCode());
         JsonNode jsonNode = objectMapper.readTree(response.getBody());
@@ -428,17 +412,15 @@ public void setup() {
         HttpEntity<?> requestEntity = new HttpEntity<>(headers);
 
         ResponseEntity<String> response = restTemplate.exchange(
-            createURLWithPort("/users/999"),
-            HttpMethod.GET,
-            requestEntity,
-            String.class
-        );
+                createURLWithPort("/users/999"),
+                HttpMethod.GET,
+                requestEntity,
+                String.class);
 
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
         JsonNode jsonNode = objectMapper.readTree(response.getBody());
         assertEquals("Not Found", jsonNode.get("error").asText());
     }
-
 
     @Test
     public void testGetUserDetail_nonExistentUser_returns404() throws Exception {
@@ -446,14 +428,13 @@ public void setup() {
         HttpHeaders headers = new HttpHeaders();
         headers.set("User-Id", "123");
         HttpEntity<?> requestEntity = new HttpEntity<>(headers);
-    
+
         ResponseEntity<String> response = restTemplate.exchange(
-            createURLWithPort("/users/" + nonExistentUserId),
-            HttpMethod.GET,
-            requestEntity,
-            String.class
-        );
-    
+                createURLWithPort("/users/" + nonExistentUserId),
+                HttpMethod.GET,
+                requestEntity,
+                String.class);
+
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
         JsonNode jsonNode = objectMapper.readTree(response.getBody());
         assertEquals("Not Found", jsonNode.get("error").asText());
@@ -470,16 +451,11 @@ public void setup() {
                 createURLWithPort("/users/" + nonExistentUserId),
                 HttpMethod.GET,
                 requestEntity,
-                String.class
-        );
+                String.class);
 
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
         JsonNode jsonNode = objectMapper.readTree(response.getBody());
         assertEquals("Not Found", jsonNode.get("error").asText());
     }
 
-
 }
-
-
-
