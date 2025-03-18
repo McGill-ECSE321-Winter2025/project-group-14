@@ -2,8 +2,10 @@ package ca.mcgill.ecse321.gamenight.controller;
 
 import java.util.List;
 import java.util.stream.Collectors;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -13,6 +15,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
+
 import ca.mcgill.ecse321.gamenight.dto.BorrowingRequestRequestDto;
 import ca.mcgill.ecse321.gamenight.dto.BorrowingRequestResponseDto;
 import ca.mcgill.ecse321.gamenight.exceptions.BorrowingRequestNotFoundException;
@@ -20,18 +24,10 @@ import ca.mcgill.ecse321.gamenight.exceptions.GameCopyNotFoundException;
 import ca.mcgill.ecse321.gamenight.model.BorrowingRequest;
 import ca.mcgill.ecse321.gamenight.model.BorrowingRequest.BorrowingRequestStatus;
 import ca.mcgill.ecse321.gamenight.model.GameCopy;
+import ca.mcgill.ecse321.gamenight.repo.BorrowingRequestRepository;
 import ca.mcgill.ecse321.gamenight.repo.GameCopyRepository;
 import ca.mcgill.ecse321.gamenight.service.BorrowingManagementService;
 
-/**
- * REST controller for managing borrowing requests
- * 
- * This controller handles endpoints related to sending, updating, and
- * responding
- * borrowing requests as well as retrieving borrowing requests by status,
- * lending history, and individual requests.
- * 
- */
 @RestController
 @RequestMapping("/borrowingRequests")
 public class BorrowingManagementController {
@@ -39,9 +35,13 @@ public class BorrowingManagementController {
         @Autowired
         private BorrowingManagementService borrowingManagementService;
 
+        
         @Autowired
         private GameCopyRepository gameCopyRepository;
 
+        @Autowired
+        private BorrowingRequestRepository borrowingRequestRepository;
+        
         /**
          * Create a new borrowing request.
          * 
@@ -138,10 +138,14 @@ public class BorrowingManagementController {
          * @param ownerId The ID of the game owner.
          * @return A list of lending history.
          */
-        @GetMapping("/owner/{ownerId}/lending-history")
-        public List<BorrowingRequestResponseDto> getLendingHistoryForOwner(@PathVariable int ownerId) {
+        @GetMapping("/owners/{ownerId}/lending-history")
+        public ResponseEntity<List<BorrowingRequestResponseDto>> getLendingHistoryForOwner(@PathVariable int ownerId) {
                 List<BorrowingRequest> ownerLendingHistory = borrowingManagementService.findLendingHistory(ownerId);
-                return ownerLendingHistory.stream().map(BorrowingRequestResponseDto::new).collect(Collectors.toList());
+                List<BorrowingRequestResponseDto> responseList = ownerLendingHistory.stream()
+                        .map(BorrowingRequestResponseDto::new)
+                        .collect(Collectors.toList());
+                
+                return ResponseEntity.ok(responseList);
         }
 
         /**
@@ -153,17 +157,21 @@ public class BorrowingManagementController {
          * @throws BorrowingRequestNotFoundException if no accepted borrowing request is
          *                                           found for the game copy.
          */
-
-        @GetMapping("/gameCopy/{gameCopyId}/lending-status")
-        public BorrowingRequestResponseDto getGameCopyLendingStatus(@PathVariable int gameCopyId) {
+        @GetMapping("/game-copies/{gameCopyId}/lending-status")
+        public ResponseEntity<BorrowingRequestResponseDto> getGameCopyLendingStatus(@PathVariable int gameCopyId) {
                 GameCopy gameCopy = gameCopyRepository.findById(gameCopyId)
-                                .orElseThrow(() -> new GameCopyNotFoundException(String.valueOf(gameCopyId)));
-                BorrowingRequest request = borrowingManagementService.findGameCopyLendingStatus(gameCopy);
-                if (request == null) {
-                        throw new BorrowingRequestNotFoundException(gameCopyId);
+                        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Game copy not found"));
+
+                return borrowingRequestRepository.findByGameCopy(gameCopy)
+                        .stream()
+                        .filter(request -> request.getStatus() == BorrowingRequestStatus.Accepted)
+                        .findFirst()
+                        .map(request -> ResponseEntity.ok(new BorrowingRequestResponseDto(request)))
+                        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "No active borrowing request found for this game copy"));
                 }
-                return new BorrowingRequestResponseDto(request);
-        }
+
+
+
 
         /**
          * Retrieve a borrowing request by its ID.

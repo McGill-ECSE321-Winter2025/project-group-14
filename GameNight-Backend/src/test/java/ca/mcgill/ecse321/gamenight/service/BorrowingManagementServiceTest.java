@@ -21,7 +21,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import ca.mcgill.ecse321.gamenight.exception.ObjectNotFoundException;
 import ca.mcgill.ecse321.gamenight.exceptions.BorrowingRequestNotFoundException;
 import ca.mcgill.ecse321.gamenight.exceptions.EmailSendingFailedException;
-import ca.mcgill.ecse321.gamenight.exceptions.GameCopyNotFoundException;
 import ca.mcgill.ecse321.gamenight.model.BorrowingRequest;
 import ca.mcgill.ecse321.gamenight.model.BorrowingRequest.BorrowingRequestStatus;
 import ca.mcgill.ecse321.gamenight.model.Game;
@@ -32,7 +31,7 @@ import ca.mcgill.ecse321.gamenight.model.Player;
 import ca.mcgill.ecse321.gamenight.repo.BorrowingRequestRepository;
 import ca.mcgill.ecse321.gamenight.repo.GameCopyRepository;
 import ca.mcgill.ecse321.gamenight.repo.PlayerRepository;
-import jakarta.persistence.EntityNotFoundException;
+
 
 @SpringBootTest
 public class BorrowingManagementServiceTest {
@@ -196,12 +195,12 @@ public class BorrowingManagementServiceTest {
         Date endTime = Date.valueOf("2025-03-15");
 
         when(gameCopyRepository.findById(gameCopyId)).thenReturn(Optional.empty());
-
-        Exception e = assertThrows(GameCopyNotFoundException.class, () -> {
+        
+        Exception e = assertThrows(ObjectNotFoundException.class, () -> {
             borrowingManagementService.sendBorrowingRequest(gameCopyId, senderId, startTime, endTime);
         });
-
-        String expectedMessage = "No active borrowing request found for Game Copy ID: " + gameCopyId;
+        
+        String expectedMessage = "GameCopy with id " + gameCopyId + " not found.";
         assertEquals(expectedMessage, e.getMessage());
     }
 
@@ -226,7 +225,7 @@ public class BorrowingManagementServiceTest {
 
         when(gameCopyRepository.findById(gameCopyId)).thenReturn(Optional.of(gameCopy));
         when(playerRepository.findById(senderId)).thenReturn(Optional.empty());
-
+        
         Exception e = assertThrows(ObjectNotFoundException.class, () -> {
             borrowingManagementService.sendBorrowingRequest(gameCopyId, senderId, startTime, endTime);
         });
@@ -345,7 +344,7 @@ public class BorrowingManagementServiceTest {
     void testUpdateBorrowingRequestThatDoesNotExist() {
         BorrowingRequest request = new BorrowingRequest();
         when(borrowingRequestRepository.findById(383)).thenReturn(Optional.empty());
-        assertThrows(EntityNotFoundException.class, () -> {
+        assertThrows(ObjectNotFoundException.class, () -> {
             borrowingManagementService.updateBorrowingRequestStatus(request, BorrowingRequestStatus.Accepted);
         });
         verify(borrowingRequestRepository, never()).save(any(BorrowingRequest.class));
@@ -471,8 +470,8 @@ public class BorrowingManagementServiceTest {
     public void testGetBorrowingRequestByIdInvalid() {
         int requestId = 100;
         when(borrowingRequestRepository.findById(requestId)).thenReturn(Optional.empty());
-
-        Exception e = assertThrows(BorrowingRequestNotFoundException.class, () -> {
+        
+        Exception e = assertThrows(ObjectNotFoundException.class, () -> {
             borrowingManagementService.getBorrowingRequestById(requestId);
         });
         String expectedMessage = "Borrowing request not found with ID: " + requestId;
@@ -483,12 +482,12 @@ public class BorrowingManagementServiceTest {
     public void testFindGameCopyLendingStatus_GameCopyNotFound() {
         int nonExistentGameCopyId = 999;
 
-        when(gameCopyRepository.findById(nonExistentGameCopyId)).thenReturn(Optional.empty());
-        assertThrows(GameCopyNotFoundException.class, () -> {
-            GameCopy gameCopy = gameCopyRepository.findById(nonExistentGameCopyId)
-                    .orElseThrow(() -> new GameCopyNotFoundException(String.valueOf(nonExistentGameCopyId)));
-            borrowingManagementService.findGameCopyLendingStatus(gameCopy);
-        });
+    when(gameCopyRepository.findById(nonExistentGameCopyId)).thenReturn(Optional.empty());
+    assertThrows(ObjectNotFoundException.class, () -> {
+        GameCopy gameCopy = gameCopyRepository.findById(nonExistentGameCopyId)
+            .orElseThrow(() -> new ObjectNotFoundException(String.valueOf(nonExistentGameCopyId)));
+        borrowingManagementService.findGameCopyLendingStatus(gameCopy);
+    });
         verify(gameCopyRepository).findById(nonExistentGameCopyId);
     }
 
