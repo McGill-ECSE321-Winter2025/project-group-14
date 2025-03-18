@@ -146,6 +146,11 @@ public class UserManagementService {
                 "User not found."
             ));}
 
+    public Player getPlayerById(int playerId) {
+        return playerRepository.findById(playerId)
+                .orElseThrow(() -> new RuntimeException("Person not found with ID: " + playerId));
+    }
+
     private void validateEmailAndPassword(String email, String password) {
         String cleanEmail = StringUtils.trimToNull(email);
         String cleanPassword = StringUtils.trimToNull(password);
