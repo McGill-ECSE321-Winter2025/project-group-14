@@ -12,10 +12,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import ca.mcgill.ecse321.gamenight.dto.AuthRequestDto;
 import ca.mcgill.ecse321.gamenight.dto.LoginResponseDto;
 import ca.mcgill.ecse321.gamenight.dto.PersonResponseDto;
+import ca.mcgill.ecse321.gamenight.exception.UnauthorizedException;
 import ca.mcgill.ecse321.gamenight.exceptions.ForbiddenAccessException;
-import ca.mcgill.ecse321.gamenight.exceptions.GameOwnerNotFoundException;
-import ca.mcgill.ecse321.gamenight.exceptions.UnauthedException;
-import ca.mcgill.ecse321.gamenight.exceptions.UserNotFoundException;
 import ca.mcgill.ecse321.gamenight.middleware.RequireUser;
 import ca.mcgill.ecse321.gamenight.service.UserManagementService;
 import ca.mcgill.ecse321.gamenight.model.Person;
@@ -151,7 +149,7 @@ public class UserManagementController {
 
         String headerUserId = request.getHeader("User-Id");
         if (headerUserId == null) {
-            throw new UnauthedException("No valid authentication.");
+            throw new UnauthorizedException("No valid authentication.");
 
         }
 

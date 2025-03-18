@@ -7,7 +7,7 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import ca.mcgill.ecse321.gamenight.exceptions.PlayerNotFoundException;
+import ca.mcgill.ecse321.gamenight.exception.ObjectNotFoundException;
 import ca.mcgill.ecse321.gamenight.exceptions.BorrowingRequestNotFoundException;
 import ca.mcgill.ecse321.gamenight.exceptions.GameCopyNotFoundException;
 import ca.mcgill.ecse321.gamenight.model.BorrowingRequest;
@@ -23,7 +23,7 @@ import jakarta.transaction.Transactional;
 
 @Service
 public class BorrowingManagementService {
-    
+
     @Autowired
     private BorrowingRequestRepository borrowingRequestRepository;
 
@@ -37,7 +37,7 @@ public class BorrowingManagementService {
     private EmailService emailService;
 
     @Transactional
-    public BorrowingRequest sendBorrowingRequest(int gameCopyId, int senderId, Date startTime, Date endTime){
+    public BorrowingRequest sendBorrowingRequest(int gameCopyId, int senderId, Date startTime, Date endTime) {
         Optional<GameCopy> gameCopyOpt = gameCopyRepository.findById(gameCopyId);
         if (!gameCopyOpt.isPresent()) {
             throw new GameCopyNotFoundException(String.valueOf(gameCopyId));
@@ -46,13 +46,13 @@ public class BorrowingManagementService {
 
         Optional<Player> senderOpt = playerRepository.findById(senderId);
         if (!senderOpt.isPresent()) {
-            throw new PlayerNotFoundException(senderId);
+            throw new ObjectNotFoundException("Player not found with ID: " + senderId);
         }
         Player sender = senderOpt.get();
         BorrowingRequest request = new BorrowingRequest();
         request.setGameCopy(gameCopy);
         request.setSender(sender);
-        // find current time when sending request 
+        // find current time when sending request
         Date sendTime = new Date(System.currentTimeMillis());
         request.setSendTime(sendTime);
 
@@ -63,77 +63,80 @@ public class BorrowingManagementService {
         BorrowingRequest savedRequest = borrowingRequestRepository.save(request);
 
         GameOwner owner = gameCopy.getOwner();
-       
+
         emailService.sendBorrowingRequestEmail(
-            owner.getPerson().getEmailAddress(),
-            sender.getPerson(),
-            gameCopy.getGame().getName()
-        );
-        
+                owner.getPerson().getEmailAddress(),
+                sender.getPerson(),
+                gameCopy.getGame().getName());
+
         return savedRequest;
     }
 
-   @Transactional 
-   public BorrowingRequest respondToBorrowingRequest(BorrowingRequest request, BorrowingRequestStatus status){
+    @Transactional
+    public BorrowingRequest respondToBorrowingRequest(BorrowingRequest request, BorrowingRequestStatus status) {
 
         GameCopy gameCopy = request.getGameCopy();
         GameOwner owner = gameCopy.getOwner();
         Player sender = request.getSender();
         request.setStatus(status);
-        if (status.equals(BorrowingRequestStatus.Accepted)){
-            emailService.sendRequestAcceptedEmail(sender.getPerson().getEmailAddress(),owner.getPerson().getName(),gameCopy.getGame().getName());
-        } else if (status.equals(BorrowingRequestStatus.Rejected)){
-            emailService.sendRequestRejectedEmail(sender.getPerson().getEmailAddress(),owner.getPerson().getName(),gameCopy.getGame().getName());
+        if (status.equals(BorrowingRequestStatus.Accepted)) {
+            emailService.sendRequestAcceptedEmail(sender.getPerson().getEmailAddress(), owner.getPerson().getName(),
+                    gameCopy.getGame().getName());
+        } else if (status.equals(BorrowingRequestStatus.Rejected)) {
+            emailService.sendRequestRejectedEmail(sender.getPerson().getEmailAddress(), owner.getPerson().getName(),
+                    gameCopy.getGame().getName());
         }
 
         BorrowingRequest savedRequest = borrowingRequestRepository.save(request);
-        
+
         return savedRequest;
-   }
-   
-    @Transactional //done
-    public BorrowingRequest updateBorrowingRequestStatus(BorrowingRequest request, BorrowingRequestStatus status){
+    }
+
+    @Transactional // done
+    public BorrowingRequest updateBorrowingRequestStatus(BorrowingRequest request, BorrowingRequestStatus status) {
         BorrowingRequest existingRequest = borrowingRequestRepository.findById(request.getId())
-        .orElseThrow(() -> new EntityNotFoundException("Borrowing request not found"));
+                .orElseThrow(() -> new EntityNotFoundException("Borrowing request not found"));
         existingRequest.setStatus(status);
         return borrowingRequestRepository.save(existingRequest);
     }
 
-    public List<BorrowingRequest> findDeliveredBorrowingRequestsForBorrower(int BorrowerId){
-    return borrowingRequestRepository.findAllRequestsByStatusAndSender(BorrowingRequestStatus.Delivered, BorrowerId);
+    public List<BorrowingRequest> findDeliveredBorrowingRequestsForBorrower(int BorrowerId) {
+        return borrowingRequestRepository.findAllRequestsByStatusAndSender(BorrowingRequestStatus.Delivered,
+                BorrowerId);
 
     }
 
-    public List<BorrowingRequest> findRejectedBorrowingRequestsForBorrower(int BorrowerId){
+    public List<BorrowingRequest> findRejectedBorrowingRequestsForBorrower(int BorrowerId) {
         return borrowingRequestRepository.findAllRequestsByStatusAndSender(BorrowingRequestStatus.Rejected, BorrowerId);
     }
 
     /*
-    We're assuming that borrowing  history of a borrower is the same as accepted request
-    So once the request is accepted, then we put it into the previously borrowed tab
-    */
-    public List<BorrowingRequest> findAcceptedBorrowingRequestsForBorrower(int BorrowerId){
+     * We're assuming that borrowing history of a borrower is the same as accepted
+     * request
+     * So once the request is accepted, then we put it into the previously borrowed
+     * tab
+     */
+    public List<BorrowingRequest> findAcceptedBorrowingRequestsForBorrower(int BorrowerId) {
         return borrowingRequestRepository.findAllRequestsByStatusAndSender(BorrowingRequestStatus.Accepted, BorrowerId);
     }
 
-    public List<BorrowingRequest> findLendingHistory(int ownerId){
+    public List<BorrowingRequest> findLendingHistory(int ownerId) {
         return borrowingRequestRepository.findAllRequestsByStatusAndGameOwner(BorrowingRequestStatus.Accepted, ownerId);
     }
 
-
-    public BorrowingRequest findGameCopyLendingStatus(GameCopy gameCopy){
-        List <BorrowingRequest> requests = borrowingRequestRepository.findByGameCopy(gameCopy);
-        for (BorrowingRequest request: requests){
-            if(request.getStatus() == BorrowingRequestStatus.Accepted){
+    public BorrowingRequest findGameCopyLendingStatus(GameCopy gameCopy) {
+        List<BorrowingRequest> requests = borrowingRequestRepository.findByGameCopy(gameCopy);
+        for (BorrowingRequest request : requests) {
+            if (request.getStatus() == BorrowingRequestStatus.Accepted) {
                 return request;
             }
         }
         return null;
     }
-    
+
     public BorrowingRequest getBorrowingRequestById(int requestId) {
         return borrowingRequestRepository.findById(requestId)
                 .orElseThrow(() -> new BorrowingRequestNotFoundException(requestId));
     }
-    
+
 }
