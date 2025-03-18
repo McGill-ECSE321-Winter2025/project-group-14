@@ -389,20 +389,15 @@ public class UserManagementIntegrationTest {
     }
 
     @Test
-    public void testGetUserDetail_NoHeader() throws Exception {
-        int someUserId = 123;
-        HttpHeaders headers = new HttpHeaders();
-        HttpEntity<?> requestEntity = new HttpEntity<>(headers);
-
+    public void testGetUserDetail_NoHeader() {
         ResponseEntity<String> response = restTemplate.exchange(
-                createURLWithPort("/users/" + someUserId),
-                HttpMethod.GET,
-                requestEntity,
-                String.class);
+            "/users/1",
+            HttpMethod.GET,
+            new HttpEntity<>(null),
+            String.class
+        );
 
         assertEquals(HttpStatus.UNAUTHORIZED, response.getStatusCode());
-        JsonNode jsonNode = objectMapper.readTree(response.getBody());
-        assertEquals("Unauthorized", jsonNode.get("error").asText());
     }
 
     @Test

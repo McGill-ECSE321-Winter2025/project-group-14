@@ -3,6 +3,7 @@ package ca.mcgill.ecse321.gamenight.controller;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.apache.coyote.BadRequestException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -146,11 +147,10 @@ public class UserManagementController {
      */
     @GetMapping("/users/{id}")
     public ResponseEntity<?> getUserDetail(@PathVariable int id, HttpServletRequest request) {
-
         String headerUserId = request.getHeader("User-Id");
-        if (headerUserId == null) {
-            throw new UnauthorizedException("No valid authentication.");
 
+        if (headerUserId == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("No valid authentication.");  // Ensure 401 response
         }
 
         Person authUser = userService.getUserById(Integer.parseInt(headerUserId));
@@ -158,10 +158,8 @@ public class UserManagementController {
 
         if (authUser.getId() != id) {
             throw new ForbiddenAccessException("You can only view your own profile.");
-
         }
 
         return ResponseEntity.ok(new PersonResponseDto(targetUser));
-
     }
 }
