@@ -75,4 +75,28 @@ public class BorrowingRequest {
     public GameCopy getGameCopy() {
         return gameCopy;
     }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public void setSendTime(Date sendTime) {
+        this.sendTime = sendTime;
+    }
+
+    public void setStartTime(Date startTime) {
+        this.startTime = startTime;
+    }
+
+    public void setEndTime(Date endTime) {
+        this.endTime = endTime;
+    }
+
+    public void setSender(Player sender) {
+        this.sender = sender;
+    }
+
+    public void setGameCopy(GameCopy gameCopy) {
+        this.gameCopy = gameCopy;
+    }
 }

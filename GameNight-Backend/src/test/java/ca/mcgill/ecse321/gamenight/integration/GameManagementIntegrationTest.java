@@ -87,6 +87,7 @@ public class GameManagementIntegrationTest {
         personRepository.deleteAll();
     }
 
+    @SuppressWarnings("null")
     @Test
     @Order(0)
     public void testCreateValidGame() {
@@ -102,6 +103,7 @@ public class GameManagementIntegrationTest {
         assertEquals(body.getDescription(), response.getBody().getDescription());
     }
 
+    @SuppressWarnings("null")
     @Test
     @Order(1)
     public void testCreateGameWithNoName() {
@@ -116,6 +118,7 @@ public class GameManagementIntegrationTest {
                 response.getBody().getErrors());
     }
 
+    @SuppressWarnings("null")
     @Test
     @Order(2)
     public void testFindGameByValidId() {
@@ -130,6 +133,7 @@ public class GameManagementIntegrationTest {
         assertEquals(VALID_DESCRIPTION, response.getBody().getDescription());
     }
 
+    @SuppressWarnings("null")
     @Test
     @Order(3)
     public void testUpdateGame() {
@@ -146,6 +150,7 @@ public class GameManagementIntegrationTest {
         assertEquals(NEW_DESCRIPTION, response.getBody().getDescription());
     }
 
+    @SuppressWarnings("null")
     @Test
     @Order(4)
     public void testGetMultipleGames() {
@@ -169,6 +174,7 @@ public class GameManagementIntegrationTest {
         assertEquals(createdGame2.getDescription(), game2.getDescription());
     }
 
+    @SuppressWarnings("null")
     @Test
     @Order(5)
     public void testCreateValidGameCopy() {
@@ -186,6 +192,7 @@ public class GameManagementIntegrationTest {
         assertEquals(body.getDescription(), response.getBody().getDescription());
     }
 
+    @SuppressWarnings("null")
     @Test
     @Order(6)
     public void testGetExistingGameCopy() {
@@ -200,6 +207,7 @@ public class GameManagementIntegrationTest {
         assertEquals(VALID_GAME_COPY_DESCRIPTION, response.getBody().getDescription());
     }
 
+    @SuppressWarnings("null")
     @Test
     @Order(7)
     public void testUpdateGameCopy() {
@@ -214,6 +222,7 @@ public class GameManagementIntegrationTest {
         assertEquals(body.getDescription(), response.getBody().getDescription());
     }
 
+    @SuppressWarnings("null")
     @Test
     @Order(8)
     public void testGetMultipleGameCopiesForOwner() {

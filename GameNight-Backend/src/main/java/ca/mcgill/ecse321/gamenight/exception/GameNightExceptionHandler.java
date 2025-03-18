@@ -35,7 +35,8 @@ public class GameNightExceptionHandler {
 		return new ResponseEntity<ErrorDto>(new ErrorDto(e.getMessage()), HttpStatus.CONFLICT);
 	}
 
-    @ExceptionHandler(ObjectNotFoundException.class)
+
+	@ExceptionHandler(ObjectNotFoundException.class)
 	public ResponseEntity<ErrorDto> handleObjectNotFoundException(ObjectNotFoundException e) {
 		return new ResponseEntity<ErrorDto>(new ErrorDto(e.getMessage()), HttpStatus.NOT_FOUND);
 	}
@@ -54,4 +55,3 @@ public class GameNightExceptionHandler {
 		return new ResponseEntity<ErrorDto>(new ErrorDto(errors), HttpStatus.BAD_REQUEST);
 	}
 }
-
