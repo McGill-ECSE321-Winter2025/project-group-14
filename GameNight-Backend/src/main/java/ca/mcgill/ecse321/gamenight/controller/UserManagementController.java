@@ -51,10 +51,10 @@ public class UserManagementController {
      * @return A ResponseEntity with HTTP 200 OK if the deletion is successful.
      * @throws UserNotFoundException if the user does not exist.
      */
-    @DeleteMapping("/users/{userId}")
+    @DeleteMapping("/users/{id}")
     @RequireUser
-    public ResponseEntity<?> deletePerson(@PathVariable int userId) {
-        userService.deletePerson(userId);
+    public ResponseEntity<?> deletePerson(@PathVariable int id) {
+        userService.deletePerson(id);
         return ResponseEntity.ok().build();
     }
 
@@ -150,7 +150,8 @@ public class UserManagementController {
         String headerUserId = request.getHeader("User-Id");
 
         if (headerUserId == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("No valid authentication.");  // Ensure 401 response
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("No valid authentication."); // Ensure 401
+                                                                                                    // response
         }
 
         Person authUser = userService.getUserById(Integer.parseInt(headerUserId));
