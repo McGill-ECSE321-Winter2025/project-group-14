@@ -3,6 +3,7 @@ package ca.mcgill.ecse321.gamenight.integration;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -36,10 +37,12 @@ import ca.mcgill.ecse321.gamenight.repo.GameOwnerRepository;
 import ca.mcgill.ecse321.gamenight.repo.GameRepository;
 import ca.mcgill.ecse321.gamenight.repo.PersonRepository;
 import ca.mcgill.ecse321.gamenight.repo.PlayerRepository;
+import ca.mcgill.ecse321.gamenight.service.EmailService;
 
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @TestInstance(Lifecycle.PER_CLASS)
+@MockBean(EmailService.class)
 public class BorrowingManagementIntegrationTests {
     @Autowired
     private TestRestTemplate client;
@@ -141,7 +144,7 @@ public class BorrowingManagementIntegrationTests {
     public void testSendBorrowingRequestInvalidSenderTest(){
         BorrowingRequestRequestDto requestDto = new BorrowingRequestRequestDto(START_TIME, END_TIME, 99999, validGameCopyId);
         ResponseEntity<String> response = client.postForEntity("/borrowingRequests", requestDto, String.class);
-        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
     }
 
     @Test 
