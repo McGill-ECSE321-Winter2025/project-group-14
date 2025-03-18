@@ -19,6 +19,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import ca.mcgill.ecse321.gamenight.dto.BorrowingRequestRequestDto;
 import ca.mcgill.ecse321.gamenight.dto.BorrowingRequestResponseDto;
+import ca.mcgill.ecse321.gamenight.exception.ObjectNotFoundException;
 import ca.mcgill.ecse321.gamenight.exceptions.BorrowingRequestNotFoundException;
 import ca.mcgill.ecse321.gamenight.exceptions.GameCopyNotFoundException;
 import ca.mcgill.ecse321.gamenight.model.BorrowingRequest;
@@ -167,7 +168,7 @@ public class BorrowingManagementController {
                         .filter(request -> request.getStatus() == BorrowingRequestStatus.Accepted)
                         .findFirst()
                         .map(request -> ResponseEntity.ok(new BorrowingRequestResponseDto(request)))
-                        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "No active borrowing request found for this game copy"));
+                        .orElseThrow(() -> new ObjectNotFoundException("No active borrowing request found for this game copy"));
                 }
 
 

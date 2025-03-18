@@ -9,10 +9,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.server.ResponseStatusException;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.when;
 
 import java.sql.Date;
@@ -595,8 +598,32 @@ public class BorrowingManagementIntegrationTests {
         assertTrue(found, "Created request should be found in rejected requests after using respond action");
     }
 
+    @Test
+    @Order(25)
+    public void testGetGameCopyLendingStatus_NoAcceptedBorrowingRequest() {
+        GameCopy gameCopy = new GameCopy();
+        gameCopy.setDescription("Test Game Copy");
+        gameCopy = gameCopyRepository.save(gameCopy);
 
+        BorrowingRequest rejectedRequest = new BorrowingRequest();
+        rejectedRequest.setGameCopy(gameCopy);
+        rejectedRequest.setStatus(BorrowingRequest.BorrowingRequestStatus.Rejected);
+        borrowingRequestRepository.save(rejectedRequest);
 
+        BorrowingRequest pendingRequest = new BorrowingRequest();
+        pendingRequest.setGameCopy(gameCopy);
+        pendingRequest.setStatus(BorrowingRequest.BorrowingRequestStatus.Delivered);
+        borrowingRequestRepository.save(pendingRequest);
+
+        String url = String.format("/borrowingRequests/game-copies/%d/lending-status", gameCopy.getId());
+        ResponseEntity<String> response = client.getForEntity(url, String.class);
+
+        System.out.println("Response Body: " + response.getBody());
+
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        assertTrue(response.getBody().contains("No active borrowing request found for this game copy"), 
+                "Unexpected response: " + response.getBody());
+    }
 
 }
 
