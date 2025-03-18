@@ -20,8 +20,6 @@ import org.springframework.web.server.ResponseStatusException;
 import ca.mcgill.ecse321.gamenight.dto.BorrowingRequestRequestDto;
 import ca.mcgill.ecse321.gamenight.dto.BorrowingRequestResponseDto;
 import ca.mcgill.ecse321.gamenight.exception.ObjectNotFoundException;
-import ca.mcgill.ecse321.gamenight.exceptions.BorrowingRequestNotFoundException;
-import ca.mcgill.ecse321.gamenight.exceptions.GameCopyNotFoundException;
 import ca.mcgill.ecse321.gamenight.model.BorrowingRequest;
 import ca.mcgill.ecse321.gamenight.model.BorrowingRequest.BorrowingRequestStatus;
 import ca.mcgill.ecse321.gamenight.model.GameCopy;
@@ -154,14 +152,12 @@ public class BorrowingManagementController {
          * 
          * @param gameCopyId The ID of the game copy.
          * @return borrowing request for the game copy.
-         * @throws GameCopyNotFoundException         if the game copy is not found.
-         * @throws BorrowingRequestNotFoundException if no accepted borrowing request is
-         *                                           found for the game copy.
+         * @throws ObjectNotFoundException
          */
         @GetMapping("/game-copies/{gameCopyId}/lending-status")
         public ResponseEntity<BorrowingRequestResponseDto> getGameCopyLendingStatus(@PathVariable int gameCopyId) {
                 GameCopy gameCopy = gameCopyRepository.findById(gameCopyId)
-                        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Game copy not found"));
+                        .orElseThrow(() -> new ObjectNotFoundException(HttpStatus.NOT_FOUND, "Game copy not found"));
 
                 return borrowingRequestRepository.findByGameCopy(gameCopy)
                         .stream()
