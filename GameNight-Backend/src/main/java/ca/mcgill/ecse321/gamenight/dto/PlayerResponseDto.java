@@ -18,4 +18,6 @@ public class PlayerResponseDto {
     public PersonResponseDto getPerson() {
         return person;
     }
+
 }
+

@@ -34,7 +34,7 @@ public class PersonRepositoryTest {
         reina.setPassword(password);
         reina = personRepository.save(reina);
 
-        Person reinaFromDb = personRepository.findPersonById(reina.getId());
+        Person reinaFromDb = personRepository.findPersonById(reina.getId()).orElse(null);
 
         assertNotNull(reinaFromDb);
         assertEquals(reina.getName(), reinaFromDb.getName());

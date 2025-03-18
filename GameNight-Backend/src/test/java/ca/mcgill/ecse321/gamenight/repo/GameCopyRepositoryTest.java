@@ -57,6 +57,7 @@ public class GameCopyRepositoryTest {
     public void clearDatabase() {
         gameCopyRepo.deleteAll();
         gameRepo.deleteAll();
+
         gameOwnerRepo.deleteAll();
         personRepo.deleteAll();
     }

@@ -54,9 +54,9 @@ public class ScheduledGame {
                 return false;
             }
             Key otherKey = (Key) obj;
-            return this.game.getId() == otherKey.game.getId() 
+            return this.game.getId() == otherKey.game.getId()
                     && this.event.getId() == otherKey.event.getId();
-        } 
+        }
 
         @Override
         public int hashCode() {
