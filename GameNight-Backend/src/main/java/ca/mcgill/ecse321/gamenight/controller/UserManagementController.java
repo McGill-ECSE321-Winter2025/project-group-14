@@ -86,6 +86,7 @@ public class UserManagementController {
      * @throws InvalidInputException   if no new values are provided for update.
      */
     @PutMapping("/users/{id}")
+    @RequireUser
     public ResponseEntity<?> updateUser(
             @PathVariable int id,
             @RequestParam(required = false) String newEmail,

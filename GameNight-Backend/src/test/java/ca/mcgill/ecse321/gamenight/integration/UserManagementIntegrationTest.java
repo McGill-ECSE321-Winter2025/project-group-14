@@ -168,13 +168,17 @@ public class UserManagementIntegrationTest {
 
     @Test
     public void testUpdateUserSuccess() {
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("User-Id", String.valueOf(testUserId));
+        HttpEntity<?> requestEntity = new HttpEntity<>(headers);
+
         String url = createURLWithPort(
                 "/users/" + testUserId + "?newEmail=" + NEW_EMAIL + "&oldPassword=" + ORIGINAL_PASSWORD);
 
         ResponseEntity<String> response = restTemplate.exchange(
                 url,
                 HttpMethod.PUT,
-                HttpEntity.EMPTY,
+                requestEntity,
                 String.class);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -184,13 +188,17 @@ public class UserManagementIntegrationTest {
 
     @Test
     public void testUpdateUserUnauthorized() {
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("User-Id", String.valueOf(testUserId));
+        HttpEntity<?> requestEntity = new HttpEntity<>(headers);
+
         String url = createURLWithPort(
                 "/users/" + testUserId + "?newEmail=" + NEW_EMAIL + "&oldPassword=" + WRONG_PASSWORD);
 
         ResponseEntity<String> response = restTemplate.exchange(
                 url,
                 HttpMethod.PUT,
-                HttpEntity.EMPTY,
+                requestEntity,
                 String.class);
 
         assertEquals(HttpStatus.UNAUTHORIZED, response.getStatusCode());
@@ -391,11 +399,10 @@ public class UserManagementIntegrationTest {
     @Test
     public void testGetUserDetail_NoHeader() {
         ResponseEntity<String> response = restTemplate.exchange(
-            "/users/1",
-            HttpMethod.GET,
-            new HttpEntity<>(null),
-            String.class
-        );
+                "/users/1",
+                HttpMethod.GET,
+                new HttpEntity<>(null),
+                String.class);
 
         assertEquals(HttpStatus.UNAUTHORIZED, response.getStatusCode());
     }
