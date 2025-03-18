@@ -7,12 +7,18 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.server.ResponseStatusException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.when;
 
 import java.sql.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -24,8 +30,11 @@ import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
 
+import ca.mcgill.ecse321.gamenight.controller.BorrowingManagementController;
 import ca.mcgill.ecse321.gamenight.dto.BorrowingRequestRequestDto;
 import ca.mcgill.ecse321.gamenight.dto.BorrowingRequestResponseDto;
+import ca.mcgill.ecse321.gamenight.model.BorrowingRequest;
+import ca.mcgill.ecse321.gamenight.model.BorrowingRequest.BorrowingRequestStatus;
 import ca.mcgill.ecse321.gamenight.model.Game;
 import ca.mcgill.ecse321.gamenight.model.GameCopy;
 import ca.mcgill.ecse321.gamenight.model.GameOwner;
@@ -61,6 +70,9 @@ public class BorrowingManagementIntegrationTests {
 
     @Autowired
     private PlayerRepository playerRepository;
+
+    @Autowired
+    private BorrowingManagementController borrowingManagementController;
 
     @Autowired
     private BorrowingRequestRepository borrowingRequestRepository;
@@ -426,7 +438,7 @@ public class BorrowingManagementIntegrationTests {
     public void testGetGameCopyLendingStatusGameCopyNotFound() {
         int nonExistentGameCopyId = 99999;
         
-        String lendingStatusUrl = String.format("/borrowingRequests/gameCopy/%d/lending-status", nonExistentGameCopyId);
+        String lendingStatusUrl = String.format("/borrowingRequests/game-copies/%d/lending-status", nonExistentGameCopyId);
         ResponseEntity<String> response = client.getForEntity(lendingStatusUrl, String.class);
     
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
@@ -582,5 +594,9 @@ public class BorrowingManagementIntegrationTests {
         }
         assertTrue(found, "Created request should be found in rejected requests after using respond action");
     }
+
+
+
+
 }
 
