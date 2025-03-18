@@ -9,9 +9,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import jakarta.servlet.http.HttpServletRequest;
-import ca.mcgill.ecse321.gamenight.dto.AuthRequest;
-import ca.mcgill.ecse321.gamenight.dto.LoginResponse;
+import ca.mcgill.ecse321.gamenight.dto.AuthRequestDto;
+import ca.mcgill.ecse321.gamenight.dto.LoginResponseDto;
 import ca.mcgill.ecse321.gamenight.dto.PersonResponseDto;
+import ca.mcgill.ecse321.gamenight.exceptions.ForbiddenAccessException;
+import ca.mcgill.ecse321.gamenight.exceptions.GameOwnerNotFoundException;
+import ca.mcgill.ecse321.gamenight.exceptions.UnauthedException;
+import ca.mcgill.ecse321.gamenight.exceptions.UserNotFoundException;
 import ca.mcgill.ecse321.gamenight.middleware.RequireUser;
 import ca.mcgill.ecse321.gamenight.service.UserManagementService;
 import ca.mcgill.ecse321.gamenight.model.Person;
@@ -28,14 +32,14 @@ public class UserManagementController {
 
     // tested
     /**
-     * Creates a new user. The GameOwner and Player are also generated.
+     * Add a user to the application. The GameOwner and Player are also created.
      * 
      * @param request
      * @return a ResponseEntity with HTTP status 201 (Created)
      */
     @PostMapping("/users")
     public ResponseEntity<?> createPerson(
-            @RequestBody AuthRequest request) {
+            @RequestBody AuthRequestDto request) {
         userService.createPerson(request);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
@@ -44,8 +48,9 @@ public class UserManagementController {
     /**
      * Deletes a Person by ID. The GameOwner and Player are also deleted.
      * 
-     * @param userId
-     * @return a ResponseEntity with HTTP status 200 (OK)
+     * @param userId The ID of the user to delete.
+     * @return A ResponseEntity with HTTP 200 OK if the deletion is successful.
+     * @throws UserNotFoundException if the user does not exist.
      */
     @DeleteMapping("/users/{userId}")
     @RequireUser
@@ -62,26 +67,24 @@ public class UserManagementController {
      * @return a ResponseEntity containing the login response with user ID and email
      */
     @PostMapping("/users/login")
-    public ResponseEntity<LoginResponse> login(
-            @RequestBody AuthRequest request) {
+    public ResponseEntity<LoginResponseDto> login(@RequestBody AuthRequestDto request) {
         Person user = userService.login(request);
-        return ResponseEntity.ok(
-                new LoginResponse(user.getId(), user.getEmailAddress()));
+        LoginResponseDto response = new LoginResponseDto(user.getId(), user.getEmailAddress());
+        return ResponseEntity.ok(response);
     }
 
     // tested
     /**
      * Updates a user's email or password after verifying their old password.
      *
-     * @param id
-     * @param newEmail
-     * @param newPassword
-     * @param oldPassword
-     * @return A {@link ResponseEntity}:
-     *         - 200 OK if the update is successful.
-     *         - 401 Unauthorized if the old password is incorrect.
-     *         - 404 Not Found if the user does not exist.
-     *         - 400 Bad Request if no new values are provided.
+     * @param id          The ID of the user to update.
+     * @param newEmail    The new email (optional).
+     * @param newPassword The new password (optional).
+     * @param oldPassword The user's current password for verification.
+     * @return A ResponseEntity with a success message if the update is successful.
+     * @throws UnauthedException     if the provided old password is incorrect.
+     * @throws UserNotFoundException if the user does not exist.
+     * @throws BadRequestException   if no new values are provided for update.
      */
     @PutMapping("/users/{id}")
     public ResponseEntity<?> updateUser(
@@ -99,21 +102,24 @@ public class UserManagementController {
         return ResponseEntity.ok("User updated successfully.");
     }
 
-    // Hamza will test
+    // tested
     /**
      * Toggle the role of a user. If they are a Player, they become a GameOwner.
      * If they are a GameOwner, they revert to being a Player.
      *
-     * @param id The primary key of the Person whose role is being toggled.
-     * @return HTTP 200 if successful, or an error message if failed.
+     * @param id The ID of the Person whose role is being toggled.
+     * @return A ResponseEntity with a success message.
+     * @throws GameOwnerNotFoundException if the user does not have a GameOwner
+     *                                    role.
      */
-    @PatchMapping("/users/{id}/role")
-    public ResponseEntity<String> toggleAccountRole(@PathVariable int id) {
+    @PutMapping("/users/{id}/role")
+    public ResponseEntity<?> toggleAccountRole(@PathVariable int id) {
         userService.toggleAccountRole(id);
-        return ResponseEntity.ok("User role updated successfully.");
+        return ResponseEntity.ok("Role toggled successfully.");
+
     }
 
-    // Hamza will test
+    // tested
     /**
      * Return all users in the system.
      *
@@ -128,35 +134,36 @@ public class UserManagementController {
         return ResponseEntity.ok(userDtos);
     }
 
-    // Hamza will test
+    // tested
     /**
      * Retrieves user details if the authenticated user matches the requested ID.
      *
-     * @param id
-     * @param request
-     * @return A {@link ResponseEntity} with the user's details if authorized,
-     *         otherwise a 403 Forbidden or 404 Not Found response.
+     * @param id      The ID of the user to retrieve.
+     * @param request The HTTP request containing authentication headers.
+     * @return A ResponseEntity with the user's details.
+     * @throws UnauthedException        if no authentication is provided.
+     * @throws UserNotFoundException    if the user does not exist.
+     * @throws ForbiddenAccessException if the authenticated user attempts to view
+     *                                  another user's profile.
      */
     @GetMapping("/users/{id}")
     public ResponseEntity<?> getUserDetail(@PathVariable int id, HttpServletRequest request) {
-        // Retrieve the authenticated user's ID from the request attributes
-        Integer authenticatedUserId = (Integer) request.getAttribute("userId");
 
-        if (authenticatedUserId == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized: No valid authentication.");
+        String headerUserId = request.getHeader("User-Id");
+        if (headerUserId == null) {
+            throw new UnauthedException("No valid authentication.");
+
         }
 
-        // Find the requested user by ID
-        Person person = userService.getUserById(id);
-        if (person == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found.");
+        Person authUser = userService.getUserById(Integer.parseInt(headerUserId));
+        Person targetUser = userService.getUserById(id);
+
+        if (authUser.getId() != id) {
+            throw new ForbiddenAccessException("You can only view your own profile.");
+
         }
 
-        // Ensure the authenticated user is requesting their own profile
-        if (!authenticatedUserId.equals(id)) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("You can only view your own profile.");
-        }
+        return ResponseEntity.ok(new PersonResponseDto(targetUser));
 
-        return ResponseEntity.ok(new PersonResponseDto(person));
     }
 }

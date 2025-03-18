@@ -7,10 +7,14 @@ import java.util.stream.StreamSupport;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
-import ca.mcgill.ecse321.gamenight.dto.AuthRequest;
+import ca.mcgill.ecse321.gamenight.dto.AuthRequestDto;
+import ca.mcgill.ecse321.gamenight.exceptions.BadRequestException;
 import ca.mcgill.ecse321.gamenight.exceptions.InvalidCredentialsException;
+import ca.mcgill.ecse321.gamenight.exceptions.UserNotFoundException;
 import ca.mcgill.ecse321.gamenight.exceptions.UsernameTakenException;
 import ca.mcgill.ecse321.gamenight.model.GameOwner;
 import ca.mcgill.ecse321.gamenight.model.Person;
@@ -41,7 +45,7 @@ public class UserManagementService {
     }
 
     @Transactional
-    public void createPerson(AuthRequest request) {
+    public void createPerson(AuthRequestDto request) {
         validateEmailAndPassword(
                 request.getEmailAdress(),
                 request.getPassword());
@@ -65,7 +69,7 @@ public class UserManagementService {
     }
 
     @Transactional
-    public Person login(AuthRequest request) {
+    public Person login(AuthRequestDto request) {
         validateEmailAndPassword(
                 request.getEmailAdress(),
                 request.getPassword());
@@ -84,7 +88,7 @@ public class UserManagementService {
     @Transactional
     public boolean updatePerson(int id, String oldPassword, String newEmail, String newPassword) {
         Person person = personRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
 
         // Validate old password
         if (!person.getPassword().equals(oldPassword)) {
@@ -111,7 +115,7 @@ public class UserManagementService {
     public void deletePerson(int userId) {
         Person user = personRepository
                 .findPersonById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+                .orElseThrow(() -> new BadRequestException("User not found"));
         gameOwnerRepository.delete(gameOwnerRepository.findByPersonId(userId));
         playerRepository.delete(playerRepository.findByPersonId(userId));
         personRepository.delete(user);
@@ -119,14 +123,15 @@ public class UserManagementService {
 
     @Transactional
     public void toggleAccountRole(int id) {
-        personRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Person not found with ID: " + id));
-
-        GameOwner gameOwnerRole = gameOwnerRepository.findById(id).orElse(null);
-
-        gameOwnerRole.setActive(!gameOwnerRole.isActive());
-
+        GameOwner owner = gameOwnerRepository.findById(id)
+            .orElseThrow(() -> new ResponseStatusException(
+                HttpStatus.NOT_FOUND, "GameOwner not found with ID: " + id
+            ));
+        owner.setActive(!owner.isActive());
+        gameOwnerRepository.save(owner);
     }
+
+
 
     public List<Person> getAllUsers() {
         Iterable<Person> iterable = personRepository.findAll();
@@ -136,8 +141,10 @@ public class UserManagementService {
 
     public Person getUserById(int userId) {
         return personRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("Person not found with ID: " + userId));
-    }
+            .orElseThrow(() -> new ResponseStatusException(
+                HttpStatus.NOT_FOUND,
+                "User not found."
+            ));}
 
     public Player getPlayerById(int playerId) {
         return playerRepository.findById(playerId)
@@ -149,10 +156,10 @@ public class UserManagementService {
         String cleanPassword = StringUtils.trimToNull(password);
 
         if (cleanEmail == null) {
-            throw new IllegalArgumentException("Email adress cannot be empty");
+            throw new BadRequestException("Email adress cannot be empty");
         }
         if (cleanPassword == null) {
-            throw new IllegalArgumentException("Password cannot be empty");
+            throw new BadRequestException("Password cannot be empty");
         }
 
         // pattern from:
@@ -161,7 +168,7 @@ public class UserManagementService {
                 "(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,7}$";
         Pattern p = Pattern.compile(pattern);
         if (!p.matcher(cleanEmail).matches()) {
-            throw new IllegalArgumentException("Invalid email pattern");
+            throw new BadRequestException("Invalid email pattern");
         }
     }
 

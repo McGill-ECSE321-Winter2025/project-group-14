@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import ca.mcgill.ecse321.gamenight.dto.GameCopyRequestDto;
@@ -21,6 +23,12 @@ import ca.mcgill.ecse321.gamenight.model.Game;
 import ca.mcgill.ecse321.gamenight.model.GameCopy;
 import ca.mcgill.ecse321.gamenight.service.GameManagementService;
 
+/**
+ * REST controller for managing games and game copies
+ * 
+ * This controller handles endpoints related to creating, accessing, updating,
+ * and deleting games and game copies.
+ */
 @RestController
 public class GameManagementController {
 
@@ -33,7 +41,8 @@ public class GameManagementController {
      * @param game The game to create
      * @return The created game
      */
-    @PostMapping("/games/")
+    @PostMapping("/games")
+    @ResponseStatus(HttpStatus.CREATED)
     public GameResponseDto createGame(@RequestBody GameRequestDto game) {
         Game g = gameManagementService.createGame(game.getName(), game.getDescription());
         return new GameResponseDto(g);
@@ -43,7 +52,7 @@ public class GameManagementController {
      * Return the game with the given ID
      * 
      * @param id The primary key of the game to find
-     * @return The person with the given ID
+     * @return The game with the given ID
      */
     @GetMapping("/games/{id}")
     public GameResponseDto findGameById(@PathVariable int id) {
@@ -85,9 +94,10 @@ public class GameManagementController {
      * @param gameCopy The game copy to create
      * @return The created game copy
      */
-    @PostMapping("/gamecopies/")
+    @PostMapping("/game-copies/")
+    @ResponseStatus(HttpStatus.CREATED)
     public GameCopyResponseDto createGameCopy(@RequestBody GameCopyRequestDto gameCopy) {
-        GameCopy g = gameManagementService.addGameCopy(gameCopy.getDescription(), gameCopy.getGameId(), gameCopy.getOwnerId());
+        GameCopy g = gameManagementService.createGameCopy(gameCopy.getDescription(), gameCopy.getGameId(), gameCopy.getOwnerId());
         return new GameCopyResponseDto(g);
     }
 
@@ -97,7 +107,7 @@ public class GameManagementController {
      * @param id The primary key of the game copy
      * @return The game copy with the given ID
      */
-    @GetMapping("/gamecopies/{id}")
+    @GetMapping("/game-copies/{id}")
     public GameCopyResponseDto findGameCopyById(@PathVariable int id) {
         GameCopy g = gameManagementService.findGameCopyById(id);
         return new GameCopyResponseDto(g);
@@ -110,7 +120,7 @@ public class GameManagementController {
      * @param gameCopy The updated game copy information
      * @return The updated game copy
      */
-    @PutMapping("/gamecopies/{id}")
+    @PutMapping("/game-copies/{id}")
     public GameCopyResponseDto updateGameCopy(@PathVariable int id, @RequestBody GameCopyRequestDto gameCopy) {
         GameCopy g = gameManagementService.updateGameCopy(id, gameCopy.getDescription());
         return new GameCopyResponseDto(g);
@@ -122,7 +132,7 @@ public class GameManagementController {
      * @param ownerId The primary key of the game owner
      * @return The game copies of the given game owner
      */
-    @GetMapping("/gamecopies/")
+    @GetMapping("/game-copies")
     public ArrayList<GameCopyResponseDto> findGameCopyByOwner(@RequestParam(name = "owner_id") int ownerId) {
         ArrayList<GameCopyResponseDto> games = new ArrayList<>();
         Iterator<GameCopy> iterator = gameManagementService.findGameCopiesByOwner(ownerId).iterator();
@@ -137,7 +147,8 @@ public class GameManagementController {
      * 
      * @param id The primary key of the game copy to delete
      */
-    @DeleteMapping("/gamecopies/{id}")
+    @DeleteMapping("/game-copies/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteGameCopy(@PathVariable int id) {
         gameManagementService.deleteGameCopy(id);
     }

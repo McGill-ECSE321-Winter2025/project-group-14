@@ -1,9 +1,9 @@
 plugins {
     id 'java'
-    id 'org.springframework.boot' version '3.4.0'
-    id 'io.spring.dependency-management' version '1.1.6'
+    id 'org.springframework.boot' version '3.4.2'
+    id 'io.spring.dependency-management' version '1.1.7'
     id 'io.freefair.lombok' version '8.11'
-	id 'jacoco'
+    id 'jacoco'
 }
  
 group = 'ca.mcgill.ecse321'
@@ -20,8 +20,7 @@ repositories {
 }
 
 dependencies {
-    implementation 'org.springframework.boot:spring-boot-starter-validation' 
-    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
     implementation 'org.projectlombok:lombok'
@@ -31,6 +30,12 @@ dependencies {
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'com.h2database:h2'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+	implementation 'org.springframework.boot:spring-boot-starter-mail'
+    implementation 'jakarta.validation:jakarta.validation-api:3.0.2'
+	// API docs
+	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.5'
+	annotationProcessor 'com.github.therapi:therapi-runtime-javadoc-scribe:0.13.0'
+	implementation 'com.github.therapi:therapi-runtime-javadoc:0.13.0'
 }
 
 tasks.named('test') {
@@ -39,9 +44,18 @@ tasks.named('test') {
 		exceptionFormat = 'full'
 		events "passed", "skipped", "failed"
 	}
+
+	finalizedBy jacocoTestReport
+
+}
+tasks.named('jacocoTestReport') {
+    dependsOn test
 }
 
 tasks.named('jacocoTestReport') {
 	dependsOn test
 }
 
+tasks.named('jacocoTestReport') {
+    dependsOn test // tests are required to run before generating the report
+}
