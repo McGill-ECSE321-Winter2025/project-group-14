@@ -411,13 +411,14 @@ public class UserManagementIntegrationTest {
         assertEquals("You can only view your own profile.", errorsNode.get(0).asText());
     }
 
-    @SuppressWarnings("null")
     @Test
-    public void testGetUserDetail_NoHeader() {
+    public void testGetUserDetail_NoIdInHeader() {
+        HttpEntity<?> requestEntity = new HttpEntity<>(new HttpHeaders());
+
         ResponseEntity<String> response = restTemplate.exchange(
                 "/users/1",
                 HttpMethod.GET,
-                new HttpEntity<>(null),
+                requestEntity,
                 String.class);
 
         assertEquals(HttpStatus.UNAUTHORIZED, response.getStatusCode());

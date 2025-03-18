@@ -151,11 +151,6 @@ public class UserManagementController {
     public ResponseEntity<?> getUserDetail(@PathVariable int id, HttpServletRequest request) {
         String headerUserId = request.getHeader("User-Id");
 
-        if (headerUserId == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("No valid authentication."); // Ensure 401
-                                                                                                    // response
-        }
-
         Person authUser = userService.getUserById(Integer.parseInt(headerUserId));
         Person targetUser = userService.getUserById(id);
 
