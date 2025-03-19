@@ -2,6 +2,7 @@ package ca.mcgill.ecse321.gamenight.service;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
@@ -45,6 +46,9 @@ public class BorrowingManagementServiceTest {
 
     @Mock
     private EmailService emailService;
+
+    @InjectMocks
+    private UserManagementService userManagementService;
 
     @InjectMocks
     private BorrowingManagementService borrowingManagementService;
@@ -528,7 +532,6 @@ public class BorrowingManagementServiceTest {
 
     @Test
     void testRespondToBorrowingRequest_OtherStatus() {
-
     BorrowingRequest request = new BorrowingRequest();
     request.setId(1);
     request.setStatus(BorrowingRequestStatus.Delivered);
@@ -564,5 +567,37 @@ public class BorrowingManagementServiceTest {
     verify(emailService, never()).sendRequestAcceptedEmail(anyString(), anyString(), anyString());
     verify(emailService, never()).sendRequestRejectedEmail(anyString(), anyString(), anyString());
 }
+
+@Test
+public void testGetPlayerById_PlayerExists() {
+    int playerId = 1;
+    Person person = new Person();
+    person.setName("Test User");
+    person.setEmailAddress("test@example.com");
+
+    Player player = new Player();
+    player.setPerson(person);
+
+    when(playerRepository.findById(playerId)).thenReturn(Optional.of(player));
+
+    Player result = userManagementService.getPlayerById(playerId);
+
+    assertNotNull(result, "Expected a Player object, but got null.");
+    assertEquals(person.getName(), result.getPerson().getName());
+}
+
+@Test
+public void testGetPlayerById_PlayerDoesNotExist() {
+    int playerId = 999;
+
+    when(playerRepository.findById(playerId)).thenReturn(Optional.empty());
+
+    Exception exception = assertThrows(RuntimeException.class, 
+        () -> userManagementService.getPlayerById(playerId));
+
+    assertEquals("Person not found with ID: " + playerId, exception.getMessage());
+}
+
+
 
 }
