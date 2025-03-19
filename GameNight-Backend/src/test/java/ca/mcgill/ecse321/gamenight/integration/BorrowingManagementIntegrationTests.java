@@ -4,6 +4,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
@@ -71,6 +74,7 @@ public class BorrowingManagementIntegrationTests {
         private int validSenderId;
         private int validGameCopyId;
         private GameOwner createdGameOwner;
+        private int senderUserId;
 
         private static final String VALID_EMAIL1 = "johnash@gmail.com";
         private static final String VALID_EMAIL2 = "sender@gmail.com";
@@ -83,6 +87,12 @@ public class BorrowingManagementIntegrationTests {
         private static final String VALID_NAME2 = "jane doe";
         private static final Date START_TIME = Date.valueOf("2025-01-05");
         private static final Date END_TIME = Date.valueOf("2025-01-10");
+
+        private <T> HttpEntity<T> createRequestWithHeaders(T body, int userId) {
+                HttpHeaders headers = new HttpHeaders();
+                headers.set("User-Id", String.valueOf(userId));
+                return new HttpEntity<>(body, headers);
+        }
 
         @BeforeAll
         public void setup() {
@@ -103,6 +113,7 @@ public class BorrowingManagementIntegrationTests {
                 Player sender = new Player(senderPerson);
                 sender = playerRepository.save(sender);
                 validSenderId = sender.getId();
+                senderUserId = sender.getPerson().getId();
         }
 
         @BeforeEach
@@ -126,8 +137,13 @@ public class BorrowingManagementIntegrationTests {
 
                 BorrowingRequestRequestDto request = new BorrowingRequestRequestDto(START_TIME, END_TIME, validSenderId,
                                 validGameCopyId);
-                ResponseEntity<BorrowingRequestResponseDto> response = client.postForEntity("/borrowingRequests",
-                                request,
+
+                HttpEntity<BorrowingRequestRequestDto> requestEntity = createRequestWithHeaders(request, senderUserId);
+
+                ResponseEntity<BorrowingRequestResponseDto> response = client.exchange(
+                                "/borrowingRequests",
+                                HttpMethod.POST,
+                                requestEntity,
                                 BorrowingRequestResponseDto.class);
 
                 assertNotNull(response);
@@ -143,7 +159,13 @@ public class BorrowingManagementIntegrationTests {
                 BorrowingRequestRequestDto requestDto = new BorrowingRequestRequestDto(START_TIME, END_TIME,
                                 validSenderId,
                                 99999);
-                ResponseEntity<String> response = client.postForEntity("/borrowingRequests", requestDto, String.class);
+
+                HttpEntity<BorrowingRequestRequestDto> requestEntity = createRequestWithHeaders(requestDto,
+                                senderUserId);
+
+                ResponseEntity<String> response = client.exchange("/borrowingRequests", HttpMethod.POST, requestEntity,
+                                String.class);
+
                 assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
         }
 
@@ -152,7 +174,10 @@ public class BorrowingManagementIntegrationTests {
         public void testSendBorrowingRequestInvalidSenderTest() {
                 BorrowingRequestRequestDto requestDto = new BorrowingRequestRequestDto(START_TIME, END_TIME, 99999,
                                 validGameCopyId);
-                ResponseEntity<String> response = client.postForEntity("/borrowingRequests", requestDto, String.class);
+                HttpEntity<BorrowingRequestRequestDto> requestEntity = createRequestWithHeaders(requestDto,
+                                senderUserId);
+                ResponseEntity<String> response = client.exchange("/borrowingRequests", HttpMethod.POST, requestEntity,
+                                String.class);
                 assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
         }
 
@@ -163,13 +188,23 @@ public class BorrowingManagementIntegrationTests {
                 BorrowingRequestRequestDto requestDto = new BorrowingRequestRequestDto(START_TIME, END_TIME,
                                 validSenderId,
                                 validGameCopyId);
-                ResponseEntity<BorrowingRequestResponseDto> response = client.postForEntity("/borrowingRequests",
-                                requestDto,
+                HttpEntity<BorrowingRequestRequestDto> requestEntity = createRequestWithHeaders(requestDto,
+                                senderUserId);
+                ResponseEntity<BorrowingRequestResponseDto> response = client.exchange(
+                                "/borrowingRequests",
+                                HttpMethod.POST,
+                                requestEntity,
                                 BorrowingRequestResponseDto.class);
+
                 assertEquals(HttpStatus.CREATED, response.getStatusCode());
 
+                HttpEntity<?> requestEntity2 = createRequestWithHeaders(null, senderUserId);
                 String url = String.format("/borrowingRequests/%d/status/delivered", validSenderId);
-                ResponseEntity<BorrowingRequestResponseDto[]> getResponse = client.getForEntity(url,
+
+                ResponseEntity<BorrowingRequestResponseDto[]> getResponse = client.exchange(
+                                url,
+                                HttpMethod.GET,
+                                requestEntity2,
                                 BorrowingRequestResponseDto[].class);
                 assertEquals(HttpStatus.OK, getResponse.getStatusCode());
                 BorrowingRequestResponseDto[] requests = getResponse.getBody();
@@ -180,33 +215,51 @@ public class BorrowingManagementIntegrationTests {
         @Test
         @Order(4)
         public void testFindDeliveredRequestsForBorrowerInvalid() {
+                int invalidBorrowerId = 9999;
 
-                String url = String.format("/borrowingRequests/%d/status/delivered", 9999);
-                ResponseEntity<BorrowingRequestResponseDto[]> getResponse = client.getForEntity(url,
+                HttpEntity<?> requestEntity = createRequestWithHeaders(null, senderUserId);
+                String url = String.format("/borrowingRequests/%d/status/delivered", invalidBorrowerId);
+
+                ResponseEntity<BorrowingRequestResponseDto[]> getResponse = client.exchange(
+                                url,
+                                HttpMethod.GET,
+                                requestEntity,
                                 BorrowingRequestResponseDto[].class);
+
                 assertEquals(HttpStatus.OK, getResponse.getStatusCode());
                 BorrowingRequestResponseDto[] requests = getResponse.getBody();
                 assertNotNull(requests);
-                assertEquals(0, requests.length, "Expected no delivered requests for borrower ID " + 9999);
+                assertEquals(0, requests.length, "Expected no delivered requests for borrower ID " + invalidBorrowerId);
         }
 
         @Test
         @Order(5)
         public void testFindRejectedRequestsForBorrowerValid() {
-
                 BorrowingRequestRequestDto requestDto = new BorrowingRequestRequestDto(START_TIME, END_TIME,
-                                validSenderId,
-                                validGameCopyId);
-                ResponseEntity<BorrowingRequestResponseDto> postResponse = client.postForEntity("/borrowingRequests",
-                                requestDto, BorrowingRequestResponseDto.class);
+                                validSenderId, validGameCopyId);
+
+                HttpEntity<BorrowingRequestRequestDto> requestEntity = createRequestWithHeaders(requestDto,
+                                senderUserId);
+                ResponseEntity<BorrowingRequestResponseDto> postResponse = client.exchange(
+                                "/borrowingRequests",
+                                HttpMethod.POST,
+                                requestEntity,
+                                BorrowingRequestResponseDto.class);
+
                 assertEquals(HttpStatus.CREATED, postResponse.getStatusCode());
                 BorrowingRequestResponseDto createdRequest = postResponse.getBody();
                 assertNotNull(createdRequest);
 
                 String updateUrl = String.format("/borrowingRequests/%d/status?status=Rejected",
                                 createdRequest.getId());
-                ResponseEntity<BorrowingRequestResponseDto> updateResponse = client.exchange(updateUrl,
-                                org.springframework.http.HttpMethod.PUT, null, BorrowingRequestResponseDto.class);
+                HttpEntity<?> updateRequest = createRequestWithHeaders(null, senderUserId);
+
+                ResponseEntity<BorrowingRequestResponseDto> updateResponse = client.exchange(
+                                updateUrl,
+                                HttpMethod.PUT,
+                                updateRequest,
+                                BorrowingRequestResponseDto.class);
+
                 assertEquals(HttpStatus.OK, updateResponse.getStatusCode());
         }
 
@@ -214,9 +267,16 @@ public class BorrowingManagementIntegrationTests {
         @Order(6)
         public void testFindRejectedRequestsForBorrowerInvalid() {
                 int invalidBorrowerId = 77777;
+
+                HttpEntity<?> requestEntity = createRequestWithHeaders(null, senderUserId);
                 String url = String.format("/borrowingRequests/%d/status/rejected", invalidBorrowerId);
-                ResponseEntity<BorrowingRequestResponseDto[]> response = client.getForEntity(url,
+
+                ResponseEntity<BorrowingRequestResponseDto[]> response = client.exchange(
+                                url,
+                                HttpMethod.GET,
+                                requestEntity,
                                 BorrowingRequestResponseDto[].class);
+
                 assertEquals(HttpStatus.OK, response.getStatusCode());
                 BorrowingRequestResponseDto[] requests = response.getBody();
                 assertNotNull(requests);
@@ -227,28 +287,48 @@ public class BorrowingManagementIntegrationTests {
         @Order(7)
         public void testFindAcceptedRequestsForBorrowerValid() {
                 BorrowingRequestRequestDto requestDto = new BorrowingRequestRequestDto(START_TIME, END_TIME,
-                                validSenderId,
-                                validGameCopyId);
-                ResponseEntity<BorrowingRequestResponseDto> postResponse = client.postForEntity("/borrowingRequests",
-                                requestDto, BorrowingRequestResponseDto.class);
+                                validSenderId, validGameCopyId);
+
+                HttpEntity<BorrowingRequestRequestDto> requestEntity = createRequestWithHeaders(requestDto,
+                                senderUserId);
+                ResponseEntity<BorrowingRequestResponseDto> postResponse = client.exchange(
+                                "/borrowingRequests",
+                                HttpMethod.POST,
+                                requestEntity,
+                                BorrowingRequestResponseDto.class);
+
                 assertEquals(HttpStatus.CREATED, postResponse.getStatusCode());
                 BorrowingRequestResponseDto createdRequest = postResponse.getBody();
                 assertNotNull(createdRequest);
 
                 String updateUrl = String.format("/borrowingRequests/%d/status?status=Accepted",
                                 createdRequest.getId());
-                ResponseEntity<BorrowingRequestResponseDto> updateResponse = client.exchange(updateUrl,
-                                org.springframework.http.HttpMethod.PUT, null, BorrowingRequestResponseDto.class);
-                assertEquals(HttpStatus.OK, updateResponse.getStatusCode());
+                HttpEntity<?> updateRequest = createRequestWithHeaders(null, senderUserId);
 
+                ResponseEntity<BorrowingRequestResponseDto> updateResponse = client.exchange(
+                                updateUrl,
+                                HttpMethod.PUT,
+                                updateRequest,
+                                BorrowingRequestResponseDto.class);
+
+                assertEquals(HttpStatus.OK, updateResponse.getStatusCode());
         }
 
         @Test
         @Order(8)
+
         public void testFindAcceptedRequestsForBorrowerInvalid() {
-                String url = String.format("/borrowingRequests/%d/status/accepted", 77777);
-                ResponseEntity<BorrowingRequestResponseDto[]> response = client.getForEntity(url,
+                int invalidBorrowerId = 77777;
+
+                HttpEntity<?> requestEntity = createRequestWithHeaders(null, senderUserId);
+                String url = String.format("/borrowingRequests/%d/status/accepted", invalidBorrowerId);
+
+                ResponseEntity<BorrowingRequestResponseDto[]> response = client.exchange(
+                                url,
+                                HttpMethod.GET,
+                                requestEntity,
                                 BorrowingRequestResponseDto[].class);
+
                 assertEquals(HttpStatus.OK, response.getStatusCode());
                 BorrowingRequestResponseDto[] requests = response.getBody();
                 assertNotNull(requests);
@@ -259,17 +339,29 @@ public class BorrowingManagementIntegrationTests {
         @Order(9)
         public void testGetBorrowingRequestByIdValid() {
                 BorrowingRequestRequestDto requestDto = new BorrowingRequestRequestDto(START_TIME, END_TIME,
-                                validSenderId,
-                                validGameCopyId);
-                ResponseEntity<BorrowingRequestResponseDto> createResponse = client.postForEntity("/borrowingRequests",
-                                requestDto, BorrowingRequestResponseDto.class);
+                                validSenderId, validGameCopyId);
+
+                HttpEntity<BorrowingRequestRequestDto> requestEntity = createRequestWithHeaders(requestDto,
+                                senderUserId);
+                ResponseEntity<BorrowingRequestResponseDto> createResponse = client.exchange(
+                                "/borrowingRequests",
+                                HttpMethod.POST,
+                                requestEntity,
+                                BorrowingRequestResponseDto.class);
+
                 assertEquals(HttpStatus.CREATED, createResponse.getStatusCode());
                 BorrowingRequestResponseDto created = createResponse.getBody();
                 assertNotNull(created);
 
+                HttpEntity<?> getRequestEntity = createRequestWithHeaders(null, senderUserId);
                 String url = String.format("/borrowingRequests/%d", created.getId());
-                ResponseEntity<BorrowingRequestResponseDto> getResponse = client.getForEntity(url,
+
+                ResponseEntity<BorrowingRequestResponseDto> getResponse = client.exchange(
+                                url,
+                                HttpMethod.GET,
+                                getRequestEntity,
                                 BorrowingRequestResponseDto.class);
+
                 assertEquals(HttpStatus.OK, getResponse.getStatusCode());
                 BorrowingRequestResponseDto fetched = getResponse.getBody();
                 assertNotNull(fetched);
@@ -279,8 +371,15 @@ public class BorrowingManagementIntegrationTests {
         @Test
         @Order(10)
         public void testGetBorrowingRequestByIdInvalid() {
+                HttpEntity<?> requestEntity = createRequestWithHeaders(null, senderUserId);
                 String url = String.format("/borrowingRequests/%d", 99999);
-                ResponseEntity<String> response = client.getForEntity(url, String.class);
+
+                ResponseEntity<String> response = client.exchange(
+                                url,
+                                HttpMethod.GET,
+                                requestEntity,
+                                String.class);
+
                 assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
         }
 
@@ -288,17 +387,30 @@ public class BorrowingManagementIntegrationTests {
         @Order(11)
         public void testRespondToBorrowingRequestAccepted() {
                 BorrowingRequestRequestDto requestDto = new BorrowingRequestRequestDto(START_TIME, END_TIME,
-                                validSenderId,
-                                validGameCopyId);
-                ResponseEntity<BorrowingRequestResponseDto> createResponse = client.postForEntity("/borrowingRequests",
-                                requestDto, BorrowingRequestResponseDto.class);
+                                validSenderId, validGameCopyId);
+
+                HttpEntity<BorrowingRequestRequestDto> requestEntity = createRequestWithHeaders(requestDto,
+                                senderUserId);
+                ResponseEntity<BorrowingRequestResponseDto> createResponse = client.exchange(
+                                "/borrowingRequests",
+                                HttpMethod.POST,
+                                requestEntity,
+                                BorrowingRequestResponseDto.class);
+
                 assertEquals(HttpStatus.CREATED, createResponse.getStatusCode());
                 BorrowingRequestResponseDto createdRequest = createResponse.getBody();
                 assertNotNull(createdRequest);
+
                 String updateUrl = String.format("/borrowingRequests/%d/status?status=Accepted",
                                 createdRequest.getId());
-                ResponseEntity<BorrowingRequestResponseDto> response = client.exchange(updateUrl,
-                                org.springframework.http.HttpMethod.PUT, null, BorrowingRequestResponseDto.class);
+                HttpEntity<?> updateRequest = createRequestWithHeaders(null, senderUserId);
+
+                ResponseEntity<BorrowingRequestResponseDto> response = client.exchange(
+                                updateUrl,
+                                HttpMethod.PUT,
+                                updateRequest,
+                                BorrowingRequestResponseDto.class);
+
                 assertEquals(HttpStatus.OK, response.getStatusCode());
                 BorrowingRequestResponseDto updated = response.getBody();
                 assertNotNull(updated);
@@ -308,17 +420,30 @@ public class BorrowingManagementIntegrationTests {
         @Order(12)
         public void testRespondToBorrowingRequestRejected() {
                 BorrowingRequestRequestDto requestDto = new BorrowingRequestRequestDto(START_TIME, END_TIME,
-                                validSenderId,
-                                validGameCopyId);
-                ResponseEntity<BorrowingRequestResponseDto> createResponse = client.postForEntity("/borrowingRequests",
-                                requestDto, BorrowingRequestResponseDto.class);
+                                validSenderId, validGameCopyId);
+
+                HttpEntity<BorrowingRequestRequestDto> requestEntity = createRequestWithHeaders(requestDto,
+                                senderUserId);
+                ResponseEntity<BorrowingRequestResponseDto> createResponse = client.exchange(
+                                "/borrowingRequests",
+                                HttpMethod.POST,
+                                requestEntity,
+                                BorrowingRequestResponseDto.class);
+
                 assertEquals(HttpStatus.CREATED, createResponse.getStatusCode());
                 BorrowingRequestResponseDto createdRequest = createResponse.getBody();
                 assertNotNull(createdRequest);
+
                 String updateUrl = String.format("/borrowingRequests/%d/status?status=Rejected",
                                 createdRequest.getId());
-                ResponseEntity<BorrowingRequestResponseDto> response = client.exchange(updateUrl,
-                                org.springframework.http.HttpMethod.PUT, null, BorrowingRequestResponseDto.class);
+                HttpEntity<?> updateRequest = createRequestWithHeaders(null, senderUserId);
+
+                ResponseEntity<BorrowingRequestResponseDto> response = client.exchange(
+                                updateUrl,
+                                HttpMethod.PUT,
+                                updateRequest,
+                                BorrowingRequestResponseDto.class);
+
                 assertEquals(HttpStatus.OK, response.getStatusCode());
                 BorrowingRequestResponseDto updated = response.getBody();
                 assertNotNull(updated);
@@ -326,92 +451,146 @@ public class BorrowingManagementIntegrationTests {
 
         @Test
         @Order(13)
-        void testUpdateBorrowingRequestToAccepted() {
+        public void testUpdateBorrowingRequestToAccepted() {
                 BorrowingRequestRequestDto requestDto = new BorrowingRequestRequestDto(START_TIME, END_TIME,
-                                validSenderId,
-                                validGameCopyId);
-                ResponseEntity<BorrowingRequestResponseDto> createResponse = client.postForEntity("/borrowingRequests",
-                                requestDto, BorrowingRequestResponseDto.class);
+                                validSenderId, validGameCopyId);
+                HttpEntity<BorrowingRequestRequestDto> requestEntity = createRequestWithHeaders(requestDto,
+                                senderUserId);
+
+                ResponseEntity<BorrowingRequestResponseDto> createResponse = client.exchange(
+                                "/borrowingRequests",
+                                HttpMethod.POST,
+                                requestEntity,
+                                BorrowingRequestResponseDto.class);
+
                 assertEquals(HttpStatus.CREATED, createResponse.getStatusCode());
                 BorrowingRequestResponseDto createdRequest = createResponse.getBody();
                 assertNotNull(createdRequest);
+
                 String updateUrlRejected = String.format("/borrowingRequests/%d/status?status=Rejected",
                                 createdRequest.getId());
-                ResponseEntity<BorrowingRequestResponseDto> rejectedResponse = client.exchange(updateUrlRejected,
-                                org.springframework.http.HttpMethod.PUT, null, BorrowingRequestResponseDto.class);
+                HttpEntity<?> updateRequest = createRequestWithHeaders(null, senderUserId);
+
+                ResponseEntity<BorrowingRequestResponseDto> rejectedResponse = client.exchange(
+                                updateUrlRejected,
+                                HttpMethod.PUT,
+                                updateRequest,
+                                BorrowingRequestResponseDto.class);
+
                 assertEquals(HttpStatus.OK, rejectedResponse.getStatusCode());
+
                 String updateUrlAccepted = String.format("/borrowingRequests/%d/status?status=Accepted",
                                 createdRequest.getId());
-                ResponseEntity<BorrowingRequestResponseDto> acceptedResponse = client.exchange(updateUrlAccepted,
-                                org.springframework.http.HttpMethod.PUT, null, BorrowingRequestResponseDto.class);
+                ResponseEntity<BorrowingRequestResponseDto> acceptedResponse = client.exchange(
+                                updateUrlAccepted,
+                                HttpMethod.PUT,
+                                updateRequest,
+                                BorrowingRequestResponseDto.class);
+
                 assertEquals(HttpStatus.OK, acceptedResponse.getStatusCode());
                 BorrowingRequestResponseDto updated = acceptedResponse.getBody();
                 assertNotNull(updated);
-
         }
 
         @Test
         @Order(14)
-        void testUpdateBorrowingRequestToRejected() {
+        public void testUpdateBorrowingRequestToRejected() {
                 BorrowingRequestRequestDto requestDto = new BorrowingRequestRequestDto(START_TIME, END_TIME,
-                                validSenderId,
-                                validGameCopyId);
-                ResponseEntity<BorrowingRequestResponseDto> createResponse = client.postForEntity("/borrowingRequests",
-                                requestDto, BorrowingRequestResponseDto.class);
+                                validSenderId, validGameCopyId);
+                HttpEntity<BorrowingRequestRequestDto> requestEntity = createRequestWithHeaders(requestDto,
+                                senderUserId);
+
+                ResponseEntity<BorrowingRequestResponseDto> createResponse = client.exchange(
+                                "/borrowingRequests",
+                                HttpMethod.POST,
+                                requestEntity,
+                                BorrowingRequestResponseDto.class);
+
                 assertEquals(HttpStatus.CREATED, createResponse.getStatusCode());
                 BorrowingRequestResponseDto createdRequest = createResponse.getBody();
                 assertNotNull(createdRequest);
+
                 String updateUrlAccepted = String.format("/borrowingRequests/%d/status?status=Accepted",
                                 createdRequest.getId());
-                ResponseEntity<BorrowingRequestResponseDto> acceptedResponse = client.exchange(updateUrlAccepted,
-                                org.springframework.http.HttpMethod.PUT, null, BorrowingRequestResponseDto.class);
+                HttpEntity<?> updateRequest = createRequestWithHeaders(null, senderUserId);
+
+                ResponseEntity<BorrowingRequestResponseDto> acceptedResponse = client.exchange(
+                                updateUrlAccepted,
+                                HttpMethod.PUT,
+                                updateRequest,
+                                BorrowingRequestResponseDto.class);
+
                 assertEquals(HttpStatus.OK, acceptedResponse.getStatusCode());
+
                 String updateUrlRejected = String.format("/borrowingRequests/%d/status?status=Rejected",
                                 createdRequest.getId());
-                ResponseEntity<BorrowingRequestResponseDto> rejectedResponse = client.exchange(updateUrlRejected,
-                                org.springframework.http.HttpMethod.PUT, null, BorrowingRequestResponseDto.class);
+                ResponseEntity<BorrowingRequestResponseDto> rejectedResponse = client.exchange(
+                                updateUrlRejected,
+                                HttpMethod.PUT,
+                                updateRequest,
+                                BorrowingRequestResponseDto.class);
+
                 assertEquals(HttpStatus.OK, rejectedResponse.getStatusCode());
                 BorrowingRequestResponseDto updated = rejectedResponse.getBody();
                 assertNotNull(updated);
-
         }
 
         @Test
         @Order(15)
-        void testUpdateBorrowingRequestThatDoesNotExist() {
+        public void testUpdateBorrowingRequestThatDoesNotExist() {
                 String updateUrl = String.format("/borrowingRequests/%d/status?status=Accepted", 99999);
-                ResponseEntity<String> response = client.exchange(updateUrl, org.springframework.http.HttpMethod.PUT,
-                                null,
-                                String.class);
-                assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+                HttpEntity<?> requestEntity = createRequestWithHeaders(null, senderUserId);
 
+                ResponseEntity<String> response = client.exchange(
+                                updateUrl,
+                                HttpMethod.PUT,
+                                requestEntity,
+                                String.class);
+
+                assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
         }
 
         @Test
         @Order(16)
         public void testGetLendingHistoryForOwnerValid() {
                 BorrowingRequestRequestDto requestDto = new BorrowingRequestRequestDto(START_TIME, END_TIME,
-                                validSenderId,
-                                validGameCopyId);
-                ResponseEntity<BorrowingRequestResponseDto> createResponse = client.postForEntity("/borrowingRequests",
-                                requestDto, BorrowingRequestResponseDto.class);
-                assertEquals(HttpStatus.CREATED, createResponse.getStatusCode());
+                                validSenderId, validGameCopyId);
+                HttpEntity<BorrowingRequestRequestDto> requestEntity = createRequestWithHeaders(requestDto,
+                                senderUserId);
 
+                ResponseEntity<BorrowingRequestResponseDto> createResponse = client.exchange(
+                                "/borrowingRequests",
+                                HttpMethod.POST,
+                                requestEntity,
+                                BorrowingRequestResponseDto.class);
+
+                assertEquals(HttpStatus.CREATED, createResponse.getStatusCode());
                 BorrowingRequestResponseDto createdRequest = createResponse.getBody();
                 assertNotNull(createdRequest);
 
                 String updateUrl = String.format("/borrowingRequests/%d/status?status=Accepted",
                                 createdRequest.getId());
-                ResponseEntity<BorrowingRequestResponseDto> updateResponse = client.exchange(updateUrl,
-                                org.springframework.http.HttpMethod.PUT, null, BorrowingRequestResponseDto.class);
+                HttpEntity<?> updateRequest = createRequestWithHeaders(null, senderUserId);
+
+                ResponseEntity<BorrowingRequestResponseDto> updateResponse = client.exchange(
+                                updateUrl,
+                                HttpMethod.PUT,
+                                updateRequest,
+                                BorrowingRequestResponseDto.class);
+
                 assertEquals(HttpStatus.OK, updateResponse.getStatusCode());
 
                 int ownerId = createdGameOwner.getId();
                 String lendingHistoryUrl = String.format("/borrowingRequests/owners/%d/lending-history", ownerId);
-                ResponseEntity<BorrowingRequestResponseDto[]> historyResponse = client.getForEntity(lendingHistoryUrl,
-                                BorrowingRequestResponseDto[].class);
-                assertEquals(HttpStatus.OK, historyResponse.getStatusCode());
+                HttpEntity<?> historyRequest = createRequestWithHeaders(null, senderUserId);
 
+                ResponseEntity<BorrowingRequestResponseDto[]> historyResponse = client.exchange(
+                                lendingHistoryUrl,
+                                HttpMethod.GET,
+                                historyRequest,
+                                BorrowingRequestResponseDto[].class);
+
+                assertEquals(HttpStatus.OK, historyResponse.getStatusCode());
                 BorrowingRequestResponseDto[] history = historyResponse.getBody();
                 assertNotNull(history, "Response body should not be null");
                 assertTrue(history.length >= 0, "Expected at least an empty list");
@@ -423,10 +602,15 @@ public class BorrowingManagementIntegrationTests {
                 int invalidOwnerId = 99999;
                 String lendingHistoryUrl = String.format("/borrowingRequests/owners/%d/lending-history",
                                 invalidOwnerId);
-                ResponseEntity<BorrowingRequestResponseDto[]> response = client.getForEntity(lendingHistoryUrl,
-                                BorrowingRequestResponseDto[].class);
-                assertEquals(HttpStatus.OK, response.getStatusCode());
+                HttpEntity<?> requestEntity = createRequestWithHeaders(null, senderUserId);
 
+                ResponseEntity<BorrowingRequestResponseDto[]> response = client.exchange(
+                                lendingHistoryUrl,
+                                HttpMethod.GET,
+                                requestEntity,
+                                BorrowingRequestResponseDto[].class);
+
+                assertEquals(HttpStatus.OK, response.getStatusCode());
                 BorrowingRequestResponseDto[] history = response.getBody();
                 assertNotNull(history, "Response body should not be null");
                 assertEquals(0, history.length, "Expected empty lending history for invalid owner.");
@@ -436,31 +620,41 @@ public class BorrowingManagementIntegrationTests {
         @Order(18)
         public void testGetGameCopyLendingStatusValid() {
                 BorrowingRequestRequestDto requestDto = new BorrowingRequestRequestDto(START_TIME, END_TIME,
-                                validSenderId,
-                                validGameCopyId);
-                ResponseEntity<BorrowingRequestResponseDto> createResponse = client.postForEntity("/borrowingRequests",
-                                requestDto, BorrowingRequestResponseDto.class);
-                assertEquals(HttpStatus.CREATED, createResponse.getStatusCode());
+                                validSenderId, validGameCopyId);
+                HttpEntity<BorrowingRequestRequestDto> requestEntity = createRequestWithHeaders(requestDto,
+                                senderUserId);
 
+                ResponseEntity<BorrowingRequestResponseDto> createResponse = client.exchange(
+                                "/borrowingRequests",
+                                HttpMethod.POST,
+                                requestEntity,
+                                BorrowingRequestResponseDto.class);
+
+                assertEquals(HttpStatus.CREATED, createResponse.getStatusCode());
                 BorrowingRequestResponseDto createdRequest = createResponse.getBody();
                 assertNotNull(createdRequest);
 
                 String updateUrl = String.format("/borrowingRequests/%d/status?status=Accepted",
                                 createdRequest.getId());
-                ResponseEntity<BorrowingRequestResponseDto> updateResponse = client.exchange(updateUrl,
-                                org.springframework.http.HttpMethod.PUT, null, BorrowingRequestResponseDto.class);
-                assertEquals(HttpStatus.OK, updateResponse.getStatusCode());
+                HttpEntity<?> updateRequest = createRequestWithHeaders(null, senderUserId);
 
-                // Test Lending Status
-                String lendingStatusUrl = String.format("/borrowingRequests/game-copies/%d/lending-status",
-                                validGameCopyId);
-                ResponseEntity<BorrowingRequestResponseDto> statusResponse = client.getForEntity(lendingStatusUrl,
+                ResponseEntity<BorrowingRequestResponseDto> updateResponse = client.exchange(
+                                updateUrl,
+                                HttpMethod.PUT,
+                                updateRequest,
                                 BorrowingRequestResponseDto.class);
 
-                if (statusResponse.getStatusCode() == HttpStatus.NOT_FOUND) {
-                        System.out.println("No active borrowing request found for this game copy.");
-                        return;
-                }
+                assertEquals(HttpStatus.OK, updateResponse.getStatusCode());
+
+                String lendingStatusUrl = String.format("/borrowingRequests/game-copies/%d/lending-status",
+                                validGameCopyId);
+                HttpEntity<?> statusRequest = createRequestWithHeaders(null, senderUserId);
+
+                ResponseEntity<BorrowingRequestResponseDto> statusResponse = client.exchange(
+                                lendingStatusUrl,
+                                HttpMethod.GET,
+                                statusRequest,
+                                BorrowingRequestResponseDto.class);
 
                 assertEquals(HttpStatus.OK, statusResponse.getStatusCode());
                 BorrowingRequestResponseDto statusDto = statusResponse.getBody();
@@ -472,14 +666,28 @@ public class BorrowingManagementIntegrationTests {
         @Order(19)
         public void testGetGameCopyLendingStatusInvalid() {
                 BorrowingRequestRequestDto requestDto = new BorrowingRequestRequestDto(START_TIME, END_TIME,
-                                validSenderId,
-                                validGameCopyId);
-                ResponseEntity<BorrowingRequestResponseDto> createResponse = client.postForEntity("/borrowingRequests",
-                                requestDto, BorrowingRequestResponseDto.class);
+                                validSenderId, validGameCopyId);
+                HttpEntity<BorrowingRequestRequestDto> requestEntity = createRequestWithHeaders(requestDto,
+                                senderUserId);
+
+                ResponseEntity<BorrowingRequestResponseDto> createResponse = client.exchange(
+                                "/borrowingRequests",
+                                HttpMethod.POST,
+                                requestEntity,
+                                BorrowingRequestResponseDto.class);
+
                 assertEquals(HttpStatus.CREATED, createResponse.getStatusCode());
+
                 String lendingStatusUrl = String.format("/borrowingRequests/gameCopy/%d/lending-status",
                                 validGameCopyId);
-                ResponseEntity<String> response = client.getForEntity(lendingStatusUrl, String.class);
+                HttpEntity<?> requestEntity2 = createRequestWithHeaders(null, senderUserId);
+
+                ResponseEntity<String> response = client.exchange(
+                                lendingStatusUrl,
+                                HttpMethod.GET,
+                                requestEntity2,
+                                String.class);
+
                 assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
         }
 
@@ -487,10 +695,15 @@ public class BorrowingManagementIntegrationTests {
         @Order(20)
         public void testGetGameCopyLendingStatusGameCopyNotFound() {
                 int nonExistentGameCopyId = 99999;
-
                 String lendingStatusUrl = String.format("/borrowingRequests/game-copies/%d/lending-status",
                                 nonExistentGameCopyId);
-                ResponseEntity<String> response = client.getForEntity(lendingStatusUrl, String.class);
+                HttpEntity<?> requestEntity = createRequestWithHeaders(null, senderUserId);
+
+                ResponseEntity<String> response = client.exchange(
+                                lendingStatusUrl,
+                                HttpMethod.GET,
+                                requestEntity,
+                                String.class);
 
                 assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
         }
@@ -498,23 +711,40 @@ public class BorrowingManagementIntegrationTests {
         @Test
         @Order(21)
         public void testGetRejectedRequestsForBorrowerMapsCorrectly() {
-
                 BorrowingRequestRequestDto requestDto = new BorrowingRequestRequestDto(START_TIME, END_TIME,
-                                validSenderId,
-                                validGameCopyId);
-                ResponseEntity<BorrowingRequestResponseDto> createResponse = client.postForEntity("/borrowingRequests",
-                                requestDto, BorrowingRequestResponseDto.class);
+                                validSenderId, validGameCopyId);
+                HttpEntity<BorrowingRequestRequestDto> requestEntity = createRequestWithHeaders(requestDto,
+                                senderUserId);
+
+                ResponseEntity<BorrowingRequestResponseDto> createResponse = client.exchange(
+                                "/borrowingRequests",
+                                HttpMethod.POST,
+                                requestEntity,
+                                BorrowingRequestResponseDto.class);
+
                 assertEquals(HttpStatus.CREATED, createResponse.getStatusCode());
                 BorrowingRequestResponseDto createdRequest = createResponse.getBody();
                 assertNotNull(createdRequest);
+
                 String updateUrl = String.format("/borrowingRequests/%d/status?status=Rejected",
                                 createdRequest.getId());
-                ResponseEntity<BorrowingRequestResponseDto> updateResponse = client.exchange(updateUrl,
-                                org.springframework.http.HttpMethod.PUT, null, BorrowingRequestResponseDto.class);
+                HttpEntity<?> updateRequest = createRequestWithHeaders(null, senderUserId);
+
+                ResponseEntity<BorrowingRequestResponseDto> updateResponse = client.exchange(
+                                updateUrl,
+                                HttpMethod.PUT,
+                                updateRequest,
+                                BorrowingRequestResponseDto.class);
+
                 assertEquals(HttpStatus.OK, updateResponse.getStatusCode());
+
                 String rejectedUrl = String.format("/borrowingRequests/%d/status/rejected", validSenderId);
-                ResponseEntity<BorrowingRequestResponseDto[]> rejectedResponse = client.getForEntity(rejectedUrl,
+                ResponseEntity<BorrowingRequestResponseDto[]> rejectedResponse = client.exchange(
+                                rejectedUrl,
+                                HttpMethod.GET,
+                                updateRequest,
                                 BorrowingRequestResponseDto[].class);
+
                 assertEquals(HttpStatus.OK, rejectedResponse.getStatusCode());
 
                 BorrowingRequestResponseDto[] rejectedRequests = rejectedResponse.getBody();
@@ -539,23 +769,39 @@ public class BorrowingManagementIntegrationTests {
         @Order(22)
         public void testGetAcceptedRequestsForBorrowerMapsCorrectly() {
                 BorrowingRequestRequestDto requestDto = new BorrowingRequestRequestDto(START_TIME, END_TIME,
-                                validSenderId,
-                                validGameCopyId);
-                ResponseEntity<BorrowingRequestResponseDto> createResponse = client.postForEntity("/borrowingRequests",
-                                requestDto, BorrowingRequestResponseDto.class);
+                                validSenderId, validGameCopyId);
+                HttpEntity<BorrowingRequestRequestDto> requestEntity = createRequestWithHeaders(requestDto,
+                                senderUserId);
+
+                ResponseEntity<BorrowingRequestResponseDto> createResponse = client.exchange(
+                                "/borrowingRequests",
+                                HttpMethod.POST,
+                                requestEntity,
+                                BorrowingRequestResponseDto.class);
+
                 assertEquals(HttpStatus.CREATED, createResponse.getStatusCode());
                 BorrowingRequestResponseDto createdRequest = createResponse.getBody();
                 assertNotNull(createdRequest);
 
                 String updateUrl = String.format("/borrowingRequests/%d/status?status=Accepted",
                                 createdRequest.getId());
-                ResponseEntity<BorrowingRequestResponseDto> updateResponse = client.exchange(updateUrl,
-                                org.springframework.http.HttpMethod.PUT, null, BorrowingRequestResponseDto.class);
+                HttpEntity<?> updateRequest = createRequestWithHeaders(null, senderUserId);
+
+                ResponseEntity<BorrowingRequestResponseDto> updateResponse = client.exchange(
+                                updateUrl,
+                                HttpMethod.PUT,
+                                updateRequest,
+                                BorrowingRequestResponseDto.class);
+
                 assertEquals(HttpStatus.OK, updateResponse.getStatusCode());
 
                 String acceptedUrl = String.format("/borrowingRequests/%d/status/accepted", validSenderId);
-                ResponseEntity<BorrowingRequestResponseDto[]> acceptedResponse = client.getForEntity(acceptedUrl,
+                ResponseEntity<BorrowingRequestResponseDto[]> acceptedResponse = client.exchange(
+                                acceptedUrl,
+                                HttpMethod.GET,
+                                updateRequest,
                                 BorrowingRequestResponseDto[].class);
+
                 assertEquals(HttpStatus.OK, acceptedResponse.getStatusCode());
 
                 BorrowingRequestResponseDto[] acceptedRequests = acceptedResponse.getBody();
@@ -580,31 +826,44 @@ public class BorrowingManagementIntegrationTests {
         @Order(23)
         public void testHandleBorrowingRequestStatusWithRespondAction() {
                 BorrowingRequestRequestDto requestDto = new BorrowingRequestRequestDto(START_TIME, END_TIME,
-                                validSenderId,
-                                validGameCopyId);
-                ResponseEntity<BorrowingRequestResponseDto> createResponse = client.postForEntity("/borrowingRequests",
-                                requestDto, BorrowingRequestResponseDto.class);
+                                validSenderId, validGameCopyId);
+                HttpEntity<BorrowingRequestRequestDto> requestEntity = createRequestWithHeaders(requestDto,
+                                senderUserId);
+
+                ResponseEntity<BorrowingRequestResponseDto> createResponse = client.exchange(
+                                "/borrowingRequests",
+                                HttpMethod.POST,
+                                requestEntity,
+                                BorrowingRequestResponseDto.class);
+
                 assertEquals(HttpStatus.CREATED, createResponse.getStatusCode());
                 BorrowingRequestResponseDto createdRequest = createResponse.getBody();
                 assertNotNull(createdRequest);
 
                 String updateUrl = String.format("/borrowingRequests/%d/status?status=Accepted&action=respond",
                                 createdRequest.getId());
-                ResponseEntity<BorrowingRequestResponseDto> updateResponse = client.exchange(updateUrl,
-                                org.springframework.http.HttpMethod.PUT, null, BorrowingRequestResponseDto.class);
+                HttpEntity<?> updateRequest = createRequestWithHeaders(null, senderUserId);
+
+                ResponseEntity<BorrowingRequestResponseDto> updateResponse = client.exchange(
+                                updateUrl,
+                                HttpMethod.PUT,
+                                updateRequest,
+                                BorrowingRequestResponseDto.class);
 
                 assertEquals(HttpStatus.OK, updateResponse.getStatusCode());
                 BorrowingRequestResponseDto updatedRequest = updateResponse.getBody();
                 assertNotNull(updatedRequest);
-
                 assertTrue(updatedRequest.getStatus().toString().contains("Accepted"),
                                 "Status should be Accepted but was: " + updatedRequest.getStatus());
 
                 String acceptedUrl = String.format("/borrowingRequests/%d/status/accepted", validSenderId);
-                ResponseEntity<BorrowingRequestResponseDto[]> acceptedResponse = client.getForEntity(acceptedUrl,
+                ResponseEntity<BorrowingRequestResponseDto[]> acceptedResponse = client.exchange(
+                                acceptedUrl,
+                                HttpMethod.GET,
+                                updateRequest,
                                 BorrowingRequestResponseDto[].class);
-                assertEquals(HttpStatus.OK, acceptedResponse.getStatusCode());
 
+                assertEquals(HttpStatus.OK, acceptedResponse.getStatusCode());
                 BorrowingRequestResponseDto[] acceptedRequests = acceptedResponse.getBody();
                 assertNotNull(acceptedRequests);
 
@@ -622,31 +881,44 @@ public class BorrowingManagementIntegrationTests {
         @Order(24)
         public void testHandleBorrowingRequestStatusWithRespondActionRejected() {
                 BorrowingRequestRequestDto requestDto = new BorrowingRequestRequestDto(START_TIME, END_TIME,
-                                validSenderId,
-                                validGameCopyId);
-                ResponseEntity<BorrowingRequestResponseDto> createResponse = client.postForEntity("/borrowingRequests",
-                                requestDto, BorrowingRequestResponseDto.class);
+                                validSenderId, validGameCopyId);
+                HttpEntity<BorrowingRequestRequestDto> requestEntity = createRequestWithHeaders(requestDto,
+                                senderUserId);
+
+                ResponseEntity<BorrowingRequestResponseDto> createResponse = client.exchange(
+                                "/borrowingRequests",
+                                HttpMethod.POST,
+                                requestEntity,
+                                BorrowingRequestResponseDto.class);
+
                 assertEquals(HttpStatus.CREATED, createResponse.getStatusCode());
                 BorrowingRequestResponseDto createdRequest = createResponse.getBody();
                 assertNotNull(createdRequest);
 
                 String updateUrl = String.format("/borrowingRequests/%d/status?status=Rejected&action=respond",
                                 createdRequest.getId());
-                ResponseEntity<BorrowingRequestResponseDto> updateResponse = client.exchange(updateUrl,
-                                org.springframework.http.HttpMethod.PUT, null, BorrowingRequestResponseDto.class);
+                HttpEntity<?> updateRequest = createRequestWithHeaders(null, senderUserId);
+
+                ResponseEntity<BorrowingRequestResponseDto> updateResponse = client.exchange(
+                                updateUrl,
+                                HttpMethod.PUT,
+                                updateRequest,
+                                BorrowingRequestResponseDto.class);
 
                 assertEquals(HttpStatus.OK, updateResponse.getStatusCode());
                 BorrowingRequestResponseDto updatedRequest = updateResponse.getBody();
                 assertNotNull(updatedRequest);
-
                 assertTrue(updatedRequest.getStatus().toString().contains("Rejected"),
                                 "Status should be Rejected but was: " + updatedRequest.getStatus());
 
                 String rejectedUrl = String.format("/borrowingRequests/%d/status/rejected", validSenderId);
-                ResponseEntity<BorrowingRequestResponseDto[]> rejectedResponse = client.getForEntity(rejectedUrl,
+                ResponseEntity<BorrowingRequestResponseDto[]> rejectedResponse = client.exchange(
+                                rejectedUrl,
+                                HttpMethod.GET,
+                                updateRequest,
                                 BorrowingRequestResponseDto[].class);
-                assertEquals(HttpStatus.OK, rejectedResponse.getStatusCode());
 
+                assertEquals(HttpStatus.OK, rejectedResponse.getStatusCode());
                 BorrowingRequestResponseDto[] rejectedRequests = rejectedResponse.getBody();
                 assertNotNull(rejectedRequests);
 
@@ -678,7 +950,13 @@ public class BorrowingManagementIntegrationTests {
                 borrowingRequestRepository.save(pendingRequest);
 
                 String url = String.format("/borrowingRequests/game-copies/%d/lending-status", gameCopy.getId());
-                ResponseEntity<String> response = client.getForEntity(url, String.class);
+                HttpEntity<?> requestEntity = createRequestWithHeaders(null, senderUserId);
+
+                ResponseEntity<String> response = client.exchange(
+                                url,
+                                HttpMethod.GET,
+                                requestEntity,
+                                String.class);
 
                 System.out.println("Response Body: " + response.getBody());
 

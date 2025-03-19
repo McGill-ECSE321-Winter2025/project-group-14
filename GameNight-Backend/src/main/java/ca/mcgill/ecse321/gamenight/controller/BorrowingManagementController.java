@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import ca.mcgill.ecse321.gamenight.dto.BorrowingRequestRequestDto;
 import ca.mcgill.ecse321.gamenight.dto.BorrowingRequestResponseDto;
 import ca.mcgill.ecse321.gamenight.exception.ObjectNotFoundException;
+import ca.mcgill.ecse321.gamenight.middleware.RequireUser;
 import ca.mcgill.ecse321.gamenight.model.BorrowingRequest;
 import ca.mcgill.ecse321.gamenight.model.BorrowingRequest.BorrowingRequestStatus;
 import ca.mcgill.ecse321.gamenight.model.GameCopy;
@@ -38,6 +39,7 @@ public class BorrowingManagementController {
      * @return The created borrowing request.
      */
     @PostMapping("")
+    @RequireUser
     @ResponseStatus(HttpStatus.CREATED)
     public BorrowingRequestResponseDto sendBorrowingRequest(@RequestBody BorrowingRequestRequestDto borrowingRequest) {
         BorrowingRequest savedRequest = borrowingManagementService.sendBorrowingRequest(
@@ -58,6 +60,7 @@ public class BorrowingManagementController {
      * @return The updated borrowing request.
      */
     @PutMapping("/{requestId}/status")
+    @RequireUser
     public BorrowingRequestResponseDto handleBorrowingRequestStatus(
             @PathVariable int requestId,
             @RequestParam BorrowingRequestStatus status,
@@ -82,6 +85,7 @@ public class BorrowingManagementController {
      * @return A list of delivered borrowing requests.
      */
     @GetMapping("/{borrowerId}/status/delivered")
+    @RequireUser
     public List<BorrowingRequestResponseDto> getDeliveredRequestsForBorrower(@PathVariable int borrowerId) {
         return borrowingManagementService.findDeliveredBorrowingRequestsForBorrower(borrowerId)
                 .stream().map(BorrowingRequestResponseDto::new).collect(Collectors.toList());
@@ -94,6 +98,7 @@ public class BorrowingManagementController {
      * @return A list of rejected borrowing requests.
      */
     @GetMapping("/{borrowerId}/status/rejected")
+    @RequireUser
     public List<BorrowingRequestResponseDto> getRejectedRequestsForBorrower(@PathVariable int borrowerId) {
         return borrowingManagementService.findRejectedBorrowingRequestsForBorrower(borrowerId)
                 .stream().map(BorrowingRequestResponseDto::new).collect(Collectors.toList());
@@ -106,6 +111,7 @@ public class BorrowingManagementController {
      * @return A list of accepted borrowing requests.
      */
     @GetMapping("/{borrowerId}/status/accepted")
+    @RequireUser
     public List<BorrowingRequestResponseDto> getAcceptedRequestsForBorrower(@PathVariable int borrowerId) {
         return borrowingManagementService.findAcceptedBorrowingRequestsForBorrower(borrowerId)
                 .stream().map(BorrowingRequestResponseDto::new).collect(Collectors.toList());
@@ -118,6 +124,7 @@ public class BorrowingManagementController {
      * @return A list of borrowing requests related to the owner.
      */
     @GetMapping("/owners/{ownerId}/lending-history")
+    @RequireUser
     public ResponseEntity<List<BorrowingRequestResponseDto>> getLendingHistoryForOwner(@PathVariable int ownerId) {
         List<BorrowingRequestResponseDto> responseList = borrowingManagementService.findLendingHistory(ownerId)
                 .stream().map(BorrowingRequestResponseDto::new).collect(Collectors.toList());
@@ -132,6 +139,7 @@ public class BorrowingManagementController {
      * @throws ObjectNotFoundException If no active borrowing request is found.
      */
     @GetMapping("/game-copies/{gameCopyId}/lending-status")
+    @RequireUser
     public ResponseEntity<BorrowingRequestResponseDto> getGameCopyLendingStatus(@PathVariable int gameCopyId) {
         GameCopy gameCopy = gameCopyRepository.findById(gameCopyId)
                 .orElseThrow(() -> new ObjectNotFoundException("Game copy not found"));
@@ -150,6 +158,7 @@ public class BorrowingManagementController {
      * @return The borrowing request details.
      */
     @GetMapping("/{requestId}")
+    @RequireUser
     public BorrowingRequestResponseDto getBorrowingRequestById(@PathVariable int requestId) {
         return new BorrowingRequestResponseDto(borrowingManagementService.getBorrowingRequestById(requestId));
     }
