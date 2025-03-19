@@ -1,22 +1,16 @@
 package ca.mcgill.ecse321.gamenight.integration;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyBoolean;
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.*;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 
 import ca.mcgill.ecse321.gamenight.controller.GameReviewController;
 import ca.mcgill.ecse321.gamenight.dto.GameReviewDto;
@@ -24,48 +18,56 @@ import ca.mcgill.ecse321.gamenight.model.Game;
 import ca.mcgill.ecse321.gamenight.model.GameReview;
 import ca.mcgill.ecse321.gamenight.model.Person;
 import ca.mcgill.ecse321.gamenight.model.Player;
-import ca.mcgill.ecse321.gamenight.service.GameReviewService;
-import ca.mcgill.ecse321.gamenight.service.GameManagementService;
-import ca.mcgill.ecse321.gamenight.service.UserManagementService;
+import ca.mcgill.ecse321.gamenight.repo.GameRepository;
+import ca.mcgill.ecse321.gamenight.repo.PersonRepository;
+import ca.mcgill.ecse321.gamenight.repo.PlayerRepository;
+import ca.mcgill.ecse321.gamenight.repo.GameReviewRepository;
 
 @SpringBootTest
+@Transactional
 public class GameReviewIntegrationTest {
 
-    @Mock
-    private GameReviewService gameReviewService;
-
-    @Mock
-    private UserManagementService userService;
-
-    @Mock
-    private GameManagementService gameService;
-
-    @InjectMocks
+    @Autowired
     private GameReviewController gameReviewController;
+
+    @Autowired
+    private GameReviewRepository gameReviewRepository;
+
+    @Autowired
+    private GameRepository gameRepository;
+
+    @Autowired
+    private PlayerRepository playerRepository;
+
+    @Autowired
+    private PersonRepository personRepository;
 
     private Person person;
     private Player reviewer;
     private Game game;
-    private GameReview review;
 
     @BeforeEach
     public void setup() {
+
+        gameReviewRepository.deleteAll();
+        gameRepository.deleteAll();
+        playerRepository.deleteAll();
+        personRepository.deleteAll();
+
         person = new Person("john@example.com", "password123", "John Doe");
+        personRepository.save(person);
+
         reviewer = new Player(person);
+        playerRepository.save(reviewer);
+
         game = new Game("Uno", "A card game");
-        review = new GameReview(5, "Great game!", reviewer, game);
+        gameRepository.save(game);
     }
 
-    @SuppressWarnings("null")
     @Test
     public void testSubmitValidReview() {
 
-        when(userService.getPlayerById(anyInt())).thenReturn(reviewer);
-        when(gameService.findGameById(anyInt())).thenReturn(game);
-        when(gameReviewService.submitReview(anyInt(), anyString(), any(Player.class), any(Game.class)))
-                .thenReturn(review);
-
-        GameReviewDto reviewDto = new GameReviewDto(0, 5, "Great game!", 1, 1);
+        GameReviewDto reviewDto = new GameReviewDto(0, 5, "Great game!", reviewer.getId(), game.getId());
 
         ResponseEntity<GameReviewDto> response = gameReviewController.submitReview(reviewDto);
 
@@ -78,12 +80,7 @@ public class GameReviewIntegrationTest {
     @Test
     public void testSubmitReviewWithInvalidRating() {
 
-        when(userService.getPlayerById(anyInt())).thenReturn(reviewer);
-        when(gameService.findGameById(anyInt())).thenReturn(game);
-        when(gameReviewService.submitReview(anyInt(), anyString(), any(Player.class), any(Game.class)))
-                .thenThrow(new IllegalArgumentException("Rating must be between 1 and 5."));
-
-        GameReviewDto reviewDto = new GameReviewDto(0, 0, "Great game!", 1, 1);
+        GameReviewDto reviewDto = new GameReviewDto(0, 0, "Great game!", reviewer.getId(), game.getId());
 
         ResponseEntity<GameReviewDto> response = gameReviewController.submitReview(reviewDto);
 
@@ -91,11 +88,22 @@ public class GameReviewIntegrationTest {
     }
 
     @Test
+    public void testSubmitReviewNonExistingGame() {
+        int nonExistingGameId = 999;
+        GameReviewDto reviewDto = new GameReviewDto(0, 5, "Great game!", reviewer.getId(), nonExistingGameId);
+
+        ResponseEntity<GameReviewDto> response = gameReviewController.submitReview(reviewDto);
+
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+    }
+
+    @Test
     public void testDeleteExistingReview() {
 
-        when(gameReviewService.deleteReview(anyInt())).thenReturn(true);
+        GameReview review = new GameReview(5, "Great game!", reviewer, game);
+        gameReviewRepository.save(review);
 
-        ResponseEntity<Void> response = gameReviewController.deleteReview(1);
+        ResponseEntity<Void> response = gameReviewController.deleteReview(review.getId());
 
         assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
     }
@@ -103,22 +111,19 @@ public class GameReviewIntegrationTest {
     @Test
     public void testDeleteNonExistingReview() {
 
-        when(gameReviewService.deleteReview(anyInt())).thenReturn(false);
-
-        ResponseEntity<Void> response = gameReviewController.deleteReview(1);
+        ResponseEntity<Void> response = gameReviewController.deleteReview(999);
 
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
     }
 
-    @SuppressWarnings("null")
     @Test
     public void testUpdateReview() {
 
-        when(gameReviewService.updateReview(anyInt(), anyInt(), anyString())).thenReturn(review);
+        GameReview review = new GameReview(3, "Average game", reviewer, game);
+        gameReviewRepository.save(review);
 
-        GameReviewDto reviewDto = new GameReviewDto(1, 5, "Great game!", 1, 1);
-
-        ResponseEntity<GameReviewDto> response = gameReviewController.updateReview(1, reviewDto);
+        GameReviewDto reviewDto = new GameReviewDto(review.getId(), 5, "Great game!", reviewer.getId(), game.getId());
+        ResponseEntity<GameReviewDto> response = gameReviewController.updateReview(review.getId(), reviewDto);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody());
@@ -129,23 +134,34 @@ public class GameReviewIntegrationTest {
     @Test
     public void testUpdateReviewWithInvalidRating() {
 
-        when(gameReviewService.updateReview(anyInt(), anyInt(), anyString()))
-                .thenThrow(new IllegalArgumentException("Rating must be between 1 and 5."));
+        GameReview review = new GameReview(3, "Average game", reviewer, game);
+        gameReviewRepository.save(review);
 
-        GameReviewDto reviewDto = new GameReviewDto(1, 6, "Great game!", 1, 1);
-
-        ResponseEntity<GameReviewDto> response = gameReviewController.updateReview(1, reviewDto);
+        GameReviewDto reviewDto = new GameReviewDto(review.getId(), 6, "Great game!", reviewer.getId(), game.getId());
+        ResponseEntity<GameReviewDto> response = gameReviewController.updateReview(review.getId(), reviewDto);
 
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     }
 
-    @SuppressWarnings("null")
+    @Test
+    public void testUpdateNonExistingReview() {
+
+        int nonExistingReviewId = 999;
+        GameReviewDto reviewDto = new GameReviewDto(nonExistingReviewId, 5, "Great game!", reviewer.getId(),
+                game.getId());
+
+        ResponseEntity<GameReviewDto> response = gameReviewController.updateReview(nonExistingReviewId, reviewDto);
+
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+    }
+
     @Test
     public void testGetReviewById() {
 
-        when(gameReviewService.getReviewById(anyInt())).thenReturn(review);
+        GameReview review = new GameReview(5, "Great game!", reviewer, game);
+        gameReviewRepository.save(review);
 
-        ResponseEntity<GameReviewDto> response = gameReviewController.getReviewById(1);
+        ResponseEntity<GameReviewDto> response = gameReviewController.getReviewById(review.getId());
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody());
@@ -156,24 +172,18 @@ public class GameReviewIntegrationTest {
     @Test
     public void testGetReviewByIdNotFound() {
 
-        when(gameReviewService.getReviewById(anyInt()))
-                .thenThrow(new IllegalArgumentException("Review not found."));
-
-        ResponseEntity<GameReviewDto> response = gameReviewController.getReviewById(1);
+        ResponseEntity<GameReviewDto> response = gameReviewController.getReviewById(999);
 
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
     }
 
-    @SuppressWarnings("null")
     @Test
     public void testGetReviewsForGame() {
 
-        List<GameReview> reviews = new ArrayList<>();
-        reviews.add(review);
-        when(gameService.findGameById(anyInt())).thenReturn(game);
-        when(gameReviewService.getReviewsForGame(any(Game.class))).thenReturn(reviews);
+        GameReview review = new GameReview(5, "Great game!", reviewer, game);
+        gameReviewRepository.save(review);
 
-        ResponseEntity<List<GameReviewDto>> response = gameReviewController.getReviewsForGame(1);
+        ResponseEntity<List<GameReviewDto>> response = gameReviewController.getReviewsForGame(game.getId());
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody());
@@ -181,24 +191,20 @@ public class GameReviewIntegrationTest {
     }
 
     @Test
-    public void testGetReviewsForInvalidGame() {
-        when(gameService.findGameById(anyInt())).thenThrow(new IllegalArgumentException("Game not found."));
+    public void testGetReviewsForNonExistingGame() {
 
         ResponseEntity<List<GameReviewDto>> response = gameReviewController.getReviewsForGame(999);
 
-        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
     }
 
-    @SuppressWarnings("null")
     @Test
     public void testGetReviewsByUser() {
 
-        List<GameReview> reviews = new ArrayList<>();
-        reviews.add(review);
-        when(userService.getPlayerById(anyInt())).thenReturn(reviewer);
-        when(gameReviewService.getReviewsByPlayer(any(Player.class))).thenReturn(reviews);
+        GameReview review = new GameReview(5, "Great game!", reviewer, game);
+        gameReviewRepository.save(review);
 
-        ResponseEntity<List<GameReviewDto>> response = gameReviewController.getReviewsByUser(1);
+        ResponseEntity<List<GameReviewDto>> response = gameReviewController.getReviewsByUser(reviewer.getId());
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody());
@@ -206,21 +212,22 @@ public class GameReviewIntegrationTest {
     }
 
     @Test
-    public void testGetReviewsForInvalidUser() {
-        when(userService.getPlayerById(anyInt())).thenThrow(new IllegalArgumentException("Player not found."));
+    public void testGetReviewsForNonExistingUser() {
 
         ResponseEntity<List<GameReviewDto>> response = gameReviewController.getReviewsByUser(999);
 
-        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
     }
 
     @Test
     public void testGetAverageRatingForGame() {
 
-        when(gameService.findGameById(anyInt())).thenReturn(game);
-        when(gameReviewService.getAverageRatingForGame(any(Game.class))).thenReturn(4.5);
+        GameReview review1 = new GameReview(5, "Great game!", reviewer, game);
+        GameReview review2 = new GameReview(4, "Good game!", reviewer, game);
+        gameReviewRepository.save(review1);
+        gameReviewRepository.save(review2);
 
-        ResponseEntity<Double> response = gameReviewController.getAverageRatingForGame(1);
+        ResponseEntity<Double> response = gameReviewController.getAverageRatingForGame(game.getId());
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(4.5, response.getBody());
@@ -228,35 +235,35 @@ public class GameReviewIntegrationTest {
 
     @Test
     public void testGetAverageRatingForInvalidGame() {
-        when(gameService.findGameById(anyInt())).thenThrow(new IllegalArgumentException("Game not found."));
 
         ResponseEntity<Double> response = gameReviewController.getAverageRatingForGame(999);
 
-        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
     }
 
-    @SuppressWarnings("null")
     @Test
     public void testGetReviewsSortedByRating() {
 
-        List<GameReview> reviews = new ArrayList<>();
-        reviews.add(review);
-        when(gameService.findGameById(anyInt())).thenReturn(game);
-        when(gameReviewService.getReviewsSortedByRating(any(Game.class), anyBoolean())).thenReturn(reviews);
+        GameReview review1 = new GameReview(3, "Average game", reviewer, game);
+        GameReview review2 = new GameReview(5, "Great game!", reviewer, game);
+        gameReviewRepository.save(review1);
+        gameReviewRepository.save(review2);
 
-        ResponseEntity<List<GameReviewDto>> response = gameReviewController.getReviewsSortedByRating(1, true);
+        ResponseEntity<List<GameReviewDto>> response = gameReviewController.getReviewsSortedByRating(game.getId(),
+                true);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody());
-        assertEquals(1, response.getBody().size());
+        assertEquals(2, response.getBody().size());
+        assertEquals(3, response.getBody().get(0).getRating());
+        assertEquals(5, response.getBody().get(1).getRating());
     }
 
     @Test
     public void testGetReviewsSortedByRatingInvalid() {
-        when(gameService.findGameById(anyInt())).thenThrow(new IllegalArgumentException("Game not found."));
 
         ResponseEntity<List<GameReviewDto>> response = gameReviewController.getReviewsSortedByRating(999, true);
 
-        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
     }
 }

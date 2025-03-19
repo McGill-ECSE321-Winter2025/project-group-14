@@ -11,6 +11,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import ca.mcgill.ecse321.gamenight.exception.MissingFieldsException;
+import ca.mcgill.ecse321.gamenight.exception.ObjectNotFoundException;
+import ca.mcgill.ecse321.gamenight.exception.InvalidInputException;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -56,19 +59,23 @@ public class GameReviewController {
                     review.getReviewer(),
                     review.getGame());
             return new ResponseEntity<>(convertToDto(createdReview), HttpStatus.CREATED);
-        } catch (IllegalArgumentException e) {
+        } catch (InvalidInputException | MissingFieldsException e) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        } catch (ObjectNotFoundException e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
 
     @DeleteMapping("/reviews/{reviewId}")
     public ResponseEntity<Void> deleteReview(@PathVariable int reviewId) {
+
         boolean deleted = gameReviewService.deleteReview(reviewId);
         if (deleted) {
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         } else {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
+
     }
 
     @PutMapping("/reviews/{reviewId}")
@@ -80,8 +87,10 @@ public class GameReviewController {
             GameReview updatedReview = gameReviewService.updateReview(reviewId, review.getRating(),
                     review.getComment());
             return new ResponseEntity<>(convertToDto(updatedReview), HttpStatus.OK);
-        } catch (IllegalArgumentException e) {
+        } catch (InvalidInputException | MissingFieldsException e) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        } catch (ObjectNotFoundException e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
 
@@ -90,7 +99,7 @@ public class GameReviewController {
         try {
             GameReview review = gameReviewService.getReviewById(reviewId);
             return new ResponseEntity<>(convertToDto(review), HttpStatus.OK);
-        } catch (IllegalArgumentException e) {
+        } catch (ObjectNotFoundException e) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
@@ -104,8 +113,8 @@ public class GameReviewController {
                     .map(this::convertToDto)
                     .collect(Collectors.toList());
             return new ResponseEntity<>(reviewDtos, HttpStatus.OK);
-        } catch (IllegalArgumentException e) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        } catch (ObjectNotFoundException e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
 
@@ -118,8 +127,8 @@ public class GameReviewController {
                     .map(this::convertToDto)
                     .collect(Collectors.toList());
             return new ResponseEntity<>(reviewDtos, HttpStatus.OK);
-        } catch (IllegalArgumentException e) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        } catch (ObjectNotFoundException e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
 
@@ -129,8 +138,8 @@ public class GameReviewController {
             Game game = gameService.findGameById(gameId);
             double averageRating = gameReviewService.getAverageRatingForGame(game);
             return new ResponseEntity<>(averageRating, HttpStatus.OK);
-        } catch (IllegalArgumentException e) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        } catch (ObjectNotFoundException e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
 
@@ -145,8 +154,8 @@ public class GameReviewController {
                     .map(this::convertToDto)
                     .collect(Collectors.toList());
             return new ResponseEntity<>(reviewDtos, HttpStatus.OK);
-        } catch (IllegalArgumentException e) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        } catch (ObjectNotFoundException e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
 }

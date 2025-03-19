@@ -264,6 +264,17 @@ public class GameReviewServiceTest {
     }
 
     @Test
+    public void testGetAverageRatingNonExistingGame() {
+        Game nonExistingGame = new Game("Non-existing game", "This game does not exist.");
+        when(gameRepository.existsById(nonExistingGame.getId())).thenReturn(false);
+
+        ObjectNotFoundException e = assertThrows(ObjectNotFoundException.class,
+                () -> gameReviewService.getAverageRatingForGame(nonExistingGame));
+
+        assertEquals("Game not found.", e.getMessage());
+    }
+
+    @Test
     public void testGetReviewsForGame() {
         List<GameReview> reviews = new ArrayList<>();
         reviews.add(new GameReview(5, "Great game!", reviewer, game));
@@ -284,6 +295,17 @@ public class GameReviewServiceTest {
     }
 
     @Test
+    public void testGetReviewsForNonExistingGame() {
+        Game nonExistingGame = new Game("Non-existing game", "This game does not exist.");
+        when(gameRepository.existsById(nonExistingGame.getId())).thenReturn(false);
+
+        ObjectNotFoundException e = assertThrows(ObjectNotFoundException.class,
+                () -> gameReviewService.getReviewsForGame(nonExistingGame));
+
+        assertEquals("Game not found.", e.getMessage());
+    }
+
+    @Test
     public void testGetReviewsByPlayer() {
         List<GameReview> reviews = new ArrayList<>();
         reviews.add(new GameReview(5, "Great game!", reviewer, game));
@@ -301,6 +323,17 @@ public class GameReviewServiceTest {
                 () -> gameReviewService.getReviewsByPlayer(null));
 
         assertEquals("Reviewer cannot be null.", e.getMessage());
+    }
+
+    @Test
+    public void testGetReviewsForNonExistingPlayer() {
+        Player nonExistingPlayer = new Player(new Person("nonexisting@example.com", "password", "Non-existing Player"));
+        when(playerRepository.existsById(nonExistingPlayer.getId())).thenReturn(false);
+
+        ObjectNotFoundException e = assertThrows(ObjectNotFoundException.class,
+                () -> gameReviewService.getReviewsByPlayer(nonExistingPlayer));
+
+        assertEquals("Reviewer not found.", e.getMessage());
     }
 
     @Test
@@ -335,5 +368,16 @@ public class GameReviewServiceTest {
                 () -> gameReviewService.getReviewsSortedByRating(null, true));
 
         assertEquals("Game cannot be null.", e.getMessage());
+    }
+
+    @Test
+    public void testGetReviewsSortedNonExistingGame() {
+        Game nonExistingGame = new Game("Non-existing game", "This game does not exist.");
+        when(gameRepository.existsById(nonExistingGame.getId())).thenReturn(false);
+
+        ObjectNotFoundException e = assertThrows(ObjectNotFoundException.class,
+                () -> gameReviewService.getReviewsSortedByRating(nonExistingGame, true));
+
+        assertEquals("Game not found.", e.getMessage());
     }
 }
