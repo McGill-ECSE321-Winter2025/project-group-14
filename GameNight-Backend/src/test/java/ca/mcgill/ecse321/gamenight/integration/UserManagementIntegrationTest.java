@@ -441,6 +441,42 @@ public class UserManagementIntegrationTest {
         assertEquals("Not Found", jsonNode.get("error").asText());
     }
 
+    @SuppressWarnings("null")
+    @Test
+    public void testGetUserDetail_the_headerUserId_in_not_integer() {
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("User-Id", "invalidUserIdnonnumberic");
+        HttpEntity<?> requestEntity = new HttpEntity<>(headers);
+
+        ResponseEntity<String> response = restTemplate.exchange(
+                createURLWithPort("/users/1"),
+                HttpMethod.GET,
+                requestEntity,
+                String.class);
+
+        assertEquals(HttpStatus.UNAUTHORIZED, response.getStatusCode());
+        assertTrue(response.getBody().contains("Invalid User-Id format"),
+                "Expected 'Invalid User-Id format' error message.");
+    }
+
+    @SuppressWarnings("null")
+    @Test
+    public void testGetUserDetail_the_header_doesnt_exist() {
+        int nonExistentUserId = 99999;
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("User-Id", String.valueOf(nonExistentUserId));
+        HttpEntity<?> requestEntity = new HttpEntity<>(headers);
+
+        ResponseEntity<String> response = restTemplate.exchange(
+                createURLWithPort("/users/" + nonExistentUserId),
+                HttpMethod.GET,
+                requestEntity,
+                String.class);
+
+        assertEquals(HttpStatus.UNAUTHORIZED, response.getStatusCode());
+        assertTrue(response.getBody().contains("User not found"), "Expected 'User not found' error message.");
+    }
+
     @Test
     public void testGetUserDetail_nonExistentUser_returns404() throws Exception {
         int nonExistentUserId = 9999;
