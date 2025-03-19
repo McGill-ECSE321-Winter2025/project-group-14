@@ -9,4 +9,8 @@ public class ObjectNotFoundException extends RuntimeException {
 	public ObjectNotFoundException(String message) {
 		super(message);
 	}
+
+    public ObjectNotFoundException(HttpStatus notFound, String string) {
+        //TODO Auto-generated constructor stub
+    }
 }

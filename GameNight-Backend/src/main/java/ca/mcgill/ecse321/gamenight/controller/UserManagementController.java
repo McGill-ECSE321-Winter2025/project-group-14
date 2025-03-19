@@ -113,6 +113,7 @@ public class UserManagementController {
      * @throws ObjectNotFoundException if the user does not exist.
      */
     @PutMapping("/users/{id}/role")
+    @RequireUser
     public ResponseEntity<?> toggleAccountRole(@PathVariable int id) {
         userService.toggleAccountRole(id);
         return ResponseEntity.ok("Role toggled successfully.");
@@ -125,6 +126,7 @@ public class UserManagementController {
      * @return A ResponseEntity containing a list of all users.
      */
     @GetMapping("/users")
+    @RequireUser
     public ResponseEntity<List<PersonResponseDto>> getAllUsers() {
         List<Person> users = userService.getAllUsers();
         List<PersonResponseDto> userDtos = users.stream()
@@ -145,13 +147,9 @@ public class UserManagementController {
      *                                 another user's profile.
      */
     @GetMapping("/users/{id}")
+    @RequireUser
     public ResponseEntity<?> getUserDetail(@PathVariable int id, HttpServletRequest request) {
         String headerUserId = request.getHeader("User-Id");
-
-        if (headerUserId == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("No valid authentication."); // Ensure 401
-                                                                                                    // response
-        }
 
         Person authUser = userService.getUserById(Integer.parseInt(headerUserId));
         Person targetUser = userService.getUserById(id);
