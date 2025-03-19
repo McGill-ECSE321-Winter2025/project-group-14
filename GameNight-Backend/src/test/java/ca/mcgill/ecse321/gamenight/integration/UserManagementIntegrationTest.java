@@ -218,10 +218,14 @@ public class UserManagementIntegrationTest {
         int userId = gameOwner.getId();
         String url = createURLWithPort("/users/" + userId + "/role");
 
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("User-Id", String.valueOf(person.getId()));
+        HttpEntity<?> requestEntity = new HttpEntity<>(headers);
+
         ResponseEntity<String> response = restTemplate.exchange(
                 url,
                 HttpMethod.PUT,
-                HttpEntity.EMPTY,
+                requestEntity,
                 String.class);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -360,7 +364,7 @@ public class UserManagementIntegrationTest {
     public void testGetUserDetail_UserNotFound() throws Exception {
         int nonExistentUserId = 99999;
         HttpHeaders headers = new HttpHeaders();
-        headers.set("User-Id", "123");
+        headers.set("User-Id", String.valueOf(testUserId));
         HttpEntity<?> requestEntity = new HttpEntity<>(headers);
 
         ResponseEntity<String> response = restTemplate.exchange(
@@ -407,13 +411,14 @@ public class UserManagementIntegrationTest {
         assertEquals("You can only view your own profile.", errorsNode.get(0).asText());
     }
 
-    @SuppressWarnings("null")
     @Test
-    public void testGetUserDetail_NoHeader() {
+    public void testGetUserDetail_NoIdInHeader() {
+        HttpEntity<?> requestEntity = new HttpEntity<>(new HttpHeaders());
+
         ResponseEntity<String> response = restTemplate.exchange(
                 "/users/1",
                 HttpMethod.GET,
-                new HttpEntity<>(null),
+                requestEntity,
                 String.class);
 
         assertEquals(HttpStatus.UNAUTHORIZED, response.getStatusCode());
@@ -422,7 +427,7 @@ public class UserManagementIntegrationTest {
     @Test
     public void testGetUserDetail_UserIsNull() throws Exception {
         HttpHeaders headers = new HttpHeaders();
-        headers.set("User-Id", "999");
+        headers.set("User-Id", String.valueOf(testUserId));
         HttpEntity<?> requestEntity = new HttpEntity<>(headers);
 
         ResponseEntity<String> response = restTemplate.exchange(
@@ -436,11 +441,47 @@ public class UserManagementIntegrationTest {
         assertEquals("Not Found", jsonNode.get("error").asText());
     }
 
+    @SuppressWarnings("null")
+    @Test
+    public void testGetUserDetail_the_headerUserId_in_not_integer() {
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("User-Id", "invalidUserIdnonnumberic");
+        HttpEntity<?> requestEntity = new HttpEntity<>(headers);
+
+        ResponseEntity<String> response = restTemplate.exchange(
+                createURLWithPort("/users/1"),
+                HttpMethod.GET,
+                requestEntity,
+                String.class);
+
+        assertEquals(HttpStatus.UNAUTHORIZED, response.getStatusCode());
+        assertTrue(response.getBody().contains("Invalid User-Id format"),
+                "Expected 'Invalid User-Id format' error message.");
+    }
+
+    @SuppressWarnings("null")
+    @Test
+    public void testGetUserDetail_the_header_doesnt_exist() {
+        int nonExistentUserId = 99999;
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("User-Id", String.valueOf(nonExistentUserId));
+        HttpEntity<?> requestEntity = new HttpEntity<>(headers);
+
+        ResponseEntity<String> response = restTemplate.exchange(
+                createURLWithPort("/users/" + nonExistentUserId),
+                HttpMethod.GET,
+                requestEntity,
+                String.class);
+
+        assertEquals(HttpStatus.UNAUTHORIZED, response.getStatusCode());
+        assertTrue(response.getBody().contains("User not found"), "Expected 'User not found' error message.");
+    }
+
     @Test
     public void testGetUserDetail_nonExistentUser_returns404() throws Exception {
         int nonExistentUserId = 9999;
         HttpHeaders headers = new HttpHeaders();
-        headers.set("User-Id", "123");
+        headers.set("User-Id", String.valueOf(testUserId));
         HttpEntity<?> requestEntity = new HttpEntity<>(headers);
 
         ResponseEntity<String> response = restTemplate.exchange(
@@ -458,7 +499,7 @@ public class UserManagementIntegrationTest {
     public void testGetUserById_notFound_returns404() throws Exception {
         int nonExistentUserId = 9999;
         HttpHeaders headers = new HttpHeaders();
-        headers.set("User-Id", "123");
+        headers.set("User-Id", String.valueOf(testUserId));
         HttpEntity<?> requestEntity = new HttpEntity<>(headers);
 
         ResponseEntity<String> response = restTemplate.exchange(

@@ -54,4 +54,9 @@ public class GameNightExceptionHandler {
 		}
 		return new ResponseEntity<ErrorDto>(new ErrorDto(errors), HttpStatus.BAD_REQUEST);
 	}
+
+	@ExceptionHandler(EmailSendingFailedException.class)
+	public ResponseEntity<ErrorDto> handleEmailSendingFailedException(EmailSendingFailedException e) {
+		return new ResponseEntity<ErrorDto>(new ErrorDto(e.getMessage()), HttpStatus.BAD_REQUEST);
+	}
 }
