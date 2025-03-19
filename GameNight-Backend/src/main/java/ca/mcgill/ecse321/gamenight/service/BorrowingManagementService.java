@@ -9,8 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import ca.mcgill.ecse321.gamenight.exception.ObjectNotFoundException;
-import ca.mcgill.ecse321.gamenight.exceptions.BorrowingRequestNotFoundException;
-import ca.mcgill.ecse321.gamenight.exceptions.GameCopyNotFoundException;
 import ca.mcgill.ecse321.gamenight.model.BorrowingRequest;
 import ca.mcgill.ecse321.gamenight.model.GameCopy;
 import ca.mcgill.ecse321.gamenight.model.GameOwner;
@@ -95,7 +93,7 @@ public class BorrowingManagementService {
     @Transactional // done
     public BorrowingRequest updateBorrowingRequestStatus(BorrowingRequest request, BorrowingRequestStatus status) {
         BorrowingRequest existingRequest = borrowingRequestRepository.findById(request.getId())
-        .orElseThrow(() -> new ObjectNotFoundException("Borrowing request not found"));
+                .orElseThrow(() -> new ObjectNotFoundException("Borrowing request not found"));
         existingRequest.setStatus(status);
         return borrowingRequestRepository.save(existingRequest);
     }
@@ -122,26 +120,23 @@ public class BorrowingManagementService {
 
     public List<BorrowingRequest> findLendingHistory(int ownerId) {
         return Optional.ofNullable(
-            borrowingRequestRepository.findAllRequestsByStatusAndGameOwner(BorrowingRequestStatus.Accepted, ownerId)
-        ).orElse(Collections.emptyList());
+                borrowingRequestRepository.findAllRequestsByStatusAndGameOwner(BorrowingRequestStatus.Accepted,
+                        ownerId))
+                .orElse(Collections.emptyList());
     }
-    
-    
-
 
     public BorrowingRequest findGameCopyLendingStatus(GameCopy gameCopy) {
         return borrowingRequestRepository.findByGameCopy(gameCopy)
-            .stream()
-            .filter(request -> request.getStatus() == BorrowingRequestStatus.Accepted)
-            .findFirst()
-            .orElse(null);
+                .stream()
+                .filter(request -> request.getStatus() == BorrowingRequestStatus.Accepted)
+                .findFirst()
+                .orElse(null);
     }
-    
-    
+
     public BorrowingRequest getBorrowingRequestById(int requestId) {
         return borrowingRequestRepository.findById(requestId)
-                .orElseThrow(() -> new ObjectNotFoundException("Borrowing request not found with ID: " + String.valueOf(requestId)));
+                .orElseThrow(() -> new ObjectNotFoundException(
+                        "Borrowing request not found with ID: " + String.valueOf(requestId)));
     }
-    
-    
+
 }
