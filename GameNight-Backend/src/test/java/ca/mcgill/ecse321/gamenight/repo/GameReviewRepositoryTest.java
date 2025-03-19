@@ -80,8 +80,14 @@ public class GameReviewRepositoryTest {
 
     @Test
     public void testFindByGame() {
-        // Create GameReview objects
+
         GameReview gameReview1 = new GameReview(5, "Great game!", player, game);
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
         GameReview gameReview2 = new GameReview(4, "Good game!", player, game);
 
         gameReviewRepo.save(gameReview1);

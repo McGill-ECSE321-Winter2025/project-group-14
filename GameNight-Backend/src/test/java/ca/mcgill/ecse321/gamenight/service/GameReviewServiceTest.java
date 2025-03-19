@@ -14,17 +14,28 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import ca.mcgill.ecse321.gamenight.exception.MissingFieldsException;
+import ca.mcgill.ecse321.gamenight.exception.ObjectNotFoundException;
+import ca.mcgill.ecse321.gamenight.exception.InvalidInputException;
 import ca.mcgill.ecse321.gamenight.model.Game;
 import ca.mcgill.ecse321.gamenight.model.GameReview;
 import ca.mcgill.ecse321.gamenight.model.Person;
 import ca.mcgill.ecse321.gamenight.model.Player;
 import ca.mcgill.ecse321.gamenight.repo.GameReviewRepository;
+import ca.mcgill.ecse321.gamenight.repo.GameRepository;
+import ca.mcgill.ecse321.gamenight.repo.PlayerRepository;
 
 @SpringBootTest
 public class GameReviewServiceTest {
 
     @Mock
     private GameReviewRepository gameReviewRepository;
+
+    @Mock
+    private GameRepository gameRepository;
+
+    @Mock
+    private PlayerRepository playerRepository;
 
     @InjectMocks
     private GameReviewService gameReviewService;
@@ -38,6 +49,9 @@ public class GameReviewServiceTest {
         person = new Person("aaaaaa@gmail.com", "aaaaa", "Bertrand");
         reviewer = new Player(person);
         game = new Game("Uno", "A card game");
+
+        when(gameRepository.existsById(game.getId())).thenReturn(true);
+        when(playerRepository.existsById(reviewer.getId())).thenReturn(true);
     }
 
     @Test
@@ -56,7 +70,7 @@ public class GameReviewServiceTest {
 
     @Test
     public void testSubmitReviewWithTooLowRating() {
-        IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
+        InvalidInputException e = assertThrows(InvalidInputException.class,
                 () -> gameReviewService.submitReview(0, "Great game!", reviewer, game));
 
         assertEquals("Rating must be between 1 and 5.", e.getMessage());
@@ -64,7 +78,7 @@ public class GameReviewServiceTest {
 
     @Test
     public void testSubmitReviewWithTooHighRating() {
-        IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
+        InvalidInputException e = assertThrows(InvalidInputException.class,
                 () -> gameReviewService.submitReview(6, "Great game!", reviewer, game));
 
         assertEquals("Rating must be between 1 and 5.", e.getMessage());
@@ -72,7 +86,7 @@ public class GameReviewServiceTest {
 
     @Test
     public void testSubmitReviewWithEmptyComment() {
-        IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
+        MissingFieldsException e = assertThrows(MissingFieldsException.class,
                 () -> gameReviewService.submitReview(5, "", reviewer, game));
 
         assertEquals("Comment cannot be empty.", e.getMessage());
@@ -80,7 +94,7 @@ public class GameReviewServiceTest {
 
     @Test
     public void testSubmitReviewWithNullComment() {
-        IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
+        MissingFieldsException e = assertThrows(MissingFieldsException.class,
                 () -> gameReviewService.submitReview(5, null, reviewer, game));
 
         assertEquals("Comment cannot be empty.", e.getMessage());
@@ -88,7 +102,7 @@ public class GameReviewServiceTest {
 
     @Test
     public void testSubmitReviewWithNullReviewer() {
-        IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
+        MissingFieldsException e = assertThrows(MissingFieldsException.class,
                 () -> gameReviewService.submitReview(5, "Great game!", null, game));
 
         assertEquals("Reviewer cannot be null.", e.getMessage());
@@ -96,7 +110,7 @@ public class GameReviewServiceTest {
 
     @Test
     public void testSubmitReviewWithNullGame() {
-        IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
+        MissingFieldsException e = assertThrows(MissingFieldsException.class,
                 () -> gameReviewService.submitReview(5, "Great game!", reviewer, null));
 
         assertEquals("Game cannot be null.", e.getMessage());
@@ -144,7 +158,7 @@ public class GameReviewServiceTest {
         GameReview review = new GameReview(3, "Average game", reviewer, game);
         when(gameReviewRepository.findById(reviewId)).thenReturn(Optional.of(review));
 
-        IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
+        InvalidInputException e = assertThrows(InvalidInputException.class,
                 () -> gameReviewService.updateReview(reviewId, 6, "Improved game"));
 
         assertEquals("Rating must be between 1 and 5.", e.getMessage());
@@ -156,7 +170,7 @@ public class GameReviewServiceTest {
         GameReview review = new GameReview(3, "Average game", reviewer, game);
         when(gameReviewRepository.findById(reviewId)).thenReturn(Optional.of(review));
 
-        IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
+        InvalidInputException e = assertThrows(InvalidInputException.class,
                 () -> gameReviewService.updateReview(reviewId, 0, "Worst game"));
 
         assertEquals("Rating must be between 1 and 5.", e.getMessage());
@@ -168,7 +182,7 @@ public class GameReviewServiceTest {
         GameReview review = new GameReview(3, "Average game", reviewer, game);
         when(gameReviewRepository.findById(reviewId)).thenReturn(Optional.of(review));
 
-        IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
+        MissingFieldsException e = assertThrows(MissingFieldsException.class,
                 () -> gameReviewService.updateReview(reviewId, 4, ""));
 
         assertEquals("Comment cannot be empty.", e.getMessage());
@@ -180,7 +194,7 @@ public class GameReviewServiceTest {
         GameReview review = new GameReview(3, "Average game", reviewer, game);
         when(gameReviewRepository.findById(reviewId)).thenReturn(Optional.of(review));
 
-        IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
+        MissingFieldsException e = assertThrows(MissingFieldsException.class,
                 () -> gameReviewService.updateReview(reviewId, 4, null));
 
         assertEquals("Comment cannot be empty.", e.getMessage());
@@ -188,10 +202,10 @@ public class GameReviewServiceTest {
 
     @Test
     public void testUpdateReviewNotFound() {
-        int nonExistingReviewId = 999; // An ID that does not exist in the repository
+        int nonExistingReviewId = 999;
         when(gameReviewRepository.findById(nonExistingReviewId)).thenReturn(Optional.empty());
 
-        IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
+        ObjectNotFoundException e = assertThrows(ObjectNotFoundException.class,
                 () -> gameReviewService.updateReview(nonExistingReviewId, 4, "Updated comment"));
 
         assertEquals("Review not found.", e.getMessage());
@@ -211,10 +225,10 @@ public class GameReviewServiceTest {
 
     @Test
     public void testGetReviewByIdNotFound() {
-        int reviewId = 1;
+        int reviewId = 0;
         when(gameReviewRepository.findById(reviewId)).thenReturn(Optional.empty());
 
-        IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
+        ObjectNotFoundException e = assertThrows(ObjectNotFoundException.class,
                 () -> gameReviewService.getReviewById(reviewId));
 
         assertEquals("Review not found.", e.getMessage());
@@ -243,10 +257,21 @@ public class GameReviewServiceTest {
 
     @Test
     public void testGetAverageRatingForNullGame() {
-        IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
+        MissingFieldsException e = assertThrows(MissingFieldsException.class,
                 () -> gameReviewService.getAverageRatingForGame(null));
 
         assertEquals("Game cannot be null.", e.getMessage());
+    }
+
+    @Test
+    public void testGetAverageRatingNonExistingGame() {
+        Game nonExistingGame = new Game("Non-existing game", "This game does not exist.");
+        when(gameRepository.existsById(nonExistingGame.getId())).thenReturn(false);
+
+        ObjectNotFoundException e = assertThrows(ObjectNotFoundException.class,
+                () -> gameReviewService.getAverageRatingForGame(nonExistingGame));
+
+        assertEquals("Game not found.", e.getMessage());
     }
 
     @Test
@@ -263,10 +288,21 @@ public class GameReviewServiceTest {
 
     @Test
     public void testGetReviewsForNullGame() {
-        IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
+        MissingFieldsException e = assertThrows(MissingFieldsException.class,
                 () -> gameReviewService.getReviewsForGame(null));
 
         assertEquals("Game cannot be null.", e.getMessage());
+    }
+
+    @Test
+    public void testGetReviewsForNonExistingGame() {
+        Game nonExistingGame = new Game("Non-existing game", "This game does not exist.");
+        when(gameRepository.existsById(nonExistingGame.getId())).thenReturn(false);
+
+        ObjectNotFoundException e = assertThrows(ObjectNotFoundException.class,
+                () -> gameReviewService.getReviewsForGame(nonExistingGame));
+
+        assertEquals("Game not found.", e.getMessage());
     }
 
     @Test
@@ -283,10 +319,21 @@ public class GameReviewServiceTest {
 
     @Test
     public void testGetReviewsForNullPlayer() {
-        IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
+        MissingFieldsException e = assertThrows(MissingFieldsException.class,
                 () -> gameReviewService.getReviewsByPlayer(null));
 
         assertEquals("Reviewer cannot be null.", e.getMessage());
+    }
+
+    @Test
+    public void testGetReviewsForNonExistingPlayer() {
+        Player nonExistingPlayer = new Player(new Person("nonexisting@example.com", "password", "Non-existing Player"));
+        when(playerRepository.existsById(nonExistingPlayer.getId())).thenReturn(false);
+
+        ObjectNotFoundException e = assertThrows(ObjectNotFoundException.class,
+                () -> gameReviewService.getReviewsByPlayer(nonExistingPlayer));
+
+        assertEquals("Reviewer not found.", e.getMessage());
     }
 
     @Test
@@ -317,10 +364,20 @@ public class GameReviewServiceTest {
 
     @Test
     public void testGetReviewsSortedForNullGame() {
-        IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
+        MissingFieldsException e = assertThrows(MissingFieldsException.class,
                 () -> gameReviewService.getReviewsSortedByRating(null, true));
 
         assertEquals("Game cannot be null.", e.getMessage());
     }
 
+    @Test
+    public void testGetReviewsSortedNonExistingGame() {
+        Game nonExistingGame = new Game("Non-existing game", "This game does not exist.");
+        when(gameRepository.existsById(nonExistingGame.getId())).thenReturn(false);
+
+        ObjectNotFoundException e = assertThrows(ObjectNotFoundException.class,
+                () -> gameReviewService.getReviewsSortedByRating(nonExistingGame, true));
+
+        assertEquals("Game not found.", e.getMessage());
+    }
 }
