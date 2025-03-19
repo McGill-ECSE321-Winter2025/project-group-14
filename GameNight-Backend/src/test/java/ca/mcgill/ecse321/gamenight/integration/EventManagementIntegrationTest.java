@@ -141,6 +141,12 @@ public class EventManagementIntegrationTest {
         ResponseEntity<String> response = client.postForEntity("/events", requestDto, String.class);
 
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        String responseBody = response.getBody();
+        assertNotNull(responseBody);
+        assertTrue(
+            responseBody.contains("Event name cannot be null or empty"),
+            "Expected error message not found in the response body."
+        );
     }
 
     @Test
@@ -151,6 +157,12 @@ public class EventManagementIntegrationTest {
         ResponseEntity<String> response = client.postForEntity("/events", requestDto, String.class);
 
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        String responseBody = response.getBody();
+    assertNotNull(responseBody, "Response body should not be null");
+    assertTrue(
+        responseBody.contains("Event end time cannot be before the start time."),
+        "Expected error message not found in the response body."
+    );
     }
 
     @Test
@@ -181,6 +193,12 @@ public class EventManagementIntegrationTest {
         ResponseEntity<String> response = client.getForEntity(url, String.class);
 
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        String responseBody = response.getBody();
+    assertNotNull(responseBody, "Response body should not be null");
+    assertTrue(
+        responseBody.contains("No Event found with ID: 99999"),
+        "Expected error message not found in the response body."
+    );
     }
 
     @Test
@@ -229,6 +247,12 @@ public class EventManagementIntegrationTest {
                 url, HttpMethod.PUT, new HttpEntity<>(requestDto), String.class);
 
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        String responseBody = response.getBody();
+        assertNotNull(responseBody, "Response body should not be null");
+        assertTrue(
+            responseBody.contains("No Event found with ID: 99999"),
+            "Expected error message not found in response body."
+        );
     }
 
     @Test
@@ -241,6 +265,12 @@ public class EventManagementIntegrationTest {
                 url, HttpMethod.PUT, new HttpEntity<>(requestDto), String.class);
 
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        String responseBody = response.getBody();
+        assertNotNull(responseBody, "Response body should not be null");
+        assertTrue(
+            responseBody.contains("Event end time cannot be before the start time"),
+            "Expected error message not found in response body."
+        );
     }
 
     @Test
@@ -252,6 +282,12 @@ public class EventManagementIntegrationTest {
                 url, HttpMethod.PUT, new HttpEntity<>(requestDto), String.class);
 
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        String responseBody = response.getBody();
+        assertNotNull(responseBody, "Response body should not be null");
+        assertTrue(
+            responseBody.contains("Event name cannot be null or empty"),
+            "Expected error message not found in response body."
+        );
     }
 
     @Test
@@ -275,6 +311,12 @@ public class EventManagementIntegrationTest {
         ResponseEntity<String> response = client.exchange(url, HttpMethod.DELETE, null, String.class);
 
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        String responseBody = response.getBody();
+        assertNotNull(responseBody, "Response body is null");
+        assertTrue(
+            responseBody.contains("No Event found with ID: 99999"),
+            "Expected error message for not-found event ID in response body."
+        );
     }
 
     @Test
@@ -308,6 +350,12 @@ public class EventManagementIntegrationTest {
         ResponseEntity<String> response = client.getForEntity(url, String.class);
 
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        String responseBody = response.getBody();
+        assertNotNull(responseBody, "Response body is null");
+        assertTrue(
+            responseBody.contains("No Event found with ID: 99999"),
+            "Expected error message for not-found event ID in response body."
+        );
     }
 
     @Test
@@ -331,6 +379,12 @@ public class EventManagementIntegrationTest {
         ResponseEntity<String> response = client.getForEntity(url, String.class);
 
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        String responseBody = response.getBody();
+        assertNotNull(responseBody, "Response body is null");
+        assertTrue(
+            responseBody.contains("Game not found with ID: 99999"),
+            "Expected error message for not-found game ID in response body."
+        );
     }
 
     @Test
@@ -380,6 +434,12 @@ public class EventManagementIntegrationTest {
         ResponseEntity<String> response = client.postForEntity(url, null, String.class);
 
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        String responseBody = response.getBody();
+        assertNotNull(responseBody, "Response body is null");
+        assertTrue(
+            responseBody.contains("No Event found with ID: 99999"),
+            "Expected error message about not-found event in the response body."
+        );
     }
 
     @Test
@@ -397,6 +457,12 @@ public class EventManagementIntegrationTest {
         ResponseEntity<String> response = client.postForEntity(url, null, String.class);
 
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        String responseBody = response.getBody();
+        assertNotNull(responseBody, "Response body is null");
+        assertTrue(
+            responseBody.contains("Player not found with ID: 99999"),
+            "Expected error message about not-found player in the response body."
+        );
     }
 
     @Test
@@ -452,6 +518,12 @@ public class EventManagementIntegrationTest {
         ResponseEntity<String> response = client.exchange(url, HttpMethod.DELETE, null, String.class);
 
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        String body = response.getBody();
+        assertNotNull(body, "Response body is null");
+        assertTrue(
+            body.contains("No Event found with ID: 99999"),
+            "Expected error message about not-found event in the response body."
+        );
     }
 
     @Test
@@ -468,6 +540,12 @@ public class EventManagementIntegrationTest {
         ResponseEntity<String> response = client.exchange(url, HttpMethod.DELETE, null, String.class);
 
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        String body = response.getBody();
+        assertNotNull(body, "Response body is null");
+        assertTrue(
+            body.contains("Player not found with ID: 99999"),
+            "Expected error message about not-found player in the response body."
+        );
     }
 
     @Test
@@ -486,6 +564,12 @@ public class EventManagementIntegrationTest {
         ResponseEntity<String> response = client.exchange(url, HttpMethod.DELETE, null, String.class);
 
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        String body = response.getBody();
+        assertNotNull(body, "Response body is null");
+        assertTrue(
+            body.contains("No registration found for Event ID: " + newEventId),
+            "Expected error message about missing registration in the response body."
+        );
     }
 
     @Test
@@ -507,6 +591,12 @@ public class EventManagementIntegrationTest {
         ResponseEntity<String> response = client.getForEntity(url, String.class);
 
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        String body = response.getBody();
+        assertNotNull(body, "Response body is null");
+        assertTrue(
+            body.contains("Player not found with ID: 99999"),
+            "Expected an error message about not-found player in the response body."
+        );
     }
 
     @Test
@@ -529,5 +619,11 @@ public class EventManagementIntegrationTest {
         ResponseEntity<String> response = client.getForEntity(url, String.class);
 
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        String body = response.getBody();
+        assertNotNull(body, "Response body is null");
+        assertTrue(
+            body.contains("No Event found with ID: 99999"),
+            "Expected an error message about not-found event in the response body."
+        );
     }
 }
