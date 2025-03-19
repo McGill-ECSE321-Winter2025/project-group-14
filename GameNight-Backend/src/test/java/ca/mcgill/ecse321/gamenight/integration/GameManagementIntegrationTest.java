@@ -99,10 +99,10 @@ public class GameManagementIntegrationTest {
         HttpEntity<?> requestEntity = new HttpEntity<>(body, authenticationHeaders);
 
         ResponseEntity<GameResponseDto> response = client.exchange(
-            "/games", 
-            HttpMethod.POST, 
-            requestEntity,
-            GameResponseDto.class);
+                "/games",
+                HttpMethod.POST,
+                requestEntity,
+                GameResponseDto.class);
 
         assertEquals(HttpStatus.CREATED, response.getStatusCode());
         assertNotNull(response.getBody());
@@ -120,10 +120,10 @@ public class GameManagementIntegrationTest {
         HttpEntity<?> requestEntity = new HttpEntity<>(body, authenticationHeaders);
 
         ResponseEntity<ErrorDto> response = client.exchange(
-            "/games", 
-            HttpMethod.POST, 
-            requestEntity,
-            ErrorDto.class);
+                "/games",
+                HttpMethod.POST,
+                requestEntity,
+                ErrorDto.class);
 
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
         assertNotNull(response.getBody());
@@ -140,10 +140,10 @@ public class GameManagementIntegrationTest {
         HttpEntity<?> requestEntity = new HttpEntity<>(authenticationHeaders);
 
         ResponseEntity<GameResponseDto> response = client.exchange(
-            url, 
-            HttpMethod.GET, 
-            requestEntity,
-            GameResponseDto.class);
+                url,
+                HttpMethod.GET,
+                requestEntity,
+                GameResponseDto.class);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody());
@@ -161,10 +161,10 @@ public class GameManagementIntegrationTest {
         HttpEntity<?> requestEntity = new HttpEntity<>(body, authenticationHeaders);
 
         ResponseEntity<GameResponseDto> response = client.exchange(
-            url, 
-            HttpMethod.PUT, 
-            requestEntity,
-            GameResponseDto.class);
+                url,
+                HttpMethod.PUT,
+                requestEntity,
+                GameResponseDto.class);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody());
@@ -182,11 +182,10 @@ public class GameManagementIntegrationTest {
         HttpEntity<?> requestEntity = new HttpEntity<>(authenticationHeaders);
 
         ResponseEntity<GameResponseDto[]> response = client.exchange(
-            "/games",
-            HttpMethod.GET,
-            requestEntity,
-            GameResponseDto[].class  
-        );
+                "/games",
+                HttpMethod.GET,
+                requestEntity,
+                GameResponseDto[].class);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody());
@@ -212,11 +211,10 @@ public class GameManagementIntegrationTest {
         HttpEntity<?> requestEntity = new HttpEntity<>(body, authenticationHeaders);
 
         ResponseEntity<GameCopyResponseDto> response = client.exchange(
-            "/game-copies/",
-            HttpMethod.POST,
-            requestEntity,
-            GameCopyResponseDto.class  
-        );
+                "/game-copies/",
+                HttpMethod.POST,
+                requestEntity,
+                GameCopyResponseDto.class);
 
         assertEquals(HttpStatus.CREATED, response.getStatusCode());
         assertNotNull(response.getBody());
@@ -231,13 +229,12 @@ public class GameManagementIntegrationTest {
     @Order(6)
     public void testGetExistingGameCopy() {
         HttpEntity<?> requestEntity = new HttpEntity<>(authenticationHeaders);
-        
+
         ResponseEntity<GameCopyResponseDto> response = client.exchange(
-            "/game-copies/" + createdGameCopyId,
-            HttpMethod.GET,
-            requestEntity,
-            GameCopyResponseDto.class  
-        );
+                "/game-copies/" + createdGameCopyId,
+                HttpMethod.GET,
+                requestEntity,
+                GameCopyResponseDto.class);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody());
@@ -255,10 +252,10 @@ public class GameManagementIntegrationTest {
         HttpEntity<?> requestEntity = new HttpEntity<>(body, authenticationHeaders);
 
         ResponseEntity<GameCopyRequestDto> response = client.exchange(
-            url, 
-            HttpMethod.PUT, 
-            requestEntity,
-            GameCopyRequestDto.class);
+                url,
+                HttpMethod.PUT,
+                requestEntity,
+                GameCopyRequestDto.class);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody());
@@ -275,10 +272,10 @@ public class GameManagementIntegrationTest {
         HttpEntity<?> requestEntity = new HttpEntity<>(authenticationHeaders);
 
         ResponseEntity<GameCopyResponseDto[]> response = client.exchange(
-            url, 
-            HttpMethod.GET, 
-            requestEntity,
-            GameCopyResponseDto[].class);
+                url,
+                HttpMethod.GET,
+                requestEntity,
+                GameCopyResponseDto[].class);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody());
@@ -300,10 +297,10 @@ public class GameManagementIntegrationTest {
         HttpEntity<?> requestEntity = new HttpEntity<>(authenticationHeaders);
 
         ResponseEntity<Void> response = client.exchange(
-            url, 
-            HttpMethod.DELETE, 
-            requestEntity, 
-            Void.class);
+                url,
+                HttpMethod.DELETE,
+                requestEntity,
+                Void.class);
 
         assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
         assertEquals(null, response.getBody());

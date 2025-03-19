@@ -34,11 +34,10 @@ public class EventManagementController {
     @PostMapping
     public EventResponseDto createEvent(@RequestBody EventRequestDto requestDto) {
         Event created = eventService.createEvent(
-            requestDto.getName(),
-            requestDto.getDescription(),
-            requestDto.getStartTime(),
-            requestDto.getEndTime()
-        );
+                requestDto.getName(),
+                requestDto.getDescription(),
+                requestDto.getStartTime(),
+                requestDto.getEndTime());
         return new EventResponseDto(created);
     }
 
@@ -64,12 +63,11 @@ public class EventManagementController {
     @PutMapping("/{eventId}")
     public EventResponseDto updateEvent(@PathVariable int eventId, @RequestBody EventRequestDto requestDto) {
         Event updated = eventService.updateEvent(
-            eventId,
-            requestDto.getName(),
-            requestDto.getDescription(),
-            requestDto.getStartTime(),
-            requestDto.getEndTime()
-        );
+                eventId,
+                requestDto.getName(),
+                requestDto.getDescription(),
+                requestDto.getStartTime(),
+                requestDto.getEndTime());
         return new EventResponseDto(updated);
     }
 
@@ -91,9 +89,9 @@ public class EventManagementController {
     @GetMapping
     public List<EventResponseDto> getAllEvents() {
         return ((List<Event>) eventService.getAllEvents())
-            .stream()
-            .map(EventResponseDto::new)
-            .collect(Collectors.toList());
+                .stream()
+                .map(EventResponseDto::new)
+                .collect(Collectors.toList());
     }
 
     /**
@@ -105,9 +103,9 @@ public class EventManagementController {
     @GetMapping("/scheduledevent/{eventId}")
     public List<GameResponseDto> getGamesForEvent(@PathVariable int eventId) {
         return eventService.getGamesForEvent(eventId)
-            .stream()
-            .map(GameResponseDto::new)
-            .collect(Collectors.toList());
+                .stream()
+                .map(GameResponseDto::new)
+                .collect(Collectors.toList());
     }
 
     /**
@@ -119,9 +117,9 @@ public class EventManagementController {
     @GetMapping("/scheduledgame/{gameId}")
     public List<EventResponseDto> getScheduledEventsForAGame(@PathVariable int gameId) {
         return eventService.getScheduledEventsForAGame(gameId)
-            .stream()
-            .map(EventResponseDto::new)
-            .collect(Collectors.toList());
+                .stream()
+                .map(EventResponseDto::new)
+                .collect(Collectors.toList());
     }
 
     /**

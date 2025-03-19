@@ -66,7 +66,7 @@ public class GameManagementController {
     /**
      * Update the game with the given ID
      * 
-     * @param id The primary key of the game to update
+     * @param id   The primary key of the game to update
      * @param game The updated game information
      * @return The updated game
      */
@@ -103,7 +103,8 @@ public class GameManagementController {
     @ResponseStatus(HttpStatus.CREATED)
     @RequireUser
     public GameCopyResponseDto createGameCopy(@RequestBody GameCopyRequestDto gameCopy) {
-        GameCopy g = gameManagementService.createGameCopy(gameCopy.getDescription(), gameCopy.getGameId(), gameCopy.getOwnerId());
+        GameCopy g = gameManagementService.createGameCopy(gameCopy.getDescription(), gameCopy.getGameId(),
+                gameCopy.getOwnerId());
         return new GameCopyResponseDto(g);
     }
 
@@ -123,7 +124,7 @@ public class GameManagementController {
     /**
      * Update the game copy with the given ID
      * 
-     * @param id The primary key of the game copy
+     * @param id       The primary key of the game copy
      * @param gameCopy The updated game copy information
      * @return The updated game copy
      */

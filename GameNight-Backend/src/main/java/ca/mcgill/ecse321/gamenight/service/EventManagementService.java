@@ -18,7 +18,6 @@ import ca.mcgill.ecse321.gamenight.repo.ScheduledGameRepository;
 import jakarta.transaction.Transactional;
 import ca.mcgill.ecse321.gamenight.exception.*;
 
-
 @Service
 public class EventManagementService {
 
@@ -28,14 +27,14 @@ public class EventManagementService {
     @Transactional
     public Event createEvent(String name, String description, Date startTime, Date endTime) {
         if (name == null || name.trim().isEmpty()) {
-    
+
             throw new InvalidInputException("Event name cannot be null or empty.");
         }
         if (startTime != null && endTime != null && endTime.before(startTime)) {
-    
+
             throw new InvalidInputException("Event end time cannot be before the start time.");
         }
-    
+
         Event newEvent = new Event(name, description, startTime, endTime);
         return eventRepository.save(newEvent);
     }
@@ -55,32 +54,31 @@ public class EventManagementService {
                 .orElseThrow(() -> new ObjectNotFoundException("No Event found with ID: " + eventId));
     }
 
-@Transactional
-public Event updateEvent(int eventId, String name, String description, Date startTime, Date endTime) {
-    Event existingEvent = getEventById(eventId);
+    @Transactional
+    public Event updateEvent(int eventId, String name, String description, Date startTime, Date endTime) {
+        Event existingEvent = getEventById(eventId);
 
-    if (name == null || name.trim().isEmpty()) {
-        throw new InvalidInputException("Event name cannot be null or empty.");
-    }
-    existingEvent.setName(name);
+        if (name == null || name.trim().isEmpty()) {
+            throw new InvalidInputException("Event name cannot be null or empty.");
+        }
+        existingEvent.setName(name);
 
-    if (description != null) {
-        existingEvent.setDescription(description);
-    }
+        if (description != null) {
+            existingEvent.setDescription(description);
+        }
 
-    if (startTime != null && endTime != null && endTime.before(startTime)) {
-        throw new InvalidInputException("Event end time cannot be before the start time.");
-    }
-    if (startTime != null) {
-        existingEvent.setStartTime(startTime);
-    }
-    if (endTime != null) {
-        existingEvent.setEndTime(endTime);
-    }
+        if (startTime != null && endTime != null && endTime.before(startTime)) {
+            throw new InvalidInputException("Event end time cannot be before the start time.");
+        }
+        if (startTime != null) {
+            existingEvent.setStartTime(startTime);
+        }
+        if (endTime != null) {
+            existingEvent.setEndTime(endTime);
+        }
 
-    return eventRepository.save(existingEvent);
-}
-
+        return eventRepository.save(existingEvent);
+    }
 
     @Transactional
     public void deleteEvent(int eventId) {
@@ -108,14 +106,13 @@ public Event updateEvent(int eventId, String name, String description, Date star
     @Transactional
     public List<Event> getScheduledEventsForAGame(int gameId) {
         gameRepository.findById(gameId)
-            .orElseThrow(() -> new ObjectNotFoundException("Game not found with ID: " + gameId));
-    
+                .orElseThrow(() -> new ObjectNotFoundException("Game not found with ID: " + gameId));
+
         return scheduledGameRepository.findByKey_GameId(gameId)
-            .stream()
-            .map(sg -> sg.getKey().getEvent())
-            .collect(Collectors.toList());
+                .stream()
+                .map(sg -> sg.getKey().getEvent())
+                .collect(Collectors.toList());
     }
-    
 
     @Transactional
     public void registerForEvent(int eventId, int playerId) {
@@ -129,15 +126,14 @@ public Event updateEvent(int eventId, String name, String description, Date star
     @Transactional
     public void unregisterForEvent(int eventId, int playerId) {
         Event event = getEventById(eventId);
-    
+
         Player player = playerRepository.findById(playerId)
-            .orElseThrow(() -> new ObjectNotFoundException("Player not found with ID: " + playerId));
-    
+                .orElseThrow(() -> new ObjectNotFoundException("Player not found with ID: " + playerId));
+
         Registration existing = registrationRepository.findByKey(new Key(player, event));
         if (existing == null) {
             throw new ObjectNotFoundException(
-                "No registration found for Event ID: " + eventId + " and Player ID: " + playerId
-            );
+                    "No registration found for Event ID: " + eventId + " and Player ID: " + playerId);
         }
         registrationRepository.delete(existing);
     }

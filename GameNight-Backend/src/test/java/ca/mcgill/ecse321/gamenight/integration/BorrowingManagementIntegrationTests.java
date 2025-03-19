@@ -3,7 +3,6 @@ package ca.mcgill.ecse321.gamenight.integration;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,9 +21,9 @@ import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestMethodOrder;
+import org.mockito.Mock;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
 
-import ca.mcgill.ecse321.gamenight.controller.BorrowingManagementController;
 import ca.mcgill.ecse321.gamenight.dto.BorrowingRequestRequestDto;
 import ca.mcgill.ecse321.gamenight.dto.BorrowingRequestResponseDto;
 import ca.mcgill.ecse321.gamenight.model.BorrowingRequest;
@@ -44,7 +43,6 @@ import ca.mcgill.ecse321.gamenight.service.EmailService;
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @TestInstance(Lifecycle.PER_CLASS)
-@MockBean(EmailService.class)
 public class BorrowingManagementIntegrationTests {
         @Autowired
         private TestRestTemplate client;
@@ -65,10 +63,10 @@ public class BorrowingManagementIntegrationTests {
         private PlayerRepository playerRepository;
 
         @Autowired
-        private BorrowingManagementController borrowingManagementController;
-
-        @Autowired
         private BorrowingRequestRepository borrowingRequestRepository;
+
+        @Mock
+        private EmailService emailService;
 
         private int validSenderId;
         private int validGameCopyId;

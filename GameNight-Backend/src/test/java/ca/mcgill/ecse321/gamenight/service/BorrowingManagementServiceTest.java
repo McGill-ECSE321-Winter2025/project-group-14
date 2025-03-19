@@ -89,7 +89,7 @@ public class BorrowingManagementServiceTest {
     }
 
     @Test
-    public void sendValidBorrowingRequestTest() {
+    public void testSendValidBorrowingRequest() {
         int gameCopyId = 10;
         int senderId = 5;
         Date startTime = Date.valueOf("2025-03-12");
@@ -190,7 +190,7 @@ public class BorrowingManagementServiceTest {
     }
 
     @Test
-    public void sendBorrowingRequestInvalidGameCopyTest() {
+    public void testSendBorrowingRequestInvalidGameCopy() {
         int gameCopyId = 10;
         int senderId = 5;
         Date startTime = Date.valueOf("2025-03-12");
@@ -207,7 +207,7 @@ public class BorrowingManagementServiceTest {
     }
 
     @Test
-    public void sendBorrowingRequestInvalidSenderTest() {
+    public void testSendBorrowingRequestInvalidSender() {
         int gameCopyId = 10;
         int senderId = 5;
         Date startTime = Date.valueOf("2025-03-12");
@@ -353,7 +353,7 @@ public class BorrowingManagementServiceTest {
     }
 
     @Test
-    void testfindDeliveredBorrowingRequestsForBorrowerValid() {
+    void testFindDeliveredBorrowingRequestsForBorrowerValid() {
         int borrowerId = 1;
         BorrowingRequest request = new BorrowingRequest();
         request.setStatus(BorrowingRequestStatus.Delivered);
@@ -373,7 +373,7 @@ public class BorrowingManagementServiceTest {
     }
 
     @Test
-    void testfindDeliveredBorrowingRequestsForBorrowerInvalid() {
+    void testFindDeliveredBorrowingRequestsForBorrowerInvalid() {
         int borrowerId = 999;
         when(borrowingRequestRepository.findAllRequestsByStatusAndSender(BorrowingRequestStatus.Delivered, borrowerId))
                 .thenReturn(Collections.emptyList());
@@ -385,7 +385,7 @@ public class BorrowingManagementServiceTest {
     }
 
     @Test
-    void testfindRejectedBorrowingRequestsForBorrowerValid() {
+    void testFindRejectedBorrowingRequestsForBorrowerValid() {
         int borrowerId = 2;
         BorrowingRequest request = new BorrowingRequest();
         request.setStatus(BorrowingRequestStatus.Rejected);
@@ -401,7 +401,7 @@ public class BorrowingManagementServiceTest {
     }
 
     @Test
-    void testfindRejectedBorrowingRequestsForBorrowerInvalid() {
+    void testFindRejectedBorrowingRequestsForBorrowerInvalid() {
         int borrowerId = 999;
         when(borrowingRequestRepository.findAllRequestsByStatusAndSender(BorrowingRequestStatus.Rejected, borrowerId))
                 .thenReturn(Collections.emptyList());
@@ -412,7 +412,7 @@ public class BorrowingManagementServiceTest {
     }
 
     @Test
-    void testfindAcceptedBorrowingRequestsForBorrowerValid() {
+    void testFindAcceptedBorrowingRequestsForBorrowerValid() {
         int borrowerId = 3;
         when(borrowingRequestRepository.findAllRequestsByStatusAndSender(BorrowingRequestStatus.Accepted, borrowerId))
                 .thenReturn(Collections.emptyList());
@@ -423,7 +423,7 @@ public class BorrowingManagementServiceTest {
     }
 
     @Test
-    void testfindAcceptedBorrowingRequestsForBorrowerInvalid() {
+    void testFindAcceptedBorrowingRequestsForBorrowerInvalid() {
         int borrowerId = 999;
         when(borrowingRequestRepository.findAllRequestsByStatusAndSender(BorrowingRequestStatus.Accepted, borrowerId))
                 .thenReturn(Collections.emptyList());
@@ -434,7 +434,7 @@ public class BorrowingManagementServiceTest {
     }
 
     @Test
-    void testfindLendingHistoryValid() {
+    void testFindLendingHistoryValid() {
         int ownerId = 10;
         BorrowingRequest request = new BorrowingRequest();
         request.setStatus(BorrowingRequestStatus.Accepted);
@@ -532,72 +532,71 @@ public class BorrowingManagementServiceTest {
 
     @Test
     void testRespondToBorrowingRequest_OtherStatus() {
-    BorrowingRequest request = new BorrowingRequest();
-    request.setId(1);
-    request.setStatus(BorrowingRequestStatus.Delivered);
-    Game game = new Game();
-    game.setName("Uno");
-    
-    GameCopy gameCopy = new GameCopy();
-    gameCopy.setGame(game);
-    
-    GameOwner gameOwner = new GameOwner();
-    Person ownerPerson = new Person();
-    ownerPerson.setName("Hamza");
-    ownerPerson.setEmailAddress("hamza@example.com");
-    gameOwner.setPerson(ownerPerson);
-    gameCopy.setGameOwner(gameOwner);
+        BorrowingRequest request = new BorrowingRequest();
+        request.setId(1);
+        request.setStatus(BorrowingRequestStatus.Delivered);
+        Game game = new Game();
+        game.setName("Uno");
 
-    Person senderPerson = new Person();
-    senderPerson.setName("John");
-    senderPerson.setEmailAddress("john@example.com");
-    Player sender = new Player();
-    sender.setId(5);
-    sender.setPerson(senderPerson);
+        GameCopy gameCopy = new GameCopy();
+        gameCopy.setGame(game);
 
-    request.setGameCopy(gameCopy);
-    request.setSender(sender);
+        GameOwner gameOwner = new GameOwner();
+        Person ownerPerson = new Person();
+        ownerPerson.setName("Hamza");
+        ownerPerson.setEmailAddress("hamza@example.com");
+        gameOwner.setPerson(ownerPerson);
+        gameCopy.setGameOwner(gameOwner);
 
-    when(borrowingRequestRepository.save(any(BorrowingRequest.class)))
-            .thenAnswer(invocation -> invocation.getArgument(0));
+        Person senderPerson = new Person();
+        senderPerson.setName("John");
+        senderPerson.setEmailAddress("john@example.com");
+        Player sender = new Player();
+        sender.setId(5);
+        sender.setPerson(senderPerson);
 
-    BorrowingRequest result = borrowingManagementService.respondToBorrowingRequest(request, BorrowingRequestStatus.Delivered);
+        request.setGameCopy(gameCopy);
+        request.setSender(sender);
 
-    assertEquals(BorrowingRequestStatus.Delivered, result.getStatus());
-    verify(emailService, never()).sendRequestAcceptedEmail(anyString(), anyString(), anyString());
-    verify(emailService, never()).sendRequestRejectedEmail(anyString(), anyString(), anyString());
-}
+        when(borrowingRequestRepository.save(any(BorrowingRequest.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
 
-@Test
-public void testGetPlayerById_PlayerExists() {
-    int playerId = 1;
-    Person person = new Person();
-    person.setName("Test User");
-    person.setEmailAddress("test@example.com");
+        BorrowingRequest result = borrowingManagementService.respondToBorrowingRequest(request,
+                BorrowingRequestStatus.Delivered);
 
-    Player player = new Player();
-    player.setPerson(person);
+        assertEquals(BorrowingRequestStatus.Delivered, result.getStatus());
+        verify(emailService, never()).sendRequestAcceptedEmail(anyString(), anyString(), anyString());
+        verify(emailService, never()).sendRequestRejectedEmail(anyString(), anyString(), anyString());
+    }
 
-    when(playerRepository.findById(playerId)).thenReturn(Optional.of(player));
+    @Test
+    public void testGetPlayerById_PlayerExists() {
+        int playerId = 1;
+        Person person = new Person();
+        person.setName("Test User");
+        person.setEmailAddress("test@example.com");
 
-    Player result = userManagementService.getPlayerById(playerId);
+        Player player = new Player();
+        player.setPerson(person);
 
-    assertNotNull(result, "Expected a Player object, but got null.");
-    assertEquals(person.getName(), result.getPerson().getName());
-}
+        when(playerRepository.findById(playerId)).thenReturn(Optional.of(player));
 
-@Test
-public void testGetPlayerById_PlayerDoesNotExist() {
-    int playerId = 999;
+        Player result = userManagementService.getPlayerById(playerId);
 
-    when(playerRepository.findById(playerId)).thenReturn(Optional.empty());
+        assertNotNull(result, "Expected a Player object, but got null.");
+        assertEquals(person.getName(), result.getPerson().getName());
+    }
 
-    Exception exception = assertThrows(RuntimeException.class, 
-        () -> userManagementService.getPlayerById(playerId));
+    @Test
+    public void testGetPlayerById_PlayerDoesNotExist() {
+        int playerId = 999;
 
-    assertEquals("Person not found with ID: " + playerId, exception.getMessage());
-}
+        when(playerRepository.findById(playerId)).thenReturn(Optional.empty());
 
+        Exception exception = assertThrows(RuntimeException.class,
+                () -> userManagementService.getPlayerById(playerId));
 
+        assertEquals("Person not found with ID: " + playerId, exception.getMessage());
+    }
 
 }

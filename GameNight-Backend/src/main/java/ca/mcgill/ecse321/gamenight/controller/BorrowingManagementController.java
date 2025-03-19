@@ -8,7 +8,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-
 import ca.mcgill.ecse321.gamenight.dto.BorrowingRequestRequestDto;
 import ca.mcgill.ecse321.gamenight.dto.BorrowingRequestResponseDto;
 import ca.mcgill.ecse321.gamenight.exception.ObjectNotFoundException;
@@ -19,14 +18,13 @@ import ca.mcgill.ecse321.gamenight.repo.BorrowingRequestRepository;
 import ca.mcgill.ecse321.gamenight.repo.GameCopyRepository;
 import ca.mcgill.ecse321.gamenight.service.BorrowingManagementService;
 
-
 @RestController
 @RequestMapping("/borrowingRequests")
 public class BorrowingManagementController {
 
     @Autowired
     private BorrowingManagementService borrowingManagementService;
-    
+
     @Autowired
     private GameCopyRepository gameCopyRepository;
 
@@ -54,8 +52,9 @@ public class BorrowingManagementController {
      * Updates or responds to a borrowing request.
      * 
      * @param requestId The ID of the borrowing request to update.
-     * @param status The new status for the borrowing request.
-     * @param action The action to perform: "respond" or "update" (default is "update").
+     * @param status    The new status for the borrowing request.
+     * @param action    The action to perform: "respond" or "update" (default is
+     *                  "update").
      * @return The updated borrowing request.
      */
     @PutMapping("/{requestId}/status")
@@ -66,13 +65,13 @@ public class BorrowingManagementController {
 
         BorrowingRequest request = borrowingManagementService.getBorrowingRequestById(requestId);
         BorrowingRequest updatedRequest;
-        
+
         if ("respond".equals(action)) {
             updatedRequest = borrowingManagementService.respondToBorrowingRequest(request, status);
         } else {
             updatedRequest = borrowingManagementService.updateBorrowingRequestStatus(request, status);
         }
-        
+
         return new BorrowingRequestResponseDto(updatedRequest);
     }
 

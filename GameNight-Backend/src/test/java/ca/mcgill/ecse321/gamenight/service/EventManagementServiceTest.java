@@ -5,7 +5,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.*;
 
-// import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -94,43 +93,43 @@ class EventManagementServiceTest {
             eventService.createEvent(null, "desc", start, end);
         });
     }
-    
+
     @Test
     void testCreateEventEndBeforeStart() {
         assertThrows(InvalidInputException.class, () -> {
             eventService.createEvent("Game Night", "desc", start, past);
         });
     }
-    
+
     @Test
     void testCreateEventWithNullEndTime() {
         when(eventRepository.save(any(Event.class))).thenReturn(validEvent);
-    
+
         Event result = eventService.createEvent("Test Name", "Test Desc", start, null);
-    
+
         assertNotNull(result);
         verify(eventRepository, times(1)).save(any(Event.class));
     }
+
     @Test
     void testCreateEventWithNullStartTime() {
         when(eventRepository.save(any(Event.class))).thenReturn(validEvent);
-    
+
         Event result = eventService.createEvent("Test Name", "Test Desc", null, end);
-    
+
         assertNotNull(result);
         verify(eventRepository, times(1)).save(any(Event.class));
     }
-    
+
     @Test
     void testCreateEventWithNullTimes() {
         when(eventRepository.save(any(Event.class))).thenReturn(validEvent);
-    
+
         Event result = eventService.createEvent("Test Name", "Test Desc", null, null);
-    
+
         assertNotNull(result);
         verify(eventRepository, times(1)).save(any(Event.class));
     }
-    
 
     @Test
     void testGetEventByIdSuccess() {
@@ -148,7 +147,6 @@ class EventManagementServiceTest {
             eventService.getEventById(99);
         });
     }
-    
 
     @Test
     void testDeleteEventSuccess() {
@@ -165,7 +163,6 @@ class EventManagementServiceTest {
         });
         verify(eventRepository, never()).delete(any(Event.class));
     }
-    
 
     @Test
     void testRegisterForEvent() {
@@ -183,7 +180,6 @@ class EventManagementServiceTest {
             eventService.registerForEvent(1, 2);
         });
     }
-    
 
     @Test
     void testRegisterForEventPlayerNotFound() {
@@ -217,7 +213,6 @@ class EventManagementServiceTest {
         });
         verify(scheduledGameRepository, never()).findByKey_EventId(anyInt());
     }
-    
 
     @Test
     void testUpdateEventSuccess() {
@@ -230,91 +225,91 @@ class EventManagementServiceTest {
         verify(eventRepository, times(1)).save(any(Event.class));
     }
 
-@Test
-void testUpdateEventNotFound() {
-    when(eventRepository.findById(200)).thenReturn(Optional.empty());
-    assertThrows(ObjectNotFoundException.class, () -> {
-        eventService.updateEvent(200, "Name", "Desc", start, end);
-    });
-}
+    @Test
+    void testUpdateEventNotFound() {
+        when(eventRepository.findById(200)).thenReturn(Optional.empty());
+        assertThrows(ObjectNotFoundException.class, () -> {
+            eventService.updateEvent(200, "Name", "Desc", start, end);
+        });
+    }
 
-@Test
-void testUpdateEventInvalidTimes() {
-    when(eventRepository.findById(300)).thenReturn(Optional.of(updateEvent));
-    assertThrows(InvalidInputException.class, () -> {
-        eventService.updateEvent(300, "AnotherName", "AnotherDesc", start, past);
-    });
-}
+    @Test
+    void testUpdateEventInvalidTimes() {
+        when(eventRepository.findById(300)).thenReturn(Optional.of(updateEvent));
+        assertThrows(InvalidInputException.class, () -> {
+            eventService.updateEvent(300, "AnotherName", "AnotherDesc", start, past);
+        });
+    }
 
-@Test
-void testUpdateEventInvalidName() {
-    when(eventRepository.findById(100)).thenReturn(Optional.of(updateEvent));
-    assertThrows(InvalidInputException.class, () -> {
-        eventService.updateEvent(100, "   ", "New Description", start, end);
-    });
-}
-@Test
-void testUpdateEventNullDescription() {
-    Date oldStart = new Date();
-    Date oldEnd = new Date(oldStart.getTime() + 3600000);
-    Event existing = new Event("Old Name", "Old Desc", oldStart, oldEnd);
+    @Test
+    void testUpdateEventInvalidName() {
+        when(eventRepository.findById(100)).thenReturn(Optional.of(updateEvent));
+        assertThrows(InvalidInputException.class, () -> {
+            eventService.updateEvent(100, "   ", "New Description", start, end);
+        });
+    }
 
-    when(eventRepository.findById(500)).thenReturn(Optional.of(existing));
-    when(eventRepository.save(any(Event.class))).thenAnswer(inv -> inv.getArgument(0));
+    @Test
+    void testUpdateEventNullDescription() {
+        Date oldStart = new Date();
+        Date oldEnd = new Date(oldStart.getTime() + 3600000);
+        Event existing = new Event("Old Name", "Old Desc", oldStart, oldEnd);
 
-    Event updated = eventService.updateEvent(500, "New Name", null, oldStart, oldEnd);
+        when(eventRepository.findById(500)).thenReturn(Optional.of(existing));
+        when(eventRepository.save(any(Event.class))).thenAnswer(inv -> inv.getArgument(0));
 
-    assertNotNull(updated);
-    assertEquals("New Name", updated.getName());
-    assertEquals("Old Desc", updated.getDescription());
-    assertEquals(oldStart, updated.getStartTime());
-    assertEquals(oldEnd, updated.getEndTime());
+        Event updated = eventService.updateEvent(500, "New Name", null, oldStart, oldEnd);
 
-    verify(eventRepository, times(1)).save(any(Event.class));
-}
+        assertNotNull(updated);
+        assertEquals("New Name", updated.getName());
+        assertEquals("Old Desc", updated.getDescription());
+        assertEquals(oldStart, updated.getStartTime());
+        assertEquals(oldEnd, updated.getEndTime());
 
-@Test
-void testUpdateEventNullStartTime() {
-    Date oldStart = new Date();
-    Date oldEnd = new Date(oldStart.getTime() + 3600000);
-    Event existing = new Event("Old Name", "Old Desc", oldStart, oldEnd);
+        verify(eventRepository, times(1)).save(any(Event.class));
+    }
 
-    when(eventRepository.findById(501)).thenReturn(Optional.of(existing));
-    when(eventRepository.save(any(Event.class))).thenAnswer(inv -> inv.getArgument(0));
+    @Test
+    void testUpdateEventNullStartTime() {
+        Date oldStart = new Date();
+        Date oldEnd = new Date(oldStart.getTime() + 3600000);
+        Event existing = new Event("Old Name", "Old Desc", oldStart, oldEnd);
 
-    Date newEnd = new Date(oldStart.getTime() + 7200000);
-    Event updated = eventService.updateEvent(501, "Name Stays", "Desc Stays", null, newEnd);
+        when(eventRepository.findById(501)).thenReturn(Optional.of(existing));
+        when(eventRepository.save(any(Event.class))).thenAnswer(inv -> inv.getArgument(0));
 
-    assertNotNull(updated);
-    assertEquals(oldStart, updated.getStartTime());
-    assertEquals(newEnd, updated.getEndTime());
-    assertEquals("Name Stays", updated.getName());
-    assertEquals("Desc Stays", updated.getDescription());
+        Date newEnd = new Date(oldStart.getTime() + 7200000);
+        Event updated = eventService.updateEvent(501, "Name Stays", "Desc Stays", null, newEnd);
 
-    verify(eventRepository, times(1)).save(any(Event.class));
-}
+        assertNotNull(updated);
+        assertEquals(oldStart, updated.getStartTime());
+        assertEquals(newEnd, updated.getEndTime());
+        assertEquals("Name Stays", updated.getName());
+        assertEquals("Desc Stays", updated.getDescription());
 
-@Test
-void testUpdateEventNullEndTime() {
-    Date oldStart = new Date();
-    Date oldEnd = new Date(oldStart.getTime() + 3600000);
-    Event existing = new Event("Old Name", "Old Desc", oldStart, oldEnd);
+        verify(eventRepository, times(1)).save(any(Event.class));
+    }
 
-    when(eventRepository.findById(502)).thenReturn(Optional.of(existing));
-    when(eventRepository.save(any(Event.class))).thenAnswer(inv -> inv.getArgument(0));
+    @Test
+    void testUpdateEventNullEndTime() {
+        Date oldStart = new Date();
+        Date oldEnd = new Date(oldStart.getTime() + 3600000);
+        Event existing = new Event("Old Name", "Old Desc", oldStart, oldEnd);
 
-    Date newStart = new Date(oldStart.getTime() + 10000);
-    Event updated = eventService.updateEvent(502, "Any Name", "Any Desc", newStart, null);
+        when(eventRepository.findById(502)).thenReturn(Optional.of(existing));
+        when(eventRepository.save(any(Event.class))).thenAnswer(inv -> inv.getArgument(0));
 
-    assertNotNull(updated);
-    assertEquals(oldEnd, updated.getEndTime());
-    assertEquals(newStart, updated.getStartTime());
-    assertEquals("Any Name", updated.getName());
-    assertEquals("Any Desc", updated.getDescription());
+        Date newStart = new Date(oldStart.getTime() + 10000);
+        Event updated = eventService.updateEvent(502, "Any Name", "Any Desc", newStart, null);
 
-    verify(eventRepository, times(1)).save(any(Event.class));
-}
+        assertNotNull(updated);
+        assertEquals(oldEnd, updated.getEndTime());
+        assertEquals(newStart, updated.getStartTime());
+        assertEquals("Any Name", updated.getName());
+        assertEquals("Any Desc", updated.getDescription());
 
+        verify(eventRepository, times(1)).save(any(Event.class));
+    }
 
     @Test
     void testGetAllEventsSuccess() {
@@ -326,18 +321,17 @@ void testUpdateEventNullEndTime() {
         assertNotNull(result);
         assertEquals(2, ((List<Event>) result).size());
     }
+
     @Test
     void testUpdateEventNullName() {
         when(eventRepository.findById(600)).thenReturn(Optional.of(updateEvent));
-        
+
         assertThrows(InvalidInputException.class, () -> {
             eventService.updateEvent(600, null, "Some Description", start, end);
         });
-        
+
         verify(eventRepository, never()).save(any(Event.class));
     }
-    
-
 
     @Test
     void testGetScheduledEventsForAGameSuccess() {
@@ -363,9 +357,6 @@ void testUpdateEventNullEndTime() {
         });
         verify(scheduledGameRepository, never()).findByKey_GameId(anyInt());
     }
-    
-
-
 
     @Test
     void testUnregisterForEventSuccess() {
@@ -387,7 +378,7 @@ void testUpdateEventNullEndTime() {
         });
         verify(eventRepository, never()).delete(any(Event.class));
     }
-    
+
     @Test
     void testUnregisterForEventNoRegistration() {
         Event e = new Event("Event", "desc", new Date(), new Date());
@@ -395,12 +386,11 @@ void testUpdateEventNullEndTime() {
         when(eventRepository.findById(7)).thenReturn(Optional.of(e));
         when(playerRepository.findById(8)).thenReturn(Optional.of(p));
         when(registrationRepository.findByKey(any(Key.class))).thenReturn(null);
-    
+
         assertThrows(ObjectNotFoundException.class, () -> {
             eventService.unregisterForEvent(7, 8);
         });
     }
-    
 
     @Test
     void testUnregisterForEventPlayerNotFound() {
@@ -435,8 +425,6 @@ void testUpdateEventNullEndTime() {
         });
     }
 
-
-
     @Test
     void testGetPlayersForEventSuccess() {
         Event e = new Event("E", "desc", new Date(), new Date());
@@ -457,7 +445,5 @@ void testUpdateEventNullEndTime() {
             eventService.getPlayersForEvent(95);
         });
     }
-    
-
 
 }

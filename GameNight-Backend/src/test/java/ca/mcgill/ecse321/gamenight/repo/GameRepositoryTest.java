@@ -41,7 +41,7 @@ public class GameRepositoryTest {
     }
 
     @Test
-    public void findTheThreeHighestRatedGamesTest() {
+    public void testFindTheThreeHighestRatedGames() {
         Game game1 = new Game("Uno", null);
         gameRepo.save(game1);
         Game game2 = new Game("Monopoly", null);
