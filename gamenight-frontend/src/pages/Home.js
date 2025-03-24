@@ -3,9 +3,9 @@ import GameCard from "../components/GameCard";
 
 function Home() {
     const featuredGames = [
-        { title: "Dead Rails [Alpha]", image: "https://via.placeholder.com/100" },
-        { title: "RIVALS", image: "https://via.placeholder.com/100" },
-        { title: "The Hunt: Mega Edition", image: "https://via.placeholder.com/100" }
+        { title: "Dead Shreck [Alpha]", image: "https://www.francetvinfo.fr/pictures/KI83JKIWxYVA8ng-cUtYxM6l-z8/1200x1200/2016/08/23/shrek-5.jpg" },
+        { title: "Amazing Shrkek", image: "https://www.francetvinfo.fr/pictures/KI83JKIWxYVA8ng-cUtYxM6l-z8/1200x1200/2016/08/23/shrek-5.jpg" },
+        { title: "The Hunt: Shreks Edition", image: "https://www.francetvinfo.fr/pictures/KI83JKIWxYVA8ng-cUtYxM6l-z8/1200x1200/2016/08/23/shrek-5.jpg" }
     ];
 
     return (
