@@ -1,10 +1,21 @@
 import React from "react";
+import Button from "./Button";
+import "../App.css";
 
-function GameCard({ title, image }) {
+function GameCard({ title, image, players, rating }) {
     return (
-        <div style={{ border: "1px solid #ccc", padding: "10px", margin: "10px" }}>
-            <img src={image} alt={title} style={{ width: "100px", height: "100px" }} />
-            <h3>{title}</h3>
+        <div className="game-card">
+            <div className="game-card-image">
+                <img src={image} alt={title} />
+            </div>
+            <div className="game-card-content">
+                <h3>{title}</h3>
+                <p>Players: {players}</p>
+                <p>Rating: {rating}%</p>
+            </div>
+            <div className="game-card-actions">
+                <Button rounded>▶ Play</Button>
+            </div>
         </div>
     );
 }

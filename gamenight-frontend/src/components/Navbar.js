@@ -1,21 +1,33 @@
 import React, { useContext } from "react";
 import { Link } from "react-router-dom";
-import { AuthContext } from "../AuthContext"; // Import AuthContext
+import { AuthContext } from "../AuthContext";
 import "./Navbar.css";
 
 function Navbar() {
-    const { user, logout } = useContext(AuthContext); // Get user state
+    const { user, logout } = useContext(AuthContext);
 
     return (
-        <nav>
+        <nav className="navbar">
             <div className="nav-left">
-                {!user && <Link to="/">Home</Link>} {/* Show Home only if not logged in */}
-                {user && <Link to="/my-games">My Games</Link>}
-                {user && <Link to="/my-events">My Events</Link>}
+                {!user && <Link to="/">Home</Link>}
+                {user && <Link to="/games">Games</Link>}
+                {user && <Link to="/events">Events</Link>}
+                {user && <Link to="/about">About</Link>}
+            </div>
+
+            <div className="nav-center">
+                <img
+                    src="https://cpmfiles1.com/christchurchsa.com/game_night_logo_web.png"
+                    alt="Game Night Temporary Logo"
+                    className="navbar-logo"
+                />
             </div>
 
             <div className="nav-right">
+                {user && <Link to="/my-games">My Games</Link>}
+                {user && <Link to="/my-events">My Events</Link>}
                 {user && <Link to="/account">My Account</Link>}
+
                 {user ? (
                     <button onClick={logout}>Logout</button>
                 ) : (

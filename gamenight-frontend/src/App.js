@@ -5,9 +5,12 @@ import Navbar from "./components/Navbar";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
 import SignUp from "./pages/SignUp";
+import Games from "./pages/Games";
 import MyGames from "./pages/MyGames";
 import MyEvents from "./pages/MyEvents";
+import Events from "./pages/Events";
 import Account from "./pages/Account";
+import About from "./pages/About";
 
 function App() {
   return (
@@ -18,9 +21,13 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<SignUp />} />
+          <Route path="/games" element={<Games />} />
           <Route path="/my-games" element={<MyGames />} />
           <Route path="/my-events" element={<MyEvents />} />
           <Route path="/account" element={<Account />} />
+          <Route path="/events" element={<Events />} />
+          <Route path="/about" element={<About />} />
+
         </Routes>
       </AuthProvider>
     </Router>

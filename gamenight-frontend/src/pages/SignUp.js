@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { UserManagementAPI } from "../UserManagementAPI";
 import { useNavigate } from "react-router-dom";
+import Button from "../components/Button";
+import Box from "../components/Box";
 
 function SignUp() {
     const navigate = useNavigate();
@@ -24,36 +26,41 @@ function SignUp() {
 
 
     return (
-        <div>
-            <h1>Sign Up</h1>
-            {error && <p style={{ color: "red" }}>{error}</p>}
-            <form onSubmit={handleSignUp}>
-                <input
-                    type="text"
-                    placeholder="User Name"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    required
-                />
-                <input
-                    type="email"
-                    placeholder="Email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                />
-                <input
-                    type="password"
-                    placeholder="Password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                />
-                <button type="submit">Sign Up</button>
-            </form>
-            <p>Already have an account? <a href="/login">Log in</a></p>
+        <div className="container">
+            <Box>
+                <h1 className="centered">Sign Up</h1>
+                {error && <p className="error-text">{error}</p>}
+                <form onSubmit={handleSignUp} className="auth-form">
+                    <input
+                        type="text"
+                        placeholder="Name"
+                        value={name}
+                        onChange={(e) => setName(e.target.value)}
+                        required
+                    />
+                    <input
+                        type="email"
+                        placeholder="Email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        required
+                    />
+                    <input
+                        type="password"
+                        placeholder="Password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        required
+                    />
+                    <Button type="success">Sign Up</Button>
+                </form>
+                <p className="centered">
+                    Already have an account? <a href="/login">Log in</a>
+                </p>
+            </Box>
         </div>
     );
+
 }
 
 export default SignUp;
