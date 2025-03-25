@@ -1,0 +1,66 @@
+/* General Review Card */
+.review-card {
+    background-color: #ffffff; /* White background for the card */
+    border-radius: 12px; /* Rounded corners for a soft look */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+    padding: 16px; /* Padding inside the card */
+    margin-bottom: 20px; /* Space between reviews */
+    transition: box-shadow 0.3s ease; /* Smooth transition for hover effect */
+    margin-left: 40px;
+    margin-right: 40px;
+  }
+  
+  .review-card:hover {
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2); /* Shadow becomes more pronounced on hover */
+  }
+  
+  /* Review Header */
+  .review-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px; /* Space between the header and review body */
+  }
+  
+  .author-info h3 {
+    font-size: 1.3rem; /* Slightly larger text for author */
+    font-weight: 600; /* Semi-bold font */
+    color: #333; /* Dark text for author name */
+    margin: 0; /* Remove default margin */
+  }
+  
+/* Rating Section */
+.rating {
+    font-size: 1.5rem; /* Make the stars larger */
+    color: #f59e0b;    /* Set the color to a yellow shade */
+    display: flex;     /* Make the stars display inline */
+    align-items: center;
+  }
+  
+  .rating span {
+    margin-left: 8px;  /* Space between stars and the numeric rating */
+    font-weight: 500;   /* Semi-bold text for numeric rating */
+    color: #f59e0b;       /* Dark color for the rating number */
+  }
+  
+  /* Optional: If you're using react-icons, increase the font size directly on the icon */
+  .rating svg {
+    font-size: 1.5rem; /* Adjust the star size if using SVG icons */
+    color: #f59e0b;    /* Ensure the color is yellow */
+  }
+  
+  /* Date Posted Section */
+  .review-date {
+    font-size: 1rem; /* Smaller font for date */
+    color: #6b7280; /* Light gray color for the date */
+    margin-bottom: 12px; /* Space between date and comment */
+  }
+  
+  /* Review Comment Section */
+  .review-comment {
+    font-size: 1.2rem; /* Standard size for comments */
+    color: #4b5563; /* Slightly lighter gray for comment text */
+    line-height: 1.6; /* Make the text a bit more readable */
+  }
+  
+  

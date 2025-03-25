@@ -1,0 +1,28 @@
+.page-title {
+    font-size: 3rem; /* A moderate size for readability (24px) */
+    font-weight: 700; /* Slightly bold to emphasize the title without being too heavy */
+    color: #333; /* A dark, readable color */
+    text-align: center; /* Center the title */
+    margin-bottom: 3rem; /* Add some space below the title */
+    line-height: 1.4; /* Improve the line height for better readability */
+}
+
+.section-title {
+    font-size: 2rem;  /* Slightly smaller than the primary title */
+    font-weight: 500;    /* Medium weight */
+    color: #4B5563;      /* Dark gray color for readability */
+    margin-top: 16px;    /* Space above the secondary title */
+    margin-bottom: 8px;  /* Space below the secondary title */
+    text-align: left;  /* Optional: to center the title */
+    margin-left: 50px;
+    letter-spacing: 0.5px; /* Slight letter spacing for better legibility */
+}
+
+.container-center {
+    display: flex;
+    justify-content: center; /* Horizontally centers the content */
+    align-items: center; /* Vertically centers the content */
+    padding-bottom: 50px;
+  }
+  
+  
