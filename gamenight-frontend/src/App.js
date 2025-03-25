@@ -1,24 +1,36 @@
-import logo from './logo.svg';
-import './App.css';
+import React from "react";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { AuthProvider } from "./AuthContext";
+import Navbar from "./components/Navbar";
+import Home from "./pages/Home";
+import Login from "./pages/Login";
+import SignUp from "./pages/SignUp";
+import Games from "./pages/Games";
+import MyGames from "./pages/MyGames";
+import MyEvents from "./pages/MyEvents";
+import Events from "./pages/Events";
+import Account from "./pages/Account";
+import About from "./pages/About";
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Router>
+      <AuthProvider>
+        <Navbar />
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<SignUp />} />
+          <Route path="/games" element={<Games />} />
+          <Route path="/my-games" element={<MyGames />} />
+          <Route path="/my-events" element={<MyEvents />} />
+          <Route path="/account" element={<Account />} />
+          <Route path="/events" element={<Events />} />
+          <Route path="/about" element={<About />} />
+
+        </Routes>
+      </AuthProvider>
+    </Router>
   );
 }
 
