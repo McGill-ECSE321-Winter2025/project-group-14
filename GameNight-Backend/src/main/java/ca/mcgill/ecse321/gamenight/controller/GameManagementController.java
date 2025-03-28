@@ -164,7 +164,14 @@ public class GameManagementController {
         gameManagementService.deleteGameCopy(id);
     }
 
+    /**
+     * Get all the copies of a given game
+     * 
+     * @param gameId The id of the game
+     * @return The game copies of the given game
+     */
     @GetMapping("game/{gameId}/game-copies")
+    @RequireUser
     public List<GameCopyResponseDto> findGameCopiesByGame(@PathVariable int gameId) {
         ArrayList<GameCopyResponseDto> response = new ArrayList<>();
         List<GameCopy> gameCopies = gameManagementService.findGameCopiesByGame(gameId);
