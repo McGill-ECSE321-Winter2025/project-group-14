@@ -5,11 +5,12 @@ import Button from "../components/Button";
 import Box from "../components/Box";
 
 function SignUp() {
-    const navigate = useNavigate();
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [name, setName] = useState("");
     const [error, setError] = useState(null);
+    const navigate = useNavigate();
+
 
     const handleSignUp = async (e) => {
         e.preventDefault();
@@ -18,7 +19,11 @@ function SignUp() {
         const success = await UserManagementAPI.registerUser(email, password, name);
 
         if (success) {
-            navigate("/login"); // Redirect to Login after successful signup
+            if (await UserManagementAPI.loginUser(email, password)) {
+                navigate("/games");
+            } else {
+                setError("signed-up but failed to log in");
+            }
         } else {
             setError("Email already in use or invalid input.");
         }
