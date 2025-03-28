@@ -162,4 +162,31 @@ public class BorrowingManagementController {
     public BorrowingRequestResponseDto getBorrowingRequestById(@PathVariable int requestId) {
         return new BorrowingRequestResponseDto(borrowingManagementService.getBorrowingRequestById(requestId));
     }
+
+    /**
+     * Retrieves all borrowing requests for a given borrower.
+     * 
+     * @param borrowerId The ID of the borrower.
+     * @return A list of all borrowing requests.
+     */
+    @GetMapping("/{borrowerId}/requests")
+    @RequireUser
+    public List<BorrowingRequestResponseDto> getAllRequestsForBorrower(
+            @PathVariable int borrowerId, 
+            @RequestHeader("User-Id") int userId) {
+        System.out.println("Fetching borrowing requests for borrower ID: " + borrowerId);
+        System.out.println("Received User-Id from header: " + userId);
+
+        if (borrowerId != userId) {
+            System.out.println("Mismatch between path variable and header! Borrower ID: " + borrowerId + ", User ID: " + userId);
+            throw new IllegalArgumentException("User ID does not match the borrower ID");
+        }
+
+        List<BorrowingRequest> requests = borrowingManagementService.findAllBorrowingRequestsForBorrower(borrowerId);
+        System.out.println("Number of requests found: " + requests.size());
+        return requests.stream().map(BorrowingRequestResponseDto::new).collect(Collectors.toList());
+    }
+
+
+
 }

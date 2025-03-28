@@ -1,24 +1,41 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import axios from "axios";
 import "../App.css";
 import RequestCard from "../components/RequestCard";
-import ActiveRequestCard from "../components/ActiveRequestCard";
 import SecondaryNavBar from "../components/SecondaryNavBar";
+import { AuthContext } from "../AuthContext";
 
 function SentRequestsPage() {
     const [sentRequests, setSentRequests] = useState([]);
-    const [activeRentals, setActiveRentals] = useState([]);
     const [selectedRequest, setSelectedRequest] = useState(null);
 
+    // Get user ID from context
+    const { user } = useContext(AuthContext);
+    const userId = user?.userId;
+
     useEffect(() => {
-        const mockData = [
-            { id: 1, name: "Block Wars", status: "Accepted", itemName: "Chess Set", renterName: "John Doe" },
-            { id: 2, name: "Tower Defense 2", status: "Rejected", itemName: "Game Board", renterName: "Jane Smith" },
-            { id: 3, name: "Squid Games", status: "Delivered", itemName: "VR Headset", renterName: "Tom Baker" }
-        ];
-        setSentRequests([mockData[1], mockData[2]]);
-        setActiveRentals([mockData[0]]);
-    }, []);
+        if (!userId) {
+            console.warn("User ID is not available.");
+            return;
+        }
+
+        const fetchSentRequests = async () => {
+            try {
+                console.log("Fetching requests for user ID:", userId);
+                const response = await axios.get(`http://localhost:8080/borrowingRequests/${userId}/requests`, {
+                    headers: {
+                        "User-Id": userId,
+                    },
+                });
+                setSentRequests(response.data);
+                console.log("Fetched sent requests:", response.data);
+            } catch (error) {
+                console.error("Error fetching sent requests:", error);
+            }
+        };
+
+        fetchSentRequests();
+    }, [userId]);
 
     const handleViewDetails = (request) => {
         setSelectedRequest(request);
@@ -35,7 +52,7 @@ function SentRequestsPage() {
                             sentRequests.map((request, index) => (
                                 <RequestCard
                                     key={index}
-                                    title={request.name}
+                                    title={request.gameName}
                                     status={request.status}
                                     onViewDetails={() => handleViewDetails(request)}
                                 />
@@ -51,10 +68,10 @@ function SentRequestsPage() {
                 <div className="right-column">
                     {selectedRequest ? (
                         <div className="details-box">
-                            <h2>{selectedRequest.name}</h2>
+                            <h2>{selectedRequest.gameName}</h2>
                             <p>Status: {selectedRequest.status}</p>
-                            <p>Item: {selectedRequest.itemName}</p>
-                            <p>Renter: {selectedRequest.renterName}</p>
+                            <p>Start Date: {selectedRequest.startTime}</p>
+                            <p>End Date: {selectedRequest.endTime}</p>
                         </div>
                     ) : (
                         <div className="details-box">

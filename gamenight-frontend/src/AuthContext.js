@@ -6,13 +6,14 @@ export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
-    const navigate = useNavigate(); // Add navigation
+    const navigate = useNavigate();
 
     // Load user from sessionStorage when the app starts
     useEffect(() => {
         const storedUser = sessionStorage.getItem("user");
         if (storedUser) {
             setUser(JSON.parse(storedUser));
+            console.log("Loaded user from sessionStorage:", JSON.parse(storedUser));
         }
     }, []);
 
@@ -20,9 +21,11 @@ export const AuthProvider = ({ children }) => {
     const login = async (email, password) => {
         const userData = await UserManagementAPI.loginUser(email, password);
         if (userData) {
-            sessionStorage.setItem("user", JSON.stringify(userData));
-            setUser(userData);
-            navigate("/my-games"); // Redirect to My Games
+            const personId = userData.userId;  // Treating userId as personId
+            sessionStorage.setItem("user", JSON.stringify({ userId: personId, username: userData.username }));
+            setUser({ userId: personId, username: userData.username });
+            console.log("Logged in with user ID:", personId);
+            navigate("/my-games");
         }
         return userData;
     };
@@ -31,7 +34,7 @@ export const AuthProvider = ({ children }) => {
     const logout = () => {
         sessionStorage.removeItem("user");
         setUser(null);
-        navigate("/"); // Redirect to Home after logout
+        navigate("/");
     };
 
     return (
