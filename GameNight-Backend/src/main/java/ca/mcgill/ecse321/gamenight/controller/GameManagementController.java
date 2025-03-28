@@ -2,9 +2,11 @@ package ca.mcgill.ecse321.gamenight.controller;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -83,7 +85,6 @@ public class GameManagementController {
      * @return All games in the system
      */
     @GetMapping("/games")
-    @RequireUser
     public ArrayList<GameResponseDto> findAllGames() {
         ArrayList<GameResponseDto> games = new ArrayList<GameResponseDto>();
         Iterator<Game> iterator = gameManagementService.findAllGames().iterator();
@@ -162,5 +163,15 @@ public class GameManagementController {
     @RequireUser
     public void deleteGameCopy(@PathVariable int id) {
         gameManagementService.deleteGameCopy(id);
+    }
+
+    @GetMapping("game/{gameId}/game-copies")
+    public List<GameCopyResponseDto> findGameCopiesByGame(@PathVariable int gameId) {
+        ArrayList<GameCopyResponseDto> response = new ArrayList<>();
+        List<GameCopy> gameCopies = gameManagementService.findGameCopiesByGame(gameId);
+        for (GameCopy gameCopy: gameCopies) {
+            response.add(new GameCopyResponseDto(gameCopy));
+        }
+        return response;
     }
 }

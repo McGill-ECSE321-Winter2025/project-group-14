@@ -6,17 +6,6 @@ import GameReviewsTab from './GameDetailsPageTabs/GameReviewsTab';
 import GameCopyCard from "../components/GameCopyGameDetailsPage";
 
 
-const game = {description: "A FUN GAME"}
-
-
-const gameCopies = [
-  { id: 1, owner: "Alice", description: "Well-maintained copy of Catan with all pieces included." },
-  { id: 2, owner: "Bob", description: "Slightly worn Carcassonne set, but still fun to play!" },
-  { id: 3, owner: "Charlie", description: "Brand new Ticket to Ride: Europe edition." },
-  { id: 4, owner: "Dana", description: "Risk board game, missing one red piece but fully playable." },
-];
-
-
 const GameDetailsPage = () => {
 
   const { id } = useParams();
@@ -27,14 +16,23 @@ const GameDetailsPage = () => {
     setActiveTab(tab);
   };
 
-  // const [game, setGame] = useState();
+  const [game, setGame] = useState();
   
-  // useEffect(() => {
-  //   fetch(`http://localhost:8080/games/${id}`) // Adjust URL as needed
-  //     .then((response) => response.json())
-  //     .then((data) => setGame(data))
-  //     .catch((error) => console.error("Error fetching game:", error));
-  // }, [id]);
+  useEffect(() => {
+    fetch(`http://localhost:8080/games/${id}`)
+      .then((response) => response.json())
+      .then((data) => setGame(data))
+      .catch((error) => console.error("Error fetching game:", error));
+  }, [id]);
+
+  const [gameCopies, setGameCopies] = useState();
+  
+  useEffect(() => {
+    fetch(`http://localhost:8080/game/${id}/game-copies`)
+      .then((response) => response.json())
+      .then((data) => setGameCopies(data))
+      .catch((error) => console.error("Error fetching game:", error));
+  }, [id]);
 
   return (
     <div>
@@ -67,9 +65,10 @@ const GameDetailsPage = () => {
 
       {/* Tab Content */}
       <div className="tab-content">
-        {activeTab === 'details' && (
+        {activeTab === 'details' && game && (
           <div>
-            <p>{game.description}</p>
+            
+              <p>{game.description}</p>
           </div>
         )}
         {activeTab === 'reviews' && (

@@ -2,10 +2,11 @@ import React from 'react';
 import './GameReview.css';
 
 const GameReview = ({ author, rating, comment, datePosted }) => {
-  // Format the date to a readable format (optional)
+  
+  // Format the date
   const formattedDate = new Date(datePosted).toLocaleDateString();
 
-  // Function to generate the star rating
+  // Generate stars ratings
   const renderStars = (rating) => {
     const filledStars = '★'.repeat(Math.round(rating)); // Filled stars
     const emptyStars = '☆'.repeat(5 - Math.round(rating)); // Empty stars
