@@ -1,19 +1,37 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import GameReview from '../../components/GameReview';
 import { useParams } from 'react-router-dom';
+import { AuthContext } from "../../AuthContext";
 
 const GameReviewsTab = () => {
 
     const { id } = useParams();
 
     const [reviews, setReviews] = useState([]);
+    const { user } = useContext(AuthContext);
+    const [playerId, setPlayerId] = useState();
+    const [reloadReviews, setReloadReviews] = useState(true);
 
     useEffect(() => {
-      fetch(`http://localhost:8080/games/${id}/reviews`)
-        .then((response) => response.json())
-        .then((data) => setReviews(data))
-        .catch((error) => console.error("Error fetching reviews:", error));
-    }, [id]);
+        fetch(`http://localhost:8080/players?person_id=${user.userId}`, {
+            headers: {'Content-Type': 'application/json', "User-Id": user.userId}
+        })
+          .then((response) => response.json())
+          .then((data) => setPlayerId(data))
+          .catch((error) => console.error("Error fetching player for user:", error));
+      }, [user]);
+
+    useEffect(() => {
+        if (reloadReviews) {
+            fetch(`http://localhost:8080/games/${id}/reviews-sorted?ascending=true`, {
+                headers: {'Content-Type': 'application/json', "User-Id": user.userId}
+            })
+            .then((response) => response.json())
+            .then((data) => setReviews(data))
+            .catch((error) => console.error("Error fetching reviews:", error));
+            setReloadReviews(false)
+        }
+      }, [user, id, reloadReviews]);
 
     const [showReviewForm, setShowReviewForm] = useState(false); // Track if the review form is visible
     const [review, setReview] = useState(""); // Store the review input by the user
@@ -31,24 +49,22 @@ const GameReviewsTab = () => {
     const handleSubmitReview = async (e) => {
         e.preventDefault();
 
-        const response = await fetch('http://localhost:8080/reviews', {
+        const response = await fetch('http://localhost:8080/reviews/', {
             method: 'POST',
-            body: 
-                {
-                    rating: rating,
-                    comment: review,
-                    reviewerId: 1, //GET LOGGED IN USER INFO
-                    gameId: id
-                }, 
-            headers: {
-              'Content-Type': 'application/json'
-            }
-          });
+            body: JSON.stringify({
+                reviewId: 0,
+                rating: rating, 
+                comment: review, 
+                reviewerId: playerId, 
+                gameId: id,
+                author: ""
+                }), 
+            headers: {'Content-Type': 'application/json', "User-Id": user.userId}})
+        .catch(error => console.error('Error:', error));;
 
-        // HANDLE ERRORS
-
-        console.log("Review Submitted:", { review, rating });
+        console.log("Review Submitted:", { review, rating, user }, "\nReponse:", response);
         setShowReviewForm(false); // Close the form after submitting
+        setReloadReviews(true)
     };
 
     const handleCancelReview = () => {
@@ -116,7 +132,7 @@ const GameReviewsTab = () => {
                 author={review.author}
                 rating={review.rating}
                 comment={review.comment}
-                datePosted={review.datePosted} // Pass the date here
+                datePosted={review.datePosted || "1970-01-01 00:00:00"} // Pass the date here
             />
         ))}
     </div>

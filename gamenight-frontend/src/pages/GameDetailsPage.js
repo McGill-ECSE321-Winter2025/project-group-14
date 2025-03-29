@@ -1,15 +1,15 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { useParams } from 'react-router-dom';
 import './GameDetailsPage.css';
 import './PageFormat.css';
 import GameReviewsTab from './GameDetailsPageTabs/GameReviewsTab';
 import GameCopyCard from "../components/GameCopyGameDetailsPage";
-
+import { AuthContext } from "../AuthContext";
 
 const GameDetailsPage = () => {
 
   const { id } = useParams();
-
+  const { user } = useContext(AuthContext);
   const [activeTab, setActiveTab] = useState('details'); // Track the active tab
 
   const handleTabChange = (tab) => {
@@ -19,20 +19,24 @@ const GameDetailsPage = () => {
   const [game, setGame] = useState();
   
   useEffect(() => {
-    fetch(`http://localhost:8080/games/${id}`)
+    fetch(`http://localhost:8080/games/${id}`, {
+      headers: {'Content-Type': 'application/json', "User-Id": user.userId}
+    })
       .then((response) => response.json())
       .then((data) => setGame(data))
       .catch((error) => console.error("Error fetching game:", error));
-  }, [id]);
+  }, [id, user]);
 
   const [gameCopies, setGameCopies] = useState();
   
   useEffect(() => {
-    fetch(`http://localhost:8080/game/${id}/game-copies`)
+    fetch(`http://localhost:8080/game/${id}/game-copies`, {
+      headers: {'Content-Type': 'application/json', "User-Id": user.userId}
+    })
       .then((response) => response.json())
       .then((data) => setGameCopies(data))
       .catch((error) => console.error("Error fetching game:", error));
-  }, [id]);
+  }, [id, user]);
 
   return (
     <div>

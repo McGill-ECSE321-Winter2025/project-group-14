@@ -168,4 +168,8 @@ public class UserManagementService {
         }
     }
 
+    public Player getPlayerByPersonId(int personId) {
+        return playerRepository.findByPersonId(personId);
+    }
+
 }
