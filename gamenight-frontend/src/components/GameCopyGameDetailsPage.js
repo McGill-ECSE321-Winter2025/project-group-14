@@ -1,30 +1,55 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { Card, CardContent, Typography, Button, Box } from "@mui/material";
 import { DatePicker } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import "./GameCopyGameDetailsPage.css";
+import { AuthContext } from "../AuthContext";
 
-const GameCopyCard = ({ owner, description }) => {
+const GameCopyCard = ({ gameCopyId, owner, description }) => {
   const [showDatePicker, setShowDatePicker] = useState(false);
-  const [selectedDate, setSelectedDate] = useState(null);
+  const [startDate, setStartDate] = useState(null);
+  const [endDate, setEndDate] = useState(null);
+  const { user } = useContext(AuthContext);
+  const [playerId, setPlayerId] = useState();
+
+  useEffect(() => {
+    fetch(`http://localhost:8080/players?person_id=${user.userId}`, {
+      headers: { "Content-Type": "application/json", "User-Id": user.userId },
+    })
+      .then((response) => response.json())
+      .then((data) => setPlayerId(data))
+      .catch((error) => console.error("Error fetching player for user:", error));
+  }, [user]);
 
   const handleBorrowClick = () => {
     setShowDatePicker(true);
   };
 
-  const handleDateChange = (date) => {
-    setSelectedDate(date);
-  };
+  const handleSubmit = async () => {
+    if (startDate && endDate) {
+      const response = await fetch("http://localhost:8080/borrowingRequests", {
+        method: "POST",
+        body: JSON.stringify({
+          startTime: startDate.format("YYYY-MM-DD"),
+          endTime: endDate.format("YYYY-MM-DD"),
+          senderId: playerId,
+          gameCopyId: gameCopyId,
+        }),
+        headers: { "Content-Type": "application/json", "User-Id": user.userId },
+      }).catch((error) => console.error("Error:", error));
 
-  const handleSubmit = () => {
-    if (selectedDate) {
-      console.log(`Borrow request sent for ${selectedDate.format("YYYY-MM-DD")}`);
-      alert(`Borrow request submitted for ${selectedDate.format("YYYY-MM-DD")}`);
+      console.log(
+        `Borrow request sent from ${startDate.format("YYYY-MM-DD")} to ${endDate.format("YYYY-MM-DD")}`
+      );
+      alert(
+        `Borrow request submitted from ${startDate.format("YYYY-MM-DD")} to ${endDate.format("YYYY-MM-DD")}`
+      );
       setShowDatePicker(false);
-      setSelectedDate(null);
+      setStartDate(null);
+      setEndDate(null);
     } else {
-      alert("Please select a date before submitting.");
+      alert("Please select both start and end dates before submitting.");
     }
   };
 
@@ -41,7 +66,19 @@ const GameCopyCard = ({ owner, description }) => {
           ) : (
             <Box className="date-picker-container">
               <LocalizationProvider dateAdapter={AdapterDayjs}>
-                <DatePicker label="Select a Date" value={selectedDate} onChange={handleDateChange} />
+                <DatePicker
+                  label="Start Date"
+                  value={startDate}
+                  onChange={(date) => setStartDate(date)}
+                  disablePast
+                />
+                <DatePicker
+                  label="End Date"
+                  value={endDate}
+                  onChange={(date) => setEndDate(date)}
+                  minDate={startDate} // Ensures end date is after start date
+                  disablePast
+                />
               </LocalizationProvider>
               <Button className="submit-button" onClick={handleSubmit}>
                 Submit Request
@@ -55,4 +92,3 @@ const GameCopyCard = ({ owner, description }) => {
 };
 
 export default GameCopyCard;
-

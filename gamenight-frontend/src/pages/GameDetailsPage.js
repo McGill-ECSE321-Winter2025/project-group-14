@@ -85,6 +85,7 @@ const GameDetailsPage = () => {
               {gameCopies.map((game) => (
                 <GameCopyCard
                   key={game.id}
+                  gameCopyId={game.id}
                   owner={game.owner}
                   description={game.description}
                 />
