@@ -95,6 +95,14 @@ public class GameManagementService {
         return gameCopyRepository.findByGameOwner(gameOwner);
     }
 
+    public List<GameCopy> findGameCopiesByGame(int gameID) {
+        Optional<Game> game = gameRepository.findById(gameID);
+        if (game.isEmpty()) {
+            throw new ObjectNotFoundException("There is no game with ID " + gameID);
+        }
+        return gameCopyRepository.findByGame(game.get());
+    }
+
     private GameOwner getGameOwnerById(int ownerId) throws ObjectNotFoundException {
         Optional<GameOwner> owner = gameOwnerRepository.findById(ownerId);
         if (owner.isEmpty()) {

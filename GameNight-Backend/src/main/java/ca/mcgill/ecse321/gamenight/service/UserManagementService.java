@@ -168,4 +168,11 @@ public class UserManagementService {
         }
     }
 
+    public Player getPlayerByPersonId(int personId) {
+        return playerRepository.findByPersonId(personId);
+    }
+
+    public GameOwner getGameOwnerByPersonId(int personId) {
+        return gameOwnerRepository.findByPersonId(personId);
+    }
 }

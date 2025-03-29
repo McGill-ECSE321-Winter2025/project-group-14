@@ -1,6 +1,7 @@
 package ca.mcgill.ecse321.gamenight.controller;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +21,7 @@ import ca.mcgill.ecse321.gamenight.exception.ObjectNotFoundException;
 import ca.mcgill.ecse321.gamenight.middleware.RequireUser;
 import ca.mcgill.ecse321.gamenight.service.UserManagementService;
 import ca.mcgill.ecse321.gamenight.model.Person;
+import ca.mcgill.ecse321.gamenight.model.Player;
 
 @RestController
 public class UserManagementController {
@@ -159,5 +161,16 @@ public class UserManagementController {
         }
 
         return ResponseEntity.ok(new PersonResponseDto(targetUser));
+    }
+
+    @GetMapping("/players")
+    public Integer getPlayerByPersonId(@RequestParam(name = "person_id") int personId) {
+        Player player = userService.getPlayerByPersonId(personId);
+        return player.getId();
+    }
+
+    @GetMapping("/game-owners")
+    public String getOwnersId(@RequestParam(name = "person_id") int personId) {
+        return userService.getGameOwnerByPersonId(personId).getPerson().getName();
     }
 }

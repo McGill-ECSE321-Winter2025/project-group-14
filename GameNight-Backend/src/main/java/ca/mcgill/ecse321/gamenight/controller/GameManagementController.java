@@ -2,6 +2,7 @@ package ca.mcgill.ecse321.gamenight.controller;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -23,6 +24,7 @@ import ca.mcgill.ecse321.gamenight.middleware.RequireUser;
 import ca.mcgill.ecse321.gamenight.model.Game;
 import ca.mcgill.ecse321.gamenight.model.GameCopy;
 import ca.mcgill.ecse321.gamenight.service.GameManagementService;
+import ca.mcgill.ecse321.gamenight.service.GameReviewService;
 
 /**
  * REST controller for managing games and game copies
@@ -36,6 +38,9 @@ public class GameManagementController {
     @Autowired
     GameManagementService gameManagementService;
 
+    @Autowired
+    GameReviewService reviewService;
+
     /**
      * Create a new game
      * 
@@ -47,7 +52,7 @@ public class GameManagementController {
     @RequireUser
     public GameResponseDto createGame(@RequestBody GameRequestDto game) {
         Game g = gameManagementService.createGame(game.getName(), game.getDescription());
-        return new GameResponseDto(g);
+        return new GameResponseDto(g, 0);
     }
 
     /**
@@ -60,7 +65,8 @@ public class GameManagementController {
     @RequireUser
     public GameResponseDto findGameById(@PathVariable int id) {
         Game g = gameManagementService.findGameById(id);
-        return new GameResponseDto(g);
+        int rating = (int) reviewService.getAverageRatingForGame(g)/5;
+        return new GameResponseDto(g, rating);
     }
 
     /**
@@ -74,7 +80,8 @@ public class GameManagementController {
     @RequireUser
     public GameResponseDto updateGame(@PathVariable int id, @RequestBody GameRequestDto game) {
         Game g = gameManagementService.updateGame(id, game.getName(), game.getDescription());
-        return new GameResponseDto(g);
+        int rating = (int) reviewService.getAverageRatingForGame(g)/5;
+        return new GameResponseDto(g, rating);
     }
 
     /**
@@ -83,12 +90,13 @@ public class GameManagementController {
      * @return All games in the system
      */
     @GetMapping("/games")
-    @RequireUser
     public ArrayList<GameResponseDto> findAllGames() {
         ArrayList<GameResponseDto> games = new ArrayList<GameResponseDto>();
         Iterator<Game> iterator = gameManagementService.findAllGames().iterator();
         while (iterator.hasNext()) {
-            games.add(new GameResponseDto(iterator.next()));
+            Game game = iterator.next();
+            int rating = (int) reviewService.getAverageRatingForGame(game)/5;
+            games.add(new GameResponseDto(game, rating));
         }
         return games;
     }
@@ -162,5 +170,22 @@ public class GameManagementController {
     @RequireUser
     public void deleteGameCopy(@PathVariable int id) {
         gameManagementService.deleteGameCopy(id);
+    }
+
+    /**
+     * Get all the copies of a given game
+     * 
+     * @param gameId The id of the game
+     * @return The game copies of the given game
+     */
+    @GetMapping("game/{gameId}/game-copies")
+    @RequireUser
+    public List<GameCopyResponseDto> findGameCopiesByGame(@PathVariable int gameId) {
+        ArrayList<GameCopyResponseDto> response = new ArrayList<>();
+        List<GameCopy> gameCopies = gameManagementService.findGameCopiesByGame(gameId);
+        for (GameCopy gameCopy: gameCopies) {
+            response.add(new GameCopyResponseDto(gameCopy));
+        }
+        return response;
     }
 }
