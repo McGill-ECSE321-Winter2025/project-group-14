@@ -24,6 +24,7 @@ import ca.mcgill.ecse321.gamenight.middleware.RequireUser;
 import ca.mcgill.ecse321.gamenight.model.Game;
 import ca.mcgill.ecse321.gamenight.model.GameCopy;
 import ca.mcgill.ecse321.gamenight.service.GameManagementService;
+import ca.mcgill.ecse321.gamenight.service.GameReviewService;
 
 /**
  * REST controller for managing games and game copies
@@ -37,6 +38,9 @@ public class GameManagementController {
     @Autowired
     GameManagementService gameManagementService;
 
+    @Autowired
+    GameReviewService reviewService;
+
     /**
      * Create a new game
      * 
@@ -48,7 +52,7 @@ public class GameManagementController {
     @RequireUser
     public GameResponseDto createGame(@RequestBody GameRequestDto game) {
         Game g = gameManagementService.createGame(game.getName(), game.getDescription());
-        return new GameResponseDto(g);
+        return new GameResponseDto(g, 0);
     }
 
     /**
@@ -61,7 +65,8 @@ public class GameManagementController {
     @RequireUser
     public GameResponseDto findGameById(@PathVariable int id) {
         Game g = gameManagementService.findGameById(id);
-        return new GameResponseDto(g);
+        int rating = (int) reviewService.getAverageRatingForGame(g)/5;
+        return new GameResponseDto(g, rating);
     }
 
     /**
@@ -75,7 +80,8 @@ public class GameManagementController {
     @RequireUser
     public GameResponseDto updateGame(@PathVariable int id, @RequestBody GameRequestDto game) {
         Game g = gameManagementService.updateGame(id, game.getName(), game.getDescription());
-        return new GameResponseDto(g);
+        int rating = (int) reviewService.getAverageRatingForGame(g)/5;
+        return new GameResponseDto(g, rating);
     }
 
     /**
@@ -88,7 +94,9 @@ public class GameManagementController {
         ArrayList<GameResponseDto> games = new ArrayList<GameResponseDto>();
         Iterator<Game> iterator = gameManagementService.findAllGames().iterator();
         while (iterator.hasNext()) {
-            games.add(new GameResponseDto(iterator.next()));
+            Game game = iterator.next();
+            int rating = (int) reviewService.getAverageRatingForGame(game)/5;
+            games.add(new GameResponseDto(game, rating));
         }
         return games;
     }

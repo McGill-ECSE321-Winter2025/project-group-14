@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { useParams, useLocation  } from 'react-router-dom';
 import './GameDetailsPage.css';
-import './PageFormat.css';
 import GameReviewsTab from './GameDetailsPageTabs/GameReviewsTab';
 import GameCopyCard from "../components/GameCopyGameDetailsPage";
 import { AuthContext } from "../AuthContext";
+import '../App.css';
 
 
 const GameDetailsPage = () => {
@@ -14,7 +14,7 @@ const GameDetailsPage = () => {
   const [activeTab, setActiveTab] = useState('details'); // Track the active tab
 
   const location = useLocation();
-  const { title } = location.state || {};
+  const { title, image } = location.state || {};
 
   const handleTabChange = (tab) => {
     setActiveTab(tab);
@@ -43,11 +43,12 @@ const GameDetailsPage = () => {
   }, [id, user]);
 
   return (
-    <div>
-      <h1 className="page-title">{title}</h1>
+    <div className='container'>
+      <h1 className="centered">{title}</h1>
       <div className='central-image-container'>
-        <img className="central-image" src="https://picsum.photos/200/200" alt="game"/>
+        <img className="central-image" src={image} alt="game"/>
       </div>
+      
       
     {/* Tab Navigation */}
     <div className="tabs">
