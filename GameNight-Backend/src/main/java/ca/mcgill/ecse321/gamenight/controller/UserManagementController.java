@@ -160,4 +160,10 @@ public class UserManagementController {
 
         return ResponseEntity.ok(new PersonResponseDto(targetUser));
     }
+
+    @GetMapping("/users/{userId}/owner-id")
+    public ResponseEntity<Integer> getOwnerIdByUserId(@PathVariable Integer userId) {
+    Integer ownerId = userService.findOwnerIdByUserId(userId);
+    return ResponseEntity.ok(ownerId);
+    }
 }

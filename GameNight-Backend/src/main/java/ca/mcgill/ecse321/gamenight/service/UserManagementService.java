@@ -167,5 +167,11 @@ public class UserManagementService {
             throw new InvalidInputException("Invalid email pattern");
         }
     }
+    
+    public Integer findOwnerIdByUserId(Integer userId) {
+    // Find the GameOwner associated with this user
+    GameOwner owner = gameOwnerRepository.findByPersonId(userId);
+    return owner.getId();
+    }
 
 }
