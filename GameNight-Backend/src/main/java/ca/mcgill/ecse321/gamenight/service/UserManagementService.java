@@ -172,4 +172,7 @@ public class UserManagementService {
         return playerRepository.findByPersonId(personId);
     }
 
+    public GameOwner getGameOwnerByPersonId(int personId) {
+        return gameOwnerRepository.findByPersonId(personId);
+    }
 }

@@ -28,7 +28,7 @@ const GameCopyCard = ({ gameCopyId, owner, description }) => {
 
   const handleSubmit = async () => {
     if (startDate && endDate) {
-      const response = await fetch("http://localhost:8080/borrowingRequests", {
+      await fetch("http://localhost:8080/borrowingRequests", {
         method: "POST",
         body: JSON.stringify({
           startTime: startDate.format("YYYY-MM-DD"),

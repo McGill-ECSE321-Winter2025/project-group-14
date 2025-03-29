@@ -1,16 +1,20 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useLocation  } from 'react-router-dom';
 import './GameDetailsPage.css';
 import './PageFormat.css';
 import GameReviewsTab from './GameDetailsPageTabs/GameReviewsTab';
 import GameCopyCard from "../components/GameCopyGameDetailsPage";
 import { AuthContext } from "../AuthContext";
 
+
 const GameDetailsPage = () => {
 
   const { id } = useParams();
   const { user } = useContext(AuthContext);
   const [activeTab, setActiveTab] = useState('details'); // Track the active tab
+
+  const location = useLocation();
+  const { title } = location.state || {};
 
   const handleTabChange = (tab) => {
     setActiveTab(tab);
@@ -40,7 +44,7 @@ const GameDetailsPage = () => {
 
   return (
     <div>
-      <h1 className="page-title">Game Details for Game ID: {id}</h1>
+      <h1 className="page-title">{title}</h1>
       <div className='central-image-container'>
         <img className="central-image" src="https://picsum.photos/200/200" alt="game"/>
       </div>
@@ -71,7 +75,6 @@ const GameDetailsPage = () => {
       <div className="tab-content">
         {activeTab === 'details' && game && (
           <div>
-            
               <p>{game.description}</p>
           </div>
         )}
@@ -86,7 +89,7 @@ const GameDetailsPage = () => {
                 <GameCopyCard
                   key={game.id}
                   gameCopyId={game.id}
-                  owner={game.owner}
+                  owner={game.gameOwnerName}
                   description={game.description}
                 />
               ))}

@@ -168,4 +168,9 @@ public class UserManagementController {
         Player player = userService.getPlayerByPersonId(personId);
         return player.getId();
     }
+
+    @GetMapping("/game-owners")
+    public String getOwnersId(@RequestParam(name = "person_id") int personId) {
+        return userService.getGameOwnerByPersonId(personId).getPerson().getName();
+    }
 }

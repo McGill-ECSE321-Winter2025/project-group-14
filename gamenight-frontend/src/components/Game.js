@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 
 const Game = ({ id, title, imageUrl }) => {
     return (
-        <Link to={`/games/${id}`} className="game-card" style={{ textDecoration: 'none' }}>
+        <Link to={`/games/${id}`} state={{ title }} className="game-card" style={{ textDecoration: 'none' }}>
             <div className="image-container">
             <img src={imageUrl} alt={title} />
             </div>
