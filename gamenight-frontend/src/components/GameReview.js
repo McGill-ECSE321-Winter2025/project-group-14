@@ -8,14 +8,14 @@ const GameReview = ({ author, rating, comment, datePosted }) => {
 
   // Generate stars ratings
   const renderStars = (rating) => {
-    const filledStars = '★'.repeat(Math.round(rating)); // Filled stars
-    const emptyStars = '☆'.repeat(5 - Math.round(rating)); // Empty stars
-    return filledStars + emptyStars; // Combine them
+    const filledStars = '★'.repeat(Math.round(rating));
+    const emptyStars = '☆'.repeat(5 - Math.round(rating));
+    return filledStars + emptyStars;
   };
 
   return (
-    <div className="review-card p-4 bg-white rounded-lg shadow-md">
-      <div className="review-header flex items-center justify-between mb-3">
+    <div className="review-card">
+      <div className="review-header">
         <div className="author-info">
           <h3 className="text-lg font-semibold text-gray-800">{author}</h3>
         </div>

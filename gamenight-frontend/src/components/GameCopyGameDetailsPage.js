@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useContext } from "react";
-import { Card, CardContent, Typography, Box } from "@mui/material";
 import { DatePicker } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
@@ -55,17 +54,17 @@ const GameCopyCard = ({ gameCopyId, owner, description }) => {
   };
 
   return (
-    <Card className="game-copy-card">
-      <CardContent>
-        <Typography variant="h6" className="owner-text">Owner: {owner}</Typography>
-        <Typography variant="body2" className="description-text">{description}</Typography>
-        <Box className="button-container">
+    <div className="game-copy-card">
+      <div className="centered">
+        <div className="owner-text">Owner: {owner}</div>
+        <div className="description-text">{description}</div>
+        <div className="button-container">
           {!showDatePicker ? (
             <Button onClick={handleBorrowClick}>
               Ask to Borrow
             </Button>
           ) : (
-            <Box className="date-picker-container">
+            <div className="date-picker-container">
               <LocalizationProvider dateAdapter={AdapterDayjs}>
                 <DatePicker
                   label="Start Date"
@@ -84,11 +83,11 @@ const GameCopyCard = ({ gameCopyId, owner, description }) => {
               <Button type="success" onClick={handleSubmit}>
                 Submit Request
               </Button>
-            </Box>
+            </div>
           )}
-        </Box>
-      </CardContent>
-    </Card>
+        </div>
+      </div>
+    </div>
   );
 };
 
