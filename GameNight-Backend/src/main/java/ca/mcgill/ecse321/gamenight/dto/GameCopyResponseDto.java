@@ -19,7 +19,7 @@ public class GameCopyResponseDto {
         this.description = gameCopy.getDescription();
         this.gameOwnerName = gameCopy.getOwner().getPerson().getName();
         this.personId = gameCopy.getOwner().getId();
-        this.game = new GameResponseDto(gameCopy.getGame(), 0); // change to actual rating??
+        this.game = new GameResponseDto(gameCopy.getGame(), 0d); // change to actual rating??
     }
 
     public int getId() {

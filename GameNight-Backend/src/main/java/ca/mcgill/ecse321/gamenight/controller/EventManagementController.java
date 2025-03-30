@@ -111,7 +111,7 @@ public class EventManagementController {
         ArrayList<GameResponseDto> response = new ArrayList<>();
         List<Game> games = eventService.getGamesForEvent(eventId);
         for (Game game: games) {
-            int rating = (int) reviewService.getAverageRatingForGame(game)/5;
+            Double rating = reviewService.getAverageRatingForGame(game);
             response.add(new GameResponseDto(game, rating));
         }
         return response;
