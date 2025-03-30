@@ -153,8 +153,8 @@ public class GameReviewRepositoryTest {
     @Test
     public void testFindByGameOrderByRatingDesc() {
         GameReview gameReview1 = new GameReview(5, "Great game!", player, game);
-        GameReview gameReview2 = new GameReview(4, "Good game!", player, game);
         gameReviewRepo.save(gameReview1);
+        GameReview gameReview2 = new GameReview(4, "Good game!", player, game);
         gameReviewRepo.save(gameReview2);
 
         List<GameReview> reviews = gameReviewRepo.findByGameOrderByRatingDesc(game);
