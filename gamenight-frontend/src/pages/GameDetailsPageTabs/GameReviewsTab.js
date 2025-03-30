@@ -2,6 +2,8 @@ import React, { useEffect, useState, useContext } from 'react';
 import GameReview from '../../components/GameReview';
 import { useParams } from 'react-router-dom';
 import { AuthContext } from "../../AuthContext";
+import Button from "../../components/Button"
+import '../../App.css';
 
 const GameReviewsTab = () => {
 
@@ -23,7 +25,7 @@ const GameReviewsTab = () => {
 
     useEffect(() => {
         if (reloadReviews) {
-            fetch(`http://localhost:8080/games/${id}/reviews-sorted?ascending=true`, {
+            fetch(`http://localhost:8080/games/${id}/reviews`, {
                 headers: {'Content-Type': 'application/json', "User-Id": user.userId}
             })
             .then((response) => response.json())
@@ -72,16 +74,11 @@ const GameReviewsTab = () => {
     };
 
     return (
-    <div>
+    <div className='container'>
         {/* Add Review Button */}
         {!showReviewForm && (
-            <div className='container-center'>
-            <button
-            className="add-review-btn"
-            onClick={() => setShowReviewForm(true)} // Open the review form
-            >
-            Add a Review
-            </button>
+            <div className="centered">
+                <Button type="success" onClick={() => setShowReviewForm(true)}>Add a review</Button>
             </div>
         )}
 
@@ -119,8 +116,8 @@ const GameReviewsTab = () => {
 
             {/* Submit and Cancel Buttons */}
             <div className="review-buttons">
-                <button type="submit" className="submit-review-btn">Submit Review</button>
-                <button type="button" className="cancel-review-btn" onClick={handleCancelReview}>Cancel</button>
+                <Button type="success">Submit review</Button>
+                <Button type="danger" onClick={handleCancelReview}>Cancel</Button>
             </div>
             </form>
             </div>

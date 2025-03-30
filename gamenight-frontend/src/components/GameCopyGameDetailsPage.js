@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useContext } from "react";
-import { Card, CardContent, Typography, Button, Box } from "@mui/material";
+import { Card, CardContent, Typography, Box } from "@mui/material";
 import { DatePicker } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import "./GameCopyGameDetailsPage.css";
 import { AuthContext } from "../AuthContext";
+import Button from "./Button"
 
 const GameCopyCard = ({ gameCopyId, owner, description }) => {
   const [showDatePicker, setShowDatePicker] = useState(false);
@@ -60,7 +61,7 @@ const GameCopyCard = ({ gameCopyId, owner, description }) => {
         <Typography variant="body2" className="description-text">{description}</Typography>
         <Box className="button-container">
           {!showDatePicker ? (
-            <Button className="borrow-button" onClick={handleBorrowClick}>
+            <Button onClick={handleBorrowClick}>
               Ask to Borrow
             </Button>
           ) : (
@@ -80,7 +81,7 @@ const GameCopyCard = ({ gameCopyId, owner, description }) => {
                   disablePast
                 />
               </LocalizationProvider>
-              <Button className="submit-button" onClick={handleSubmit}>
+              <Button type="success" onClick={handleSubmit}>
                 Submit Request
               </Button>
             </Box>
