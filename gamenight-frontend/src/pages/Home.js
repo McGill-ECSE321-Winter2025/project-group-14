@@ -72,6 +72,7 @@ function Home() {
 
                     return (
                         <div
+                            onClick={() => window.location.href = '/login'}
                             key={i}
                             className="carousel-item"
                             style={{
