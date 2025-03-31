@@ -24,6 +24,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.Assert;
 
 import ca.mcgill.ecse321.gamenight.dto.ErrorDto;
 import ca.mcgill.ecse321.gamenight.dto.GameCopyRequestDto;
@@ -38,6 +39,7 @@ import ca.mcgill.ecse321.gamenight.repo.GameCopyRepository;
 import ca.mcgill.ecse321.gamenight.repo.GameOwnerRepository;
 import ca.mcgill.ecse321.gamenight.repo.GameRepository;
 import ca.mcgill.ecse321.gamenight.repo.PersonRepository;
+import jakarta.validation.constraints.AssertTrue;
 
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
@@ -292,6 +294,30 @@ public class GameManagementIntegrationTest {
 
     @Test
     @Order(9)
+    public void testFindGameCopiesByGame() {
+        Game game = gameRepository.save(new Game("Batman", "A batman game"));
+        GameCopy gc1 = gameCopyRepository.save(new GameCopy("Perfect condition", game, aGameOwner));
+        GameCopy gc2 = gameCopyRepository.save(new GameCopy("Missing piece", game, aGameOwner));
+        GameCopy gc3 = gameCopyRepository.save(new GameCopy("Missing instructions", game, aGameOwner));
+        
+        String url = String.format("/game/%d/game-copies", game.getId());
+        HttpEntity<?> requestEntity = new HttpEntity<>(authenticationHeaders);
+
+        ResponseEntity<GameCopyResponseDto[]> response = client.exchange(
+                url,
+                HttpMethod.GET,
+                requestEntity,
+                GameCopyResponseDto[].class);
+        
+        assertEquals(3, response.getBody().length);
+        GameCopyResponseDto[] gameCopiesQueried = response.getBody();
+        assertEquals(gameCopiesQueried[0].getId(), gc1.getId());
+        assertEquals(gameCopiesQueried[1].getId(), gc2.getId());
+        assertEquals(gameCopiesQueried[2].getId(), gc3.getId());
+    }
+
+    @Test
+    @Order(10)
     public void testDeleteGameCopy() {
         String url = String.format("/game-copies/%d", createdGameCopyId);
         HttpEntity<?> requestEntity = new HttpEntity<>(authenticationHeaders);
