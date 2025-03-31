@@ -65,7 +65,7 @@ public class GameManagementController {
     @RequireUser
     public GameResponseDto findGameById(@PathVariable int id) {
         Game g = gameManagementService.findGameById(id);
-        Double rating = reviewService.getAverageRatingForGame(g)/5;
+        Double rating = reviewService.getAverageRatingForGame(g) / 5;
         return new GameResponseDto(g, rating);
     }
 
@@ -95,7 +95,7 @@ public class GameManagementController {
         Iterator<Game> iterator = gameManagementService.findAllGames().iterator();
         while (iterator.hasNext()) {
             Game game = iterator.next();
-            Double rating = reviewService.getAverageRatingForGame(game)/5;
+            Double rating = reviewService.getAverageRatingForGame(game) / 5;
             games.add(new GameResponseDto(game, rating));
         }
         return games;
@@ -123,7 +123,7 @@ public class GameManagementController {
         while (result.size() < 10) {
             java.util.Collections.shuffle(allGames);
             for (Game g : allGames) {
-                int rating = (int) reviewService.getAverageRatingForGame(g) / 5;
+                Double rating = (Double) reviewService.getAverageRatingForGame(g) / 5;
                 result.add(new GameResponseDto(g, rating));
                 if (result.size() == 10)
                     break;
@@ -212,7 +212,7 @@ public class GameManagementController {
      * @param gameId The id of the game
      * @return The game copies of the given game
      */
-    @GetMapping("game/{gameId}/game-copies")
+    @GetMapping("/game/{gameId}/game-copies")
     @RequireUser
     public List<GameCopyResponseDto> findGameCopiesByGame(@PathVariable int gameId) {
         ArrayList<GameCopyResponseDto> response = new ArrayList<>();
