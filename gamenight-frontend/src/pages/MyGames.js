@@ -3,7 +3,6 @@ import { Typography, Tabs, Tab, Box, Button, Grid, CircularProgress,  Modal,   B
 import GameCopyCard from "../components/GameCopyCard";
 import AddGameCopyForm from "../components/AddGameCopyForm";
 import { AuthContext } from "../AuthContext";
-import "../App.css";
 
 function MyGamesPage() {
   const { user } = useContext(AuthContext);
@@ -126,9 +125,9 @@ function MyGamesPage() {
 
   return (
     <div className="container">
-      <Typography variant="h4" gutterBottom className="centered">
-        My Games
-      </Typography>
+        <div>
+            <h1 className="centered">My Games</h1>
+        </div>
 
       <Box sx={{ width: '100%', mb: 3 }}>
         <Tabs value={tabValue} onChange={handleTabChange} centered>
@@ -139,14 +138,15 @@ function MyGamesPage() {
 
       {tabValue === 0 && (
         <>
-          <Button 
-            variant="contained" 
-            color="primary" 
-            onClick={handleAddGameCopy}
-            sx={{ mb: 3 }}
-          >
-            Add Game Copy
-          </Button>
+          <Box display="flex" justifyContent="center" sx={{ mb: 3 }}>
+            <Button 
+              variant="contained" 
+              color="primary" 
+              onClick={handleAddGameCopy}
+            >
+              Add Game Copy
+            </Button>
+          </Box>
 
           <Modal
             open={showAddForm}
@@ -168,9 +168,13 @@ function MyGamesPage() {
           </Modal>
 
           {loading ? (
-            <Typography>Loading your game collection...</Typography>
+            <Box display="flex" justifyContent="center">
+              <Typography>Loading your game collection...</Typography>
+            </Box>
           ) : myGameCopies.length === 0 ? (
-            <Typography>You don't have any games in your collection yet.</Typography>
+            <Box display="flex" justifyContent="center">
+              <Typography>You don't have any games in your collection yet.</Typography>
+            </Box>
           ) : (
             <Grid container spacing={3}>
               {myGameCopies.map((gameCopy) => (
@@ -188,13 +192,16 @@ function MyGamesPage() {
         </>
       )}
 
-      {/* Keep the borrowed games section exactly the same */}
       {tabValue === 1 && (
         <>
           {loading ? (
-            <Typography>Loading borrowed games...</Typography>
+            <Box display="flex" justifyContent="center">
+              <Typography>Loading borrowed games...</Typography>
+            </Box>
           ) : borrowedGameCopies.length === 0 ? (
-            <Typography>You haven't borrowed any games yet.</Typography>
+            <Box display="flex" justifyContent="center">
+              <Typography>You haven't borrowed any games yet.</Typography>
+            </Box>
           ) : (
             <Grid container spacing={3}>
               {borrowedGameCopies.map((gameCopy) => (
