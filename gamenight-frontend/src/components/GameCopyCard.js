@@ -14,6 +14,7 @@ import {
 } from "@mui/material";
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
+import "../App.css";
 
 const GameCopyCard = ({ gameCopy, onDelete, onUpdate, isOwner }) => {
   const [editMode, setEditMode] = useState(false);
@@ -68,10 +69,6 @@ const GameCopyCard = ({ gameCopy, onDelete, onUpdate, isOwner }) => {
             {gameCopy.description}
           </Typography>
         )}
-
-        <Typography variant="body2" color="text.secondary">
-          Owner: {gameCopy.owner?.name || "Unknown"}
-        </Typography>
       </CardContent>
 
       {isOwner && (

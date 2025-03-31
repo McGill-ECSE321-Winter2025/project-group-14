@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useContext, useCallback } from "react";
-import { Typography, Tabs, Tab, Box, Button, Grid, CircularProgress,  Modal,   Backdrop,  Fade} from "@mui/material";
+import { Tabs, Tab, Box, Grid, CircularProgress, Modal, Backdrop, Fade } from "@mui/material";
 import GameCopyCard from "../components/GameCopyCard";
 import AddGameCopyForm from "../components/AddGameCopyForm";
 import { AuthContext } from "../AuthContext";
+import Button from "../components/Button";
 
 function MyGamesPage() {
   const { user } = useContext(AuthContext);
@@ -38,7 +39,6 @@ function MyGamesPage() {
       setBorrowedGameCopies([]);
     }
   }, [user?.userId]);
-
 
   useEffect(() => {
     if (!authChecked || !user) return;
@@ -110,7 +110,6 @@ function MyGamesPage() {
     }
   };
 
-
   const modalStyle = {
     position: 'absolute',
     top: '50%',
@@ -125,25 +124,49 @@ function MyGamesPage() {
 
   return (
     <div className="container">
-        <div>
-            <h1 className="centered">My Games</h1>
-        </div>
+      <div>
+        <h1 className="centered">My Games</h1>
+      </div>
 
-      <Box sx={{ width: '100%', mb: 3 }}>
-        <Tabs value={tabValue} onChange={handleTabChange} centered>
-          <Tab label="My Collection" />
-          <Tab label="Borrowed Games" />
-        </Tabs>
-      </Box>
+      <Box sx={{ 
+  width: '100%', 
+  mb: 3,
+  '& .MuiTabs-indicator': {
+    backgroundColor: 'black',
+    height: '3px'
+  },
+  '& .MuiTab-root': {
+    color: '#666', // Dark gray for inactive tabs
+    fontSize: '1rem',
+    textTransform: 'none', // Removes uppercase transformation
+    fontWeight: 500,
+    padding: '12px 24px',
+    minWidth: 'unset', // Allows tabs to size naturally
+    '&.Mui-selected': {
+      color: 'black',
+      fontWeight: 600
+    },
+    '&:hover': {
+      color: 'black',
+      opacity: 1
+    }
+  }
+}}>
+  <Tabs 
+    value={tabValue} 
+    onChange={handleTabChange} 
+    centered
+    variant="fullWidth" // Optional: makes tabs take full width
+  >
+    <Tab label="My Collection" />
+    <Tab label="Borrowed Games" />
+  </Tabs>
+</Box>
 
       {tabValue === 0 && (
         <>
           <Box display="flex" justifyContent="center" sx={{ mb: 3 }}>
-            <Button 
-              variant="contained" 
-              color="primary" 
-              onClick={handleAddGameCopy}
-            >
+            <Button onClick={handleAddGameCopy}>
               Add Game Copy
             </Button>
           </Box>
@@ -169,11 +192,11 @@ function MyGamesPage() {
 
           {loading ? (
             <Box display="flex" justifyContent="center">
-              <Typography>Loading your game collection...</Typography>
+              <p className="text-center">Loading your game collection...</p>
             </Box>
           ) : myGameCopies.length === 0 ? (
             <Box display="flex" justifyContent="center">
-              <Typography>You don't have any games in your collection yet.</Typography>
+              <p className="text-center">You don't have any games in your collection yet.</p>
             </Box>
           ) : (
             <Grid container spacing={3}>
@@ -196,11 +219,11 @@ function MyGamesPage() {
         <>
           {loading ? (
             <Box display="flex" justifyContent="center">
-              <Typography>Loading borrowed games...</Typography>
+              <p className="text-center">Loading borrowed games...</p>
             </Box>
           ) : borrowedGameCopies.length === 0 ? (
             <Box display="flex" justifyContent="center">
-              <Typography>You haven't borrowed any games yet.</Typography>
+              <p className="text-center">You haven't borrowed any games yet.</p>
             </Box>
           ) : (
             <Grid container spacing={3}>
