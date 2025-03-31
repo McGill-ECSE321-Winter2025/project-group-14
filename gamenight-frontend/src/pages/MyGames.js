@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext, useCallback } from "react";
-import { Typography, Tabs, Tab, Box, Button, Grid, CircularProgress } from "@mui/material";
+import { Typography, Tabs, Tab, Box, Button, Grid, CircularProgress,  Modal,   Backdrop,  Fade} from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import GameCopyCard from "../components/GameCopyCard";
 import AddGameCopyForm from "../components/AddGameCopyForm";
@@ -120,6 +120,19 @@ function MyGamesPage() {
     }
   };
 
+
+  const modalStyle = {
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+    width: 400,
+    bgcolor: 'background.paper',
+    boxShadow: 24,
+    p: 4,
+    borderRadius: 2
+  };
+  
   return (
     <div className="container">
       <Typography variant="h4" gutterBottom className="centered">
@@ -135,23 +148,33 @@ function MyGamesPage() {
 
       {tabValue === 0 && (
         <>
-          {!showAddForm && (
-            <Button 
-              variant="contained" 
-              color="primary" 
-              onClick={handleAddGameCopy}
-              sx={{ mb: 3 }}
-            >
-              Add Game Copy
-            </Button>
-          )}
+          <Button 
+            variant="contained" 
+            color="primary" 
+            onClick={handleAddGameCopy}
+            sx={{ mb: 3 }}
+          >
+            Add Game Copy
+          </Button>
 
-          {showAddForm && (
-            <AddGameCopyForm 
-              onCancel={handleCancelAdd} 
-              onSuccess={handleGameCopyAdded} 
-            />
-          )}
+          <Modal
+            open={showAddForm}
+            onClose={handleCancelAdd}
+            closeAfterTransition
+            BackdropComponent={Backdrop}
+            BackdropProps={{
+              timeout: 500,
+            }}
+          >
+            <Fade in={showAddForm}>
+              <Box sx={modalStyle}>
+                <AddGameCopyForm 
+                  onCancel={handleCancelAdd} 
+                  onSuccess={handleGameCopyAdded} 
+                />
+              </Box>
+            </Fade>
+          </Modal>
 
           {loading ? (
             <Typography>Loading your game collection...</Typography>
@@ -174,6 +197,7 @@ function MyGamesPage() {
         </>
       )}
 
+      {/* Keep the borrowed games section exactly the same */}
       {tabValue === 1 && (
         <>
           {loading ? (
