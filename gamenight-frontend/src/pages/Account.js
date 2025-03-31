@@ -1,4 +1,5 @@
 import React, { useContext } from "react";
+import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../AuthContext";
 import Button from "../components/Button";
 import Box from "../components/Box";
@@ -6,6 +7,12 @@ import "../App.css";
 
 function Account() {
     const { user, logout } = useContext(AuthContext);
+    const navigate = useNavigate();
+
+    const handleLogout = () => {
+        logout();
+        setTimeout(() => navigate("/"), 0); // ✅ ensures clean redirect
+    };
 
     return (
         <Box dark>
@@ -30,7 +37,7 @@ function Account() {
                 </div>
 
                 <Button seamless>Edit Profile</Button>
-                <Button type="danger" onClick={logout}>Logout</Button>
+                <Button type="danger" onClick={handleLogout}>Logout</Button>
             </div>
         </Box>
     );

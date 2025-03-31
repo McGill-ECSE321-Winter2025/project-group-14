@@ -95,11 +95,27 @@ public class GameManagementService {
         return gameCopyRepository.findByGameOwner(gameOwner);
     }
 
+    public List<GameCopy> findGameCopiesByGame(int gameID) {
+        Optional<Game> game = gameRepository.findById(gameID);
+        if (game.isEmpty()) {
+            throw new ObjectNotFoundException("There is no game with ID " + gameID);
+        }
+        return gameCopyRepository.findByGame(game.get());
+    }
+
     private GameOwner getGameOwnerById(int ownerId) throws ObjectNotFoundException {
         Optional<GameOwner> owner = gameOwnerRepository.findById(ownerId);
         if (owner.isEmpty()) {
             throw new ObjectNotFoundException("There is no owner with ID " + ownerId);
         }
         return owner.get();
+    }
+
+    public int getGameOwnerIdByPersonId(int personId) throws ObjectNotFoundException {
+        GameOwner owner = gameOwnerRepository.findByPersonId(personId);
+        if (owner == null) {
+            throw new ObjectNotFoundException("There is no owner with ID " + personId);
+        }
+        return owner.getId();
     }
 }
