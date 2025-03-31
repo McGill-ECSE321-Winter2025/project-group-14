@@ -1,6 +1,6 @@
 import React from "react";
-import Button from "./Button";
-import "../App.css";
+import Button from "../ui/Button";
+import '../../App.css';
 
 function GameCard({ title, image, rating }) {
     return (

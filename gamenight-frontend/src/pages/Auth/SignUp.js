@@ -1,8 +1,9 @@
 import React, { useState, useContext } from "react";
-import { AuthContext } from "../AuthContext";
-import { UserManagementAPI } from "../UserManagementAPI";
-import Button from "../components/Button";
-import Box from "../components/Box";
+import { AuthContext } from "../../AuthContext";
+import { UserManagementAPI } from "../../UserManagementAPI";
+import Button from '../../components/ui/Button';
+import Box from '../../components/ui/Box';
+
 
 function SignUp() {
     const [email, setEmail] = useState("");

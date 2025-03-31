@@ -1,8 +1,8 @@
 import React, { useState, useContext } from "react";
-import { AuthContext } from "../AuthContext";
+import { AuthContext } from "../../AuthContext";
 import { useNavigate } from "react-router-dom";
-import Button from "../components/Button";
-import Box from "../components/Box";
+import Button from '../../components/ui/Button';
+import Box from '../../components/ui/Box';
 
 function Login() {
     const { login } = useContext(AuthContext);

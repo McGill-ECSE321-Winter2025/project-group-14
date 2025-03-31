@@ -2,7 +2,7 @@ import React from 'react';
 import './GameReview.css';
 
 const GameReview = ({ author, rating, comment, datePosted }) => {
-  
+
   // Format the date
   const formattedDate = new Date(datePosted).toLocaleDateString();
 

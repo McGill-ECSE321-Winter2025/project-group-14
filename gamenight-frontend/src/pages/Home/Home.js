@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
-import { GameAPI } from "../GettingAllGamesAPI";
-import GameCard from "../components/GameCard";
-import "../App.css";
+import { GameAPI } from "../../GettingAllGamesAPI";
+import GameCard from '../../components/cards/GameCard';
+import '../../App.css';
+
 
 function Home() {
     const [games, setGames] = useState([]);

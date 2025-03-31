@@ -1,11 +1,11 @@
-import React, { useState} from "react";
-import { 
-  Card, 
-  CardContent, 
-  Typography, 
-  Button, 
-  Box, 
-  IconButton, 
+import React, { useState } from "react";
+import {
+  Card,
+  CardContent,
+  Typography,
+  Button,
+  Box,
+  IconButton,
   TextField,
   Dialog,
   DialogActions,
@@ -14,7 +14,8 @@ import {
 } from "@mui/material";
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
-import "../App.css";
+import '../../App.css';
+
 
 const GameCopyCard = ({ gameCopy, onDelete, onUpdate, isOwner }) => {
   const [editMode, setEditMode] = useState(false);
@@ -54,7 +55,7 @@ const GameCopyCard = ({ gameCopy, onDelete, onUpdate, isOwner }) => {
         <Typography variant="h6" gutterBottom>
           {gameCopy.game?.name || "Unknown Game"}
         </Typography>
-        
+
         {editMode ? (
           <TextField
             fullWidth
@@ -94,7 +95,7 @@ const GameCopyCard = ({ gameCopy, onDelete, onUpdate, isOwner }) => {
           )}
         </Box>
       )}
-      
+
       <Dialog open={deleteConfirmOpen} onClose={handleCancelDelete}>
         <DialogTitle>Confirm Delete</DialogTitle>
         <DialogContent>

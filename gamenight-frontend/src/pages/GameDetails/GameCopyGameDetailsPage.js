@@ -3,8 +3,8 @@ import { DatePicker } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import "./GameCopyGameDetailsPage.css";
-import { AuthContext } from "../AuthContext";
-import Button from "./Button"
+import { AuthContext } from "../../AuthContext";
+import Button from '../../components/ui/Button';
 
 const GameCopyCard = ({ gameCopyId, owner, description }) => {
   const [showDatePicker, setShowDatePicker] = useState(false);

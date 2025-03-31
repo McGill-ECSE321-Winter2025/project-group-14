@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { GameAPI } from "../GettingAllGamesAPI";
+import { GameAPI } from "../../GettingAllGamesAPI";
 
 function AddGame() {
     const [name, setName] = useState("");

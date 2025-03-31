@@ -1,9 +1,12 @@
 import React, { useState, useEffect, useContext, useCallback } from "react";
 import { Tabs, Tab, Box, Grid, CircularProgress, Modal, Backdrop, Fade } from "@mui/material";
-import GameCopyCard from "../components/GameCopyCard";
-import AddGameCopyForm from "../components/AddGameCopyForm";
-import { AuthContext } from "../AuthContext";
-import Button from "../components/Button";
+import GameCopyCard from '../../components/cards/GameCopyCard';
+import AddGameCopyForm from '../../components/forms/AddGameCopyForm';
+
+import { AuthContext } from "../../AuthContext";
+import Button from "../../components/ui/Button";
+import '../../App.css';
+
 
 function MyGamesPage() {
   const { user } = useContext(AuthContext);
@@ -42,7 +45,7 @@ function MyGamesPage() {
 
   useEffect(() => {
     if (!authChecked || !user) return;
-    
+
     const loadData = async () => {
       setLoading(true);
       await Promise.all([fetchMyGameCopies(), fetchBorrowedGameCopies()]);
@@ -92,17 +95,17 @@ function MyGamesPage() {
     try {
       const response = await fetch(`http://localhost:8080/game-copies/${updatedCopy.id}`, {
         method: "PUT",
-        headers: { 
+        headers: {
           "Content-Type": "application/json",
-          "User-Id": user.userId 
+          "User-Id": user.userId
         },
         body: JSON.stringify({
           description: updatedCopy.description
         })
       });
       const data = await response.json();
-      
-      setMyGameCopies(prev => prev.map(copy => 
+
+      setMyGameCopies(prev => prev.map(copy =>
         copy.id === updatedCopy.id ? data : copy
       ));
     } catch (error) {
@@ -128,40 +131,40 @@ function MyGamesPage() {
         <h1 className="centered">My Games</h1>
       </div>
 
-      <Box sx={{ 
-  width: '100%', 
-  mb: 3,
-  '& .MuiTabs-indicator': {
-    backgroundColor: 'black',
-    height: '3px'
-  },
-  '& .MuiTab-root': {
-    color: '#666', // Dark gray for inactive tabs
-    fontSize: '1rem',
-    textTransform: 'none', // Removes uppercase transformation
-    fontWeight: 500,
-    padding: '12px 24px',
-    minWidth: 'unset', // Allows tabs to size naturally
-    '&.Mui-selected': {
-      color: 'black',
-      fontWeight: 600
-    },
-    '&:hover': {
-      color: 'black',
-      opacity: 1
-    }
-  }
-}}>
-  <Tabs 
-    value={tabValue} 
-    onChange={handleTabChange} 
-    centered
-    variant="fullWidth" // Optional: makes tabs take full width
-  >
-    <Tab label="My Collection" />
-    <Tab label="Borrowed Games" />
-  </Tabs>
-</Box>
+      <Box sx={{
+        width: '100%',
+        mb: 3,
+        '& .MuiTabs-indicator': {
+          backgroundColor: 'black',
+          height: '3px'
+        },
+        '& .MuiTab-root': {
+          color: '#666', // Dark gray for inactive tabs
+          fontSize: '1rem',
+          textTransform: 'none', // Removes uppercase transformation
+          fontWeight: 500,
+          padding: '12px 24px',
+          minWidth: 'unset', // Allows tabs to size naturally
+          '&.Mui-selected': {
+            color: 'black',
+            fontWeight: 600
+          },
+          '&:hover': {
+            color: 'black',
+            opacity: 1
+          }
+        }
+      }}>
+        <Tabs
+          value={tabValue}
+          onChange={handleTabChange}
+          centered
+          variant="fullWidth" // Optional: makes tabs take full width
+        >
+          <Tab label="My Collection" />
+          <Tab label="Borrowed Games" />
+        </Tabs>
+      </Box>
 
       {tabValue === 0 && (
         <>
@@ -182,9 +185,9 @@ function MyGamesPage() {
           >
             <Fade in={showAddForm}>
               <Box sx={modalStyle}>
-                <AddGameCopyForm 
-                  onCancel={handleCancelAdd} 
-                  onSuccess={handleGameCopyAdded} 
+                <AddGameCopyForm
+                  onCancel={handleCancelAdd}
+                  onSuccess={handleGameCopyAdded}
                 />
               </Box>
             </Fade>
@@ -202,8 +205,8 @@ function MyGamesPage() {
             <Grid container spacing={3}>
               {myGameCopies.map((gameCopy) => (
                 <Grid item xs={12} sm={6} md={4} key={gameCopy.id}>
-                  <GameCopyCard 
-                    gameCopy={gameCopy} 
+                  <GameCopyCard
+                    gameCopy={gameCopy}
                     onDelete={handleDeleteGameCopy}
                     onUpdate={handleUpdateGameCopy}
                     isOwner={true}
@@ -229,8 +232,8 @@ function MyGamesPage() {
             <Grid container spacing={3}>
               {borrowedGameCopies.map((gameCopy) => (
                 <Grid item xs={12} sm={6} md={4} key={gameCopy.id}>
-                  <GameCopyCard 
-                    gameCopy={gameCopy} 
+                  <GameCopyCard
+                    gameCopy={gameCopy}
                     isOwner={false}
                   />
                 </Grid>
