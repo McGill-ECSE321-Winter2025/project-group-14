@@ -22,7 +22,7 @@ function Home() {
                     fetchGames();
                     setCarouselIndex(2);
                     setFading(false);
-                }, 400);
+                }, 600);
             } else {
                 setCarouselIndex(prev => prev + 1);
             }
@@ -118,7 +118,7 @@ function Home() {
 
             {/* --- FEATURES --- */}
             <section className="features fade-in-on-scroll">
-                <h2>Why Choose Us?</h2>
+                <h2>Play!</h2>
                 <div className="feature-list">
                     <div className="feature-card">
                         <img src="https://cdn-icons-png.flaticon.com/512/3430/3430778.png" alt="games" />

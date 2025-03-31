@@ -315,7 +315,7 @@ public class GameManagementIntegrationTest {
         HttpEntity<?> requestEntity = new HttpEntity<>(null);
 
         ResponseEntity<GameResponseDto[]> response = client.exchange(
-                "/games/random-games",
+                "/public-random-games",
                 HttpMethod.GET,
                 requestEntity,
                 GameResponseDto[].class);
@@ -333,7 +333,7 @@ public class GameManagementIntegrationTest {
         HttpEntity<?> requestEntity = new HttpEntity<>(null);
 
         ResponseEntity<GameResponseDto[]> response = client.exchange(
-                "/games/random-games",
+                "/public-random-games",
                 HttpMethod.GET,
                 requestEntity,
                 GameResponseDto[].class);
@@ -350,13 +350,13 @@ public class GameManagementIntegrationTest {
         HttpEntity<?> requestEntity = new HttpEntity<>(null);
 
         ResponseEntity<GameResponseDto[]> firstCall = client.exchange(
-                "/games/random-games",
+                "/public-random-games",
                 HttpMethod.GET,
                 requestEntity,
                 GameResponseDto[].class);
 
         ResponseEntity<GameResponseDto[]> secondCall = client.exchange(
-                "/games/random-games",
+                "/public-random-games",
                 HttpMethod.GET,
                 requestEntity,
                 GameResponseDto[].class);
@@ -421,7 +421,7 @@ public class GameManagementIntegrationTest {
         HttpEntity<?> requestEntity = new HttpEntity<>(null);
 
         ResponseEntity<GameResponseDto[]> response = client.exchange(
-                "/games/random-games",
+                "/public-random-games",
                 HttpMethod.GET,
                 requestEntity,
                 GameResponseDto[].class);

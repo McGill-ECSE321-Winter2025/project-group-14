@@ -24,7 +24,7 @@ export const GameAPI = {
 
     addGame: async (name, description) => {
         try {
-            const response = await axios.post(API_BASE_URL, { name, description }, { headers: getAuthHeaders() });
+            const response = await axios.post("http://localhost:8080/games", { name, description }, { headers: getAuthHeaders() });
             console.log("Game created:", response.data);
             return response.data;
         } catch (error) {
