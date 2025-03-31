@@ -123,7 +123,7 @@ public class GameManagementController {
         while (result.size() < 10) {
             java.util.Collections.shuffle(allGames);
             for (Game g : allGames) {
-                int rating = (int) reviewService.getAverageRatingForGame(g) / 5;
+                Double rating = reviewService.getAverageRatingForGame(g);
                 result.add(new GameResponseDto(g, rating));
                 if (result.size() == 10)
                     break;

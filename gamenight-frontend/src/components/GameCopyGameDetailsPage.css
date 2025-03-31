@@ -1,9 +1,10 @@
 .date-picker-container {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 16px;
   align-items: center;
-  align-content: center;
+  width: 100%;
+  padding: 16px;
 }
 
 /* Modern Card Styling with improved aesthetics */
@@ -137,4 +138,30 @@
   .card-content {
     padding: 20px;
   }
+}
+
+
+.MuiDialog-paper {
+  border-radius: 16px !important; /* Smooth rounded corners */
+  padding: 24px;
+  box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.15);
+}
+
+.MuiDialogTitle-root {
+  font-size: 1.5rem;
+  font-weight: bold;
+  text-align: center;
+  color: #333;
+}
+
+.MuiDialogContent-root {
+  text-align: center;
+  font-size: 1rem;
+  color: #555;
+}
+
+
+.MuiPickersPopper-paper {
+  border-radius: 12px !important;
+  box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.12);
 }

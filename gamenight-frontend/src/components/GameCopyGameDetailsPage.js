@@ -5,13 +5,22 @@ import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import "./GameCopyGameDetailsPage.css";
 import { AuthContext } from "../AuthContext";
 import Button from "./Button"
+import {
+  Card,
+  Typography,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle
+} from "@mui/material";
+
 
 const GameCopyCard = ({ gameCopyId, owner, description }) => {
-  const [showDatePicker, setShowDatePicker] = useState(false);
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
   const { user } = useContext(AuthContext);
   const [playerId, setPlayerId] = useState();
+  const [requestBorrowOpen, setBorrowRequestOpen] = useState(false);
 
   useEffect(() => {
     fetch(`http://localhost:8080/players?person_id=${user.userId}`, {
@@ -23,7 +32,7 @@ const GameCopyCard = ({ gameCopyId, owner, description }) => {
   }, [user]);
 
   const handleBorrowClick = () => {
-    setShowDatePicker(true);
+    setBorrowRequestOpen(true);
   };
 
   const handleSubmit = async () => {
@@ -42,10 +51,7 @@ const GameCopyCard = ({ gameCopyId, owner, description }) => {
       console.log(
         `Borrow request sent from ${startDate.format("YYYY-MM-DD")} to ${endDate.format("YYYY-MM-DD")}`
       );
-      alert(
-        `Borrow request submitted from ${startDate.format("YYYY-MM-DD")} to ${endDate.format("YYYY-MM-DD")}`
-      );
-      setShowDatePicker(false);
+      setBorrowRequestOpen(false);
       setStartDate(null);
       setEndDate(null);
     } else {
@@ -53,33 +59,41 @@ const GameCopyCard = ({ gameCopyId, owner, description }) => {
     }
   };
 
+  const handleCancelBorrowRequest = () => {
+    setBorrowRequestOpen(false);
+  }
+
   return (
-    <div className="game-copy-card">
-      <div className="card-content">
-        <div className="user-section">
-          <div className="avatar">
-            {owner?.charAt(0).toUpperCase()}
-          </div>
-          <div className="user-details">
-            <h3 className="user-name">{owner}</h3>
-          </div>
-        </div>
-
-        <div className="game-section">
-          <div className="info-row">
-            <span className="info-label">Details:</span>
-            <span className="comment-value">{description}</span>
-          </div>
-        </div>
-
-      <div>
-        {!showDatePicker ? (
-          <div className="date-picker-container">
-            <Button onClick={handleBorrowClick}>
-            Ask to Borrow
-            </Button>
+    <Card>
+      <div className="game-copy-card">
+        <div className="card-content">
+          <div className="user-section">
+            <div className="avatar">
+              {owner?.charAt(0).toUpperCase()}
             </div>
-        ) : (
+            <div className="user-details">
+              <h3 className="user-name">{owner}</h3>
+            </div>
+          </div>
+
+          <div className="game-section">
+            <div className="info-row">
+              <span className="info-label">Details:</span>
+              <span className="comment-value">{description}</span>
+            </div>
+          </div>
+          <Button onClick={handleBorrowClick}>
+            Ask to Borrow
+          </Button>
+        </div>
+      </div>
+
+      <Dialog open={requestBorrowOpen} onClose={handleCancelBorrowRequest}>
+        <DialogTitle>Send a borrowing request to {owner}</DialogTitle>
+        <DialogContent>
+          <Typography>Select dates for your request.</Typography>
+        </DialogContent>
+        <DialogActions>
           <div className="date-picker-container">
             <LocalizationProvider dateAdapter={AdapterDayjs}>
               <DatePicker
@@ -100,10 +114,9 @@ const GameCopyCard = ({ gameCopyId, owner, description }) => {
               Submit Request
             </Button>
           </div>
-        )}
-      </div>
-      </div>
-    </div>
+        </DialogActions>
+      </Dialog>
+    </Card>
   );
 };
 
