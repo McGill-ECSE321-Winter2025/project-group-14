@@ -152,7 +152,8 @@ public class GameManagementController {
      */
     @GetMapping("/game-copies")
     @RequireUser
-    public ArrayList<GameCopyResponseDto> findGameCopyByOwner(@RequestParam(name = "owner_id") int ownerId) {
+    public ArrayList<GameCopyResponseDto> findGameCopyByOwner(@RequestParam(name = "owner_id") int personId) {
+        int ownerId = gameManagementService.getGameOwnerIdByPersonId(personId);
         ArrayList<GameCopyResponseDto> games = new ArrayList<>();
         Iterator<GameCopy> iterator = gameManagementService.findGameCopiesByOwner(ownerId).iterator();
         while (iterator.hasNext()) {

@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useContext, useCallback } from "react";
 import { Typography, Tabs, Tab, Box, Button, Grid, CircularProgress,  Modal,   Backdrop,  Fade} from "@mui/material";
-import { useNavigate } from "react-router-dom";
 import GameCopyCard from "../components/GameCopyCard";
 import AddGameCopyForm from "../components/AddGameCopyForm";
 import { AuthContext } from "../AuthContext";
@@ -8,8 +7,7 @@ import "../App.css";
 
 function MyGamesPage() {
   const { user } = useContext(AuthContext);
-  const navigate = useNavigate();
-  const [authChecked, setAuthChecked] = useState(false);
+  const [authChecked] = useState(true);
   const [tabValue, setTabValue] = useState(0);
   const [myGameCopies, setMyGameCopies] = useState([]);
   const [borrowedGameCopies, setBorrowedGameCopies] = useState([]);
@@ -42,13 +40,6 @@ function MyGamesPage() {
     }
   }, [user?.userId]);
 
-  useEffect(() => {
-    if (user === null) {
-      navigate('/login', { replace: true });
-    } else if (user) {
-      setAuthChecked(true);
-    }
-  }, [user, navigate]);
 
   useEffect(() => {
     if (!authChecked || !user) return;
@@ -132,7 +123,7 @@ function MyGamesPage() {
     p: 4,
     borderRadius: 2
   };
-  
+
   return (
     <div className="container">
       <Typography variant="h4" gutterBottom className="centered">
