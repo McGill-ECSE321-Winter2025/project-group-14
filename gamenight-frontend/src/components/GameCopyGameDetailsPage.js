@@ -55,37 +55,53 @@ const GameCopyCard = ({ gameCopyId, owner, description }) => {
 
   return (
     <div className="game-copy-card">
-      <div className="centered">
-        <div className="owner-text">Owner: {owner}</div>
-        <div className="description-text">{description}</div>
-        <div className="button-container">
-          {!showDatePicker ? (
-            <Button onClick={handleBorrowClick}>
-              Ask to Borrow
-            </Button>
-          ) : (
-            <div className="date-picker-container">
-              <LocalizationProvider dateAdapter={AdapterDayjs}>
-                <DatePicker
-                  label="Start Date"
-                  value={startDate}
-                  onChange={(date) => setStartDate(date)}
-                  disablePast
-                />
-                <DatePicker
-                  label="End Date"
-                  value={endDate}
-                  onChange={(date) => setEndDate(date)}
-                  minDate={startDate} // Ensures end date is after start date
-                  disablePast
-                />
-              </LocalizationProvider>
-              <Button type="success" onClick={handleSubmit}>
-                Submit Request
-              </Button>
-            </div>
-          )}
+      <div className="card-content">
+        <div className="user-section">
+          <div className="avatar">
+            {owner?.charAt(0).toUpperCase()}
+          </div>
+          <div className="user-details">
+            <h3 className="user-name">{owner}</h3>
+          </div>
         </div>
+
+        <div className="game-section">
+          <div className="info-row">
+            <span className="info-label">Details:</span>
+            <span className="comment-value">{description}</span>
+          </div>
+        </div>
+
+      <div>
+        {!showDatePicker ? (
+          <div className="date-picker-container">
+            <Button onClick={handleBorrowClick}>
+            Ask to Borrow
+            </Button>
+            </div>
+        ) : (
+          <div className="date-picker-container">
+            <LocalizationProvider dateAdapter={AdapterDayjs}>
+              <DatePicker
+                label="Start Date"
+                value={startDate}
+                onChange={(date) => setStartDate(date)}
+                disablePast
+              />
+              <DatePicker
+                label="End Date"
+                value={endDate}
+                onChange={(date) => setEndDate(date)}
+                minDate={startDate} // Ensures end date is after start date
+                disablePast
+              />
+            </LocalizationProvider>
+            <Button type="success" onClick={handleSubmit}>
+              Submit Request
+            </Button>
+          </div>
+        )}
+      </div>
       </div>
     </div>
   );

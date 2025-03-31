@@ -3,7 +3,6 @@ import './GameReview.css';
 
 const GameReview = ({ author, rating, comment, datePosted }) => {
   
-  // Format the date
   const formattedDate = new Date(datePosted).toLocaleDateString();
 
   // Generate stars ratings
@@ -14,27 +13,36 @@ const GameReview = ({ author, rating, comment, datePosted }) => {
   };
 
   return (
-    <div className="review-card">
-      <div className="review-header">
-        <div className="author-info">
-          <h3 className="text-lg font-semibold text-gray-800">{author}</h3>
-        </div>
-        <div className="rating">
-          <span className="text-yellow-500 font-medium">
-            {renderStars(rating)}
-          </span>
-        </div>
-      </div>
 
-      <div className="review-date text-sm text-gray-500 mb-3">
-        <span>Posted on: {formattedDate}</span>
-      </div>
-
-      <div className="review-comment">
-        <p className="text-sm text-gray-600">{comment}</p>
-      </div>
-    </div>
-  );
-};
+        <div className="request-card">
+          <div className="card-content">
+            <div className="user-section">
+              <div className="avatar">
+                {author?.charAt(0).toUpperCase()}
+              </div>
+              <div className="user-details">
+                <h3 className="user-name">{author}</h3>
+              </div>
+              <div className="rating">
+              <span>
+                {renderStars(rating)}
+              </span>
+            </div>
+              
+            </div>
+           
+            <div className="game-section">
+              <div className="info-row">
+                <span className="info-label">Date posted:</span>
+                <span className="info-value"> {formattedDate}</span>
+              </div>
+              <div className="info-row">
+                <span className="comment-value">{comment}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    };
 
 export default GameReview;
