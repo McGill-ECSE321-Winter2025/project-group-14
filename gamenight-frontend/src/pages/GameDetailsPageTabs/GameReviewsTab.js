@@ -65,12 +65,16 @@ const GameReviewsTab = () => {
         .catch(error => console.error('Error:', error));;
 
         console.log("Review Submitted:", { review, rating, user }, "\nReponse:", response);
-        setShowReviewForm(false); // Close the form after submitting
+        setShowReviewForm(false);
         setReloadReviews(true)
+        setRating(0)
+        setReview("");
     };
 
     const handleCancelReview = () => {
-        setShowReviewForm(false); // Close the review form without submitting
+        setShowReviewForm(false);
+        setRating(0)
+        setReview("");
     };
 
     return (

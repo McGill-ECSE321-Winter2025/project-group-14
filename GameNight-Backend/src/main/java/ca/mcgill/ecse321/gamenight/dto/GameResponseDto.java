@@ -7,13 +7,13 @@ public class GameResponseDto {
     private int id;
     private String name;
     private String description;
-    private int rating;
+    private Double rating;
 
     @SuppressWarnings("unused")
     private GameResponseDto() {
     }
 
-    public GameResponseDto(Game model, int rating) {
+    public GameResponseDto(Game model, Double rating) {
         id = model.getId();
         name = model.getName();
         description = model.getDescription();
@@ -32,7 +32,7 @@ public class GameResponseDto {
         return description;
     }
 
-    public int getRating() {
+    public Double getRating() {
         return rating;
     }
 }

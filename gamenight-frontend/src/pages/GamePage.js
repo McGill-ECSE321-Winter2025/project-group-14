@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
-import Game from "../components/Game";
-import Box from "../components/Box";
+import Game from "../components/ClickableGame";
 
 const GamePage = () => {
     const [games, setGames] = useState([]);
@@ -13,20 +12,38 @@ const GamePage = () => {
             .catch((error) => console.error("Error fetching games:", error));
     }, []);
 
-    return (
-        <div className="container">
-            <Box>
-                <h1 className="centered">Games</h1>
-                <div className="game-list">
-                    {games.map((game, index) => (
-                        <div key={index} className="fade-in-card">
-                            <Game key={game.id} id={game.id} title={game.name} rating={game.rating} image={picture} />
-                        </div>
-                    ))}
-                </div>
-            </Box>
-        </div>
+    const [query, setQuery] = useState("");
+    const filteredGames = games.filter((game) =>
+        game.name.toLowerCase().includes(query.toLowerCase())
     );
+
+return (
+    <div className="container">
+            <h1 class="centered">Games</h1>
+
+            <div className="centered">
+                <input
+                    type="text"
+                    placeholder="Search for a game..."
+                    value={query}
+                    onChange={(e) => setQuery(e.target.value)}
+                    className="search-input"
+                />
+            </div>
+
+            <div className="game-list">
+                {filteredGames.length > 0 || query === ""? (
+                    filteredGames.map((game, index) => (
+                        <div key={index} className="fade-in-card">
+                            <Game key={game.id} id={game.id} title={game.name} rating={Math.round(game.rating * 100)} image={picture} />
+                        </div>
+                    ))
+                ):(
+                    <p>No results found</p>
+                )}
+            </div>
+    </div>
+);
 };
 
 

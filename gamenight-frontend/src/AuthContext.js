@@ -7,7 +7,6 @@ export const AuthContext = createContext();
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
-
     const navigate = useNavigate();
 
     // Load user from sessionStorage when the app starts
@@ -22,6 +21,7 @@ export const AuthProvider = ({ children }) => {
     const login = async (email, password) => {
         const userData = await UserManagementAPI.loginUser(email, password);
         if (userData) {
+           
             sessionStorage.setItem("user", JSON.stringify(userData));
             setUser(userData);
             navigate("/my-games");

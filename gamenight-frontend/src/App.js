@@ -14,6 +14,7 @@ import MyEvents from "./pages/MyEvents";
 import Events from "./pages/Events";
 import Account from "./pages/Account";
 import About from "./pages/About";
+import ReceivedBorrowingRequests from "./pages/ReceivedBorrowingRequests";
 import AddGame from "./pages/AddGame";
 
 function App() {
@@ -34,6 +35,7 @@ function App() {
           <Route path="/events" element={<ProtectedRoute><Events /></ProtectedRoute>} />
           <Route path="/about" element={<ProtectedRoute><About /></ProtectedRoute>} />
           <Route path="/add-game" element={<ProtectedRoute><AddGame /></ProtectedRoute>} />
+           <Route path="/received-requests" element={<ReceivedBorrowingRequests />} /></ProtectedRoute>} />                             
 
           <Route path="*" element={<Navigate to="/" />} />
 

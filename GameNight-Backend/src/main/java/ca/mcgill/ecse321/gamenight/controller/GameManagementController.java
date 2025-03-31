@@ -52,7 +52,7 @@ public class GameManagementController {
     @RequireUser
     public GameResponseDto createGame(@RequestBody GameRequestDto game) {
         Game g = gameManagementService.createGame(game.getName(), game.getDescription());
-        return new GameResponseDto(g, 0);
+        return new GameResponseDto(g, 0d);
     }
 
     /**
@@ -65,7 +65,7 @@ public class GameManagementController {
     @RequireUser
     public GameResponseDto findGameById(@PathVariable int id) {
         Game g = gameManagementService.findGameById(id);
-        int rating = (int) reviewService.getAverageRatingForGame(g) / 5;
+        Double rating = reviewService.getAverageRatingForGame(g)/5;
         return new GameResponseDto(g, rating);
     }
 
@@ -80,7 +80,7 @@ public class GameManagementController {
     @RequireUser
     public GameResponseDto updateGame(@PathVariable int id, @RequestBody GameRequestDto game) {
         Game g = gameManagementService.updateGame(id, game.getName(), game.getDescription());
-        int rating = (int) reviewService.getAverageRatingForGame(g) / 5;
+        Double rating = reviewService.getAverageRatingForGame(g);
         return new GameResponseDto(g, rating);
     }
 
@@ -95,7 +95,7 @@ public class GameManagementController {
         Iterator<Game> iterator = gameManagementService.findAllGames().iterator();
         while (iterator.hasNext()) {
             Game game = iterator.next();
-            int rating = (int) reviewService.getAverageRatingForGame(game) / 5;
+            Double rating = reviewService.getAverageRatingForGame(game)/5;
             games.add(new GameResponseDto(game, rating));
         }
         return games;
