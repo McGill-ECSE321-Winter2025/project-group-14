@@ -14,7 +14,6 @@ export const AuthProvider = ({ children }) => {
         const storedUser = sessionStorage.getItem("user");
         if (storedUser) {
             setUser(JSON.parse(storedUser));
-            console.log("Loaded user from sessionStorage:", JSON.parse(storedUser));
         }
         setLoading(false);
     }, []);
@@ -22,12 +21,9 @@ export const AuthProvider = ({ children }) => {
     const login = async (email, password) => {
         const userData = await UserManagementAPI.loginUser(email, password);
         if (userData) {
-
-            const personId = userData.userId;  // Treating userId as personId
-            sessionStorage.setItem("user", JSON.stringify({ userId: personId, username: userData.username }));
-            setUser({ userId: personId, username: userData.username });
-            console.log("Logged in with user ID:", personId);
-
+           
+            sessionStorage.setItem("user", JSON.stringify(userData));
+            setUser(userData);
             navigate("/my-games");
         }
         return userData;

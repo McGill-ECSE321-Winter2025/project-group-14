@@ -14,8 +14,6 @@ import MyEvents from "./pages/MyEvents";
 import Events from "./pages/Events";
 import Account from "./pages/Account";
 import About from "./pages/About";
-import SentRequests from "./pages/SentRequests";
-import ActiveRentalsPage from "./pages/ActiveRentalsPage";
 import ReceivedBorrowingRequests from "./pages/ReceivedBorrowingRequests";
 import AddGame from "./pages/AddGame";
 
@@ -29,9 +27,7 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<SignUp />} />
-         
-          <Route path="/sent-requests" element={<SentRequests />} /></ProtectedRoute>} />
-          <Route path="/active-rentals" element={<ActiveRentalsPage />} /></ProtectedRoute>} />
+
           <Route path="/games" element={<ProtectedRoute><Games /></ProtectedRoute>} />
           <Route path="/my-games" element={<ProtectedRoute><MyGames /></ProtectedRoute>} />
           <Route path="/my-events" element={<ProtectedRoute><MyEvents /></ProtectedRoute>} />

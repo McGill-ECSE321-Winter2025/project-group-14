@@ -137,13 +137,5 @@ public class BorrowingManagementService {
                 .orElseThrow(() -> new ObjectNotFoundException(
                         "Borrowing request not found with ID: " + String.valueOf(requestId)));
     }
-    @Transactional
-    public List<BorrowingRequest> findAllBorrowingRequestsForBorrower(int borrowerId) {
-        System.out.println("Fetching requests for sender ID: " + borrowerId);
-        List<BorrowingRequest> requests = borrowingRequestRepository.findAllBySenderId(borrowerId);
-        System.out.println("Number of borrowing requests found: " + requests.size());
-        return requests;
-    }
-
 
 }

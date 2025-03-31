@@ -11,24 +11,20 @@ import org.springframework.web.servlet.HandlerInterceptor;
 
 import ca.mcgill.ecse321.gamenight.exception.UnauthorizedException;
 import ca.mcgill.ecse321.gamenight.model.Person;
-import ca.mcgill.ecse321.gamenight.model.Player;
 import ca.mcgill.ecse321.gamenight.repo.PersonRepository;
-import ca.mcgill.ecse321.gamenight.repo.PlayerRepository;
 
 @Component
 public class UserAuthInterceptor implements HandlerInterceptor {
 
     private final PersonRepository personRepository;
-    private final PlayerRepository playerRepository;
+
     private final UserContext userContext;
 
     @Autowired
     public UserAuthInterceptor(
             PersonRepository personRepository,
-            PlayerRepository playerRepository,
             UserContext userContext) {
         this.personRepository = personRepository;
-        this.playerRepository = playerRepository;
         this.userContext = userContext;
     }
 
@@ -52,45 +48,28 @@ public class UserAuthInterceptor implements HandlerInterceptor {
                     .getAnnotation(RequireUser.class);
         }
 
-        // Log the received User-Id header
-        String userIdHeader = request.getHeader("User-Id");
-        System.out.println("Received User-Id from header: " + userIdHeader);
-
+        // Access is granted as long as the user-id is in the request header (less secure)
         if (requireUser != null) {
+            String userIdHeader = request.getHeader("User-Id");
+
             if (userIdHeader == null) {
                 throw new UnauthorizedException("No User-Id header provided");
             }
 
             try {
-                int playerId = Integer.parseInt(userIdHeader);
+                int userId = Integer.parseInt(userIdHeader);
 
-                // First, check if the player exists
-                Player player = playerRepository.findById(playerId)
-                        .orElseThrow(() -> {
-                            System.out.println("Player not found for ID: " + playerId);
-                            return new UnauthorizedException("Player not found");
-                        });
+                Person user = personRepository
+                        .findById(userId)
+                        .orElseThrow(() -> new UnauthorizedException("User not found"));
 
-                // Get the associated person
-                Person person = player.getPerson();
-                if (person == null) {
-                    System.out.println("No person associated with player ID: " + playerId);
-                    throw new UnauthorizedException("No person associated with this player");
-                }
-
-                System.out.println("Authenticated player: " + player.getId() + " - " + person.getEmailAddress());
-                userContext.setCurrentUser(person);
-
+                userContext.setCurrentUser(user);
             } catch (IllegalArgumentException e) {
-                System.out.println("Invalid User-Id format: " + userIdHeader);
                 throw new UnauthorizedException("Invalid User-Id format");
             }
         }
         return true;
     }
-
-
-
 
     @Override
     public void afterCompletion(
