@@ -65,7 +65,7 @@ public class GameManagementController {
     @RequireUser
     public GameResponseDto findGameById(@PathVariable int id) {
         Game g = gameManagementService.findGameById(id);
-        int rating = (int) reviewService.getAverageRatingForGame(g)/5;
+        int rating = (int) reviewService.getAverageRatingForGame(g) / 5;
         return new GameResponseDto(g, rating);
     }
 
@@ -80,7 +80,7 @@ public class GameManagementController {
     @RequireUser
     public GameResponseDto updateGame(@PathVariable int id, @RequestBody GameRequestDto game) {
         Game g = gameManagementService.updateGame(id, game.getName(), game.getDescription());
-        int rating = (int) reviewService.getAverageRatingForGame(g)/5;
+        int rating = (int) reviewService.getAverageRatingForGame(g) / 5;
         return new GameResponseDto(g, rating);
     }
 
@@ -95,10 +95,42 @@ public class GameManagementController {
         Iterator<Game> iterator = gameManagementService.findAllGames().iterator();
         while (iterator.hasNext()) {
             Game game = iterator.next();
-            int rating = (int) reviewService.getAverageRatingForGame(game)/5;
+            int rating = (int) reviewService.getAverageRatingForGame(game) / 5;
             games.add(new GameResponseDto(game, rating));
         }
         return games;
+    }
+
+    /**
+     * Return 10 random games (can repeat if there are less than 10)
+     * 
+     * Publicly accessible for the homepage
+     */
+    @GetMapping("/public-random-games")
+    public ArrayList<GameResponseDto> getPublicRandomGames() {
+        ArrayList<Game> allGames = new ArrayList<>();
+        Iterator<Game> iterator = gameManagementService.findAllGames().iterator();
+        while (iterator.hasNext()) {
+            allGames.add(iterator.next());
+        }
+
+        ArrayList<GameResponseDto> result = new ArrayList<>();
+
+        if (allGames.isEmpty()) {
+            return result;
+        }
+
+        while (result.size() < 10) {
+            java.util.Collections.shuffle(allGames);
+            for (Game g : allGames) {
+                int rating = (int) reviewService.getAverageRatingForGame(g) / 5;
+                result.add(new GameResponseDto(g, rating));
+                if (result.size() == 10)
+                    break;
+            }
+        }
+
+        return result;
     }
 
     /**
@@ -183,7 +215,7 @@ public class GameManagementController {
     public List<GameCopyResponseDto> findGameCopiesByGame(@PathVariable int gameId) {
         ArrayList<GameCopyResponseDto> response = new ArrayList<>();
         List<GameCopy> gameCopies = gameManagementService.findGameCopiesByGame(gameId);
-        for (GameCopy gameCopy: gameCopies) {
+        for (GameCopy gameCopy : gameCopies) {
             response.add(new GameCopyResponseDto(gameCopy));
         }
         return response;

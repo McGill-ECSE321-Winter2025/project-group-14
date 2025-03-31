@@ -103,6 +103,31 @@
   transition: transform 0.2s ease-in-out;
 }
 
+.carousel-wrapper {
+  position: relative;
+  width: 100%;
+  height: 500px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  transition: opacity 0.8s ease;
+  opacity: 1;
+}
+
+.carousel-wrapper.fading-out {
+  opacity: 0;
+}
+
+.carousel-wrapper.fading-in {
+  opacity: 1;
+}
+
+.carousel-item {
+  position: absolute;
+  transition: transform 0.8s ease, opacity 0.8s ease;
+}
+
 /* 📷 Game Image - Consistent Size */
 .game-card-image img {
   width: 100%;

@@ -1,10 +1,16 @@
 import React, { useContext } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { AuthContext } from "../AuthContext";
 import "./Navbar.css";
 
 function Navbar() {
     const { user, logout } = useContext(AuthContext);
+    const navigate = useNavigate();
+
+    const handleLogout = () => {
+        logout();
+        setTimeout(() => navigate("/"), 0);
+    };
 
     return (
         <nav className="navbar">
@@ -29,7 +35,7 @@ function Navbar() {
                 {user && <Link to="/account">My Account</Link>}
 
                 {user ? (
-                    <button onClick={logout}>Logout</button>
+                    <button onClick={handleLogout}>Logout</button>
                 ) : (
                     <>
                         <Link to="/login">Log In</Link>
