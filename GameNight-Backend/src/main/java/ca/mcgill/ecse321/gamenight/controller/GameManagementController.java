@@ -106,7 +106,7 @@ public class GameManagementController {
      * 
      * Publicly accessible for the homepage
      */
-    @GetMapping("/public-random-games")
+    @GetMapping("/games/random-games")
     public ArrayList<GameResponseDto> getPublicRandomGames() {
         ArrayList<Game> allGames = new ArrayList<>();
         Iterator<Game> iterator = gameManagementService.findAllGames().iterator();
