@@ -1,109 +1,143 @@
-/* 🎮 Base Button */
-.btn {
-  background-color: #333;
-  /* Dark Gray */
+/* Global Styling */
+body {
+  background-color: #F4F4F4;
+  font-family: 'Helvetica Neue', 'Arial', sans-serif;
+  color: #1C1C1E;
+  margin: 0;
+  padding: 0;
+}
+
+/* Navbar */
+.navbar, .secondary-navbar {
+  background-color: #FFFFFF;
+  color: #1C1C1E;
+  padding: 20px;
+  display: flex;
+  justify-content: center;
+  gap: 40px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.nav-item {
+  color: #046307;
+  text-decoration: none;
+  font-weight: 600;
+  padding: 8px 16px;
+  border-radius: 10px;
+  transition: background-color 0.3s ease;
+}
+
+.nav-item:hover {
+  background-color: #E5E5EA;
+}
+
+/* Container Layout */
+.container {
+  display: flex;
+  justify-content: space-between;
+  align-items: stretch;
+  gap: 20px;
+  padding: 20px;
+  min-height: 80vh;
+}
+
+/* Column Styling */
+.left-column, .right-column {
+  flex: 1;
+  margin: 10px;
+}
+
+/* Button Base Styling */
+.btn, .card-button, .modal-close {
+  background-color: #046307;
   color: white;
   font-size: 16px;
   font-weight: bold;
-  padding: 12px 18px;
+  padding: 12px 20px;
   border: none;
-  border-radius: 5px;
+  border-radius: 10px;
   cursor: pointer;
-  transition: all 0.2s ease-in-out;
+  transition: background-color 0.3s ease, transform 0.3s ease;
   display: inline-flex;
   align-items: center;
   justify-content: center;
 }
 
-/* 🔄 Hover & Active */
-.btn:hover {
-  background-color: #444;
-  /* Slightly lighter gray */
+.btn:hover, .card-button:hover, .modal-close:hover {
+  background-color: #005BBB;
   transform: scale(1.05);
 }
 
-.btn:active {
-  background-color: #222;
-  transform: scale(0.95);
-}
-
-/* 🔘 Rounded Button */
+/* Rounded and Seamless Buttons */
 .btn.rounded {
   border-radius: 50px;
   padding: 10px 20px;
 }
 
-/* 🔲 Seamless Button (Blends with Background) */
 .btn.seamless {
   background: transparent;
   color: #333;
-  transition: all 0.2s ease-in-out;
 }
 
 .btn.seamless:hover {
   background: rgba(0, 0, 0, 0.1);
 }
 
-/* 🟢 Success Button */
+/* Success and Danger Buttons */
 .btn.success {
   background-color: #28a745;
 }
 
-.btn.success:hover {
-  background-color: #218838;
-}
-
-/* 🔴 Danger Button */
 .btn.danger {
   background-color: #dc3545;
 }
 
-/* 🏗️ white Box (For Content) */
-.bg-white {
-  background-color: #ffffff;
-  color: #484f55;
-  /* Medium gray text for contrast */
+/* Card Styling */
+.request-card, .details-box, .game-card {
+  background-color: white;
+  border-radius: 12px;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
   padding: 20px;
-  border-radius: 10px;
-  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+  margin: 10px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
-/* 🌑 Dark Gray Box (For Sections) */
-.bg-dark {
-  background-color: #333;
-  color: white;
-  /* Ensures readability on dark background */
-  padding: 20px;
-  border-radius: 10px;
-  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.2);
+.request-card:hover, .details-box:hover, .game-card:hover {
+  transform: scale(1.05);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
 }
 
-
-/* 🟢 Game Cards Layout */
-.game-list {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 20px;
-  justify-content: center;
+/* Details Box */
+.details-box {
+  background-color: #FAFAFA;
 }
 
-/* 🎮 Game Card Styles */
-.game-card {
-  width: 220px;
-  /* Slightly larger for better visibility */
-  text-align: center;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  padding: 15px;
-  background: #ffffff;
-  /* Light Gray Background */
-  border-radius: 10px;
-  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
-  transition: transform 0.2s ease-in-out;
+/* Divider Styling */
+.divider {
+  width: 4px;
+  background-color: #E5E5EA;
+  border-radius: 2px;
+  min-height: 100%;
+  height: auto;
+  align-self: stretch;
 }
 
-/* 📷 Game Image - Consistent Size */
+/* Responsive Design */
+@media (max-width: 768px) {
+  .container {
+      flex-direction: column;
+  }
+
+  .left-column, .right-column {
+      max-width: 100%;
+  }
+
+  .nav-item {
+      margin: 0 10px;
+  }
+}
+
+/* Game Card Image and Layout */
 .game-card-image img {
   width: 100%;
   height: 140px;
@@ -111,143 +145,54 @@
   border-radius: 8px;
 }
 
-/* 🏆 Game Title */
-.game-card-content h3 {
-  font-size: 18px;
-  font-weight: bold;
-  margin: 10px 0;
-  min-height: 50px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-/* 🎮 Play Button Centering */
-.game-card-actions {
-  display: flex;
-  justify-content: center;
-  margin-top: auto;
-}
-
-/* 🏆 Hover Effect for Game Card */
-.game-card:hover {
-  transform: scale(1.05);
-}
-
-/* 🛠️ Account Page Styles */
-.profile-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  padding: 20px;
-}
-
-/* 🖼 Profile Image */
-.profile-picture {
-  width: 100px;
-  height: 100px;
-  border-radius: 50%;
-  object-fit: cover;
-  border: 3px solid white;
-  margin-bottom: 10px;
-}
-
-/* 👤 Profile Name */
-.profile-name {
-  font-size: 22px;
-  font-weight: bold;
-  margin-bottom: 5px;
-}
-
-/* 🔢 Profile Stats Section */
-.profile-stats {
-  display: flex;
-  gap: 15px;
-  justify-content: center;
-  margin-top: 15px;
-}
-
-.profile-stats .bg-light {
-  padding: 10px;
-  width: 100px;
-  text-align: center;
-  border-radius: 8px;
-}
-
-/* 📄 Auth Form */
-.auth-form {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  align-items: center;
-}
-
-/* 📝 Input Fields */
-.auth-form input {
-  width: 100%;
-  max-width: 300px;
-  padding: 10px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  font-size: 16px;
-}
-
-/* 🚨 Error Message */
-.error-text {
-  color: #dc3545;
-  font-size: 14px;
-}
-
-/* 🎮 Game List Layout */
+/* Game List */
 .game-list {
   display: flex;
   flex-wrap: wrap;
   gap: 20px;
   justify-content: center;
-  padding: 10px;
 }
 
-/* 🕶️ Smooth Fade-In Animation */
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(30px);
-    /* Moves up slightly as it fades in */
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+/* Auth Container */
+.auth-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 80vh;
 }
 
-.fade-in-card {
-  animation: fadeIn 0.2s ease-out;
-  /* ⏳ Slower fade-in */
-  opacity: 0;
-  /* Start as invisible */
-  animation-fill-mode: forwards;
-  /* Ensures it stays visible */
-}
-
-/* ✨ Game Card Hover Effect */
-.game-card {
-  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+/* Auth Form */
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  align-items: center;
+  max-width: 400px;
+  width: 100%;
+  margin: auto;
 }
 
 
 /* 📝 Input Fields with Animation */
 .input-group input {
   width: 100%;
+  margin: auto;
+}
+
+.auth-form input {
+  width: 100%;
   max-width: 320px;
   padding: 12px;
   border: 1px solid #ccc;
   border-radius: 8px;
   font-size: 16px;
-  transition: border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
+.auth-form input:focus {
+  border-color: #28a745;
+  box-shadow: 0px 4px 8px rgba(40, 167, 69, 0.2);
+  outline: none;
+}
 /* 🚨 Error Text */
 .error-text {
   color: #dc3545;
@@ -294,9 +239,30 @@
 
 .input-group input:focus {
   border-color: #28a745;
-  /* ✅ Green border on focus */
   box-shadow: 0px 4px 8px rgba(40, 167, 69, 0.2);
   outline: none;
+}
+
+/* Error Text */
+.error-text {
+  color: #dc3545;
+  font-size: 14px;
+}
+
+/* Animation */
+@keyframes fadeIn {
+  from {
+      opacity: 0;
+      transform: translateY(10px);
+  }
+  to {
+      opacity: 1;
+      transform: translateY(0);
+  }
+}
+
+.fade-in {
+  animation: fadeIn 0.3s ease-out;
 }
 
 

@@ -23,4 +23,7 @@ public interface BorrowingRequestRepository extends CrudRepository<BorrowingRequ
     List<BorrowingRequest> findAllRequestsByStatusAndSender(BorrowingRequestStatus status, int senderId);
 
     List<BorrowingRequest> findByGameCopy(GameCopy gameCopy);
+
+    @Query("SELECT r FROM BorrowingRequest r WHERE r.sender.id = ?1 ORDER BY r.sendTime DESC")
+    List<BorrowingRequest> findAllBySenderId(int senderId);
 }
