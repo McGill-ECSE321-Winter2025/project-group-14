@@ -110,4 +110,12 @@ public class GameManagementService {
         }
         return owner.get();
     }
+
+    public int getGameOwnerIdByPersonId(int personId) throws ObjectNotFoundException {
+        GameOwner owner = gameOwnerRepository.findByPersonId(personId);
+        if (owner == null) {
+            throw new ObjectNotFoundException("There is no owner with ID " + personId);
+        }
+        return owner.getId();
+    }
 }

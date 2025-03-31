@@ -110,6 +110,11 @@ public class GameReviewRepositoryTest {
 
         GameReview gameReview2 = new GameReview(4, "Good game!", player, game);
         gameReviewRepo.save(gameReview2);
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
 
         List<GameReview> reviews = gameReviewRepo.findByGameOrderByDatePostedDesc(game);
 
