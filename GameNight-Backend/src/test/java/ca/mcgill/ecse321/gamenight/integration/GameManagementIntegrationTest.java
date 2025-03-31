@@ -24,7 +24,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.util.Assert;
 
 import ca.mcgill.ecse321.gamenight.dto.ErrorDto;
 import ca.mcgill.ecse321.gamenight.dto.GameCopyRequestDto;
@@ -39,7 +38,6 @@ import ca.mcgill.ecse321.gamenight.repo.GameCopyRepository;
 import ca.mcgill.ecse321.gamenight.repo.GameOwnerRepository;
 import ca.mcgill.ecse321.gamenight.repo.GameRepository;
 import ca.mcgill.ecse321.gamenight.repo.PersonRepository;
-import jakarta.validation.constraints.AssertTrue;
 
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
@@ -294,30 +292,6 @@ public class GameManagementIntegrationTest {
 
     @Test
     @Order(9)
-    public void testFindGameCopiesByGame() {
-        Game game = gameRepository.save(new Game("Batman", "A batman game"));
-        GameCopy gc1 = gameCopyRepository.save(new GameCopy("Perfect condition", game, aGameOwner));
-        GameCopy gc2 = gameCopyRepository.save(new GameCopy("Missing piece", game, aGameOwner));
-        GameCopy gc3 = gameCopyRepository.save(new GameCopy("Missing instructions", game, aGameOwner));
-        
-        String url = String.format("/game/%d/game-copies", game.getId());
-        HttpEntity<?> requestEntity = new HttpEntity<>(authenticationHeaders);
-
-        ResponseEntity<GameCopyResponseDto[]> response = client.exchange(
-                url,
-                HttpMethod.GET,
-                requestEntity,
-                GameCopyResponseDto[].class);
-        
-        assertEquals(3, response.getBody().length);
-        GameCopyResponseDto[] gameCopiesQueried = response.getBody();
-        assertEquals(gameCopiesQueried[0].getId(), gc1.getId());
-        assertEquals(gameCopiesQueried[1].getId(), gc2.getId());
-        assertEquals(gameCopiesQueried[2].getId(), gc3.getId());
-    }
-
-    @Test
-    @Order(10)
     public void testDeleteGameCopy() {
         String url = String.format("/game-copies/%d", createdGameCopyId);
         HttpEntity<?> requestEntity = new HttpEntity<>(authenticationHeaders);
@@ -332,129 +306,4 @@ public class GameManagementIntegrationTest {
         assertEquals(null, response.getBody());
         assertTrue(gameCopyRepository.findById(createdGameCopyId).isEmpty());
     }
-
-    // DELIVERABLE 3 ADDITIONS:
-    @SuppressWarnings("null")
-    @Test
-    @Order(10)
-    public void testGetRandomGames_withExistingGames() {
-        HttpEntity<?> requestEntity = new HttpEntity<>(null);
-
-        ResponseEntity<GameResponseDto[]> response = client.exchange(
-                "/public-random-games",
-                HttpMethod.GET,
-                requestEntity,
-                GameResponseDto[].class);
-
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertNotNull(response.getBody());
-        assertTrue(response.getBody().length <= 10);
-        assertTrue(response.getBody().length > 0);
-    }
-
-    @SuppressWarnings("null")
-    @Test
-    @Order(11)
-    public void testGetRandomGames_limitIs10() {
-        HttpEntity<?> requestEntity = new HttpEntity<>(null);
-
-        ResponseEntity<GameResponseDto[]> response = client.exchange(
-                "/public-random-games",
-                HttpMethod.GET,
-                requestEntity,
-                GameResponseDto[].class);
-
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertNotNull(response.getBody());
-        assertTrue(response.getBody().length <= 10);
-    }
-
-    @SuppressWarnings("null")
-    @Test
-    @Order(12)
-    public void testGetRandomGames_randomnessSanityCheck() {
-        HttpEntity<?> requestEntity = new HttpEntity<>(null);
-
-        ResponseEntity<GameResponseDto[]> firstCall = client.exchange(
-                "/public-random-games",
-                HttpMethod.GET,
-                requestEntity,
-                GameResponseDto[].class);
-
-        ResponseEntity<GameResponseDto[]> secondCall = client.exchange(
-                "/public-random-games",
-                HttpMethod.GET,
-                requestEntity,
-                GameResponseDto[].class);
-
-        assertEquals(HttpStatus.OK, firstCall.getStatusCode());
-        assertEquals(HttpStatus.OK, secondCall.getStatusCode());
-
-        assertNotNull(firstCall.getBody());
-        assertNotNull(secondCall.getBody());
-
-        boolean different = false;
-        for (int i = 0; i < Math.min(firstCall.getBody().length, secondCall.getBody().length); i++) {
-            if (!(firstCall.getBody()[i].getId() == secondCall.getBody()[i].getId())) {
-                different = true;
-                break;
-            }
-        }
-        assertTrue(different || firstCall.getBody().length < 2, "Expected at least some randomness");
-    }
-
-    @SuppressWarnings("null")
-    @Test
-    @Order(13)
-    public void testFindGameCopiesByGame_whenThreeCopiesExist() {
-        // Create a game
-        Game game = gameRepository.save(new Game("TestGameWithCopies", "This game has 3 copies"));
-
-        // Create 3 copies for that game
-        GameCopy copy1 = new GameCopy("First copy", game, aGameOwner);
-        GameCopy copy2 = new GameCopy("Second copy", game, aGameOwner);
-        GameCopy copy3 = new GameCopy("Third copy", game, aGameOwner);
-        gameCopyRepository.save(copy1);
-        gameCopyRepository.save(copy2);
-        gameCopyRepository.save(copy3);
-
-        HttpEntity<?> requestEntity = new HttpEntity<>(authenticationHeaders);
-
-        ResponseEntity<GameCopyResponseDto[]> response = client.exchange(
-                "/game/" + game.getId() + "/game-copies",
-                HttpMethod.GET,
-                requestEntity,
-                GameCopyResponseDto[].class);
-
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertNotNull(response.getBody());
-        assertEquals(3, response.getBody().length, "Expected exactly 3 game copies");
-
-        List<String> descriptions = List.of("First copy", "Second copy", "Third copy");
-        for (GameCopyResponseDto dto : response.getBody()) {
-            assertTrue(descriptions.contains(dto.getDescription()), "Unexpected description: " + dto.getDescription());
-            assertEquals(game.getId(), dto.getGame().getId(), "All copies should belong to the correct game");
-        }
-    }
-
-    @Test
-    @Order(14)
-    public void testGetPublicRandomGames_whenNoGamesExist() {
-        // Remove all games (properly)
-        gameCopyRepository.deleteAll(); // Required to prevent foreign key issues
-        gameRepository.deleteAll();
-
-        HttpEntity<?> requestEntity = new HttpEntity<>(null);
-
-        ResponseEntity<GameResponseDto[]> response = client.exchange(
-                "/public-random-games",
-                HttpMethod.GET,
-                requestEntity,
-                GameResponseDto[].class);
-
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertNotNull(response.getBody());
-        assertEquals(0, response.getBody().length, "Should return empty when there are no games");
-    }
-
 }

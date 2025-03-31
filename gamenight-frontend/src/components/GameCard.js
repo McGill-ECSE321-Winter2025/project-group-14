@@ -2,7 +2,7 @@ import React from "react";
 import Button from "./Button";
 import "../App.css";
 
-function GameCard({ title, image, rating }) {
+function GameCard({ title, image, players, rating }) {
     return (
         <div className="game-card">
             <div className="game-card-image">
@@ -10,6 +10,7 @@ function GameCard({ title, image, rating }) {
             </div>
             <div className="game-card-content">
                 <h3>{title}</h3>
+                <p>Players: {players}</p>
                 <p>Rating: {rating}%</p>
             </div>
             <div className="game-card-actions">

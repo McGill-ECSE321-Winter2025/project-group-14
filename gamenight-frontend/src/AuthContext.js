@@ -6,7 +6,6 @@ export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
-    const [loading, setLoading] = useState(true);
     const navigate = useNavigate();
 
     // Load user from sessionStorage when the app starts
@@ -16,30 +15,30 @@ export const AuthProvider = ({ children }) => {
             setUser(JSON.parse(storedUser));
             console.log("Loaded user from sessionStorage:", JSON.parse(storedUser));
         }
-        setLoading(false);
     }, []);
 
+    // Function to log in
     const login = async (email, password) => {
         const userData = await UserManagementAPI.loginUser(email, password);
         if (userData) {
-
             const personId = userData.userId;  // Treating userId as personId
             sessionStorage.setItem("user", JSON.stringify({ userId: personId, username: userData.username }));
             setUser({ userId: personId, username: userData.username });
             console.log("Logged in with user ID:", personId);
-
             navigate("/my-games");
         }
         return userData;
     };
 
+    // Function to log out
     const logout = () => {
         sessionStorage.removeItem("user");
         setUser(null);
+        navigate("/");
     };
 
     return (
-        <AuthContext.Provider value={{ user, loading, login, logout }}>
+        <AuthContext.Provider value={{ user, login, logout }}>
             {children}
         </AuthContext.Provider>
     );

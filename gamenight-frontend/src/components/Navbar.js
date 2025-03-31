@@ -1,16 +1,10 @@
 import React, { useContext } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { AuthContext } from "../AuthContext";
 import "./Navbar.css";
 
 function Navbar() {
     const { user, logout } = useContext(AuthContext);
-    const navigate = useNavigate();
-
-    const handleLogout = () => {
-        logout();
-        setTimeout(() => navigate("/"), 0);
-    };
 
     return (
         <nav className="navbar">
@@ -19,7 +13,6 @@ function Navbar() {
                 {user && <Link to="/games">Games</Link>}
                 {user && <Link to="/events">Events</Link>}
                 {user && <Link to="/about">About</Link>}
-                {user && <Link to="/received-requests">Borrowing Requests</Link>}
             </div>
 
             <div className="nav-center">
@@ -36,7 +29,7 @@ function Navbar() {
                 {user && <Link to="/account">My Account</Link>}
 
                 {user ? (
-                    <button onClick={handleLogout}>Logout</button>
+                    <button onClick={logout}>Logout</button>
                 ) : (
                     <>
                         <Link to="/login">Log In</Link>
