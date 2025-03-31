@@ -1,9 +1,7 @@
 import React, { useState, useContext, useEffect } from "react";
 import { 
   Box, 
-  Button, 
   TextField, 
-  Typography, 
   Select, 
   MenuItem, 
   FormControl, 
@@ -11,6 +9,7 @@ import {
 } from "@mui/material";
 import { AuthContext } from "../AuthContext";
 import CreateGameForm from "./CreateGameForm";
+import Button from "./Button";
 
 const AddGameCopyForm = ({ onCancel, onSuccess }) => {
   const { user } = useContext(AuthContext);
@@ -81,12 +80,15 @@ const AddGameCopyForm = ({ onCancel, onSuccess }) => {
           p: 3, 
           border: '1px solid #ddd', 
           borderRadius: 1,
-          mb: 3 
+          mb: 3,
+          textAlign: 'center', 
+          maxWidth: '500px', 
+          margin: '0 auto'
         }}
       >
-        <Typography variant="h6" gutterBottom>
+        <h2 className="form-title" style={{ textAlign: 'center', marginBottom: '24px' }}>
           Add New Game Copy
-        </Typography>
+        </h2>
         
         <FormControl fullWidth sx={{ mb: 2 }}>
           <InputLabel id="game-select-label">Game</InputLabel>
@@ -107,8 +109,31 @@ const AddGameCopyForm = ({ onCancel, onSuccess }) => {
                     {game.name}
                   </MenuItem>
                 )),
-                <MenuItem key="create-new" value="" onClick={() => setShowCreateGame(true)}>
-                  + Create a new game
+                  <MenuItem 
+                    key="create-new" 
+                    value="" 
+                    onClick={() => setShowCreateGame(true)}
+                    sx={{
+                      fontWeight: 'bold',
+                      backgroundColor: '#f5f5f5 !important', 
+                      borderTop: '1px solid #e0e0e0',
+                      marginTop: 1,
+                    '&.MuiMenuItem-root': {
+                        backgroundColor: '#f5f5f5', // Base state
+                      },
+                      '&.MuiMenuItem-root:hover': {
+                        backgroundColor: '#e0e0e0 !important', // Darker gray on hover
+                        color: '#1b5e20'
+                      },
+                      '&.Mui-selected': {
+                        backgroundColor: '#f5f5f5' // Prevent blue when selected
+                      },
+                      '&.Mui-focusVisible': {
+                        backgroundColor: '#f5f5f5' // Prevent focus state from changing color
+                      }
+                    }}
+                >
+                    Create a new game 
                 </MenuItem>
               ]
             )}
@@ -126,11 +151,23 @@ const AddGameCopyForm = ({ onCancel, onSuccess }) => {
           required
         />
         
-        <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1 }}>
-          <Button variant="outlined" onClick={onCancel}>
+        <Box sx={{ 
+          display: 'flex', 
+          justifyContent: 'center', 
+          gap: 2, 
+          width: '100%'
+        }}>
+          <Button 
+            type="secondary" 
+            onClick={onCancel}
+            style={{ width: '120px' }}
+          >
             Cancel
           </Button>
-          <Button type="submit" variant="contained" color="primary">
+          <Button 
+            type="submit"
+            style={{ width: '120px' }} 
+          >
             Add Game Copy
           </Button>
         </Box>

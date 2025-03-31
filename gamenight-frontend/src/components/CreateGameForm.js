@@ -1,14 +1,13 @@
 import React, { useState, useContext } from "react";
 import { 
   Box,
-  Button,
   TextField,
-  Typography,
   Modal,
   Backdrop,
   Fade
 } from "@mui/material";
 import { AuthContext } from "../AuthContext";
+import Button from "./Button";
 
 const CreateGameForm = ({ open, onClose, onSuccess }) => {
   const { user } = useContext(AuthContext);
@@ -57,7 +56,8 @@ const CreateGameForm = ({ open, onClose, onSuccess }) => {
     bgcolor: 'background.paper',
     boxShadow: 24,
     p: 4,
-    borderRadius: 2
+    borderRadius: 2,
+    textAlign: 'center' 
   };
 
   return (
@@ -72,9 +72,7 @@ const CreateGameForm = ({ open, onClose, onSuccess }) => {
     >
       <Fade in={open}>
         <Box sx={modalStyle} component="form" onSubmit={handleSubmit}>
-          <Typography variant="h6" gutterBottom>
-            Create New Game
-          </Typography>
+          <h2 className="form-title" style={{ textAlign: 'center' }}>Create New Game</h2>
           
           <TextField
             fullWidth
@@ -96,15 +94,24 @@ const CreateGameForm = ({ open, onClose, onSuccess }) => {
             required
           />
           
-          <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1 }}>
-            <Button variant="outlined" onClick={onClose} disabled={loading}>
+          <Box sx={{ 
+            display: 'flex', 
+            justifyContent: 'center', 
+            gap: 2,
+            width: '100%'
+          }}>
+            <Button 
+              type="secondary" 
+              onClick={onClose} 
+              disabled={loading}
+              style={{ width: '120px' }}
+            >
               Cancel
             </Button>
             <Button 
-              type="submit" 
-              variant="contained" 
-              color="primary"
+              type="submit"
               disabled={loading}
+              style={{ width: '120px' }}
             >
               {loading ? 'Creating...' : 'Create Game'}
             </Button>
