@@ -102,6 +102,38 @@ public class GameManagementController {
     }
 
     /**
+     * Return 10 random games (can repeat if there are less than 10)
+     * 
+     * Publicly accessible for the homepage
+     */
+    @GetMapping("/public-random-games")
+    public ArrayList<GameResponseDto> getPublicRandomGames() {
+        ArrayList<Game> allGames = new ArrayList<>();
+        Iterator<Game> iterator = gameManagementService.findAllGames().iterator();
+        while (iterator.hasNext()) {
+            allGames.add(iterator.next());
+        }
+
+        ArrayList<GameResponseDto> result = new ArrayList<>();
+
+        if (allGames.isEmpty()) {
+            return result;
+        }
+
+        while (result.size() < 10) {
+            java.util.Collections.shuffle(allGames);
+            for (Game g : allGames) {
+                int rating = (int) reviewService.getAverageRatingForGame(g) / 5;
+                result.add(new GameResponseDto(g, rating));
+                if (result.size() == 10)
+                    break;
+            }
+        }
+
+        return result;
+    }
+
+    /**
      * Create a new game copy
      * 
      * @param gameCopy The game copy to create
@@ -111,8 +143,9 @@ public class GameManagementController {
     @ResponseStatus(HttpStatus.CREATED)
     @RequireUser
     public GameCopyResponseDto createGameCopy(@RequestBody GameCopyRequestDto gameCopy) {
+        int ownerId = gameManagementService.getGameOwnerIdByPersonId(gameCopy.getOwnerId());
         GameCopy g = gameManagementService.createGameCopy(gameCopy.getDescription(), gameCopy.getGameId(),
-                gameCopy.getOwnerId());
+                ownerId);
         return new GameCopyResponseDto(g);
     }
 
@@ -151,7 +184,8 @@ public class GameManagementController {
      */
     @GetMapping("/game-copies")
     @RequireUser
-    public ArrayList<GameCopyResponseDto> findGameCopyByOwner(@RequestParam(name = "owner_id") int ownerId) {
+    public ArrayList<GameCopyResponseDto> findGameCopyByOwner(@RequestParam(name = "owner_id") int personId) {
+        int ownerId = gameManagementService.getGameOwnerIdByPersonId(personId);
         ArrayList<GameCopyResponseDto> games = new ArrayList<>();
         Iterator<GameCopy> iterator = gameManagementService.findGameCopiesByOwner(ownerId).iterator();
         while (iterator.hasNext()) {
@@ -183,7 +217,7 @@ public class GameManagementController {
     public List<GameCopyResponseDto> findGameCopiesByGame(@PathVariable int gameId) {
         ArrayList<GameCopyResponseDto> response = new ArrayList<>();
         List<GameCopy> gameCopies = gameManagementService.findGameCopiesByGame(gameId);
-        for (GameCopy gameCopy: gameCopies) {
+        for (GameCopy gameCopy : gameCopies) {
             response.add(new GameCopyResponseDto(gameCopy));
         }
         return response;
