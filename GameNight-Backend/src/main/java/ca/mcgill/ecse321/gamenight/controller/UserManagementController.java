@@ -1,7 +1,6 @@
 package ca.mcgill.ecse321.gamenight.controller;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -161,6 +160,12 @@ public class UserManagementController {
         }
 
         return ResponseEntity.ok(new PersonResponseDto(targetUser));
+    }
+
+    @GetMapping("/users/{userId}/owner-id")
+    public ResponseEntity<Integer> getOwnerIdByUserId(@PathVariable Integer userId) {
+        Integer ownerId = userService.findOwnerIdByUserId(userId);
+        return ResponseEntity.ok(ownerId);
     }
 
     /**

@@ -13,6 +13,7 @@ function Navbar() {
                 {user && <Link to="/games">Games</Link>}
                 {user && <Link to="/events">Events</Link>}
                 {user && <Link to="/about">About</Link>}
+                {user && <Link to="/received-requests">Borrowing Requests</Link>}
             </div>
 
             <div className="nav-center">

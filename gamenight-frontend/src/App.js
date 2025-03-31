@@ -12,7 +12,7 @@ import MyEvents from "./pages/MyEvents";
 import Events from "./pages/Events";
 import Account from "./pages/Account";
 import About from "./pages/About";
-
+import ReceivedBorrowingRequests from "./pages/ReceivedBorrowingRequests";
 function App() {
   return (
     <Router>
@@ -29,7 +29,7 @@ function App() {
           <Route path="/account" element={<Account />} />
           <Route path="/events" element={<Events />} />
           <Route path="/about" element={<About />} />
-
+          <Route path="/received-requests" element={<ReceivedBorrowingRequests />} />
         </Routes>
       </AuthProvider>
     </Router>
