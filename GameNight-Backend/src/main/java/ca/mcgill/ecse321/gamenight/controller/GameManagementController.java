@@ -65,7 +65,7 @@ public class GameManagementController {
     @RequireUser
     public GameResponseDto findGameById(@PathVariable int id) {
         Game g = gameManagementService.findGameById(id);
-        int rating = (int) reviewService.getAverageRatingForGame(g)/5;
+        int rating = (int) reviewService.getAverageRatingForGame(g) / 5;
         return new GameResponseDto(g, rating);
     }
 
@@ -80,7 +80,7 @@ public class GameManagementController {
     @RequireUser
     public GameResponseDto updateGame(@PathVariable int id, @RequestBody GameRequestDto game) {
         Game g = gameManagementService.updateGame(id, game.getName(), game.getDescription());
-        int rating = (int) reviewService.getAverageRatingForGame(g)/5;
+        int rating = (int) reviewService.getAverageRatingForGame(g) / 5;
         return new GameResponseDto(g, rating);
     }
 
@@ -95,7 +95,7 @@ public class GameManagementController {
         Iterator<Game> iterator = gameManagementService.findAllGames().iterator();
         while (iterator.hasNext()) {
             Game game = iterator.next();
-            int rating = (int) reviewService.getAverageRatingForGame(game)/5;
+            int rating = (int) reviewService.getAverageRatingForGame(game) / 5;
             games.add(new GameResponseDto(game, rating));
         }
         return games;
@@ -111,8 +111,9 @@ public class GameManagementController {
     @ResponseStatus(HttpStatus.CREATED)
     @RequireUser
     public GameCopyResponseDto createGameCopy(@RequestBody GameCopyRequestDto gameCopy) {
+        int ownerId = gameManagementService.getGameOwnerIdByPersonId(gameCopy.getOwnerId());
         GameCopy g = gameManagementService.createGameCopy(gameCopy.getDescription(), gameCopy.getGameId(),
-                gameCopy.getOwnerId());
+                ownerId);
         return new GameCopyResponseDto(g);
     }
 
@@ -183,7 +184,7 @@ public class GameManagementController {
     public List<GameCopyResponseDto> findGameCopiesByGame(@PathVariable int gameId) {
         ArrayList<GameCopyResponseDto> response = new ArrayList<>();
         List<GameCopy> gameCopies = gameManagementService.findGameCopiesByGame(gameId);
-        for (GameCopy gameCopy: gameCopies) {
+        for (GameCopy gameCopy : gameCopies) {
             response.add(new GameCopyResponseDto(gameCopy));
         }
         return response;

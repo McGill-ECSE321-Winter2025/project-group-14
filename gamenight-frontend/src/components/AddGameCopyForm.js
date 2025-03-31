@@ -41,7 +41,7 @@ const AddGameCopyForm = ({ onCancel, onSuccess }) => {
     e.preventDefault();
     
     try {
-      const response = await fetch("http://localhost:8080/game-copies", {
+      const response = await fetch("http://localhost:8080/game-copies/", {
         method: "POST",
         headers: { 
           "Content-Type": "application/json",
