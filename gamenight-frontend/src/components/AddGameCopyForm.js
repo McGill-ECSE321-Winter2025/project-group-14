@@ -7,9 +7,10 @@ import {
   Select, 
   MenuItem, 
   FormControl, 
-  InputLabel 
+  InputLabel,
 } from "@mui/material";
 import { AuthContext } from "../AuthContext";
+import CreateGameForm from "./CreateGameForm";
 
 const AddGameCopyForm = ({ onCancel, onSuccess }) => {
   const { user } = useContext(AuthContext);
@@ -17,6 +18,7 @@ const AddGameCopyForm = ({ onCancel, onSuccess }) => {
   const [gameId, setGameId] = useState("");
   const [games, setGames] = useState([]);
   const [loadingGames, setLoadingGames] = useState(true);
+  const [showCreateGame, setShowCreateGame] = useState(false);
 
   useEffect(() => {
     const fetchGames = async () => {
@@ -64,63 +66,82 @@ const AddGameCopyForm = ({ onCancel, onSuccess }) => {
     }
   };
 
+  const handleGameCreated = (newGame) => {
+    setGames(prev => [...prev, newGame]);
+    setGameId(newGame.id.toString());
+    setShowCreateGame(false);
+  };
+
   return (
-    <Box 
-      component="form" 
-      onSubmit={handleSubmit}
-      sx={{ 
-        p: 3, 
-        border: '1px solid #ddd', 
-        borderRadius: 1,
-        mb: 3 
-      }}
-    >
-      <Typography variant="h6" gutterBottom>
-        Add New Game Copy
-      </Typography>
-      
-      <FormControl fullWidth sx={{ mb: 2 }}>
-        <InputLabel id="game-select-label">Game</InputLabel>
-        <Select
-          labelId="game-select-label"
-          value={gameId}
-          label="Game"
-          onChange={(e) => setGameId(e.target.value)}
+    <>
+      <Box 
+        component="form" 
+        onSubmit={handleSubmit}
+        sx={{ 
+          p: 3, 
+          border: '1px solid #ddd', 
+          borderRadius: 1,
+          mb: 3 
+        }}
+      >
+        <Typography variant="h6" gutterBottom>
+          Add New Game Copy
+        </Typography>
+        
+        <FormControl fullWidth sx={{ mb: 2 }}>
+          <InputLabel id="game-select-label">Game</InputLabel>
+          <Select
+            labelId="game-select-label"
+            value={gameId}
+            label="Game"
+            onChange={(e) => setGameId(e.target.value)}
+            required
+            disabled={loadingGames}
+          >
+            {loadingGames ? (
+              <MenuItem value="">Loading games...</MenuItem>
+            ) : (
+              [
+                ...games.map((game) => (
+                  <MenuItem key={game.id} value={game.id}>
+                    {game.name}
+                  </MenuItem>
+                )),
+                <MenuItem key="create-new" value="" onClick={() => setShowCreateGame(true)}>
+                  + Create a new game
+                </MenuItem>
+              ]
+            )}
+          </Select>
+        </FormControl>
+        
+        <TextField
+          fullWidth
+          multiline
+          rows={4}
+          label="Description"
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          sx={{ mb: 2 }}
           required
-          disabled={loadingGames}
-        >
-          {loadingGames ? (
-            <MenuItem value="">Loading games...</MenuItem>
-          ) : (
-            games.map((game) => (
-              <MenuItem key={game.id} value={game.id}>
-                {game.name}
-              </MenuItem>
-            ))
-          )}
-        </Select>
-      </FormControl>
-      
-      <TextField
-        fullWidth
-        multiline
-        rows={4}
-        label="Description"
-        value={description}
-        onChange={(e) => setDescription(e.target.value)}
-        sx={{ mb: 2 }}
-        required
-      />
-      
-      <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1 }}>
-        <Button variant="outlined" onClick={onCancel}>
-          Cancel
-        </Button>
-        <Button type="submit" variant="contained" color="primary">
-          Add Game Copy
-        </Button>
+        />
+        
+        <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1 }}>
+          <Button variant="outlined" onClick={onCancel}>
+            Cancel
+          </Button>
+          <Button type="submit" variant="contained" color="primary">
+            Add Game Copy
+          </Button>
+        </Box>
       </Box>
-    </Box>
+
+      <CreateGameForm 
+        open={showCreateGame}
+        onClose={() => setShowCreateGame(false)}
+        onSuccess={handleGameCreated}
+      />
+    </>
   );
 };
 
