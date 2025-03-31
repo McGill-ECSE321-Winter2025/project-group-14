@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
+import { AuthContext } from "../AuthContext";
 import { UserManagementAPI } from "../UserManagementAPI";
-import { useNavigate } from "react-router-dom";
 import Button from "../components/Button";
 import Box from "../components/Box";
 
@@ -9,9 +9,8 @@ function SignUp() {
     const [password, setPassword] = useState("");
     const [name, setName] = useState("");
     const [error, setError] = useState(null);
-    const navigate = useNavigate();
 
-
+    const { login } = useContext(AuthContext);
     const handleSignUp = async (e) => {
         e.preventDefault();
         setError(null);
@@ -19,16 +18,14 @@ function SignUp() {
         const success = await UserManagementAPI.registerUser(email, password, name);
 
         if (success) {
-            if (await UserManagementAPI.loginUser(email, password)) {
-                navigate("/games");
-            } else {
-                setError("signed-up but failed to log in");
+            const userData = await login(email, password);
+            if (!userData) {
+                setError("Signed up but failed to log in.");
             }
         } else {
             setError("Email already in use or invalid input.");
         }
     };
-
 
     return (
         <div className="container">
@@ -65,7 +62,6 @@ function SignUp() {
             </Box>
         </div>
     );
-
 }
 
 export default SignUp;
