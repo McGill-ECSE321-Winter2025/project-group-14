@@ -6,7 +6,6 @@ import "./GameCopyGameDetailsPage.css";
 import { AuthContext } from "../AuthContext";
 import Button from "./Button"
 import {
-  Card,
   Typography,
   Dialog,
   DialogActions,
@@ -64,28 +63,26 @@ const GameCopyCard = ({ gameCopyId, owner, description }) => {
   }
 
   return (
-    <Card>
-      <div className="game-copy-card">
-        <div className="card-content">
-          <div className="user-section">
-            <div className="avatar">
-              {owner?.charAt(0).toUpperCase()}
-            </div>
-            <div className="user-details">
-              <h3 className="user-name">{owner}</h3>
-            </div>
+    <div className="game-copy-card">
+      <div className="card-content">
+        <div className="user-section">
+          <div className="avatar">
+            {owner?.charAt(0).toUpperCase()}
           </div>
-
-          <div className="game-section">
-            <div className="info-row">
-              <span className="info-label">Details:</span>
-              <span className="comment-value">{description}</span>
-            </div>
+          <div className="user-details">
+            <h3 className="user-name">{owner}</h3>
           </div>
-          <Button onClick={handleBorrowClick}>
-            Ask to Borrow
-          </Button>
         </div>
+
+        <div className="game-section">
+          <div className="info-row">
+            <span className="info-label">Details:</span>
+            <span className="comment-value">{description}</span>
+          </div>
+        </div>
+        <Button onClick={handleBorrowClick}>
+          Ask to Borrow
+        </Button>
       </div>
 
       <Dialog open={requestBorrowOpen} onClose={handleCancelBorrowRequest}>
@@ -116,7 +113,7 @@ const GameCopyCard = ({ gameCopyId, owner, description }) => {
           </div>
         </DialogActions>
       </Dialog>
-    </Card>
+    </div>
   );
 };
 

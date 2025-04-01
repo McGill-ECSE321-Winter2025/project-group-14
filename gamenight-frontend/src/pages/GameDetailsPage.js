@@ -43,7 +43,7 @@ const GameDetailsPage = () => {
   }, [id, user]);
 
   return (
-    <div className='container'>
+    <div>
       <h1 className="centered">{title}</h1>
       <div className='central-image-container'>
         <img className="central-image" src={image} alt="game"/>
@@ -75,9 +75,9 @@ const GameDetailsPage = () => {
       {/* Tab Content */}
       <div className="tab-content">
         {activeTab === 'details' && game && (
-          <div>
-              <p>{game.description}</p>
-          </div>
+            <div className="game-description">
+              {game.description}
+            </div>
         )}
         {activeTab === 'reviews' && (
           <div>
@@ -85,7 +85,7 @@ const GameDetailsPage = () => {
           </div>
         )}
         {activeTab === 'gameCopies' && (
-          <div className='container-center'>
+          <div>
               {gameCopies.map((game) => (
                 <GameCopyCard
                   key={game.id}
