@@ -43,19 +43,19 @@
 }
 
 .btn.success {
-    background-color: #28a745;
+    background-color: #74E1EB;
 }
 
 .btn.success:hover {
-    background-color: #218838;
+    background-color: #28a745;
 }
 
 .btn.danger {
-    background-color: #dc3545;
+    background-color: #FF6574;
 }
 
 .call-to-action .btn {
-    background: #cc0000;
+    background: #FF6574;
     color: #fff;
     border-radius: 50px;
     padding: 15px 30px;
@@ -64,6 +64,6 @@
 }
 
 .call-to-action .btn:hover {
-    background: #a50000;
+    background: #FCB559;
     transform: scale(1.03);
 }

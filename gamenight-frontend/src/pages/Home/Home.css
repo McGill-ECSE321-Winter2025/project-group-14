@@ -19,7 +19,13 @@
 .hero h1 {
     font-size: 3rem;
     font-weight: 700;
-    color: #cc0000;
+    color: #0D90A4;
+}
+
+.hero:hover h1 {
+    font-size: 3rem;
+    font-weight: 700;
+    color: #FF6574;
 }
 
 .hero p {
@@ -91,13 +97,16 @@
     width: 260px;
     text-align: center;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
-    transition: transform 0.3s;
-    border-top: 4px solid #cc0000;
+    transition: transform 0.3s, border-top-color 0.3s;
+    border-top: 4px solid #0D90A4;
+    /* original dark blue */
 }
 
 .feature-card:hover {
     transform: translateY(-6px) scale(1.02);
     box-shadow: 0 6px 24px rgba(0, 0, 0, 0.1);
+    border-top-color: #FF6574;
+    /* new light blue */
 }
 
 .feature-card img {
@@ -107,8 +116,13 @@
 
 .feature-card h3 {
     font-size: 1.4rem;
-    color: #cc0000;
+    color: #0D90A4;
     margin-bottom: 10px;
+    transition: color 0.3s;
+}
+
+.feature-card:hover h3 {
+    color: #FF6574;
 }
 
 .feature-card p {
@@ -128,7 +142,7 @@
 
 .call-to-action h2 {
     font-size: 2.5rem;
-    color: #cc0000;
+    color: #0D90A4;
 }
 
 .call-to-action p {
@@ -138,7 +152,7 @@
 }
 
 .call-to-action .btn {
-    background: #cc0000;
+    background: #0D90A4;
     color: #fff;
     border-radius: 50px;
     padding: 15px 30px;
@@ -147,7 +161,7 @@
 }
 
 .call-to-action .btn:hover {
-    background: #a50000;
+    background: #0D90A4;
     transform: scale(1.03);
 }
 

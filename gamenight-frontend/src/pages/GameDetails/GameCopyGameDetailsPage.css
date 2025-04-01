@@ -7,7 +7,6 @@
   padding: 16px;
 }
 
-/* Modern Card Styling with improved aesthetics */
 :root {
   --primary-color: #4361ee;
   --primary-light: #eef2ff;
@@ -18,9 +17,9 @@
   --text-primary: #1f2937;
   --text-secondary: #6b7280;
   --border-radius: 16px;
-  --shadow-sm: 0 1px 3px rgba(0,0,0,0.05);
-  --shadow-md: 0 4px 20px rgba(0,0,0,0.08);
-  --shadow-lg: 0 10px 30px rgba(0,0,0,0.1);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 20px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 10px 30px rgba(0, 0, 0, 0.1);
   --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
@@ -45,7 +44,6 @@
   padding: 24px;
 }
 
-/* User Section with improved design */
 .user-section {
   display: flex;
   align-items: center;
@@ -109,12 +107,18 @@
   font-size: 17px;
 }
 
-
-/* Animation for new requests */
 @keyframes pulse {
-  0% { opacity: 0.6; }
-  50% { opacity: 1; }
-  100% { opacity: 0.6; }
+  0% {
+    opacity: 0.6;
+  }
+
+  50% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0.6;
+  }
 }
 
 .request-card[data-new="true"] {
@@ -125,16 +129,15 @@
   animation: pulse 2s infinite;
 }
 
-/* Responsive adjustments */
 @media (max-width: 480px) {
   .request-card {
     max-width: 100%;
   }
-  
+
   .action-buttons {
     flex-direction: column;
   }
-  
+
   .card-content {
     padding: 20px;
   }
@@ -142,7 +145,7 @@
 
 
 .MuiDialog-paper {
-  border-radius: 16px !important; /* Smooth rounded corners */
+  border-radius: 16px !important;
   padding: 24px;
   box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.15);
 }

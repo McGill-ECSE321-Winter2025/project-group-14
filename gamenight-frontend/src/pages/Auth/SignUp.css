@@ -1,17 +1,17 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
-/* SignUp.css based on Login.css */
+
 .container-signup {
     display: flex;
     justify-content: center;
-    align-items: center;
+    align-items: flex-start;
     min-height: 100vh;
-    padding: 20px;
+    padding: 80px 20px 20px 20px;
+
     background: #f8f9fa;
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
 }
 
-/* Style the Box component wrapper */
 .container-signup>div {
     width: 380px;
     background: white;
@@ -73,7 +73,6 @@ h1.centered {
     font-style: normal;
 }
 
-/* Button styling will be applied through the Button component */
 .auth-form button {
     width: calc(100% + 10px);
     margin-left: -5px;
