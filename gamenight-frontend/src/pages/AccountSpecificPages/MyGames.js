@@ -142,12 +142,12 @@ function MyGamesPage() {
           height: '3px'
         },
         '& .MuiTab-root': {
-          color: '#666', // Dark gray for inactive tabs
+          color: '#666',
           fontSize: '1rem',
-          textTransform: 'none', // Removes uppercase transformation
+          textTransform: 'none',
           fontWeight: 500,
           padding: '12px 24px',
-          minWidth: 'unset', // Allows tabs to size naturally
+          minWidth: 'unset',
           '&.Mui-selected': {
             color: 'black',
             fontWeight: 600
@@ -162,7 +162,7 @@ function MyGamesPage() {
           value={tabValue}
           onChange={handleTabChange}
           centered
-          variant="fullWidth" // Optional: makes tabs take full width
+          variant="fullWidth"
         >
           <Tab label="My Collection" />
           <Tab label="Borrowed Games" />

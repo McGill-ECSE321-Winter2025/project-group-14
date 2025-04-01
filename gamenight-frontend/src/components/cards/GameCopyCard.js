@@ -11,7 +11,7 @@ import {
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
-import "../../styles/card.css"; // ✅ Important: apply your custom styles
+import "../../styles/card.css";
 
 const GameCopyCard = ({ gameCopy, onDelete, onUpdate, isOwner }) => {
   const [editMode, setEditMode] = useState(false);

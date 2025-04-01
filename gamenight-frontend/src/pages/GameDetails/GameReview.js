@@ -4,9 +4,9 @@ import React from 'react';
 import './GameReview.css';
 
 // Shared styles used in the component
-import '../../styles/card.css';      // for card layout
-import '../../styles/layout.css';    // for .centered, flex helpers, etc.
-import '../../styles/animation.css'; // if you want optional fade-in effects
+import '../../styles/card.css';
+import '../../styles/layout.css';
+import '../../styles/animation.css';
 
 
 const GameReview = ({ author, rating, comment, datePosted }) => {

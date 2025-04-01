@@ -1,12 +1,11 @@
 import React, { useEffect, useState, useContext } from 'react';
 import { useParams } from 'react-router-dom';
 
-import GameReview from '../../pages/GameDetails/GameReview'; // ✅ location based on your tree
-import Button from '../../components/ui/Button'; // ✅ correct location of your reusable button
+import GameReview from '../../pages/GameDetails/GameReview';
+import Button from '../../components/ui/Button';
 import { AuthContext } from '../../AuthContext';
 
-// styles
-import '../../pages/GameDetails/GameReview.css';  // form-specific styles
+import '../../pages/GameDetails/GameReview.css';
 import '../../styles/layout.css';
 import '../../styles/card.css';
 import '../../styles/animation.css';
@@ -43,9 +42,9 @@ const GameReviewsTab = () => {
         }
     }, [user, id, reloadReviews]);
 
-    const [showReviewForm, setShowReviewForm] = useState(false); // Track if the review form is visible
-    const [review, setReview] = useState(""); // Store the review input by the user
-    const [rating, setRating] = useState(0); // Store the rating input by the user
+    const [showReviewForm, setShowReviewForm] = useState(false);
+    const [review, setReview] = useState("");
+    const [rating, setRating] = useState(0);
 
 
     const handleReviewChange = (e) => {
