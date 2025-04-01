@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Card,
   CardContent,
@@ -14,17 +14,23 @@ import {
 } from "@mui/material";
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
-import '../../App.css';
-
+import '../../styles/card.css';
 
 const GameCopyCard = ({ gameCopy, onDelete, onUpdate, isOwner }) => {
   const [editMode, setEditMode] = useState(false);
-  const [editedDescription, setEditedDescription] = useState(gameCopy.description);
+  const [editedDescription, setEditedDescription] = useState("");
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
 
-  const handleEditClick = () => {
-    setEditMode(true);
-  };
+  useEffect(() => {
+    // only set if gameCopy exists
+    if (gameCopy?.description !== undefined) {
+      setEditedDescription(gameCopy.description);
+    }
+  }, [gameCopy]);
+
+  if (!gameCopy) return null; // simply wait until gameCopy is passed
+
+  const handleEditClick = () => setEditMode(true);
 
   const handleSaveClick = () => {
     onUpdate({ ...gameCopy, description: editedDescription });
@@ -36,18 +42,14 @@ const GameCopyCard = ({ gameCopy, onDelete, onUpdate, isOwner }) => {
     setEditMode(false);
   };
 
-  const handleDeleteClick = () => {
-    setDeleteConfirmOpen(true);
-  };
+  const handleDeleteClick = () => setDeleteConfirmOpen(true);
 
   const handleConfirmDelete = () => {
     onDelete(gameCopy.id);
     setDeleteConfirmOpen(false);
   };
 
-  const handleCancelDelete = () => {
-    setDeleteConfirmOpen(false);
-  };
+  const handleCancelDelete = () => setDeleteConfirmOpen(false);
 
   return (
     <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>

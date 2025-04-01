@@ -3,7 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../../AuthContext";
 import Button from "../../components/ui/Button";
 import Box from "../../components/ui/Box";
-import '../../App.css';
+import '../../pages/AccountSpecificPages/Account.css';
+
 
 function Account() {
     const { user, logout } = useContext(AuthContext);

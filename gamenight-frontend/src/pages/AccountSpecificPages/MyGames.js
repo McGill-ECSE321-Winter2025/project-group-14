@@ -5,7 +5,10 @@ import AddGameCopyForm from '../../components/forms/AddGameCopyForm';
 
 import { AuthContext } from "../../AuthContext";
 import Button from "../../components/ui/Button";
-import '../../App.css';
+import '../../styles/layout.css';
+import '../../styles/tabs.css';
+import '../../styles/button.css';
+import '../../components/cards/BorrowingRequestItem.css';
 
 
 function MyGamesPage() {

@@ -1,6 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import '../../App.css';
+import './BorrowingRequestItem.css';
+import '../../styles/button.css';
+import '../../styles/card.css';
 
 const BorrowingRequestItem = ({ request, onAccept, onDecline }) => {
   return (

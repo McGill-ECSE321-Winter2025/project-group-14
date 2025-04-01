@@ -20,7 +20,7 @@ const GamePage = () => {
 
     return (
         <div className="container">
-            <h1 class="centered">Games</h1>
+            <h1 className="centered">Games</h1>
 
             <div className="centered">
                 <input

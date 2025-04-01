@@ -1,7 +1,14 @@
 import React, { useEffect, useState } from "react";
 import { GameAPI } from "../../GettingAllGamesAPI";
 import GameCard from '../../components/cards/GameCard';
-import '../../App.css';
+import '../../styles/animation.css';
+import '../../pages/Home/Home.css';
+import '../../styles/layout.css';
+import '../../styles/card.css';
+import '../../styles/button.css';
+import '../../styles/search.css';
+import '../../styles/tabs.css';
+
 
 
 function Home() {

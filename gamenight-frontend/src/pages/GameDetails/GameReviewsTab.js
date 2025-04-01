@@ -3,7 +3,10 @@ import GameReview from '../../components/ui/GameReview';
 import { useParams } from 'react-router-dom';
 import { AuthContext } from "../../AuthContext";
 import Button from '../../components/ui/Button';
-import '../../App.css';
+import '../../styles/tabs.css';
+import '../../styles/animation.css';
+import '../../components/ui/GameReview.css';
+
 
 const GameReviewsTab = () => {
 

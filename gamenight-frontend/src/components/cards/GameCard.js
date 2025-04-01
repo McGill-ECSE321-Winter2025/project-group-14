@@ -1,6 +1,8 @@
 import React from "react";
 import Button from "../ui/Button";
-import '../../App.css';
+import '../../styles/card.css';
+import '../../styles/button.css';
+
 
 function GameCard({ title, image, rating }) {
     return (
