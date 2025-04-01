@@ -4,6 +4,7 @@ import GameCopyCard from "../components/GameCopyCard";
 import AddGameCopyForm from "../components/AddGameCopyForm";
 import { AuthContext } from "../AuthContext";
 import Button from "../components/Button";
+import BorrowingRequestItem from '../components/BorrowingRequestItem';
 
 function MyGamesPage() {
   const { user } = useContext(AuthContext);
@@ -29,13 +30,43 @@ function MyGamesPage() {
 
   const fetchBorrowedGameCopies = useCallback(async () => {
     try {
-      const response = await fetch(`http://localhost:8080/game-copies/borrowed?borrower_id=${user?.userId}`, {
-        headers: { "Content-Type": "application/json", "User-Id": user?.userId },
+      console.log('Starting fetchBorrowedGameCopies'); // [1]
+      
+      // 1. Fetch player ID
+      console.log('Fetching player ID...'); // [2]
+      const playerResponse = await fetch(`http://localhost:8080/players?person_id=${user?.userId}`, {
+        headers: { 
+          "Content-Type": "application/json",
+          "User-Id": user?.userId 
+        }
       });
-      const data = await response.json();
+      
+      if (!playerResponse.ok) throw new Error("Failed to fetch player ID");
+      
+      const playerId = await playerResponse.json();
+      console.log('Fetched playerId:', playerId); // [3]
+  
+      // 2. Fetch borrowing requests
+      console.log('Fetching borrowing requests...'); // [4]
+      const requestsResponse = await fetch(
+        `http://localhost:8080/borrowingRequests/${playerId}/status/accepted`,
+        {
+          headers: { 
+            "Content-Type": "application/json",
+            "User-Id": user?.userId 
+          }
+        }
+      );
+      console.log('Received response:', requestsResponse); // [5]
+  
+      if (!requestsResponse.ok) throw new Error("Failed to fetch borrowed games");
+      
+      const data = await requestsResponse.json();
+      console.log('Response data:', data); // [6]
       setBorrowedGameCopies(Array.isArray(data) ? data : []);
+      
     } catch (error) {
-      console.error("Error fetching borrowed games:", error);
+      console.error("Error in fetchBorrowedGameCopies:", error);
       setBorrowedGameCopies([]);
     }
   }, [user?.userId]);

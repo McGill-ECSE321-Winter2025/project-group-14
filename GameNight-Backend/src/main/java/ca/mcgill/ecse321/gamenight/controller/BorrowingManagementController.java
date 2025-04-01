@@ -105,16 +105,19 @@ public class BorrowingManagementController {
     }
 
     /**
-     * Retrieves all accepted borrowing requests for a given borrower.
+     * Retrieves all currently active borrowing requests for a given borrower.
+     * Active requests are those with:
+     * - Status = "Accepted"
+     * - Current date is between start date and end date
      * 
-     * @param borrowerId The ID of the borrower.
-     * @return A list of accepted borrowing requests.
+     * @param borrowerId The ID of the borrower
+     * @return A list of active borrowing requests
      */
     @GetMapping("/{borrowerId}/status/accepted")
     @RequireUser
     public List<BorrowingRequestResponseDto> getAcceptedRequestsForBorrower(@PathVariable int borrowerId) {
-        return borrowingManagementService.findAcceptedBorrowingRequestsForBorrower(borrowerId)
-                .stream().map(BorrowingRequestResponseDto::new).collect(Collectors.toList());
+        return borrowingManagementService.findActiveBorrowingRequestsForBorrower(borrowerId)
+            .stream().map(BorrowingRequestResponseDto::new).collect(Collectors.toList());
     }
 
     /**
