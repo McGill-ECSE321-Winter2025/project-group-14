@@ -43,11 +43,11 @@
 }
 
 .btn.success {
-    background-color: #74E1EB;
+    background-color: #0D90A4;
 }
 
 .btn.success:hover {
-    background-color: #28a745;
+    background-color: #74E1EB;
 }
 
 .btn.danger {
