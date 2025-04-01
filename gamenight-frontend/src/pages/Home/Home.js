@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { GameAPI } from "../../GettingAllGamesAPI";
 import GameCard from '../../components/cards/GameCard';
+
 import '../../styles/animation.css';
 import '../../pages/Home/Home.css';
 import '../../styles/layout.css';
@@ -74,9 +75,9 @@ function Home() {
                     const offset = i - carouselIndex;
                     if (offset < -2 || offset > 2) return null;
 
-                    const scale = 1 - Math.abs(offset) * 0.15;
-                    const opacity = 1 - Math.abs(offset) * 0.25;
-                    const translateX = offset * 250;
+                    const scale = 1 - Math.abs(offset) * 0.10;
+                    const opacity = 1 - Math.abs(offset) * 0.10;
+                    const translateX = offset * 300;
 
                     return (
                         <div
@@ -90,9 +91,10 @@ function Home() {
                         >
                             <GameCard
                                 title={game.name}
-                                image={"https://cdn.mos.cms.futurecdn.net/DCNoD5GWBhpHbkybMGt33X-1000-80.jpg"}
-                                rating={game.rating}
+                                image={game.image || "https://cdn.mos.cms.futurecdn.net/DCNoD5GWBhpHbkybMGt33X-1000-80.jpg"}
+                                rating={game.rating ?? 0}
                             />
+
                         </div>
                     );
                 })}

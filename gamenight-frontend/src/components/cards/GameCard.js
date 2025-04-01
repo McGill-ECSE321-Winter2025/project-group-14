@@ -1,21 +1,23 @@
 import React from "react";
-import Button from "../ui/Button";
 import '../../styles/card.css';
-import '../../styles/button.css';
-
 
 function GameCard({ title, image, rating }) {
+    // Convert rating (%) into 0-5 stars
+    const maxStars = 5;
+    const starCount = Math.round((rating / 100) * maxStars);
+
     return (
-        <div className="game-card">
+        <div className="game-card fade-in-card">
             <div className="game-card-image">
                 <img src={image} alt={title} />
             </div>
             <div className="game-card-content">
                 <h3>{title}</h3>
-                <p>Rating: {rating}%</p>
-            </div>
-            <div className="game-card-actions">
-                <Button rounded>▶ Play</Button>
+                <div className="game-card-stars">
+                    {Array.from({ length: maxStars }, (_, i) => (
+                        <span key={i} className={i < starCount ? "filled" : ""}>★</span>
+                    ))}
+                </div>
             </div>
         </div>
     );

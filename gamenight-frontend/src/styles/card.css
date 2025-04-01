@@ -1,55 +1,77 @@
-/* 🟢 Game Cards Layout */
-.game-list {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 20px;
-    justify-content: center;
-    padding: 10px;
-}
-
 /* 🎮 Game Card Styles */
 .game-card {
-    width: 220px;
+    width: 280px;
+    /* ⬅️ wider */
+    height: 340px;
+    /* ⬅️ shorter */
     text-align: center;
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
-    padding: 15px;
     background: #ffffff;
-    border-radius: 10px;
-    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
-    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+    border-radius: 15px;
+    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    overflow: hidden;
+    position: relative;
+}
+
+.game-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0px 8px 18px rgba(0, 0, 0, 0.15);
 }
 
 /* 📷 Game Image */
+.game-card-image {
+    position: relative;
+    width: 100%;
+    height: 220px;
+    /* ⬅️ shorter */
+    overflow: hidden;
+}
+
 .game-card-image img {
     width: 100%;
-    height: 140px;
+    height: 100%;
     object-fit: cover;
-    border-radius: 8px;
+    transition: transform 0.3s ease;
 }
 
-/* 🏆 Game Title */
-.game-card-content h3 {
-    font-size: 18px;
-    font-weight: bold;
-    margin: 10px 0;
-    min-height: 50px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-/* 🎮 Play Button Centering */
-.game-card-actions {
-    display: flex;
-    justify-content: center;
-    margin-top: auto;
-}
-
-/* 🏆 Hover Effect for Game Card */
-.game-card:hover {
+.game-card:hover .game-card-image img {
     transform: scale(1.05);
+}
+
+/* 🟡 Rating Badge - Bigger now */
+.game-card-rating {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    background: #222;
+    color: #fff;
+    font-size: 1.1rem;
+    /* ⬅️ bigger text */
+    font-weight: bold;
+    padding: 8px 14px;
+    /* ⬅️ bigger pill */
+    border-radius: 16px;
+    opacity: 0.95;
+}
+
+.game-card-content h3 {
+    font-size: 22px;
+    font-weight: 600;
+    margin: 0;
+    color: #333;
+}
+
+/* ⭐ Star Rating */
+.game-card-stars {
+    font-size: 35px;
+    letter-spacing: 2px;
+    color: #ccc;
+}
+
+.game-card-stars .filled {
+    color: gold;
 }
 
 /* 🕶️ Smooth Fade-In Animation */
@@ -66,10 +88,68 @@
 }
 
 .fade-in-card {
-    animation: fadeIn 0.2s ease-out;
+    animation: fadeIn 0.3s ease-out;
     opacity: 0;
     animation-fill-mode: forwards;
 }
+
+.game-card-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.game-card:hover .game-card-image img {
+    transform: scale(1.05);
+}
+
+/* 🟡 Rating Badge */
+.game-card-rating {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: #222;
+    color: #fff;
+    font-size: 0.85rem;
+    font-weight: bold;
+    padding: 5px 10px;
+    border-radius: 12px;
+    opacity: 0.9;
+}
+
+/* 🏆 Game Title */
+.game-card-content {
+    padding: 10px;
+    margin-bottom: 10px;
+}
+
+.game-card-content h3 {
+    font-size: 30px;
+    font-weight: 600;
+    margin: 0;
+    color: #333;
+}
+
+/* 🕶️ Smooth Fade-In Animation */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.fade-in-card {
+    animation: fadeIn 0.3s ease-out;
+    opacity: 0;
+    animation-fill-mode: forwards;
+}
+
 
 /* GameCopyCard lookalike to GameDetailsPage cards */
 

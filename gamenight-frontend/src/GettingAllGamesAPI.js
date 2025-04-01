@@ -15,7 +15,11 @@ export const GameAPI = {
     getRandomGames: async () => {
         try {
             const response = await axios.get(API_BASE_URL);
-            return response.data;
+            // scale rating from 0-5 to 0-100
+            return response.data.map(game => ({
+                ...game,
+                rating: game.rating * 20
+            }));
         } catch (error) {
             console.error("Error fetching random games:", error);
             return [];

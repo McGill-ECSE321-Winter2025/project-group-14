@@ -58,3 +58,12 @@
     justify-content: center;
     margin-top: 15px;
 }
+
+
+.game-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: center;
+    padding: 10px;
+}
