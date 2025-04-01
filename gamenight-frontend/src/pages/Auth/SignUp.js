@@ -21,26 +21,16 @@ function SignUp() {
     const success = await UserManagementAPI.registerUser(email, password, name);
 
     if (success) {
-      // Option 1: Attempt to log in automatically
       const userData = await login(email, password);
-
       if (!userData) {
         setError("Signed up but failed to log in.");
       } else {
-        // If auto-login is successful, redirect to home or dashboard
-        navigate("/dashboard"); // Or wherever you want logged-in users to go
+        navigate("/games");
       }
-
-      // Option 2: Redirect to login page regardless of auto-login attempt
-      // Just redirect to login page with a success message
-      navigate("/login", {
-        state: { message: "Account created successfully. Please log in." }
-      });
     } else {
       setError("Email already in use or invalid input.");
     }
   };
-
   return (
     <div className="container-signup">
       <Box>

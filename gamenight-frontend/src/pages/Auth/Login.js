@@ -13,7 +13,7 @@ function Login() {
     const handleLogin = async (e) => {
         e.preventDefault();
         setError("");
-        
+
         const user = await login(email, password);
         if (user) {
             navigate("/games");
@@ -27,7 +27,7 @@ function Login() {
             <div className="wrapper">
                 <h1>Login</h1>
                 {error && <p className="error-text">{error}</p>}
-                
+
                 <form onSubmit={handleLogin}>
                     <div className="input-box">
                         <input
@@ -38,7 +38,7 @@ function Login() {
                             required
                         />
                     </div>
-                    
+
                     <div className="input-box">
                         <input
                             type="password"
@@ -48,11 +48,11 @@ function Login() {
                             required
                         />
                     </div>
-                    
+
                     <button type="submit" className="login-button">
                         Login
                     </button>
-                    
+
                     <div className="register-link">
                         <p>Don't have an account? <a href="/signup">Register</a></p>
                     </div>

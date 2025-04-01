@@ -11,8 +11,8 @@ import ProtectedRoute from "./components/navigation/ProtectedRoute";
 import Home from "./pages/Home/Home";
 import Login from "./pages/Auth/Login";
 import SignUp from "./pages/Auth/SignUp";
-import Games from "./pages/Other/GamePage";
-import MyGames from "./pages/AccountSpecificPages/MyGames.js";
+import GamePage from "./pages/Other/GamePage";
+import MyGamesPage from "./pages/AccountSpecificPages/MyGames.js";
 import MyEvents from "./pages/AccountSpecificPages/MyEvents";
 import Events from "./pages/Other/Events";
 import Account from "./pages/AccountSpecificPages/Account";
@@ -33,9 +33,9 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<SignUp />} />
 
-          <Route path="/games" element={<ProtectedRoute><Games /></ProtectedRoute>} />
+          <Route path="/games" element={<ProtectedRoute><GamePage /></ProtectedRoute>} />
           <Route path="/games/:id" element={<ProtectedRoute><GameDetailsPage /></ProtectedRoute>} />
-          <Route path="/my-games" element={<ProtectedRoute><MyGames /></ProtectedRoute>} />
+          <Route path="/my-games" element={<ProtectedRoute><MyGamesPage /></ProtectedRoute>} />
           <Route path="/my-events" element={<ProtectedRoute><MyEvents /></ProtectedRoute>} />
           <Route path="/account" element={<ProtectedRoute><Account /></ProtectedRoute>} />
           <Route path="/events" element={<ProtectedRoute><Events /></ProtectedRoute>} />

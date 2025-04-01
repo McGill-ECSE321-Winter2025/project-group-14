@@ -3,9 +3,9 @@ import { AuthContext } from "../../AuthContext";
 import { Navigate } from "react-router-dom";
 
 const ProtectedRoute = ({ children }) => {
-    const { user, loading } = useContext(AuthContext); // ✨ added loading
+    const { user, loading } = useContext(AuthContext);
 
-    if (loading) return null; // ✨ just wait silently (or show "Loading...")
+    if (loading) return <div>Loading...</div>;
 
     if (!user) return <Navigate to="/login" />;
 
