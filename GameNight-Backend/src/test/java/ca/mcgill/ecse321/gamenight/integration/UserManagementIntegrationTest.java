@@ -526,7 +526,7 @@ public class UserManagementIntegrationTest {
         HttpEntity<?> requestEntity = new HttpEntity<>(headers);
 
         ResponseEntity<Integer> response = restTemplate.exchange(
-                createURLWithPort("/players?person_id=" + testUserId),
+                createURLWithPort("/users/" + testUserId + "/player-id"),
                 HttpMethod.GET,
                 requestEntity,
                 Integer.class);

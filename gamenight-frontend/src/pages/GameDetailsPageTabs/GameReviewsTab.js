@@ -4,6 +4,7 @@ import { useParams } from 'react-router-dom';
 import { AuthContext } from "../../AuthContext";
 import Button from "../../components/Button"
 import '../../App.css';
+import '../../components/GameReview.css'
 
 const GameReviewsTab = () => {
 
@@ -15,7 +16,7 @@ const GameReviewsTab = () => {
     const [reloadReviews, setReloadReviews] = useState(true);
 
     useEffect(() => {
-        fetch(`http://localhost:8080/players?person_id=${user.userId}`, {
+        fetch(`http://localhost:8080/users/${user.userId}/player-id`, {
             headers: {'Content-Type': 'application/json', "User-Id": user.userId}
         })
           .then((response) => response.json())
@@ -93,7 +94,6 @@ const GameReviewsTab = () => {
             {/* Rating Section: Star Rating */}
             <div className="rating">
                 <label>Rating:</label>
-                <div className="stars">
                 {[1, 2, 3, 4, 5].map((starValue) => (
                     <span
                     key={starValue}
@@ -103,7 +103,6 @@ const GameReviewsTab = () => {
                     {rating >= starValue ? '★' : '☆'}
                     </span>
                 ))}
-                </div>
             </div>
 
             {/* Review Section */}
