@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
-import Game from "../components/ClickableGame";
+import Game from '../../components/cards/ClickableGame';
+
 
 const GamePage = () => {
     const [games, setGames] = useState([]);
@@ -17,9 +18,9 @@ const GamePage = () => {
         game.name.toLowerCase().includes(query.toLowerCase())
     );
 
-return (
-    <div className="container">
-            <h1 class="centered">Games</h1>
+    return (
+        <div className="container">
+            <h1 className="centered">Games</h1>
 
             <div className="centered">
                 <input
@@ -32,18 +33,18 @@ return (
             </div>
 
             <div className="game-list">
-                {filteredGames.length > 0 || query === ""? (
+                {filteredGames.length > 0 || query === "" ? (
                     filteredGames.map((game, index) => (
                         <div key={index} className="fade-in-card">
                             <Game key={game.id} id={game.id} title={game.name} rating={Math.round(game.rating * 100)} image={picture} />
                         </div>
                     ))
-                ):(
+                ) : (
                     <p>No results found</p>
                 )}
             </div>
-    </div>
-);
+        </div>
+    );
 };
 
 

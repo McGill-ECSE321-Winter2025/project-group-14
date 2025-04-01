@@ -1,10 +1,17 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { useParams, useLocation  } from 'react-router-dom';
+import { useParams, useLocation } from 'react-router-dom';
+
+// Styles
 import './GameDetailsPage.css';
-import GameReviewsTab from './GameDetailsPageTabs/GameReviewsTab';
-import GameCopyCard from "../components/GameCopyGameDetailsPage";
-import { AuthContext } from "../AuthContext";
-import '../App.css';
+import '../../styles/layout.css';
+import '../../styles/tabs.css';
+import '../../styles/card.css';
+
+// Components
+import GameReviewsTab from '../GameDetailsPageTabs/GameReviewsTab';
+import GameCopyCard from "./GameCopyGameDetailsPage";
+import { AuthContext } from "../../AuthContext";
+
 
 
 const GameDetailsPage = () => {
@@ -21,10 +28,10 @@ const GameDetailsPage = () => {
   };
 
   const [game, setGame] = useState();
-  
+
   useEffect(() => {
     fetch(`http://localhost:8080/games/${id}`, {
-      headers: {'Content-Type': 'application/json', "User-Id": user.userId}
+      headers: { 'Content-Type': 'application/json', "User-Id": user.userId }
     })
       .then((response) => response.json())
       .then((data) => setGame(data))
@@ -32,10 +39,10 @@ const GameDetailsPage = () => {
   }, [id, user]);
 
   const [gameCopies, setGameCopies] = useState();
-  
+
   useEffect(() => {
     fetch(`http://localhost:8080/game/${id}/game-copies`, {
-      headers: {'Content-Type': 'application/json', "User-Id": user.userId}
+      headers: { 'Content-Type': 'application/json', "User-Id": user.userId }
     })
       .then((response) => response.json())
       .then((data) => setGameCopies(data))
@@ -46,12 +53,12 @@ const GameDetailsPage = () => {
     <div>
       <h1 className="centered">{title}</h1>
       <div className='central-image-container'>
-        <img className="central-image" src={image} alt="game"/>
+        <img className="central-image" src={image} alt="game" />
       </div>
-      
-      
-    {/* Tab Navigation */}
-    <div className="tabs">
+
+
+      {/* Tab Navigation */}
+      <div className="tabs">
         <button
           className={`tab ${activeTab === 'details' ? 'active' : ''}`}
           onClick={() => handleTabChange('details')}
@@ -75,25 +82,25 @@ const GameDetailsPage = () => {
       {/* Tab Content */}
       <div className="tab-content">
         {activeTab === 'details' && game && (
-            <div className="game-description">
-              {game.description}
-            </div>
+          <div>
+            <p>{game.description}</p>
+          </div>
         )}
         {activeTab === 'reviews' && (
           <div>
-            <GameReviewsTab key={id}/>
+            <GameReviewsTab key={id} />
           </div>
         )}
         {activeTab === 'gameCopies' && (
-          <div>
-              {gameCopies.map((game) => (
-                <GameCopyCard
-                  key={game.id}
-                  gameCopyId={game.id}
-                  owner={game.gameOwnerName}
-                  description={game.description}
-                />
-              ))}
+          <div className='container-center'>
+            {gameCopies.map((game) => (
+              <GameCopyCard
+                key={game.id}
+                gameCopyId={game.id}
+                owner={game.gameOwnerName}
+                description={game.description}
+              />
+            ))}
           </div>
         )}
       </div>

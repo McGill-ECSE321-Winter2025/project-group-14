@@ -1,0 +1,233 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+.login-container {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    min-height: 100vh;
+    padding: 80px 20px 20px 20px;
+    background: #f8f9fa;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+}
+
+.wrapper {
+    width: 380px;
+    background: white;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+    color: #333;
+    border-radius: 20px;
+    padding: 35px 40px;
+    text-align: center;
+    border: none;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.wrapper h1 {
+    font-size: 38px;
+    margin-bottom: 35px;
+    color: #2c3e50;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+}
+
+.input-box {
+    position: relative;
+    width: 100%;
+    margin-bottom: 25px;
+}
+
+.input-box input {
+    width: calc(100% + 10px);
+    margin-left: -5px;
+    height: 50px;
+    background: #f8f9fa;
+    outline: none;
+    border: 2px solid #e0e3e7;
+    border-radius: 12px;
+    font-size: 16px;
+    color: #2c3e50;
+    padding: 12px 20px;
+    box-sizing: border-box;
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.login-button {
+    width: calc(100% + 10px);
+    margin-left: -5px;
+    height: 55px;
+    background: linear-gradient(135deg, #FCB559, #FF6574);
+    border: none;
+    border-radius: 12px;
+    color: white;
+    font-weight: 600;
+    font-size: 17px;
+    cursor: pointer;
+    margin: 25px 0 15px -5px;
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.wrapper:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.12);
+}
+
+.input-box input:focus {
+    border-color: #20afc5;
+    box-shadow: 0 0 0 3px rgba(13, 144, 164, 0.2);
+    background: white;
+}
+
+
+.input-box input::placeholder {
+    color: #a1a8b0;
+    font-style: normal;
+
+}
+
+.login-button {
+    width: 100%;
+    height: 55px;
+
+    background: linear-gradient(135deg, #FCB559, #FF6574);
+    border: none;
+    border-radius: 12px;
+    color: white;
+    font-weight: 600;
+
+    font-size: 17px;
+    cursor: pointer;
+    margin: 25px 0 15px;
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.login-button:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 20px rgba(252, 181, 89, 0.3);
+}
+
+.login-button:active {
+    transform: translateY(1px);
+}
+
+.login-button::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0));
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.login-button:hover::after {
+    opacity: 1;
+}
+
+.remember-forgot {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 14px;
+    margin: 20px 0;
+    color: #6c757d;
+}
+
+.remember-forgot label {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+}
+
+.remember-forgot input {
+    margin-right: 8px;
+    accent-color: #FF6574;
+}
+
+.remember-forgot a {
+    color: #0D90A4;
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+.remember-forgot a:hover {
+    color: #FF6574;
+    text-decoration: underline;
+}
+
+.register-link {
+    font-size: 15px;
+    text-align: center;
+    margin: 25px 0 10px;
+    color: #6c757d;
+}
+
+.register-link a {
+    color: #0D90A4;
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.2s ease;
+}
+
+.register-link a:hover {
+    color: #FF6574;
+    text-decoration: underline;
+}
+
+.error-text {
+    color: #FF6574;
+    margin: -15px 0 20px;
+    text-align: center;
+    font-weight: 500;
+    background: rgba(255, 101, 116, 0.1);
+    padding: 10px;
+    border-radius: 8px;
+    border-left: 4px solid #FF6574;
+}
+
+
+.google-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    width: 100%;
+    height: 50px;
+    background: white;
+    color: #5f6368;
+    border: 1px solid #e0e3e7;
+    border-radius: 12px;
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+    margin: 15px 0;
+    transition: all 0.3s ease;
+}
+
+.google-button:hover {
+    background: #f8f9fa;
+    border-color: #d2d6dc;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+@media (max-width: 480px) {
+    .wrapper {
+        width: 90%;
+        padding: 35px 25px;
+    }
+
+    .wrapper h1 {
+        font-size: 32px;
+    }
+
+    .input-box input,
+    .login-button {
+        width: 100%;
+        margin-left: 0;
+    }
+}
