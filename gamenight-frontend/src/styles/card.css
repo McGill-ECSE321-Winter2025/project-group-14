@@ -1,0 +1,116 @@
+/* 🟢 Game Cards Layout */
+.game-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: center;
+    padding: 10px;
+}
+
+/* 🎮 Game Card Styles */
+.game-card {
+    width: 220px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 15px;
+    background: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+/* 📷 Game Image */
+.game-card-image img {
+    width: 100%;
+    height: 140px;
+    object-fit: cover;
+    border-radius: 8px;
+}
+
+/* 🏆 Game Title */
+.game-card-content h3 {
+    font-size: 18px;
+    font-weight: bold;
+    margin: 10px 0;
+    min-height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* 🎮 Play Button Centering */
+.game-card-actions {
+    display: flex;
+    justify-content: center;
+    margin-top: auto;
+}
+
+/* 🏆 Hover Effect for Game Card */
+.game-card:hover {
+    transform: scale(1.05);
+}
+
+/* 🕶️ Smooth Fade-In Animation */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.fade-in-card {
+    animation: fadeIn 0.2s ease-out;
+    opacity: 0;
+    animation-fill-mode: forwards;
+}
+
+/* GameCopyCard lookalike to GameDetailsPage cards */
+
+.game-copy-card {
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+    border-radius: 12px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 16px;
+    background: #fff;
+
+}
+
+.game-copy-card:hover {
+    transform: scale(1.03);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+}
+
+.game-copy-card .MuiCardContent-root {
+    flex-grow: 1;
+}
+
+.game-copy-card .MuiTypography-h6 {
+    font-weight: 600;
+    font-size: 1.2rem;
+}
+
+.game-copy-card .MuiTypography-body2 {
+    color: #555;
+    font-size: 0.95rem;
+}
+
+.game-copy-card .MuiBox-root {
+    display: flex;
+    justify-content: space-between;
+    padding-top: 8px;
+}
+
+.game-copy-card .MuiIconButton-root {
+    color: #555;
+}
+
+.game-copy-card .MuiIconButton-root:hover {
+    color: #000;
+}

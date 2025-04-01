@@ -1,4 +1,4 @@
-import React, { createContext, useState, useEffect } from "react";
+import React, { createContext, useState, useEffect, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { UserManagementAPI } from "./UserManagementAPI";
 
@@ -33,6 +33,7 @@ export const AuthProvider = ({ children }) => {
         sessionStorage.removeItem("user");
         setUser(null);
     };
+    
 
     return (
         <AuthContext.Provider value={{ user, loading, login, logout }}>
@@ -40,3 +41,10 @@ export const AuthProvider = ({ children }) => {
         </AuthContext.Provider>
     );
 };
+export function useAuth() {
+    const context = useContext(AuthContext);
+    if (context === undefined) {
+        throw new Error('useAuth must be used within an AuthProvider');
+    }
+    return context;
+}

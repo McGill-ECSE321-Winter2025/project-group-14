@@ -1,60 +1,52 @@
-import React, { useState} from "react";
-import { 
-  Card, 
-  CardContent, 
-  Typography, 
-  Button, 
-  Box, 
-  IconButton, 
+import React, { useState } from "react";
+import {
+  Button,
+  IconButton,
   TextField,
   Dialog,
   DialogActions,
   DialogContent,
-  DialogTitle
+  DialogTitle,
+  Typography,
 } from "@mui/material";
-import EditIcon from '@mui/icons-material/Edit';
-import DeleteIcon from '@mui/icons-material/Delete';
-import "../App.css";
+import EditIcon from "@mui/icons-material/Edit";
+import DeleteIcon from "@mui/icons-material/Delete";
+import "../../styles/card.css"; // ✅ Important: apply your custom styles
 
 const GameCopyCard = ({ gameCopy, onDelete, onUpdate, isOwner }) => {
   const [editMode, setEditMode] = useState(false);
   const [editedDescription, setEditedDescription] = useState(gameCopy.description);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
 
-  const handleEditClick = () => {
-    setEditMode(true);
-  };
+  const placeholderImage =
+    "https://www.francetvinfo.fr/pictures/KI83JKIWxYVA8ng-cUtYxM6l-z8/1200x1200/2016/08/23/shrek-5.jpg";
+  const image = gameCopy.game?.image || placeholderImage;
 
+  const handleEditClick = () => setEditMode(true);
   const handleSaveClick = () => {
     onUpdate({ ...gameCopy, description: editedDescription });
     setEditMode(false);
   };
-
   const handleCancelEdit = () => {
     setEditedDescription(gameCopy.description);
     setEditMode(false);
   };
-
-  const handleDeleteClick = () => {
-    setDeleteConfirmOpen(true);
-  };
-
+  const handleDeleteClick = () => setDeleteConfirmOpen(true);
   const handleConfirmDelete = () => {
     onDelete(gameCopy.id);
     setDeleteConfirmOpen(false);
   };
-
-  const handleCancelDelete = () => {
-    setDeleteConfirmOpen(false);
-  };
+  const handleCancelDelete = () => setDeleteConfirmOpen(false);
 
   return (
-    <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-      <CardContent sx={{ flexGrow: 1 }}>
-        <Typography variant="h6" gutterBottom>
-          {gameCopy.game?.name || "Unknown Game"}
-        </Typography>
-        
+    <div className="game-card fade-in-card">
+      <div className="game-card-image">
+        <img src={image} alt={gameCopy.game?.name || "Game"} />
+      </div>
+
+      <div className="game-card-content">
+        <h3>{gameCopy.game?.name || "Unknown Game"}</h3>
+
         {editMode ? (
           <TextField
             fullWidth
@@ -62,39 +54,35 @@ const GameCopyCard = ({ gameCopy, onDelete, onUpdate, isOwner }) => {
             rows={3}
             value={editedDescription}
             onChange={(e) => setEditedDescription(e.target.value)}
-            sx={{ mb: 2 }}
+            sx={{ mb: 1 }}
           />
         ) : (
-          <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+          <Typography variant="body2" color="text.secondary">
             {gameCopy.description}
           </Typography>
         )}
-      </CardContent>
+      </div>
 
       {isOwner && (
-        <Box sx={{ p: 2, display: 'flex', justifyContent: 'space-between' }}>
+        <div className="game-card-actions">
           {editMode ? (
             <>
-              <Button size="small" onClick={handleCancelEdit}>
-                Cancel
-              </Button>
-              <Button size="small" color="primary" onClick={handleSaveClick}>
-                Save
-              </Button>
+              <Button size="small" onClick={handleCancelEdit}>Cancel</Button>
+              <Button size="small" color="primary" onClick={handleSaveClick}>Save</Button>
             </>
           ) : (
             <>
-              <IconButton aria-label="edit" onClick={handleEditClick}>
+              <IconButton onClick={handleEditClick}>
                 <EditIcon />
               </IconButton>
-              <IconButton aria-label="delete" onClick={handleDeleteClick}>
+              <IconButton onClick={handleDeleteClick}>
                 <DeleteIcon />
               </IconButton>
             </>
           )}
-        </Box>
+        </div>
       )}
-      
+
       <Dialog open={deleteConfirmOpen} onClose={handleCancelDelete}>
         <DialogTitle>Confirm Delete</DialogTitle>
         <DialogContent>
@@ -105,7 +93,7 @@ const GameCopyCard = ({ gameCopy, onDelete, onUpdate, isOwner }) => {
           <Button onClick={handleConfirmDelete} color="error">Delete</Button>
         </DialogActions>
       </Dialog>
-    </Card>
+    </div>
   );
 };
 

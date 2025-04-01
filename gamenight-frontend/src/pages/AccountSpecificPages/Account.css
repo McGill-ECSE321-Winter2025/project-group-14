@@ -1,0 +1,40 @@
+/* 🛠️ Account Page Styles */
+.profile-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 20px;
+}
+
+/* 🖼 Profile Image */
+.profile-picture {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid white;
+    margin-bottom: 10px;
+}
+
+/* 👤 Profile Name */
+.profile-name {
+    font-size: 22px;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+/* 🔢 Profile Stats Section */
+.profile-stats {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    margin-top: 15px;
+}
+
+.profile-stats .bg-light {
+    padding: 10px;
+    width: 100px;
+    text-align: center;
+    border-radius: 8px;
+}

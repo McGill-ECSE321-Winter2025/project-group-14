@@ -1,13 +1,13 @@
 import React, { useState, useContext } from "react";
-import { 
+import {
   Box,
   TextField,
   Modal,
   Backdrop,
   Fade
 } from "@mui/material";
-import { AuthContext } from "../AuthContext";
-import Button from "./Button";
+import { AuthContext } from "../../AuthContext";
+import Button from '../ui/Button';
 
 const CreateGameForm = ({ open, onClose, onSuccess }) => {
   const { user } = useContext(AuthContext);
@@ -18,24 +18,24 @@ const CreateGameForm = ({ open, onClose, onSuccess }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    
+
     try {
       const response = await fetch("http://localhost:8080/games", {
         method: "POST",
-        headers: { 
+        headers: {
           "Content-Type": "application/json",
-          "User-Id": user.userId 
+          "User-Id": user.userId
         },
         body: JSON.stringify({
           name,
           description
         })
       });
-      
+
       if (!response.ok) {
         throw new Error("Failed to create game");
       }
-      
+
       const newGame = await response.json();
       onSuccess(newGame);
       onClose();
@@ -57,7 +57,7 @@ const CreateGameForm = ({ open, onClose, onSuccess }) => {
     boxShadow: 24,
     p: 4,
     borderRadius: 2,
-    textAlign: 'center' 
+    textAlign: 'center'
   };
 
   return (
@@ -73,7 +73,7 @@ const CreateGameForm = ({ open, onClose, onSuccess }) => {
       <Fade in={open}>
         <Box sx={modalStyle} component="form" onSubmit={handleSubmit}>
           <h2 className="form-title" style={{ textAlign: 'center' }}>Create New Game</h2>
-          
+
           <TextField
             fullWidth
             label="Game Name"
@@ -82,7 +82,7 @@ const CreateGameForm = ({ open, onClose, onSuccess }) => {
             sx={{ mb: 2 }}
             required
           />
-          
+
           <TextField
             fullWidth
             multiline
@@ -93,22 +93,22 @@ const CreateGameForm = ({ open, onClose, onSuccess }) => {
             sx={{ mb: 2 }}
             required
           />
-          
-          <Box sx={{ 
-            display: 'flex', 
-            justifyContent: 'center', 
+
+          <Box sx={{
+            display: 'flex',
+            justifyContent: 'center',
             gap: 2,
             width: '100%'
           }}>
-            <Button 
-              type="secondary" 
-              onClick={onClose} 
+            <Button
+              type="secondary"
+              onClick={onClose}
               disabled={loading}
               style={{ width: '120px' }}
             >
               Cancel
             </Button>
-            <Button 
+            <Button
               type="submit"
               disabled={loading}
               style={{ width: '120px' }}

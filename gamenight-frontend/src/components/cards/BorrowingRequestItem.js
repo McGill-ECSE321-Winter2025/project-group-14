@@ -1,6 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import './BorrowingRequestItem.css';
+import '../../styles/button.css';
+import '../../styles/card.css';
 
 const BorrowingRequestItem = ({ request, onAccept, onDecline }) => {
   return (
@@ -16,7 +18,7 @@ const BorrowingRequestItem = ({ request, onAccept, onDecline }) => {
           </div>
         </div>
 
-       
+
         <div className="game-section">
           <div className="info-row">
             <span className="info-label">Game:</span>
@@ -37,7 +39,7 @@ const BorrowingRequestItem = ({ request, onAccept, onDecline }) => {
           </button>
           <button
             className="btn accept-btn"
-            onClick={() => onDecline(request.id)}
+            onClick={() => onAccept(request.id)}
           >
             Accept
           </button>
