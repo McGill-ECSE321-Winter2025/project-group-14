@@ -6,14 +6,25 @@ import { AuthContext } from "../AuthContext";
 import Button from "../components/Button";
 import BorrowingRequestItem from '../components/BorrowingRequestItem';
 
+// Wrapper component for borrowed games display
+const BorrowedGameItem = ({ request }) => {
+  return (
+    <div className="borrowed-game-item">
+      <BorrowingRequestItem request={request} />
+    </div>
+  );
+};
+
 function MyGamesPage() {
   const { user } = useContext(AuthContext);
   const [authChecked] = useState(true);
   const [tabValue, setTabValue] = useState(0);
   const [myGameCopies, setMyGameCopies] = useState([]);
   const [borrowedGameCopies, setBorrowedGameCopies] = useState([]);
+  const [activeRequests, setActiveRequests] = useState([]);
   const [showAddForm, setShowAddForm] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [requestsLoading, setRequestsLoading] = useState(true);
 
   const fetchMyGameCopies = useCallback(async () => {
     try {
@@ -28,12 +39,48 @@ function MyGamesPage() {
     }
   }, [user?.userId]);
 
+  const fetchActiveRequests = useCallback(async () => {
+    if (!user?.userId) return;
+    
+    try {
+      setRequestsLoading(true);
+      
+      const playerResponse = await fetch(`http://localhost:8080/players?person_id=${user.userId}`, {
+        headers: { 
+          "Content-Type": "application/json",
+          "User-Id": user.userId 
+        }
+      });
+      
+      if (!playerResponse.ok) throw new Error("Failed to fetch player ID");
+      
+      const playerId = await playerResponse.json();
+      
+      const requestsResponse = await fetch(
+        `http://localhost:8080/borrowingRequests/${playerId}/status/accepted`,
+        {
+          headers: { 
+            "Content-Type": "application/json",
+            "User-Id": user.userId 
+          }
+        }
+      );
+  
+      if (!requestsResponse.ok) throw new Error("Failed to fetch active borrowing requests");
+      
+      const data = await requestsResponse.json();
+      setActiveRequests(Array.isArray(data) ? data : []);
+      
+    } catch (error) {
+      console.error("Error fetching active borrowing requests:", error);
+      setActiveRequests([]);
+    } finally {
+      setRequestsLoading(false);
+    }
+  }, [user?.userId]);
+
   const fetchBorrowedGameCopies = useCallback(async () => {
     try {
-      console.log('Starting fetchBorrowedGameCopies'); // [1]
-      
-      // 1. Fetch player ID
-      console.log('Fetching player ID...'); // [2]
       const playerResponse = await fetch(`http://localhost:8080/players?person_id=${user?.userId}`, {
         headers: { 
           "Content-Type": "application/json",
@@ -44,10 +91,7 @@ function MyGamesPage() {
       if (!playerResponse.ok) throw new Error("Failed to fetch player ID");
       
       const playerId = await playerResponse.json();
-      console.log('Fetched playerId:', playerId); // [3]
   
-      // 2. Fetch borrowing requests
-      console.log('Fetching borrowing requests...'); // [4]
       const requestsResponse = await fetch(
         `http://localhost:8080/borrowingRequests/${playerId}/status/accepted`,
         {
@@ -57,12 +101,10 @@ function MyGamesPage() {
           }
         }
       );
-      console.log('Received response:', requestsResponse); // [5]
   
       if (!requestsResponse.ok) throw new Error("Failed to fetch borrowed games");
       
       const data = await requestsResponse.json();
-      console.log('Response data:', data); // [6]
       setBorrowedGameCopies(Array.isArray(data) ? data : []);
       
     } catch (error) {
@@ -76,11 +118,15 @@ function MyGamesPage() {
     
     const loadData = async () => {
       setLoading(true);
-      await Promise.all([fetchMyGameCopies(), fetchBorrowedGameCopies()]);
+      await Promise.all([
+        fetchMyGameCopies(), 
+        fetchBorrowedGameCopies(), 
+        fetchActiveRequests()
+      ]);
       setLoading(false);
     };
     loadData();
-  }, [authChecked, fetchMyGameCopies, fetchBorrowedGameCopies, user]);
+  }, [authChecked, fetchMyGameCopies, fetchBorrowedGameCopies, fetchActiveRequests, user]);
 
   if (!authChecked) {
     return (
@@ -160,39 +206,39 @@ function MyGamesPage() {
       </div>
 
       <Box sx={{ 
-  width: '100%', 
-  mb: 3,
-  '& .MuiTabs-indicator': {
-    backgroundColor: 'black',
-    height: '3px'
-  },
-  '& .MuiTab-root': {
-    color: '#666', // Dark gray for inactive tabs
-    fontSize: '1rem',
-    textTransform: 'none', // Removes uppercase transformation
-    fontWeight: 500,
-    padding: '12px 24px',
-    minWidth: 'unset', // Allows tabs to size naturally
-    '&.Mui-selected': {
-      color: 'black',
-      fontWeight: 600
-    },
-    '&:hover': {
-      color: 'black',
-      opacity: 1
-    }
-  }
-}}>
-  <Tabs 
-    value={tabValue} 
-    onChange={handleTabChange} 
-    centered
-    variant="fullWidth" // Optional: makes tabs take full width
-  >
-    <Tab label="My Collection" />
-    <Tab label="Borrowed Games" />
-  </Tabs>
-</Box>
+        width: '100%', 
+        mb: 3,
+        '& .MuiTabs-indicator': {
+          backgroundColor: 'black',
+          height: '3px'
+        },
+        '& .MuiTab-root': {
+          color: '#666',
+          fontSize: '1rem',
+          textTransform: 'none',
+          fontWeight: 500,
+          padding: '12px 24px',
+          minWidth: 'unset',
+          '&.Mui-selected': {
+            color: 'black',
+            fontWeight: 600
+          },
+          '&:hover': {
+            color: 'black',
+            opacity: 1
+          }
+        }
+      }}>
+        <Tabs 
+          value={tabValue} 
+          onChange={handleTabChange} 
+          centered
+          variant="fullWidth"
+        >
+          <Tab label="My Collection" />
+          <Tab label="Borrowed Games" />
+        </Tabs>
+      </Box>
 
       {tabValue === 0 && (
         <>
@@ -247,7 +293,7 @@ function MyGamesPage() {
       )}
 
       {tabValue === 1 && (
-        <>
+        <div className="borrowed-games-tab">
           {loading ? (
             <Box display="flex" justifyContent="center">
               <p className="text-center">Loading borrowed games...</p>
@@ -260,15 +306,12 @@ function MyGamesPage() {
             <Grid container spacing={3}>
               {borrowedGameCopies.map((gameCopy) => (
                 <Grid item xs={12} sm={6} md={4} key={gameCopy.id}>
-                  <GameCopyCard 
-                    gameCopy={gameCopy} 
-                    isOwner={false}
-                  />
+                  <BorrowingRequestItem request={gameCopy} />
                 </Grid>
               ))}
             </Grid>
           )}
-        </>
+        </div>
       )}
     </div>
   );

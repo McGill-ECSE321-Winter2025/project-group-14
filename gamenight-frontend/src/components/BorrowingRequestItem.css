@@ -415,6 +415,14 @@
   font-weight: 700;
 }
 
+.borrowed-games-tab .action-buttons {
+  display: none !important;
+}
+
+.borrowed-games-tab .requester-name {
+  display: none !important;
+}
+
 /* Responsive adjustments */
 @media (max-width: 480px) {
   .request-card {
@@ -428,4 +436,5 @@
   .card-content {
     padding: 20px;
   }
+
 } 
