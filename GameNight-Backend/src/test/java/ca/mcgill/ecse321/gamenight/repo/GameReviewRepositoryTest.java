@@ -142,8 +142,16 @@ public class GameReviewRepositoryTest {
     @Test
     public void testFindByGameOrderByRatingAsc() {
         GameReview gameReview1 = new GameReview(5, "Great game!", player, game);
-        GameReview gameReview2 = new GameReview(4, "Good game!", player, game);
         gameReviewRepo.save(gameReview1);
+
+        try {
+            Thread.sleep(1000); // Pause to ensure distinct timestamps
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new RuntimeException(e);
+        }
+
+        GameReview gameReview2 = new GameReview(4, "Good game!", player, game);
         gameReviewRepo.save(gameReview2);
 
         List<GameReview> reviews = gameReviewRepo.findByGameOrderByRatingAsc(game);
@@ -158,8 +166,16 @@ public class GameReviewRepositoryTest {
     @Test
     public void testFindByGameOrderByRatingDesc() {
         GameReview gameReview1 = new GameReview(5, "Great game!", player, game);
-        GameReview gameReview2 = new GameReview(4, "Good game!", player, game);
         gameReviewRepo.save(gameReview1);
+
+        try {
+            Thread.sleep(1000); // Pause to ensure distinct timestamps
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new RuntimeException(e);
+        }
+
+        GameReview gameReview2 = new GameReview(4, "Good game!", player, game);
         gameReviewRepo.save(gameReview2);
 
         List<GameReview> reviews = gameReviewRepo.findByGameOrderByRatingDesc(game);

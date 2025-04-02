@@ -1,9 +1,7 @@
 package ca.mcgill.ecse321.gamenight.integration;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertIterableEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
 
@@ -23,7 +21,10 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 
 import ca.mcgill.ecse321.gamenight.dto.ErrorDto;
 import ca.mcgill.ecse321.gamenight.dto.GameCopyRequestDto;
@@ -91,12 +92,18 @@ public class GameManagementIntegrationTest {
         personRepository.deleteAll();
     }
 
-    @SuppressWarnings("null")
     @Test
     @Order(0)
     public void testCreateValidGame() {
-        GameRequestDto body = new GameRequestDto(VALID_NAME, VALID_DESCRIPTION);
-        HttpEntity<?> requestEntity = new HttpEntity<>(body, authenticationHeaders);
+
+        MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
+        body.add("game", new GameRequestDto(VALID_NAME, VALID_DESCRIPTION));
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+        headers.addAll(authenticationHeaders);
+
+        HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(body, headers);
 
         ResponseEntity<GameResponseDto> response = client.exchange(
                 "/games",
@@ -108,16 +115,23 @@ public class GameManagementIntegrationTest {
         assertNotNull(response.getBody());
         assertTrue(response.getBody().getId() > 0, "the ID should be a positive int");
         this.createdGame1Id = response.getBody().getId();
-        assertEquals(body.getName(), response.getBody().getName());
-        assertEquals(body.getDescription(), response.getBody().getDescription());
+        assertEquals(VALID_NAME, response.getBody().getName());
+        assertEquals(VALID_DESCRIPTION, response.getBody().getDescription());
+        assertEquals(0, response.getBody().getRating());
     }
 
-    @SuppressWarnings("null")
     @Test
     @Order(1)
     public void testCreateGameWithNoName() {
-        GameRequestDto body = new GameRequestDto("", "A multiplayer card game");
-        HttpEntity<?> requestEntity = new HttpEntity<>(body, authenticationHeaders);
+
+        MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
+        body.add("game", new GameRequestDto("", "A multiplayer card game"));
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+        headers.addAll(authenticationHeaders);
+
+        HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(body, headers);
 
         ResponseEntity<ErrorDto> response = client.exchange(
                 "/games",
@@ -132,7 +146,6 @@ public class GameManagementIntegrationTest {
                 response.getBody().getErrors());
     }
 
-    @SuppressWarnings("null")
     @Test
     @Order(2)
     public void testFindGameByValidId() {
@@ -150,15 +163,22 @@ public class GameManagementIntegrationTest {
         assertEquals(createdGame1Id, response.getBody().getId());
         assertEquals(VALID_NAME, response.getBody().getName());
         assertEquals(VALID_DESCRIPTION, response.getBody().getDescription());
+        assertEquals(0, response.getBody().getRating());
     }
 
-    @SuppressWarnings("null")
     @Test
     @Order(3)
     public void testUpdateGame() {
-        GameRequestDto body = new GameRequestDto(NEW_NAME, NEW_DESCRIPTION);
+
+        MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
+        body.add("game", new GameRequestDto(NEW_NAME, NEW_DESCRIPTION));
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+        headers.addAll(authenticationHeaders);
+
+        HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(body, headers);
         String url = String.format("/games/%d", createdGame1Id);
-        HttpEntity<?> requestEntity = new HttpEntity<>(body, authenticationHeaders);
 
         ResponseEntity<GameResponseDto> response = client.exchange(
                 url,
@@ -171,9 +191,9 @@ public class GameManagementIntegrationTest {
         assertEquals(createdGame1Id, response.getBody().getId());
         assertEquals(NEW_NAME, response.getBody().getName());
         assertEquals(NEW_DESCRIPTION, response.getBody().getDescription());
+        assertEquals(0, response.getBody().getRating());
     }
 
-    @SuppressWarnings("null")
     @Test
     @Order(4)
     public void testGetMultipleGames() {
@@ -195,18 +215,19 @@ public class GameManagementIntegrationTest {
         assertEquals(createdGame1Id, game1.getId());
         assertEquals(NEW_NAME, game1.getName());
         assertEquals(NEW_DESCRIPTION, game1.getDescription());
+        assertEquals(0, game1.getRating());
 
         GameResponseDto game2 = response.getBody()[1];
         assertEquals(createdGame2.getId(), game2.getId());
         assertEquals(createdGame2.getName(), game2.getName());
         assertEquals(createdGame2.getDescription(), game2.getDescription());
+        assertEquals(0, game2.getRating());
     }
 
-    @SuppressWarnings("null")
     @Test
     @Order(5)
     public void testCreateValidGameCopy() {
-        GameCopyRequestDto body = new GameCopyRequestDto(createdGame1Id, aGameOwner.getId(),
+        GameCopyRequestDto body = new GameCopyRequestDto(createdGame1Id, aGameOwner.getPerson().getId(),
                 VALID_GAME_COPY_DESCRIPTION);
         HttpEntity<?> requestEntity = new HttpEntity<>(body, authenticationHeaders);
 
@@ -224,7 +245,6 @@ public class GameManagementIntegrationTest {
         assertEquals(body.getDescription(), response.getBody().getDescription());
     }
 
-    @SuppressWarnings("null")
     @Test
     @Order(6)
     public void testGetExistingGameCopy() {
@@ -243,32 +263,31 @@ public class GameManagementIntegrationTest {
         assertEquals(VALID_GAME_COPY_DESCRIPTION, response.getBody().getDescription());
     }
 
-    @SuppressWarnings("null")
     @Test
     @Order(7)
     public void testUpdateGameCopy() {
-        GameCopyRequestDto body = new GameCopyRequestDto(createdGame1Id, aGameOwner.getId(), "Medium condition");
+        GameCopyRequestDto body = new GameCopyRequestDto(createdGame1Id, aGameOwner.getPerson().getId(),
+                "Medium condition");
         String url = String.format("/game-copies/%d", createdGameCopyId);
         HttpEntity<?> requestEntity = new HttpEntity<>(body, authenticationHeaders);
 
-        ResponseEntity<GameCopyRequestDto> response = client.exchange(
+        ResponseEntity<GameCopyResponseDto> response = client.exchange(
                 url,
                 HttpMethod.PUT,
                 requestEntity,
-                GameCopyRequestDto.class);
+                GameCopyResponseDto.class);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody());
-        assertEquals(body.getDescription(), response.getBody().getDescription());
+        assertEquals("Medium condition", response.getBody().getDescription());
     }
 
-    @SuppressWarnings("null")
     @Test
     @Order(8)
     public void testGetMultipleGameCopiesForOwner() {
         GameCopy newGameCopy = new GameCopy("Missing one piece", createdGame2, aGameOwner);
         gameCopyRepository.save(newGameCopy);
-        String url = String.format("/game-copies?owner_id=%d", aGameOwner.getId());
+        String url = String.format("/game-copies?owner_id=%d", aGameOwner.getPerson().getId());
         HttpEntity<?> requestEntity = new HttpEntity<>(authenticationHeaders);
 
         ResponseEntity<GameCopyResponseDto[]> response = client.exchange(
@@ -303,7 +322,23 @@ public class GameManagementIntegrationTest {
                 Void.class);
 
         assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
-        assertEquals(null, response.getBody());
+        assertNull(response.getBody());
         assertTrue(gameCopyRepository.findById(createdGameCopyId).isEmpty());
+    }
+
+    @Test
+    @Order(10)
+    public void testGetGameImage() {
+        String url = String.format("/games/%d/image", createdGame1Id);
+        HttpEntity<?> requestEntity = new HttpEntity<>(authenticationHeaders);
+
+        ResponseEntity<byte[]> response = client.exchange(
+                url,
+                HttpMethod.GET,
+                requestEntity,
+                byte[].class);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertNotNull(response.getBody());
     }
 }
