@@ -77,7 +77,7 @@ const GameCopyCard = ({ gameCopy, onDelete, onUpdate, isOwner }) => {
 
   return (
     <Card sx={{
-      width: 280, // Slightly wider than the tiny version
+      width: 280, 
       borderRadius: '14px',
       overflow: 'hidden',
       boxShadow: '0 3px 8px rgba(0,0,0,0.1)',
@@ -86,10 +86,10 @@ const GameCopyCard = ({ gameCopy, onDelete, onUpdate, isOwner }) => {
         transform: 'translateY(-3px)'
       }
     }}>
-      {/* Image Section */}
+      
       <Box sx={{
         position: 'relative',
-        paddingTop: '60%', // Slightly taller aspect ratio
+        paddingTop: '100%', 
         backgroundColor: '#f5f5f5'
       }}>
         {imageLoading ? (
@@ -116,7 +116,6 @@ const GameCopyCard = ({ gameCopy, onDelete, onUpdate, isOwner }) => {
         )}
       </Box>
 
-      {/* Content Section */}
       <CardContent sx={{ p: 2.5 }}>
         <Typography variant="subtitle1" sx={{ 
           mb: 1.5,
@@ -156,7 +155,7 @@ const GameCopyCard = ({ gameCopy, onDelete, onUpdate, isOwner }) => {
           </Typography>
         )}
 
-        {/* Actions */}
+        
         {isOwner && (
           <Box sx={{ 
             display: 'flex',
@@ -213,7 +212,7 @@ const GameCopyCard = ({ gameCopy, onDelete, onUpdate, isOwner }) => {
         )}
       </CardContent>
 
-      {/* Delete Confirmation Dialog */}
+      
       <Dialog open={deleteConfirmOpen} onClose={handleCancelDelete}>
         <DialogTitle sx={{ textAlign: 'center' }}>Confirm Delete</DialogTitle>
         <DialogContent sx={{ textAlign: 'center' }}>

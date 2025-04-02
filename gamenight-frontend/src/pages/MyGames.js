@@ -129,46 +129,30 @@ function MyGamesPage() {
       </div>
 
       <Box sx={{ 
-  width: '100%', 
-  mb: 3,
-  '& .MuiTabs-indicator': {
-    backgroundColor: 'black',
-    height: '3px'
-  },
-  '& .MuiTab-root': {
-    color: '#666', // Dark gray for inactive tabs
-    fontSize: '1rem',
-    textTransform: 'none', // Removes uppercase transformation
-    fontWeight: 500,
-    padding: '12px 24px',
-    minWidth: 'unset', // Allows tabs to size naturally
-    '&.Mui-selected': {
-      color: 'black',
-      fontWeight: 600
-    },
-    '&:hover': {
-      color: 'black',
-      opacity: 1
-    }
-  }
-}}>
-  <Tabs 
-    value={tabValue} 
-    onChange={handleTabChange} 
-    centered
-    variant="fullWidth" // Optional: makes tabs take full width
-  >
-    <Tab label="My Collection" />
-    <Tab label="Borrowed Games" />
-  </Tabs>
-</Box>
+        width: '100%', 
+        mb: 3,
+        '& .MuiTabs-indicator': { backgroundColor: 'black', height: '3px' },
+        '& .MuiTab-root': {
+          color: '#666',
+          fontSize: '1rem',
+          textTransform: 'none',
+          fontWeight: 500,
+          padding: '12px 24px',
+          minWidth: 'unset',
+          '&.Mui-selected': { color: 'black', fontWeight: 600 },
+          '&:hover': { color: 'black', opacity: 1 }
+        }
+      }}>
+        <Tabs value={tabValue} onChange={handleTabChange} centered variant="fullWidth">
+          <Tab label="My Collection" />
+          <Tab label="Borrowed Games" />
+        </Tabs>
+      </Box>
 
       {tabValue === 0 && (
         <>
           <Box display="flex" justifyContent="center" sx={{ mb: 3 }}>
-            <Button onClick={handleAddGameCopy}>
-              Add Game Copy
-            </Button>
+            <Button onClick={handleAddGameCopy}>Add Game Copy</Button>
           </Box>
 
           <Modal
@@ -176,9 +160,7 @@ function MyGamesPage() {
             onClose={handleCancelAdd}
             closeAfterTransition
             BackdropComponent={Backdrop}
-            BackdropProps={{
-              timeout: 500,
-            }}
+            BackdropProps={{ timeout: 500 }}
           >
             <Fade in={showAddForm}>
               <Box sx={modalStyle}>
@@ -199,18 +181,29 @@ function MyGamesPage() {
               <p className="text-center">You don't have any games in your collection yet.</p>
             </Box>
           ) : (
-            <Grid container spacing={3}>
+            <Box sx={{ 
+              display: 'flex',
+              justifyContent: 'center',
+              flexWrap: 'wrap',
+              gap: '16px', // Reduced from 24px to 16px for tighter spacing
+              maxWidth: '1200px',
+              margin: '0 auto',
+              padding: '0 16px'
+            }}>
               {myGameCopies.map((gameCopy) => (
-                <Grid item xs={12} sm={6} md={4} key={gameCopy.id}>
+                <Box key={gameCopy.id} sx={{ 
+                  width: { xs: '100%', sm: 'calc(50% - 8px)', md: 'calc(33.333% - 11px)' },
+                  maxWidth: '280px'
+                }}>
                   <GameCopyCard 
                     gameCopy={gameCopy} 
                     onDelete={handleDeleteGameCopy}
                     onUpdate={handleUpdateGameCopy}
                     isOwner={true}
                   />
-                </Grid>
+                </Box>
               ))}
-            </Grid>
+            </Box>
           )}
         </>
       )}
@@ -226,16 +219,27 @@ function MyGamesPage() {
               <p className="text-center">You haven't borrowed any games yet.</p>
             </Box>
           ) : (
-            <Grid container spacing={3}>
+            <Box sx={{ 
+              display: 'flex',
+              justifyContent: 'center',
+              flexWrap: 'wrap',
+              gap: '16px', // Consistent with the first tab
+              maxWidth: '1200px',
+              margin: '0 auto',
+              padding: '0 16px'
+            }}>
               {borrowedGameCopies.map((gameCopy) => (
-                <Grid item xs={12} sm={6} md={4} key={gameCopy.id}>
+                <Box key={gameCopy.id} sx={{ 
+                  width: { xs: '100%', sm: 'calc(50% - 8px)', md: 'calc(33.333% - 11px)' },
+                  maxWidth: '280px'
+                }}>
                   <GameCopyCard 
                     gameCopy={gameCopy} 
                     isOwner={false}
                   />
-                </Grid>
+                </Box>
               ))}
-            </Grid>
+            </Box>
           )}
         </>
       )}
