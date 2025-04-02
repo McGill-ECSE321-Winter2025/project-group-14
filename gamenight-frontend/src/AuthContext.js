@@ -28,6 +28,17 @@ export const AuthProvider = ({ children }) => {
 
         fetchData();
     }, []);
+    const refreshIsOwner = async () => {
+        if (!user) return;
+        try {
+            const result = await UserManagementAPI.isActiveOwner(user.userId);
+            setIsOwner(result);
+        } catch (e) {
+            console.error("Error refreshing owner status:", e);
+            setIsOwner(false);
+        }
+    };
+
 
     const login = async (email, password) => {
         const userData = await UserManagementAPI.loginUser(email, password);
@@ -53,7 +64,8 @@ export const AuthProvider = ({ children }) => {
     };
 
     return (
-        <AuthContext.Provider value={{ user, setUser, loading, login, logout, isOwner }}>
+        <AuthContext.Provider value={{ user, setUser, loading, login, logout, isOwner, refreshIsOwner }}>
+
             {children}
         </AuthContext.Provider>
     );

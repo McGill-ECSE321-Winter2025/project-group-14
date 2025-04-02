@@ -4,12 +4,13 @@ import { useAuth } from '../../AuthContext';
 import './AccountSettings.css';
 
 const AccountSettings = () => {
-    const { user, isOwner } = useAuth();
+    const { user, isOwner, userDetails, refreshIsOwner } = useAuth();
     const [userInfo, setUserInfo] = useState(null);
     const [email, setEmail] = useState('');
     const [newPassword, setNewPassword] = useState('');
     const [oldPassword, setOldPassword] = useState('');
-    const [statusMessage, setStatusMessage] = useState('');
+    const [updateStatus, setUpdateStatus] = useState('');
+    const [toggleStatus, setToggleStatus] = useState('');
     const [infoLocked, setInfoLocked] = useState('');
 
     useEffect(() => {
@@ -26,20 +27,25 @@ const AccountSettings = () => {
         if (success) {
             const updatedInfo = await UserManagementAPI.getUserDetails(user.userId);
             setUserInfo(updatedInfo);
-            setStatusMessage("Updated successfully.");
+            setUpdateStatus("Updated successfully.");
             setEmail('');
             setNewPassword('');
             setOldPassword('');
         } else {
-            setStatusMessage("Update failed.");
+            setUpdateStatus("Update failed.");
         }
     };
 
     const handleToggleRole = async () => {
         const success = await UserManagementAPI.toggleRole(user.userId);
-        if (success) alert("Role toggled successfully.");
-        else alert("Toggle failed.");
+        if (success) {
+            await refreshIsOwner();
+            setToggleStatus("Role toggled successfully.");
+        } else {
+            setToggleStatus("Toggle failed.");
+        }
     };
+
 
     const handleDeleteAccount = async () => {
         if (window.confirm("Are you sure? This cannot be undone.")) {
@@ -85,16 +91,20 @@ const AccountSettings = () => {
                     <input type="password" placeholder="New Password" value={newPassword} onChange={e => setNewPassword(e.target.value)} />
                     <input type="password" placeholder="Current Password" required value={oldPassword} onChange={e => setOldPassword(e.target.value)} />
                     <button onClick={handleUpdate}>Save Changes</button>
-                    {statusMessage && <p className="centered">{statusMessage}</p>}
+                    {updateStatus && <p className="centered">{updateStatus}</p>}
                 </div>
             </div>
 
             <div className="settings-card">
                 <h2 className="centered">Role Toggle</h2>
+                <h2 className="centered" style={{ fontSize: '30px', }}>
+                    {isOwner ? 'OWNER' : 'PLAYER'}
+                </h2>
                 <InfoIcon id="toggleRole" />
                 <InfoText id="toggleRole">Switch between player and owner mode.</InfoText>
                 <div className="auth-form">
                     <button onClick={handleToggleRole}>Toggle Role</button>
+                    {toggleStatus && <p className="centered">{toggleStatus}</p>}
                 </div>
             </div>
 
