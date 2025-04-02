@@ -53,7 +53,7 @@ public class GameManagementController {
             @RequestPart(required = false) MultipartFile imageFile) throws IOException {
 
         Game g = gameManagementService.createGame(game.getName(), game.getDescription(), imageFile);
-        return new GameResponseDto(g, 0);
+        return new GameResponseDto(g, 0.0);
     }
 
     /**

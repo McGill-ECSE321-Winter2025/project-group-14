@@ -7,8 +7,8 @@ import {
   Fade,
   Typography,
 } from "@mui/material";
-import { AuthContext } from "../AuthContext";
-import Button from "./Button";
+import { AuthContext } from "../../AuthContext";
+import Button from "../ui/Button";
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 
 const CreateGameForm = ({ open, onClose, onSuccess }) => {

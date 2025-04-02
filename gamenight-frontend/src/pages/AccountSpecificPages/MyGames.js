@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useContext, useCallback } from "react";
-import { Tabs, Tab, Box, Grid, Modal, Backdrop, Fade } from "@mui/material";
-import GameCopyCard from "../components/GameCopyCard";
-import AddGameCopyForm from "../components/AddGameCopyForm";
-import { AuthContext } from "../AuthContext";
-import Button from "../components/Button";
-import BorrowingRequestItem from '../components/BorrowingRequestItem';
+import { Tabs, Tab, Box, Modal, Backdrop, Fade } from "@mui/material";
+import GameCopyCard from "../../components/cards/GameCopyCard";
+import AddGameCopyForm from "../../components/forms/AddGameCopyForm";
+import { AuthContext } from "../../AuthContext";
+import Button from "../../components/ui/Button";
+import BorrowingRequestItem from '../../components/cards/BorrowingRequestItem';
 
 
 
@@ -74,7 +74,6 @@ function MyGamesPage() {
         fetchMyGameCopies(), 
         fetchBorrowedGameCopies(), 
       ]);
-      console.log("Borrowed games:", borrowedGameCopies); // Add this line
       setLoading(false);
     };
     loadData();
@@ -205,7 +204,7 @@ function MyGamesPage() {
               display: 'flex',
               justifyContent: 'center',
               flexWrap: 'wrap',
-              gap: '16px', 
+              gap: '16px',
               maxWidth: '1200px',
               margin: '0 auto',
               padding: '0 16px'
@@ -229,7 +228,7 @@ function MyGamesPage() {
       )}
 
       {tabValue === 1 && (
-        <div className="borrowed-games-tab">
+        <>
           {loading ? (
             <Box display="flex" justifyContent="center">
               <p className="text-center">Loading borrowed games...</p>
@@ -243,22 +242,25 @@ function MyGamesPage() {
               display: 'flex',
               justifyContent: 'center',
               flexWrap: 'wrap',
-              gap: '16px', 
+              gap: '16px',
               maxWidth: '1200px',
               margin: '0 auto',
               padding: '0 16px'
             }}>
               {borrowedGameCopies.map((gameCopy) => (
-                <Grid item xs={12} sm={6} md={4} key={gameCopy.id}>
+                <Box key={gameCopy.id} sx={{ 
+                  width: { xs: '100%', sm: 'calc(50% - 8px)', md: 'calc(33.333% - 11px)' },
+                  maxWidth: '280px'
+                }}>
                   <BorrowingRequestItem 
                     request={gameCopy} 
                     badgeText="Active Borrow"
                   />
-                </div>
+                </Box>
               ))}
             </Box>
           )}
-        </div>
+        </>
       )}
     </div>
   );
