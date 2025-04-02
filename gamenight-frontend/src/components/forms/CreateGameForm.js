@@ -62,7 +62,7 @@ const CreateGameForm = ({ open, onClose, onSuccess }) => {
     }
     
     setLoading(true);
-    
+
     try {
       const formData = new FormData();
       

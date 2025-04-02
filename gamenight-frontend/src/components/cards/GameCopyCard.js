@@ -14,9 +14,9 @@ import {
   DialogTitle,
   CircularProgress
 } from "@mui/material";
-import EditIcon from '@mui/icons-material/Edit';
-import DeleteIcon from '@mui/icons-material/Delete';
-import "../App.css";
+import EditIcon from "@mui/icons-material/Edit";
+import DeleteIcon from "@mui/icons-material/Delete";
+import "../../styles/card.css";
 
 const GameCopyCard = ({ gameCopy, onDelete, onUpdate, isOwner }) => {
   const [editMode, setEditMode] = useState(false);

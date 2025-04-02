@@ -449,12 +449,34 @@ public class BorrowingManagementServiceTest {
     @Test
     void testFindLendingHistoryValid() {
         int ownerId = 10;
+
+        Person ownerPerson = new Person();
+        ownerPerson.setEmailAddress("owner@example.com");
+        GameOwner gameOwner = new GameOwner();
+        gameOwner.setPerson(ownerPerson);
+
+        Game game = new Game();
+        game.setName("Uno");
+
+        GameCopy gameCopy = new GameCopy();
+        gameCopy.setGame(game);
+        gameCopy.setGameOwner(gameOwner);
+
+        Person senderPerson = new Person();
+        senderPerson.setEmailAddress("sender@example.com");
+        Player sender = new Player();
+        sender.setPerson(senderPerson);
+
         BorrowingRequest request = new BorrowingRequest();
         request.setStatus(BorrowingRequestStatus.Accepted);
+        request.setGameCopy(gameCopy);
+        request.setSender(sender);
+
         List<BorrowingRequest> history = Collections.singletonList(request);
 
-        when(borrowingRequestRepository.findAllRequestsByStatusAndGameOwner(BorrowingRequestStatus.Accepted, ownerId))
+        when(borrowingRequestRepository.findAllByGameCopy_GameOwner_Id(ownerId))
                 .thenReturn(history);
+
         List<BorrowingRequest> result = borrowingManagementService.findLendingHistory(ownerId);
         assertNotNull(result);
         assertEquals(1, result.size());

@@ -67,7 +67,7 @@ function MyGamesPage() {
   
   useEffect(() => {
     if (!authChecked || !user) return;
-    
+
     const loadData = async () => {
       setLoading(true);
       await Promise.all([
@@ -112,17 +112,17 @@ function MyGamesPage() {
     try {
       const response = await fetch(`http://localhost:8080/game-copies/${updatedCopy.id}`, {
         method: "PUT",
-        headers: { 
+        headers: {
           "Content-Type": "application/json",
-          "User-Id": user.userId 
+          "User-Id": user.userId
         },
         body: JSON.stringify({
           description: updatedCopy.description
         })
       });
       const data = await response.json();
-      
-      setMyGameCopies(prev => prev.map(copy => 
+
+      setMyGameCopies(prev => prev.map(copy =>
         copy.id === updatedCopy.id ? data : copy
       ));
     } catch (error) {
@@ -184,9 +184,9 @@ function MyGamesPage() {
           >
             <Fade in={showAddForm}>
               <Box sx={modalStyle}>
-                <AddGameCopyForm 
-                  onCancel={handleCancelAdd} 
-                  onSuccess={handleGameCopyAdded} 
+                <AddGameCopyForm
+                  onCancel={handleCancelAdd}
+                  onSuccess={handleGameCopyAdded}
                 />
               </Box>
             </Fade>
@@ -254,7 +254,7 @@ function MyGamesPage() {
                     request={gameCopy} 
                     badgeText="Active Borrow"
                   />
-                </Grid>
+                </div>
               ))}
             </Box>
           )}

@@ -7,16 +7,16 @@ public class GameResponseDto {
     private String name;
     private String description;
     private String imageUrl;
-    private int rating;
+    private Double rating;
 
     @SuppressWarnings("unused")
     private GameResponseDto() {
     }
 
-    public GameResponseDto(Game model, int rating) {
-        this.id = model.getId();
-        this.name = model.getName();
-        this.description = model.getDescription();
+    public GameResponseDto(Game model, Double rating) {
+        id = model.getId();
+        name = model.getName();
+        description = model.getDescription();
         this.rating = rating;
         this.imageUrl = model.getImagePath() != null ? "/api/games/" + model.getId() + "/image" : null;
     }
@@ -37,7 +37,7 @@ public class GameResponseDto {
         return imageUrl;
     }
 
-    public int getRating() {
+    public Double getRating() {
         return rating;
     }
 }

@@ -162,26 +162,21 @@ public class UserManagementController {
         return ResponseEntity.ok(new PersonResponseDto(targetUser));
     }
 
+    @GetMapping("/users/{userId}/owner-id")
+    public ResponseEntity<Integer> getOwnerIdByUserId(@PathVariable Integer userId) {
+        Integer ownerId = userService.findOwnerIdByUserId(userId);
+        return ResponseEntity.ok(ownerId);
+    }
+
     /**
      * Get the player id for the given person
      * 
      * @param personId Id of the person
      * @return The id of the player
      */
-    @GetMapping("/players")
-    public Integer getPlayerByPersonId(@RequestParam(name = "person_id") int personId) {
-        Player player = userService.getPlayerByPersonId(personId);
+    @GetMapping("/users/{userId}/player-id")
+    public Integer getPlayerByPersonId(@PathVariable Integer userId) {
+        Player player = userService.getPlayerByPersonId(userId);
         return player.getId();
-    }
-
-    /**
-     * Get the owner id for the given person
-     * 
-     * @param personId Id of the person
-     * @return The id of the game owner
-     */
-    @GetMapping("/game-owners")
-    public String getOwnersId(@RequestParam(name = "person_id") int personId) {
-        return userService.getGameOwnerByPersonId(personId).getPerson().getName();
     }
 }

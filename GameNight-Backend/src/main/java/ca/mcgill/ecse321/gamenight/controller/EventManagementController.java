@@ -11,6 +11,7 @@ import ca.mcgill.ecse321.gamenight.dto.GameResponseDto;
 import ca.mcgill.ecse321.gamenight.dto.PlayerResponseDto;
 import ca.mcgill.ecse321.gamenight.model.Event;
 import ca.mcgill.ecse321.gamenight.model.Game;
+import ca.mcgill.ecse321.gamenight.model.ScheduledGame;
 import ca.mcgill.ecse321.gamenight.service.EventManagementService;
 import ca.mcgill.ecse321.gamenight.service.GameReviewService;
 
@@ -108,10 +109,10 @@ public class EventManagementController {
      */
     @GetMapping("/scheduledevent/{eventId}")
     public List<GameResponseDto> getGamesForEvent(@PathVariable int eventId) {
-        ArrayList<GameResponseDto> response = new ArrayList<>();
         List<Game> games = eventService.getGamesForEvent(eventId);
+        ArrayList<GameResponseDto> response = new ArrayList<>();
         for (Game game: games) {
-            int rating = (int) reviewService.getAverageRatingForGame(game)/5;
+            Double rating = reviewService.getAverageRatingForGame(game);
             response.add(new GameResponseDto(game, rating));
         }
         return response;

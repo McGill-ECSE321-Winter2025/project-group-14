@@ -130,8 +130,7 @@ public class BorrowingManagementService {
 
     public List<BorrowingRequest> findLendingHistory(int ownerId) {
         return Optional.ofNullable(
-                borrowingRequestRepository.findAllRequestsByStatusAndGameOwner(BorrowingRequestStatus.Accepted,
-                        ownerId))
+                borrowingRequestRepository.findAllByGameCopy_GameOwner_Id(ownerId))
                 .orElse(Collections.emptyList());
     }
 

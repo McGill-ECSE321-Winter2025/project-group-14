@@ -1,9 +1,16 @@
 import React, { useEffect, useState, useContext } from 'react';
-import GameReview from '../../components/GameReview';
 import { useParams } from 'react-router-dom';
-import { AuthContext } from "../../AuthContext";
-import Button from "../../components/Button"
-import '../../App.css';
+
+import GameReview from '../../pages/GameDetails/GameReview';
+import Button from '../../components/ui/Button';
+import { AuthContext } from '../../AuthContext';
+
+import '../../pages/GameDetails/GameReview.css';
+import '../../styles/layout.css';
+import '../../styles/card.css';
+import '../../styles/animation.css';
+
+
 
 const GameReviewsTab = () => {
 
@@ -18,26 +25,26 @@ const GameReviewsTab = () => {
         fetch(`http://localhost:8080/players?person_id=${user.userId}`, {
             headers: {'Content-Type': 'application/json', "User-Id": user.userId}
         })
-          .then((response) => response.json())
-          .then((data) => setPlayerId(data))
-          .catch((error) => console.error("Error fetching player for user:", error));
-      }, [user]);
+            .then((response) => response.json())
+            .then((data) => setPlayerId(data))
+            .catch((error) => console.error("Error fetching player for user:", error));
+    }, [user]);
 
     useEffect(() => {
         if (reloadReviews) {
             fetch(`http://localhost:8080/games/${id}/reviews`, {
-                headers: {'Content-Type': 'application/json', "User-Id": user.userId}
+                headers: { 'Content-Type': 'application/json', "User-Id": user.userId }
             })
-            .then((response) => response.json())
-            .then((data) => setReviews(data))
-            .catch((error) => console.error("Error fetching reviews:", error));
+                .then((response) => response.json())
+                .then((data) => setReviews(data))
+                .catch((error) => console.error("Error fetching reviews:", error));
             setReloadReviews(false)
         }
-      }, [user, id, reloadReviews]);
+    }, [user, id, reloadReviews]);
 
-    const [showReviewForm, setShowReviewForm] = useState(false); // Track if the review form is visible
-    const [review, setReview] = useState(""); // Store the review input by the user
-    const [rating, setRating] = useState(0); // Store the rating input by the user
+    const [showReviewForm, setShowReviewForm] = useState(false);
+    const [review, setReview] = useState("");
+    const [rating, setRating] = useState(0);
 
 
     const handleReviewChange = (e) => {
@@ -55,32 +62,37 @@ const GameReviewsTab = () => {
             method: 'POST',
             body: JSON.stringify({
                 reviewId: 0,
-                rating: rating, 
-                comment: review, 
-                reviewerId: playerId, 
+                rating: rating,
+                comment: review,
+                reviewerId: playerId,
                 gameId: id,
                 author: ""
-                }), 
-            headers: {'Content-Type': 'application/json', "User-Id": user.userId}})
-        .catch(error => console.error('Error:', error));;
+            }),
+            headers: { 'Content-Type': 'application/json', "User-Id": user.userId }
+        })
+            .catch(error => console.error('Error:', error));;
 
         console.log("Review Submitted:", { review, rating, user }, "\nReponse:", response);
-        setShowReviewForm(false); // Close the form after submitting
+        setShowReviewForm(false);
         setReloadReviews(true)
+        setRating(0)
+        setReview("");
     };
 
     const handleCancelReview = () => {
-        setShowReviewForm(false); // Close the review form without submitting
+        setShowReviewForm(false);
+        setRating(0)
+        setReview("");
     };
 
     return (
-    <div className='container'>
-        {/* Add Review Button */}
-        {!showReviewForm && (
-            <div className="centered">
-                <Button type="success" onClick={() => setShowReviewForm(true)}>Add a review</Button>
-            </div>
-        )}
+        <div className='container'>
+            {/* Add Review Button */}
+            {!showReviewForm && (
+                <div className="centered">
+                    <Button type="success" onClick={() => setShowReviewForm(true)}>Add a review</Button>
+                </div>
+            )}
 
         {/* Review Form */}
         {showReviewForm && (
@@ -102,38 +114,38 @@ const GameReviewsTab = () => {
                 </div>
             </div>
 
-            {/* Review Section */}
-            <div className="review-comment">
-                <label>Review</label>
-                <textarea
-                value={review}
-                onChange={handleReviewChange}
-                placeholder="Write your review here..."
-                rows="5"
-                required
+                        {/* Review Section */}
+                        <div className="review-comment">
+                            <label>Review</label>
+                            <textarea
+                                value={review}
+                                onChange={handleReviewChange}
+                                placeholder="Write your review here..."
+                                rows="5"
+                                required
+                            />
+                        </div>
+
+                        {/* Submit and Cancel Buttons */}
+                        <div className="review-buttons">
+                            <Button type="success">Submit review</Button>
+                            <Button type="danger" onClick={handleCancelReview}>Cancel</Button>
+                        </div>
+                    </form>
+                </div>
+            )}
+
+            {reviews.map((review, index) => (
+                <GameReview
+                    key={index}
+                    author={review.author}
+                    rating={review.rating}
+                    comment={review.comment}
+                    datePosted={review.datePosted || "1970-01-01 00:00:00"} // Pass the date here
                 />
-            </div>
-
-            {/* Submit and Cancel Buttons */}
-            <div className="review-buttons">
-                <Button type="success">Submit review</Button>
-                <Button type="danger" onClick={handleCancelReview}>Cancel</Button>
-            </div>
-            </form>
-            </div>
-        )}
-
-        {reviews.map((review, index) => (
-            <GameReview
-                key={index}
-                author={review.author}
-                rating={review.rating}
-                comment={review.comment}
-                datePosted={review.datePosted || "1970-01-01 00:00:00"} // Pass the date here
-            />
-        ))}
-    </div>
-)
+            ))}
+        </div>
+    )
 }
 
 export default GameReviewsTab;
