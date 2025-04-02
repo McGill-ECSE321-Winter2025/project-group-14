@@ -7,12 +7,10 @@ import {
   Fade,
   Typography,
   Avatar,
-  Stack
 } from "@mui/material";
 import { AuthContext } from "../AuthContext";
 import Button from "./Button";
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
-import CloseIcon from '@mui/icons-material/Close';
 
 const CreateGameForm = ({ open, onClose, onSuccess }) => {
   const { user } = useContext(AuthContext);
@@ -130,7 +128,7 @@ const CreateGameForm = ({ open, onClose, onSuccess }) => {
           <Box component="form" onSubmit={handleSubmit} noValidate>
             <TextField
               fullWidth
-              label="Game Name *"
+              label="Game Name"
               value={name}
               onChange={(e) => setName(e.target.value)}
               margin="normal"
@@ -141,15 +139,14 @@ const CreateGameForm = ({ open, onClose, onSuccess }) => {
               fullWidth
               multiline
               rows={4}
-              label="Description *"
+              label="Description"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               margin="normal"
               required
             />
 
-            {/* File Upload Section - Now completely separate from form */}
-            <Box sx={{ my: 2 }}>
+            <Box sx={{ my: 2, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
               <input
                 type="file"
                 accept="image/*"
@@ -159,34 +156,21 @@ const CreateGameForm = ({ open, onClose, onSuccess }) => {
                 id="image-upload"
               />
               
-              <Stack direction="row" spacing={2} alignItems="center">
+              {!previewUrl && (
                 <Button
                   variant="outlined"
                   component="span"
                   startIcon={<CloudUploadIcon />}
-                  onClick={handleFileButtonClick} // Using separate handler
-                  sx={{ flex: 1 }}
-                  type="button" // Crucial - prevents form submission
+                  onClick={handleFileButtonClick}
+                  sx={{ width: '100%', textAlign: 'center' }}
+                  type="button"
                 >
                   Choose Image
                 </Button>
-                
-                {previewUrl && (
-                  <Button
-                    variant="outlined"
-                    color="error"
-                    startIcon={<CloseIcon />}
-                    onClick={removeImage}
-                    type="button" // Crucial - prevents form submission
-                  >
-                    Remove
-                  </Button>
-                )}
-              </Stack>
+              )}
               
               {previewUrl && (
-                <Box sx={{ mt: 2, textAlign: 'center' }}>
-                  <Typography variant="caption">Preview:</Typography>
+                <Box sx={{ width: '100%', mt: 2 }}>
                   <Avatar
                     src={previewUrl}
                     variant="rounded"
@@ -194,14 +178,19 @@ const CreateGameForm = ({ open, onClose, onSuccess }) => {
                       width: '100%',
                       height: 200,
                       mt: 1,
-                      objectFit: 'contain'
+                      objectFit: 'contain',
+                      cursor: 'pointer'
                     }}
+                    onClick={removeImage}
                   />
+                  <Typography variant="caption" sx={{ display: 'block', textAlign: 'center', mt: 1 }}>
+                    Click on the image to remove it
+                  </Typography>
                 </Box>
               )}
             </Box>
 
-            <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2, mt: 3 }}>
+            <Box sx={{ display: 'flex', justifyContent: 'center', gap: 2, mt: 3 }}>
               <Button onClick={handleClose} disabled={loading} type="button">
                 Cancel
               </Button>
