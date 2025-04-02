@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext, useCallback } from "react";
-import { Tabs, Tab, Box, Grid, CircularProgress, Modal, Backdrop, Fade } from "@mui/material";
+import { Tabs, Tab, Box, Grid, Modal, Backdrop, Fade } from "@mui/material";
 import GameCopyCard from "../components/GameCopyCard";
 import AddGameCopyForm from "../components/AddGameCopyForm";
 import { AuthContext } from "../AuthContext";
@@ -7,16 +7,6 @@ import Button from "../components/Button";
 import BorrowingRequestItem from '../components/BorrowingRequestItem';
 
 
-const BorrowedGameItem = ({ request }) => {
-  return (
-    <div className="borrowed-game-item">
-      <BorrowingRequestItem 
-        request={request} 
-        badgeText="Active Borrow"
-      />
-    </div>
-  );
-};
 
 function MyGamesPage() {
   const { user } = useContext(AuthContext);
@@ -24,10 +14,9 @@ function MyGamesPage() {
   const [tabValue, setTabValue] = useState(0);
   const [myGameCopies, setMyGameCopies] = useState([]);
   const [borrowedGameCopies, setBorrowedGameCopies] = useState([]);
-  const [activeRequests, setActiveRequests] = useState([]);
   const [showAddForm, setShowAddForm] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [requestsLoading, setRequestsLoading] = useState(true);
+
 
   const fetchMyGameCopies = useCallback(async () => {
     try {
@@ -216,7 +205,7 @@ function MyGamesPage() {
               display: 'flex',
               justifyContent: 'center',
               flexWrap: 'wrap',
-              gap: '16px', // Reduced from 24px to 16px for tighter spacing
+              gap: '16px', 
               maxWidth: '1200px',
               margin: '0 auto',
               padding: '0 16px'
@@ -254,7 +243,7 @@ function MyGamesPage() {
               display: 'flex',
               justifyContent: 'center',
               flexWrap: 'wrap',
-              gap: '16px', // Consistent with the first tab
+              gap: '16px', 
               maxWidth: '1200px',
               margin: '0 auto',
               padding: '0 16px'

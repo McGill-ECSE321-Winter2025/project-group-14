@@ -145,7 +145,7 @@ public class GameReviewRepositoryTest {
         gameReviewRepo.save(gameReview1);
 
         try {
-            Thread.sleep(1000); // Pause to ensure distinct timestamps
+            Thread.sleep(1000);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             throw new RuntimeException(e);
@@ -169,7 +169,7 @@ public class GameReviewRepositoryTest {
         gameReviewRepo.save(gameReview1);
 
         try {
-            Thread.sleep(1000); // Pause to ensure distinct timestamps
+            Thread.sleep(1000);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             throw new RuntimeException(e);
