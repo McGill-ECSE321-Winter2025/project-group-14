@@ -1,10 +1,13 @@
 package ca.mcgill.ecse321.gamenight.service;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import ca.mcgill.ecse321.gamenight.exception.MissingFieldsException;
 import ca.mcgill.ecse321.gamenight.exception.ObjectNotFoundException;
@@ -28,21 +31,42 @@ public class GameManagementService {
     @Autowired
     private GameOwnerRepository gameOwnerRepository;
 
+    @Autowired
+    private FileStorageService fileStorageService;
+
     @Transactional
-    public Game createGame(String name, String description) {
+    public Game createGame(String name, String description, MultipartFile imageFile) throws IOException {
         if (name == null || name.isEmpty()) {
             throw new MissingFieldsException("Game must have a name");
         }
+
         Game game = new Game(name, description);
+
+        if (imageFile != null && !imageFile.isEmpty()) {
+            String imagePath = fileStorageService.store(imageFile, "game");
+            game.setImagePath(imagePath);
+        }
+
         gameRepository.save(game);
         return game;
     }
 
     @Transactional
-    public Game updateGame(int id, String name, String description) {
+    public Game updateGame(int id, String name, String description, MultipartFile imageFile) throws IOException {
         Game game = findGameById(id);
         game.setName(name);
         game.setDescription(description);
+
+        if (imageFile != null && !imageFile.isEmpty()) {
+            // Delete old image if exists
+            if (game.getImagePath() != null) {
+                fileStorageService.delete(game.getImagePath());
+            }
+            // Store new image
+            String imagePath = fileStorageService.store(imageFile, "game");
+            game.setImagePath(imagePath);
+        }
+
         gameRepository.save(game);
         return game;
     }
@@ -117,5 +141,13 @@ public class GameManagementService {
             throw new ObjectNotFoundException("There is no owner with ID " + personId);
         }
         return owner.getId();
+    }
+
+    public Resource getGameImage(int gameId) throws IOException {
+        Game game = findGameById(gameId);
+        if (game.getImagePath() == null) {
+            throw new ObjectNotFoundException("No image found for game with ID " + gameId);
+        }
+        return fileStorageService.load(game.getImagePath());
     }
 }

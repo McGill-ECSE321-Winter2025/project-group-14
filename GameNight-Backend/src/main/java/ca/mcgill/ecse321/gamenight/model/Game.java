@@ -14,6 +14,7 @@ public class Game {
 
     private String name;
     private String description;
+    private String imagePath;
 
     public Game() {
 
@@ -32,6 +33,10 @@ public class Game {
         return description;
     }
 
+    public String getImagePath() {
+        return imagePath;
+    }
+
     public int getId() {
         return id;
     }
@@ -46,5 +51,9 @@ public class Game {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public void setImagePath(String imagePath) {
+        this.imagePath = imagePath;
     }
 }
