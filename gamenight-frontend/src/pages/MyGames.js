@@ -7,10 +7,14 @@ import Button from "../components/Button";
 import BorrowingRequestItem from '../components/BorrowingRequestItem';
 
 // Wrapper component for borrowed games display
+// Wrapper component for borrowed games display
 const BorrowedGameItem = ({ request }) => {
   return (
     <div className="borrowed-game-item">
-      <BorrowingRequestItem request={request} />
+      <BorrowingRequestItem 
+        request={request} 
+        badgeText="Active Borrow"
+      />
     </div>
   );
 };
@@ -39,45 +43,6 @@ function MyGamesPage() {
     }
   }, [user?.userId]);
 
-  const fetchActiveRequests = useCallback(async () => {
-    if (!user?.userId) return;
-    
-    try {
-      setRequestsLoading(true);
-      
-      const playerResponse = await fetch(`http://localhost:8080/players?person_id=${user.userId}`, {
-        headers: { 
-          "Content-Type": "application/json",
-          "User-Id": user.userId 
-        }
-      });
-      
-      if (!playerResponse.ok) throw new Error("Failed to fetch player ID");
-      
-      const playerId = await playerResponse.json();
-      
-      const requestsResponse = await fetch(
-        `http://localhost:8080/borrowingRequests/${playerId}/status/accepted`,
-        {
-          headers: { 
-            "Content-Type": "application/json",
-            "User-Id": user.userId 
-          }
-        }
-      );
-  
-      if (!requestsResponse.ok) throw new Error("Failed to fetch active borrowing requests");
-      
-      const data = await requestsResponse.json();
-      setActiveRequests(Array.isArray(data) ? data : []);
-      
-    } catch (error) {
-      console.error("Error fetching active borrowing requests:", error);
-      setActiveRequests([]);
-    } finally {
-      setRequestsLoading(false);
-    }
-  }, [user?.userId]);
 
   const fetchBorrowedGameCopies = useCallback(async () => {
     try {
@@ -89,7 +54,6 @@ function MyGamesPage() {
       });
       
       if (!playerResponse.ok) throw new Error("Failed to fetch player ID");
-      
       const playerId = await playerResponse.json();
   
       const requestsResponse = await fetch(
@@ -112,7 +76,7 @@ function MyGamesPage() {
       setBorrowedGameCopies([]);
     }
   }, [user?.userId]);
-
+  
   useEffect(() => {
     if (!authChecked || !user) return;
     
@@ -121,21 +85,12 @@ function MyGamesPage() {
       await Promise.all([
         fetchMyGameCopies(), 
         fetchBorrowedGameCopies(), 
-        fetchActiveRequests()
       ]);
+      console.log("Borrowed games:", borrowedGameCopies); // Add this line
       setLoading(false);
     };
     loadData();
-  }, [authChecked, fetchMyGameCopies, fetchBorrowedGameCopies, fetchActiveRequests, user]);
-
-  if (!authChecked) {
-    return (
-      <Box display="flex" justifyContent="center" alignItems="center" minHeight="100vh">
-        <CircularProgress />
-      </Box>
-    );
-  }
-
+  }, [authChecked, fetchMyGameCopies, fetchBorrowedGameCopies, user]);
   const handleTabChange = (event, newValue) => {
     setTabValue(newValue);
   };
@@ -306,7 +261,10 @@ function MyGamesPage() {
             <Grid container spacing={3}>
               {borrowedGameCopies.map((gameCopy) => (
                 <Grid item xs={12} sm={6} md={4} key={gameCopy.id}>
-                  <BorrowingRequestItem request={gameCopy} />
+                  <BorrowingRequestItem 
+                    request={gameCopy} 
+                    badgeText="Active Borrow"
+                  />
                 </Grid>
               ))}
             </Grid>
