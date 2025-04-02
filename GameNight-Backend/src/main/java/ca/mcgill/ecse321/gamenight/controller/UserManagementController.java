@@ -179,4 +179,27 @@ public class UserManagementController {
         Player player = userService.getPlayerByPersonId(userId);
         return player.getId();
     }
+
+    /**
+     * Get the owner id for the given person
+     * 
+     * @param personId Id of the person
+     * @return The id of the game owner
+     */
+    @GetMapping("/game-owners")
+    public String getGameOwnerByPersonId(@RequestParam(name = "person_id") int personId) {
+        return userService.getGameOwnerByPersonId(personId).getPerson().getName();
+    }
+
+    /**
+     * Returns whether the user is an active game owner.
+     *
+     * @param userId the user id
+     * @return true if the user is an active owner, false otherwise
+     */
+    @GetMapping("/users/{userId}/is-owner")
+    @RequireUser
+    public ResponseEntity<Boolean> isActiveOwner(@PathVariable int userId) {
+        return ResponseEntity.ok(userService.isActiveOwner(userId));
+    }
 }

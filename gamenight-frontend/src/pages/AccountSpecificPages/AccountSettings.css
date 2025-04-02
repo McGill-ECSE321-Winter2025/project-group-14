@@ -1,0 +1,125 @@
+.account-settings-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 15px;
+    padding: 20px;
+    box-sizing: border-box;
+    width: 100%;
+}
+
+.settings-card {
+    position: relative;
+    background: #fff;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05);
+    border-radius: 15px;
+    padding: 30px;
+    transition: transform 0.3s, box-shadow 0.3s;
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 300px;
+    max-width: 300px;
+    max-height: fit-content;
+}
+
+
+.settings-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.1);
+}
+
+.auth-form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-top: 10px;
+}
+
+.auth-form input {
+    width: 100%;
+    padding: 12px 15px;
+    border: 2px solid #e0e3e7;
+    border-radius: 10px;
+    background: #f9f9f9;
+    transition: all 0.3s ease;
+    font-size: 16px;
+}
+
+.auth-form input:focus {
+    border-color: #20afc5;
+    background: #fff;
+    box-shadow: 0 0 0 3px rgba(32, 175, 197, 0.15);
+}
+
+.auth-form button {
+    width: 100%;
+    height: 50px;
+    background: linear-gradient(135deg, #FCB559, #FF6574);
+    border: none;
+    border-radius: 10px;
+    color: white;
+    font-weight: 600;
+    font-size: 16px;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.auth-form button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 16px rgba(252, 181, 89, 0.3);
+}
+
+.delete-btn {
+    background: #ff4d4f;
+}
+
+.delete-btn:hover {
+    background: #ff3335;
+    box-shadow: 0 8px 16px rgba(255, 77, 79, 0.3);
+}
+
+.info-icon-container {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: #f1f5f9;
+    border: 1px solid #ddd;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background 0.3s, box-shadow 0.3s;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s;
+}
+
+.info-icon-container:hover {
+    background: #fcee59;
+    box-shadow: 0 0 4px rgba(0, 0, 0, 0.1);
+}
+
+.settings-card:hover .info-icon-container {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.info-icon {
+    font-size: 16px;
+    color: #555;
+    user-select: none;
+}
+
+.info-text {
+    background: #f1f5f9;
+    padding: 10px 15px;
+    border-radius: 8px;
+    margin-top: 10px;
+    font-size: 14px;
+    color: #4b5563;
+    box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.05);
+    box-sizing: border-box;
+}

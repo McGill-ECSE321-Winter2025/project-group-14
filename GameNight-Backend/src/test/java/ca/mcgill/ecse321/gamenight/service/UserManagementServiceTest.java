@@ -382,8 +382,8 @@ public class UserManagementServiceTest {
         GameOwner gameOwnerRole = new GameOwner(person);
         gameOwnerRole.setActive(false);
 
-        // The method expects to find the GameOwner by ID => use person.getId()
-        when(gameOwnerRepository.findById(person.getId())).thenReturn(Optional.of(gameOwnerRole));
+        // Correct mock to match the service method
+        when(gameOwnerRepository.findByPersonId(person.getId())).thenReturn(gameOwnerRole);
         when(gameOwnerRepository.save(any(GameOwner.class))).thenReturn(gameOwnerRole);
 
         userManagementService.toggleAccountRole(person.getId());
@@ -401,7 +401,7 @@ public class UserManagementServiceTest {
         GameOwner gameOwnerRole = new GameOwner(person);
         gameOwnerRole.setActive(true);
 
-        when(gameOwnerRepository.findById(person.getId())).thenReturn(Optional.of(gameOwnerRole));
+        when(gameOwnerRepository.findByPersonId(person.getId())).thenReturn(gameOwnerRole);
         when(gameOwnerRepository.save(any(GameOwner.class))).thenReturn(gameOwnerRole);
 
         userManagementService.toggleAccountRole(person.getId());
@@ -485,7 +485,7 @@ public class UserManagementServiceTest {
     void testToggleAccountRole_userNotFound_throwsResponseStatusException() {
         int nonExistentId = 123;
 
-        when(gameOwnerRepository.findById(nonExistentId)).thenReturn(Optional.empty());
+        when(gameOwnerRepository.findByPersonId(nonExistentId)).thenReturn(null);
 
         assertThrows(ResponseStatusException.class, () -> {
             userManagementService.toggleAccountRole(nonExistentId);
