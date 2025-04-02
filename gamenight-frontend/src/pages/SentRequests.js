@@ -11,17 +11,19 @@ function SentRequestsPage() {
 
     // Get user ID from context
     const { user } = useContext(AuthContext);
+
     const userId = user?.userId;
 
     useEffect(() => {
         if (!userId) {
-            console.warn("User ID is not available.");
+           console.warn("User ID is not available.");
             return;
         }
 
         const fetchSentRequests = async () => {
             try {
                 console.log("Fetching requests for user ID:", userId);
+                
                 const response = await axios.get(`http://localhost:8080/borrowingRequests/${userId}/requests`, {
                     headers: {
                         "User-Id": userId,

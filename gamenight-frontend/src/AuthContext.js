@@ -19,16 +19,22 @@ export const AuthProvider = ({ children }) => {
 
     // Function to log in
     const login = async (email, password) => {
-        const userData = await UserManagementAPI.loginUser(email, password);
-        if (userData) {
-            const personId = userData.userId;  // Treating userId as personId
-            sessionStorage.setItem("user", JSON.stringify({ userId: personId, username: userData.username }));
-            setUser({ userId: personId, username: userData.username });
-            console.log("Logged in with user ID:", personId);
-            navigate("/my-games");
+        try {
+            const userData = await UserManagementAPI.loginUser(email, password);
+            if (userData) {
+                const personId = userData.userId;  // Treating userId as personId
+                sessionStorage.setItem("user", JSON.stringify({ userId: personId, username: userData.username }));
+                setUser({ userId: personId, username: userData.username });
+                console.log("Logged in with user ID:", personId);
+                navigate("/my-games");
+            } else {
+                console.error("Login failed: No user data returned.");
+            }
+        } catch (error) {
+            console.error("Login error:", error);
         }
-        return userData;
     };
+    
 
     // Function to log out
     const logout = () => {
