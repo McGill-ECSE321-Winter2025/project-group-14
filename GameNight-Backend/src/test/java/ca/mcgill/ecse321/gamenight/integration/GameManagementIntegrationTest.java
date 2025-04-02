@@ -1,8 +1,8 @@
 package ca.mcgill.ecse321.gamenight.integration;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.assertIterableEquals;
 
+import java.io.IOException;
 import java.util.List;
 
 import org.junit.jupiter.api.AfterAll;
@@ -25,6 +25,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.springframework.mock.web.MockMultipartFile;
 
 import ca.mcgill.ecse321.gamenight.dto.ErrorDto;
 import ca.mcgill.ecse321.gamenight.dto.GameCopyRequestDto;
@@ -328,17 +329,41 @@ public class GameManagementIntegrationTest {
 
     @Test
     @Order(10)
-    public void testGetGameImage() {
-        String url = String.format("/games/%d/image", createdGame1Id);
-        HttpEntity<?> requestEntity = new HttpEntity<>(authenticationHeaders);
+    public void testGetGameImage() throws IOException {
+        // First upload an image
+        MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
+        body.add("game", new GameRequestDto("Test Game With Image", "Description"));
+
+        // Create a mock image file
+        byte[] imageBytes = new byte[] { 0x00, 0x01, 0x02 }; // minimal image data
+        MockMultipartFile imageFile = new MockMultipartFile("imageFile", "test.jpg", "image/jpeg", imageBytes);
+        body.add("imageFile", imageFile.getResource());
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+        headers.addAll(authenticationHeaders);
+
+        HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(body, headers);
+
+        ResponseEntity<GameResponseDto> createResponse = client.exchange(
+                "/games",
+                HttpMethod.POST,
+                requestEntity,
+                GameResponseDto.class);
+
+        int gameWithImageId = createResponse.getBody().getId();
+
+        String url = String.format("/games/%d/image", gameWithImageId);
+        HttpEntity<?> getRequestEntity = new HttpEntity<>(authenticationHeaders);
 
         ResponseEntity<byte[]> response = client.exchange(
                 url,
                 HttpMethod.GET,
-                requestEntity,
+                getRequestEntity,
                 byte[].class);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody());
+        assertTrue(response.getBody().length > 0);
     }
 }
