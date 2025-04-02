@@ -67,3 +67,7 @@
     background: #FCB559;
     transform: scale(1.03);
 }
+
+.btn::before {
+    display: none !important;
+  }

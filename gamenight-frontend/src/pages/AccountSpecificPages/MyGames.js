@@ -171,7 +171,9 @@ function MyGamesPage() {
       {tabValue === 0 && (
         <>
           <Box display="flex" justifyContent="center" sx={{ mb: 3 }}>
-            <Button onClick={handleAddGameCopy}>Add Game Copy</Button>
+            <Box sx={{ display: "inline-block" }}>
+              <Button onClick={handleAddGameCopy}>Add Game Copy</Button>
+            </Box>
           </Box>
 
           <Modal

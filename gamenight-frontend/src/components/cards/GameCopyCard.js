@@ -184,28 +184,28 @@ const GameCopyCard = ({ gameCopy, onDelete, onUpdate, isOwner }) => {
               </>
             ) : (
               <>
-                <IconButton 
-                  aria-label="edit" 
-                  onClick={handleEditClick}
-                  sx={{ 
-                    backgroundColor: 'primary.main',
-                    color: 'white',
-                    '&:hover': { backgroundColor: 'primary.dark' }
-                  }}
-                >
-                  <EditIcon />
-                </IconButton>
-                <IconButton 
-                  aria-label="delete" 
-                  onClick={handleDeleteClick}
-                  sx={{ 
-                    backgroundColor: 'error.main',
-                    color: 'white',
-                    '&:hover': { backgroundColor: 'error.dark' }
-                  }}
-                >
-                  <DeleteIcon />
-                </IconButton>
+              <IconButton 
+                aria-label="edit" 
+                onClick={handleEditClick}
+                sx={{ 
+                  backgroundColor: '#0d90a4', // Blue
+                  color: '#ffffff', // Black icon color
+                  '&:hover': { backgroundColor: '#74e1eb' } // Light blue on hover
+                }}
+              >
+                <EditIcon />
+              </IconButton>
+              <IconButton 
+                aria-label="delete" 
+                onClick={handleDeleteClick}
+                sx={{ 
+                  backgroundColor: '#ff6574', // Red
+                  color: '#ffffff', // Black icon color
+                  '&:hover': { backgroundColor: '#fcb559' } // Yellow on hover
+                }}
+              >
+                <DeleteIcon />
+              </IconButton>
               </>
             )}
           </Box>
