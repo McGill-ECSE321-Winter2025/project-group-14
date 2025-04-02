@@ -1,20 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import { UserManagementAPI } from '../../UserManagementAPI';
+import { useAuth } from '../../AuthContext';
 import './AccountSettings.css';
 
-const AccountSettings = ({ user }) => {
-    const [ownerName, setOwnerName] = useState(null);
+const AccountSettings = () => {
+    const { user, isOwner } = useAuth();
     const [userInfo, setUserInfo] = useState(null);
     const [email, setEmail] = useState('');
     const [newPassword, setNewPassword] = useState('');
     const [oldPassword, setOldPassword] = useState('');
     const [statusMessage, setStatusMessage] = useState('');
-    const [showInfo, setShowInfo] = useState('');
     const [infoLocked, setInfoLocked] = useState('');
 
     useEffect(() => {
         if (user?.userId) {
-            UserManagementAPI.getGameOwnerName(user.userId).then(setOwnerName);
             UserManagementAPI.getUserDetails(user.userId).then(setUserInfo);
         }
     }, [user]);
@@ -26,13 +25,6 @@ const AccountSettings = ({ user }) => {
 
         if (success) {
             const updatedInfo = await UserManagementAPI.getUserDetails(user.userId);
-
-            // Only update the fields you actually got updated, keep userId and others intact
-            const oldUser = JSON.parse(sessionStorage.getItem("user"));
-            const newUser = { ...oldUser, ...updatedInfo };
-
-            sessionStorage.setItem("user", JSON.stringify(newUser));
-
             setUserInfo(updatedInfo);
             setStatusMessage("Updated successfully.");
             setEmail('');
@@ -42,7 +34,6 @@ const AccountSettings = ({ user }) => {
             setStatusMessage("Update failed.");
         }
     };
-
 
     const handleToggleRole = async () => {
         const success = await UserManagementAPI.toggleRole(user.userId);
@@ -75,7 +66,6 @@ const AccountSettings = ({ user }) => {
         )
     );
 
-
     return (
         <div className="account-settings-container">
 
@@ -83,7 +73,7 @@ const AccountSettings = ({ user }) => {
                 <h2 className="centered">Profile Info</h2>
                 <p><strong>Username:</strong> {userInfo?.name || "Unknown"}</p>
                 <p><strong>Email:</strong> {userInfo?.email || "Unknown"}</p>
-                <p><strong>Owner:</strong> {ownerName || 'No'}</p>
+                <p><strong>Owner:</strong> {isOwner ? 'Yes' : 'No'}</p>
             </div>
 
             <div className="settings-card">
@@ -109,7 +99,7 @@ const AccountSettings = ({ user }) => {
             </div>
 
             <div className="settings-card">
-                <h2 className="centered">Danger Zone</h2>
+                <h2 className="centered">Delete Account</h2>
                 <InfoIcon id="delete" />
                 <InfoText id="delete">Deletes your account permanently.</InfoText>
                 <div className="auth-form">

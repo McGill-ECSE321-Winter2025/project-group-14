@@ -130,16 +130,15 @@ export const UserManagementAPI = {
             return null;
         }
     },
-
-    getGameOwnerName: async (userId) => {
+    isActiveOwner: async (userId) => {
         try {
-            const response = await axios.get(`http://localhost:8080/game-owners?person_id=${userId}`, {
+            const response = await axios.get(`${API_BASE_URL}/${userId}/is-owner`, {
                 headers: getAuthHeaders()
             });
-            return response.data;
+            return response.data === true;
         } catch (error) {
-            console.error("Error fetching game owner name:", error);
-            return null;
+            console.error("Error checking ownership status:", error);
+            return false;
         }
-    }
+    },
 };

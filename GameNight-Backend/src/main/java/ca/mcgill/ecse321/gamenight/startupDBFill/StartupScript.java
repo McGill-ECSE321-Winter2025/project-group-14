@@ -35,26 +35,28 @@ public class StartupScript implements CommandLineRunner {
     public void run(String... args) throws Exception {
         System.out.println("Application has started!");
 
-        Person person1 = personRepo.save(new Person("aaaaaa@gmail.com", "aaaaa", "Bertrand"));
-        GameOwner owner1 = gameOwnerRepo.save(new GameOwner(person1));
-        Player player1 = playerRepo.save(new Player(person1));
+        // Person person1 = personRepo.save(new Person("aaaaaa@gmail.com", "aaaaa",
+        // "Bertrand"));
+        // GameOwner owner1 = gameOwnerRepo.save(new GameOwner(person1));
+        // Player player1 = playerRepo.save(new Player(person1));
 
-        Person person2 = personRepo.save(new Person("bbbbbb@gmail.com", "bbbbb", "Patrick"));
-        GameOwner owner2 = gameOwnerRepo.save(new GameOwner(person2));
-        Player player2 = playerRepo.save(new Player(person2));
+        // Person person2 = personRepo.save(new Person("bbbbbb@gmail.com", "bbbbb",
+        // "Patrick"));
+        // GameOwner owner2 = gameOwnerRepo.save(new GameOwner(person2));
+        // Player player2 = playerRepo.save(new Player(person2));
 
-        Game game1 = gameRepo.save(new Game("Batman", "A Batman game"));
-        Game game2 = gameRepo.save(new Game("Uno", "A card game"));
-        Game game3 = gameRepo.save(new Game("Monopoly", "A board game"));
-        Game game4 = gameRepo.save(new Game("Jenga", "A fun block game"));
-        Game game5 = gameRepo.save(new Game("Twister", "A game"));
-        Game game6 = gameRepo.save(new Game("Sorry", "A multiplayer board game"));
-        gameCopyRepo.save(new GameCopy("Perfect condition", game1, owner1));
-        gameCopyRepo.save(new GameCopy("Missing piece", game2, owner1));
-        gameCopyRepo.save(new GameCopy("Good condition", game3, owner1));
-        gameCopyRepo.save(new GameCopy("Missing instructions", game4, owner1));
+        // Game game1 = gameRepo.save(new Game("Batman", "A Batman game"));
+        // Game game2 = gameRepo.save(new Game("Uno", "A card game"));
+        // Game game3 = gameRepo.save(new Game("Monopoly", "A board game"));
+        // Game game4 = gameRepo.save(new Game("Jenga", "A fun block game"));
+        // Game game5 = gameRepo.save(new Game("Twister", "A game"));
+        // Game game6 = gameRepo.save(new Game("Sorry", "A multiplayer board game"));
+        // gameCopyRepo.save(new GameCopy("Perfect condition", game1, owner1));
+        // gameCopyRepo.save(new GameCopy("Missing piece", game2, owner1));
+        // gameCopyRepo.save(new GameCopy("Good condition", game3, owner1));
+        // gameCopyRepo.save(new GameCopy("Missing instructions", game4, owner1));
 
-        reviewRepo.save(new GameReview(4, "Super fun game!!", player1, game1));
-        reviewRepo.save(new GameReview(1, "Did not enjoy", player2, game1));
+        // reviewRepo.save(new GameReview(4, "Super fun game!!", player1, game1));
+        // reviewRepo.save(new GameReview(1, "Did not enjoy", player2, game1));
     }
 }
