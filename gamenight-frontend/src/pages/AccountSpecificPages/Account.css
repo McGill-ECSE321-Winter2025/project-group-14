@@ -1,40 +1,68 @@
-/* 🛠️ Account Page Styles */
+/* ---------------------------
+   Profile Section
+--------------------------- */
+
 .profile-container {
     display: flex;
     flex-direction: column;
     align-items: center;
-    text-align: center;
-    padding: 20px;
+    background: #ffffff;
+    padding: 30px;
+    border-radius: 20px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    margin-bottom: 40px;
+    max-width: 400px;
+    width: 100%;
 }
 
-/* 🖼 Profile Image */
-.profile-picture {
-    width: 100px;
-    height: 100px;
+.profile-container:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.1);
+}
+
+.profile-image {
+    width: 140px;
+    height: 140px;
     border-radius: 50%;
     object-fit: cover;
-    border: 3px solid white;
-    margin-bottom: 10px;
+    border: 3px solid #e5e7eb;
+    margin-bottom: 20px;
+    transition: all 0.3s ease;
 }
 
-/* 👤 Profile Name */
-.profile-name {
-    font-size: 22px;
-    font-weight: bold;
-    margin-bottom: 5px;
+.profile-container:hover .profile-image {
+    transform: scale(1.02);
 }
 
-/* 🔢 Profile Stats Section */
-.profile-stats {
-    display: flex;
-    gap: 15px;
-    justify-content: center;
-    margin-top: 15px;
+.profile-details h2 {
+    font-size: 1.8rem;
+    font-weight: 600;
+    color: #111827;
+    margin: 5px 0;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
 }
 
-.profile-stats .bg-light {
-    padding: 10px;
-    width: 100px;
-    text-align: center;
-    border-radius: 8px;
+.profile-details p {
+    font-size: 1rem;
+    color: #6b7280;
+    margin: 0;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+}
+
+/* ---------------------------
+   Optional Smooth Fade-In
+--------------------------- */
+
+.central-image-container.fade-in-on-scroll {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.8s ease, transform 0.8s ease;
+}
+
+.central-image-container.fade-in-on-scroll.visible {
+    opacity: 1;
+    transform: translateY(0);
 }
