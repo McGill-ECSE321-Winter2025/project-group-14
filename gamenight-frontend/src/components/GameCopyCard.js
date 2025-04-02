@@ -52,7 +52,6 @@ const GameCopyCard = ({ gameCopy, onDelete, onUpdate, isOwner }) => {
 
     fetchGameImage();
 
-    // Clean up the object URL when component unmounts
     return () => {
       if (imageUrl) {
         URL.revokeObjectURL(imageUrl);
@@ -60,64 +59,77 @@ const GameCopyCard = ({ gameCopy, onDelete, onUpdate, isOwner }) => {
     };
   }, [gameCopy.game.id, imageUrl]);
 
-  const handleEditClick = () => {
-    setEditMode(true);
-  };
-
+  const handleEditClick = () => setEditMode(true);
   const handleSaveClick = () => {
     onUpdate({ ...gameCopy, description: editedDescription });
     setEditMode(false);
   };
-
   const handleCancelEdit = () => {
     setEditedDescription(gameCopy.description);
     setEditMode(false);
   };
-
-  const handleDeleteClick = () => {
-    setDeleteConfirmOpen(true);
-  };
-
+  const handleDeleteClick = () => setDeleteConfirmOpen(true);
   const handleConfirmDelete = () => {
     onDelete(gameCopy.id);
     setDeleteConfirmOpen(false);
   };
-
-  const handleCancelDelete = () => {
-    setDeleteConfirmOpen(false);
-  };
+  const handleCancelDelete = () => setDeleteConfirmOpen(false);
 
   return (
-    <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-      {/* Game Image Section */}
-      {imageLoading ? (
-        <Box sx={{ 
-          height: 140, 
-          display: 'flex', 
-          alignItems: 'center', 
-          justifyContent: 'center',
-          backgroundColor: '#f5f5f5'
-        }}>
-          <CircularProgress size={24} />
-        </Box>
-      ) : (
-        <CardMedia
-          component="img"
-          height="140"
-          image={imageError ? '/default-game-image.jpg' : imageUrl}
-          alt={gameCopy.game?.name || "Game image"}
-          sx={{ 
-            objectFit: 'cover',
-            backgroundColor: '#f5f5f5'
-          }}
-        />
-      )}
+    <Card sx={{
+      width: 280, // Slightly wider than the tiny version
+      borderRadius: '14px',
+      overflow: 'hidden',
+      boxShadow: '0 3px 8px rgba(0,0,0,0.1)',
+      transition: 'transform 0.2s ease',
+      '&:hover': {
+        transform: 'translateY(-3px)'
+      }
+    }}>
+      {/* Image Section */}
+      <Box sx={{
+        position: 'relative',
+        paddingTop: '60%', // Slightly taller aspect ratio
+        backgroundColor: '#f5f5f5'
+      }}>
+        {imageLoading ? (
+          <CircularProgress size={24} sx={{
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)'
+          }} />
+        ) : (
+          <CardMedia
+            component="img"
+            image={imageError ? '/default-game-image.jpg' : imageUrl}
+            alt={gameCopy.game?.name || "Game image"}
+            sx={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              width: '100%',
+              height: '100%',
+              objectFit: 'cover'
+            }}
+          />
+        )}
+      </Box>
 
-      <CardContent sx={{ flexGrow: 1 }}>
-        <Typography variant="h6" gutterBottom>
+      {/* Content Section */}
+      <CardContent sx={{ p: 2.5 }}>
+        <Typography variant="subtitle1" sx={{ 
+          mb: 1.5,
+          fontWeight: 600,
+          textAlign: 'center',
+          fontSize: '1rem',
+          whiteSpace: 'nowrap',
+          overflow: 'hidden',
+          textOverflow: 'ellipsis'
+        }}>
           {gameCopy.game?.name || "Unknown Game"}
         </Typography>
-        
+
         {editMode ? (
           <TextField
             fullWidth
@@ -125,47 +137,103 @@ const GameCopyCard = ({ gameCopy, onDelete, onUpdate, isOwner }) => {
             rows={3}
             value={editedDescription}
             onChange={(e) => setEditedDescription(e.target.value)}
-            sx={{ mb: 2 }}
+            sx={{ mb: 1.5 }}
+            size="small"
           />
         ) : (
-          <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+          <Typography variant="body2" sx={{ 
+            mb: 1.5,
+            color: 'text.secondary',
+            textAlign: 'center',
+            fontSize: '0.85rem',
+            height: 60,
+            overflow: 'hidden',
+            display: '-webkit-box',
+            WebkitLineClamp: 3,
+            WebkitBoxOrient: 'vertical'
+          }}>
             {gameCopy.description}
           </Typography>
         )}
+
+        {/* Actions */}
+        {isOwner && (
+          <Box sx={{ 
+            display: 'flex',
+            justifyContent: 'center',
+            gap: 1.5,
+            mt: 1.5
+          }}>
+            {editMode ? (
+              <>
+                <Button 
+                  variant="outlined" 
+                  onClick={handleCancelEdit}
+                  size="small"
+                  sx={{ borderRadius: '18px', px: 2 }}
+                >
+                  Cancel
+                </Button>
+                <Button 
+                  variant="contained" 
+                  onClick={handleSaveClick}
+                  size="small"
+                  sx={{ borderRadius: '18px', px: 2 }}
+                >
+                  Save
+                </Button>
+              </>
+            ) : (
+              <>
+                <IconButton 
+                  aria-label="edit" 
+                  onClick={handleEditClick}
+                  sx={{ 
+                    backgroundColor: 'primary.main',
+                    color: 'white',
+                    '&:hover': { backgroundColor: 'primary.dark' }
+                  }}
+                >
+                  <EditIcon />
+                </IconButton>
+                <IconButton 
+                  aria-label="delete" 
+                  onClick={handleDeleteClick}
+                  sx={{ 
+                    backgroundColor: 'error.main',
+                    color: 'white',
+                    '&:hover': { backgroundColor: 'error.dark' }
+                  }}
+                >
+                  <DeleteIcon />
+                </IconButton>
+              </>
+            )}
+          </Box>
+        )}
       </CardContent>
 
-      {isOwner && (
-        <Box sx={{ p: 2, display: 'flex', justifyContent: 'space-between' }}>
-          {editMode ? (
-            <>
-              <Button size="small" onClick={handleCancelEdit}>
-                Cancel
-              </Button>
-              <Button size="small" color="primary" onClick={handleSaveClick}>
-                Save
-              </Button>
-            </>
-          ) : (
-            <>
-              <IconButton aria-label="edit" onClick={handleEditClick}>
-                <EditIcon />
-              </IconButton>
-              <IconButton aria-label="delete" onClick={handleDeleteClick}>
-                <DeleteIcon />
-              </IconButton>
-            </>
-          )}
-        </Box>
-      )}
-      
+      {/* Delete Confirmation Dialog */}
       <Dialog open={deleteConfirmOpen} onClose={handleCancelDelete}>
-        <DialogTitle>Confirm Delete</DialogTitle>
-        <DialogContent>
+        <DialogTitle sx={{ textAlign: 'center' }}>Confirm Delete</DialogTitle>
+        <DialogContent sx={{ textAlign: 'center' }}>
           <Typography>Are you sure you want to delete this game copy?</Typography>
         </DialogContent>
-        <DialogActions>
-          <Button onClick={handleCancelDelete}>Cancel</Button>
-          <Button onClick={handleConfirmDelete} color="error">Delete</Button>
+        <DialogActions sx={{ justifyContent: 'center', pb: 3, px: 3 }}>
+          <Button 
+            onClick={handleCancelDelete}
+            sx={{ borderRadius: '18px', px: 3 }}
+          >
+            Cancel
+          </Button>
+          <Button 
+            onClick={handleConfirmDelete} 
+            color="error"
+            variant="contained"
+            sx={{ borderRadius: '18px', px: 3 }}
+          >
+            Delete
+          </Button>
         </DialogActions>
       </Dialog>
     </Card>

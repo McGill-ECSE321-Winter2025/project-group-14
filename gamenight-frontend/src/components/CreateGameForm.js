@@ -6,7 +6,6 @@ import {
   Backdrop,
   Fade,
   Typography,
-  Avatar,
 } from "@mui/material";
 import { AuthContext } from "../AuthContext";
 import Button from "./Button";
@@ -171,15 +170,18 @@ const CreateGameForm = ({ open, onClose, onSuccess }) => {
               
               {previewUrl && (
                 <Box sx={{ width: '100%', mt: 2 }}>
-                  <Avatar
+                  <Box
+                    component="img"
                     src={previewUrl}
-                    variant="rounded"
                     sx={{
                       width: '100%',
-                      height: 200,
-                      mt: 1,
+                      height: 'auto',
+                      maxHeight: 300,
+                      display: 'block',
                       objectFit: 'contain',
-                      cursor: 'pointer'
+                      cursor: 'pointer',
+                      borderRadius: 1,
+                      border: '1px solid rgba(0, 0, 0, 0.12)'
                     }}
                     onClick={removeImage}
                   />
