@@ -4,6 +4,19 @@ import GameCopyCard from "../components/GameCopyCard";
 import AddGameCopyForm from "../components/AddGameCopyForm";
 import { AuthContext } from "../AuthContext";
 import Button from "../components/Button";
+import BorrowingRequestItem from '../components/BorrowingRequestItem';
+
+
+const BorrowedGameItem = ({ request }) => {
+  return (
+    <div className="borrowed-game-item">
+      <BorrowingRequestItem 
+        request={request} 
+        badgeText="Active Borrow"
+      />
+    </div>
+  );
+};
 
 function MyGamesPage() {
   const { user } = useContext(AuthContext);
@@ -11,8 +24,10 @@ function MyGamesPage() {
   const [tabValue, setTabValue] = useState(0);
   const [myGameCopies, setMyGameCopies] = useState([]);
   const [borrowedGameCopies, setBorrowedGameCopies] = useState([]);
+  const [activeRequests, setActiveRequests] = useState([]);
   const [showAddForm, setShowAddForm] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [requestsLoading, setRequestsLoading] = useState(true);
 
   const fetchMyGameCopies = useCallback(async () => {
     try {
@@ -27,38 +42,54 @@ function MyGamesPage() {
     }
   }, [user?.userId]);
 
+
   const fetchBorrowedGameCopies = useCallback(async () => {
     try {
-      const response = await fetch(`http://localhost:8080/game-copies/borrowed?borrower_id=${user?.userId}`, {
-        headers: { "Content-Type": "application/json", "User-Id": user?.userId },
+      const playerResponse = await fetch(`http://localhost:8080/players?person_id=${user?.userId}`, {
+        headers: { 
+          "Content-Type": "application/json",
+          "User-Id": user?.userId 
+        }
       });
-      const data = await response.json();
+      
+      if (!playerResponse.ok) throw new Error("Failed to fetch player ID");
+      const playerId = await playerResponse.json();
+  
+      const requestsResponse = await fetch(
+        `http://localhost:8080/borrowingRequests/${playerId}/status/accepted`,
+        {
+          headers: { 
+            "Content-Type": "application/json",
+            "User-Id": user?.userId 
+          }
+        }
+      );
+  
+      if (!requestsResponse.ok) throw new Error("Failed to fetch borrowed games");
+      
+      const data = await requestsResponse.json();
       setBorrowedGameCopies(Array.isArray(data) ? data : []);
+      
     } catch (error) {
-      console.error("Error fetching borrowed games:", error);
+      console.error("Error in fetchBorrowedGameCopies:", error);
       setBorrowedGameCopies([]);
     }
   }, [user?.userId]);
-
+  
   useEffect(() => {
     if (!authChecked || !user) return;
     
     const loadData = async () => {
       setLoading(true);
-      await Promise.all([fetchMyGameCopies(), fetchBorrowedGameCopies()]);
+      await Promise.all([
+        fetchMyGameCopies(), 
+        fetchBorrowedGameCopies(), 
+      ]);
+      console.log("Borrowed games:", borrowedGameCopies); // Add this line
       setLoading(false);
     };
     loadData();
   }, [authChecked, fetchMyGameCopies, fetchBorrowedGameCopies, user]);
-
-  if (!authChecked) {
-    return (
-      <Box display="flex" justifyContent="center" alignItems="center" minHeight="100vh">
-        <CircularProgress />
-      </Box>
-    );
-  }
-
   const handleTabChange = (event, newValue) => {
     setTabValue(newValue);
   };
@@ -209,7 +240,7 @@ function MyGamesPage() {
       )}
 
       {tabValue === 1 && (
-        <>
+        <div className="borrowed-games-tab">
           {loading ? (
             <Box display="flex" justifyContent="center">
               <p className="text-center">Loading borrowed games...</p>
@@ -229,19 +260,16 @@ function MyGamesPage() {
               padding: '0 16px'
             }}>
               {borrowedGameCopies.map((gameCopy) => (
-                <Box key={gameCopy.id} sx={{ 
-                  width: { xs: '100%', sm: 'calc(50% - 8px)', md: 'calc(33.333% - 11px)' },
-                  maxWidth: '280px'
-                }}>
-                  <GameCopyCard 
-                    gameCopy={gameCopy} 
-                    isOwner={false}
+                <Grid item xs={12} sm={6} md={4} key={gameCopy.id}>
+                  <BorrowingRequestItem 
+                    request={gameCopy} 
+                    badgeText="Active Borrow"
                   />
-                </Box>
+                </Grid>
               ))}
             </Box>
           )}
-        </>
+        </div>
       )}
     </div>
   );

@@ -97,6 +97,16 @@ public class BorrowingManagementService {
         existingRequest.setStatus(status);
         return borrowingRequestRepository.save(existingRequest);
     }
+    
+    @Transactional
+    public List<BorrowingRequest> findActiveBorrowingRequestsForBorrower(int senderId) {
+        Date currentDate = new Date(System.currentTimeMillis());
+        return borrowingRequestRepository.findActiveBorrowingRequestsForBorrower(
+            senderId, 
+            BorrowingRequestStatus.Accepted, 
+            currentDate
+        );
+    }
 
     public List<BorrowingRequest> findDeliveredBorrowingRequestsForBorrower(int BorrowerId) {
         return borrowingRequestRepository.findAllRequestsByStatusAndSender(BorrowingRequestStatus.Delivered,
