@@ -122,9 +122,10 @@ public class UserManagementService {
 
     @Transactional
     public void toggleAccountRole(int id) {
-        GameOwner owner = gameOwnerRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(
-                        HttpStatus.NOT_FOUND, "GameOwner not found with ID: " + id));
+        GameOwner owner = gameOwnerRepository.findByPersonId(id);
+        if (owner == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "GameOwner not found with ID: " + id);
+        }
         owner.setActive(!owner.isActive());
         gameOwnerRepository.save(owner);
     }

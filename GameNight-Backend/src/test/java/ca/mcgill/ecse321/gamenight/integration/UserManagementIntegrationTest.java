@@ -221,7 +221,7 @@ public class UserManagementIntegrationTest {
         gameOwner.setActive(true);
         gameOwnerRepo.save(gameOwner);
 
-        int userId = gameOwner.getId();
+        int userId = person.getId();
         String url = createURLWithPort("/users/" + userId + "/role");
 
         HttpHeaders headers = new HttpHeaders();
@@ -236,8 +236,9 @@ public class UserManagementIntegrationTest {
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
 
-        GameOwner updatedOwner = gameOwnerRepo.findById(userId).orElse(null);
+        GameOwner updatedOwner = gameOwnerRepo.findByPersonId(userId);
         assertNotNull(updatedOwner);
+
         assertFalse(updatedOwner.isActive());
     }
 
@@ -530,7 +531,7 @@ public class UserManagementIntegrationTest {
                 HttpMethod.GET,
                 requestEntity,
                 Integer.class);
-        
+
         assertEquals(testPlayerId, response.getBody());
     }
 
@@ -545,7 +546,7 @@ public class UserManagementIntegrationTest {
                 HttpMethod.GET,
                 requestEntity,
                 String.class);
-        
+
         assertEquals(testUserName, response.getBody());
     }
 }
