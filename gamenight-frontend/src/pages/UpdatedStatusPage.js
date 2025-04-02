@@ -4,7 +4,7 @@ import "../App.css";
 import ActiveRequestCard from "../components/ActiveRequestCard";
 import SecondaryNavBar from "../components/SecondaryNavBar";
 
-function ActiveRentalsPage() {
+function UpdatedStatusPage() {
     const [activeRentals, setActiveRentals] = useState([]);
     const [selectedRental, setSelectedRental] = useState(null);
 
@@ -64,4 +64,4 @@ function ActiveRentalsPage() {
     );
 }
 
-export default ActiveRentalsPage;
+export default UpdatedStatusPage;
