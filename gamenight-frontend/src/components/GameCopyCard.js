@@ -1,7 +1,8 @@
-import React, { useState} from "react";
+import React, { useState, useEffect } from "react";
 import { 
   Card, 
   CardContent, 
+  CardMedia,
   Typography, 
   Button, 
   Box, 
@@ -10,7 +11,8 @@ import {
   Dialog,
   DialogActions,
   DialogContent,
-  DialogTitle
+  DialogTitle,
+  CircularProgress
 } from "@mui/material";
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -20,6 +22,43 @@ const GameCopyCard = ({ gameCopy, onDelete, onUpdate, isOwner }) => {
   const [editMode, setEditMode] = useState(false);
   const [editedDescription, setEditedDescription] = useState(gameCopy.description);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const [imageUrl, setImageUrl] = useState(null);
+  const [imageLoading, setImageLoading] = useState(true);
+  const [imageError, setImageError] = useState(false);
+
+  useEffect(() => {
+    const fetchGameImage = async () => {
+      try {
+        if (!gameCopy?.game?.id) {
+          setImageError(true);
+          return;
+        }
+        
+        const response = await fetch(`http://localhost:8080/games/${gameCopy.game.id}/image`);
+        if (response.ok) {
+          const imageBlob = await response.blob();
+          const url = URL.createObjectURL(imageBlob);
+          setImageUrl(url);
+        } else {
+          setImageError(true);
+        }
+      } catch (error) {
+        console.error("Error fetching game image:", error);
+        setImageError(true);
+      } finally {
+        setImageLoading(false);
+      }
+    };
+
+    fetchGameImage();
+
+    // Clean up the object URL when component unmounts
+    return () => {
+      if (imageUrl) {
+        URL.revokeObjectURL(imageUrl);
+      }
+    };
+  }, [gameCopy.game.id, imageUrl]);
 
   const handleEditClick = () => {
     setEditMode(true);
@@ -50,6 +89,30 @@ const GameCopyCard = ({ gameCopy, onDelete, onUpdate, isOwner }) => {
 
   return (
     <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+      {/* Game Image Section */}
+      {imageLoading ? (
+        <Box sx={{ 
+          height: 140, 
+          display: 'flex', 
+          alignItems: 'center', 
+          justifyContent: 'center',
+          backgroundColor: '#f5f5f5'
+        }}>
+          <CircularProgress size={24} />
+        </Box>
+      ) : (
+        <CardMedia
+          component="img"
+          height="140"
+          image={imageError ? '/default-game-image.jpg' : imageUrl}
+          alt={gameCopy.game?.name || "Game image"}
+          sx={{ 
+            objectFit: 'cover',
+            backgroundColor: '#f5f5f5'
+          }}
+        />
+      )}
+
       <CardContent sx={{ flexGrow: 1 }}>
         <Typography variant="h6" gutterBottom>
           {gameCopy.game?.name || "Unknown Game"}
