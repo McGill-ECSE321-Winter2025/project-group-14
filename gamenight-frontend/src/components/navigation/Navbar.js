@@ -36,15 +36,7 @@ function Navbar() {
                 {user && <Link to="/account">My Account</Link>}
 
                 {user ? (
-                    <button
-                        onClick={handleLogout}
-                        style={{
-                            font: 'inherit',
-                            fontWeight: 'bold'
-                        }}
-                    >
-                        Logout
-                    </button>
+                    <Link onClick={handleLogout}>Logout</Link>
                 ) : (
                     <>
                         <Link to="/login">Log In</Link>
