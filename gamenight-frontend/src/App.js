@@ -11,6 +11,7 @@ import MyEvents from "./pages/MyEvents";
 import Events from "./pages/Events";
 import Account from "./pages/Account";
 import About from "./pages/About";
+import EventDetails from "./pages/EventDetails";
 
 function App() {
   return (
@@ -26,8 +27,8 @@ function App() {
           <Route path="/my-events" element={<MyEvents />} />
           <Route path="/account" element={<Account />} />
           <Route path="/events" element={<Events />} />
+          <Route path="/events/:eventId" element={<EventDetails />} />
           <Route path="/about" element={<About />} />
-
         </Routes>
       </AuthProvider>
     </Router>
