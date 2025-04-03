@@ -2,6 +2,7 @@ import React from 'react';
 
 // Component-specific styles
 import './GameReview.css';
+import '../../styles/card.css';
 
 // Shared styles used in the component
 import '../../styles/card.css';

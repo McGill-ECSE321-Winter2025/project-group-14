@@ -4,7 +4,6 @@ import Game from '../../components/cards/ClickableGame';
 
 const GamePage = () => {
     const [games, setGames] = useState([]);
-    const picture = "https://www.francetvinfo.fr/pictures/KI83JKIWxYVA8ng-cUtYxM6l-z8/1200x1200/2016/08/23/shrek-5.jpg";
 
     useEffect(() => {
         fetch("http://localhost:8080/games") // Adjust URL as needed
@@ -36,7 +35,7 @@ const GamePage = () => {
                 {filteredGames.length > 0 || query === "" ? (
                     filteredGames.map((game, index) => (
                         <div key={index} className="fade-in-card">
-                            <Game key={game.id} id={game.id} title={game.name} rating={Math.round(game.rating * 100)} image={picture} />
+                            <Game id={game.id} title={game.name} rating={Math.round(game.rating * 100)} />
                         </div>
                     ))
                 ) : (

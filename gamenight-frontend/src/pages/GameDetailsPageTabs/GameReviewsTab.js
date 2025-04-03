@@ -22,7 +22,7 @@ const GameReviewsTab = () => {
     const [reloadReviews, setReloadReviews] = useState(true);
 
     useEffect(() => {
-        fetch(`http://localhost:8080/players?person_id=${user.userId}`, {
+        fetch(`http://localhost:8080/users/${user.userId}/player-id`, {
             headers: {'Content-Type': 'application/json', "User-Id": user.userId}
         })
             .then((response) => response.json())

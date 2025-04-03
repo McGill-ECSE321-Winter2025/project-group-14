@@ -34,7 +34,7 @@ function MyGamesPage() {
 
   const fetchBorrowedGameCopies = useCallback(async () => {
     try {
-      const playerResponse = await fetch(`http://localhost:8080/players?person_id=${user?.userId}`, {
+      const playerResponse = await fetch(`http://localhost:8080/users/${user?.userId}/player-id`, {
         headers: { 
           "Content-Type": "application/json",
           "User-Id": user?.userId 
