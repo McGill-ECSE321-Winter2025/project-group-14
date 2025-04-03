@@ -20,11 +20,8 @@ function SentRequestsPage() {
   const [tabValue, setTabValue] = useState(0);
 
   useEffect(() => {
-    if (!userId) {
-      console.warn("User ID is not available.");
-      return;
-    }
-
+    if (!user || !userId) return;
+  
     const fetchSentRequests = async () => {
       try {
         const response = await axios.get(
@@ -38,9 +35,10 @@ function SentRequestsPage() {
         console.error("Error fetching sent requests:", error);
       }
     };
-
+  
     fetchSentRequests();
-  }, [userId]);
+  }, [user, userId]);
+  
 
   const handleViewDetails = (request) => {
     setSelectedRequest(request);
