@@ -1,9 +1,19 @@
 .rating {
   font-size: 1.5rem;
-  color: #f59e0b;
   display: flex;
   align-items: flex-end;
 }
+
+.stars {
+  font-size: 30px;
+  letter-spacing: 2px;
+  color: #ccc;
+}
+
+.stars .filled {
+  color: gold;
+}
+
 
 
 /* Modern Card Styling with improved aesthetics */
@@ -17,9 +27,9 @@
   --text-primary: #1f2937;
   --text-secondary: #6b7280;
   --border-radius: 16px;
-  --shadow-sm: 0 1px 3px rgba(0,0,0,0.05);
-  --shadow-md: 0 4px 20px rgba(0,0,0,0.08);
-  --shadow-lg: 0 10px 30px rgba(0,0,0,0.1);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 20px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 10px 30px rgba(0, 0, 0, 0.1);
   --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
@@ -112,9 +122,17 @@
 
 /* Animation for new requests */
 @keyframes pulse {
-  0% { opacity: 0.6; }
-  50% { opacity: 1; }
-  100% { opacity: 0.6; }
+  0% {
+    opacity: 0.6;
+  }
+
+  50% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0.6;
+  }
 }
 
 .request-card[data-new="true"] {
@@ -123,4 +141,16 @@
 
 .request-card[data-new="true"] .request-badge {
   animation: pulse 2s infinite;
+}
+
+.game-section-textarea {
+  width: 100%;
+  height: 100%;
+  font: inherit;
+  background: inherit;
+  color: inherit;
+  border: none;
+  padding: 10px;
+  resize: none;
+  outline: none;
 }

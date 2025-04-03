@@ -14,12 +14,6 @@ const GameReview = ({ author, rating, comment, datePosted }) => {
 
   const formattedDate = new Date(datePosted).toLocaleDateString();
 
-  // Generate stars ratings
-  const renderStars = (rating) => {
-    const filledStars = '★'.repeat(Math.round(rating));
-    const emptyStars = '☆'.repeat(5 - Math.round(rating));
-    return filledStars + emptyStars;
-  };
 
   return (
 
@@ -32,9 +26,11 @@ const GameReview = ({ author, rating, comment, datePosted }) => {
           <div className="user-details">
             <h3 className="user-name">{author}</h3>
           </div>
-          <div className="rating">
+          <div className="stars">
             <span>
-              {renderStars(rating)}
+            {Array.from({ length: 5 }, (_, i) => (
+                <span key={i} className={i < Math.round(rating) ? "filled" : ""}>★</span>
+            ))}
             </span>
           </div>
 
