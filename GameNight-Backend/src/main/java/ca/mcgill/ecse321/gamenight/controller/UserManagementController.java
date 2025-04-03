@@ -20,6 +20,7 @@ import ca.mcgill.ecse321.gamenight.exception.ObjectNotFoundException;
 import ca.mcgill.ecse321.gamenight.middleware.RequireUser;
 import ca.mcgill.ecse321.gamenight.service.UserManagementService;
 import ca.mcgill.ecse321.gamenight.model.Person;
+import ca.mcgill.ecse321.gamenight.model.Player;
 
 @RestController
 public class UserManagementController {
@@ -159,5 +160,46 @@ public class UserManagementController {
         }
 
         return ResponseEntity.ok(new PersonResponseDto(targetUser));
+    }
+
+    @GetMapping("/users/{userId}/owner-id")
+    public ResponseEntity<Integer> getOwnerIdByUserId(@PathVariable Integer userId) {
+        Integer ownerId = userService.findOwnerIdByUserId(userId);
+        return ResponseEntity.ok(ownerId);
+    }
+
+    /**
+     * Get the player id for the given person
+     * 
+     * @param personId Id of the person
+     * @return The id of the player
+     */
+    @GetMapping("/players")
+    public Integer getPlayerByPersonId(@RequestParam(name = "person_id") int personId) {
+        Player player = userService.getPlayerByPersonId(personId);
+        return player.getId();
+    }
+
+    /**
+     * Get the owner id for the given person
+     * 
+     * @param personId Id of the person
+     * @return The id of the game owner
+     */
+    @GetMapping("/game-owners")
+    public String getGameOwnerByPersonId(@RequestParam(name = "person_id") int personId) {
+        return userService.getGameOwnerByPersonId(personId).getPerson().getName();
+    }
+
+    /**
+     * Returns whether the user is an active game owner.
+     *
+     * @param userId the user id
+     * @return true if the user is an active owner, false otherwise
+     */
+    @GetMapping("/users/{userId}/is-owner")
+    @RequireUser
+    public ResponseEntity<Boolean> isActiveOwner(@PathVariable int userId) {
+        return ResponseEntity.ok(userService.isActiveOwner(userId));
     }
 }

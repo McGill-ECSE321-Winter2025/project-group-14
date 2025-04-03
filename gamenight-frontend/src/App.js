@@ -1,16 +1,24 @@
 import React from "react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "./AuthContext";
-import Navbar from "./components/Navbar";
-import Home from "./pages/Home";
-import Login from "./pages/Login";
-import SignUp from "./pages/SignUp";
-import Games from "./pages/Games";
-import MyGames from "./pages/MyGames";
-import MyEvents from "./pages/MyEvents";
-import Events from "./pages/Events";
-import Account from "./pages/Account";
-import About from "./pages/About";
+
+// Components
+import Navbar from "./components/navigation/Navbar";
+import ProtectedRoute from "./components/navigation/ProtectedRoute";
+
+// Pages
+import Home from "./pages/Home/Home";
+import Login from "./pages/Auth/Login";
+import SignUp from "./pages/Auth/SignUp";
+import GamePage from "./pages/Other/GamePage";
+import MyGamesPage from "./pages/AccountSpecificPages/MyGames.js";
+import MyEvents from "./pages/AccountSpecificPages/MyEvents";
+import Events from "./pages/Other/Events";
+import Account from "./pages/AccountSpecificPages/Account";
+import About from "./pages/Other/About";
+import ReceivedBorrowingRequests from "./pages/AccountSpecificPages/ReceivedBorrowingRequests";
+import AddGame from "./pages/Other/AddGame";
+import GameDetailsPage from "./pages/GameDetails/GameDetailsPage";
 import SentRequests from "./pages/SentRequests";
 import UpdatedStatusPage from "./pages/UpdatedStatusPage";
 
@@ -23,14 +31,20 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<SignUp />} />
-          <Route path="/games" element={<Games />} />
-          <Route path="/my-games" element={<MyGames />} />
-          <Route path="/my-events" element={<MyEvents />} />
-          <Route path="/account" element={<Account />} />
-          <Route path="/events" element={<Events />} />
-          <Route path="/about" element={<About />} />
-          <Route path="/sent-requests" element={<SentRequests />} />
-          <Route path="/active-rentals" element={<UpdatedStatusPage />} />
+
+          <Route path="/games" element={<ProtectedRoute><GamePage /></ProtectedRoute>} />
+          <Route path="/games/:id" element={<ProtectedRoute><GameDetailsPage /></ProtectedRoute>} />
+          <Route path="/my-games" element={<ProtectedRoute><MyGamesPage /></ProtectedRoute>} />
+          <Route path="/my-events" element={<ProtectedRoute><MyEvents /></ProtectedRoute>} />
+          <Route path="/account" element={<ProtectedRoute><Account /></ProtectedRoute>} />
+          <Route path="/events" element={<ProtectedRoute><Events /></ProtectedRoute>} />
+          <Route path="/about" element={<ProtectedRoute><About /></ProtectedRoute>} />
+          <Route path="/add-game" element={<ProtectedRoute><AddGame /></ProtectedRoute>} />
+          <Route path="/received-requests" element={<ProtectedRoute><ReceivedBorrowingRequests /></ProtectedRoute>} />
+          <Route path="/sent-requests" element={<ProtectedRoute><SentRequests /></ProtectedRoute>} />
+          <Route path="/updated-status-requests" element={<ProtectedRoute><UpdatedStatusPage /></ProtectedRoute>} />
+
+          {/* <Route path="*" element={<Navigate to="/" />} /> */}
         </Routes>
       </AuthProvider>
     </Router>

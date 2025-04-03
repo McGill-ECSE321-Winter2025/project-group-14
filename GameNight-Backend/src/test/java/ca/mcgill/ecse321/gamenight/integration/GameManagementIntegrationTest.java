@@ -206,7 +206,7 @@ public class GameManagementIntegrationTest {
     @Test
     @Order(5)
     public void testCreateValidGameCopy() {
-        GameCopyRequestDto body = new GameCopyRequestDto(createdGame1Id, aGameOwner.getId(),
+        GameCopyRequestDto body = new GameCopyRequestDto(createdGame1Id, aGameOwner.getPerson().getId(),
                 VALID_GAME_COPY_DESCRIPTION);
         HttpEntity<?> requestEntity = new HttpEntity<>(body, authenticationHeaders);
 
@@ -247,7 +247,8 @@ public class GameManagementIntegrationTest {
     @Test
     @Order(7)
     public void testUpdateGameCopy() {
-        GameCopyRequestDto body = new GameCopyRequestDto(createdGame1Id, aGameOwner.getId(), "Medium condition");
+        GameCopyRequestDto body = new GameCopyRequestDto(createdGame1Id, aGameOwner.getPerson().getId(),
+                "Medium condition");
         String url = String.format("/game-copies/%d", createdGameCopyId);
         HttpEntity<?> requestEntity = new HttpEntity<>(body, authenticationHeaders);
 
@@ -268,7 +269,7 @@ public class GameManagementIntegrationTest {
     public void testGetMultipleGameCopiesForOwner() {
         GameCopy newGameCopy = new GameCopy("Missing one piece", createdGame2, aGameOwner);
         gameCopyRepository.save(newGameCopy);
-        String url = String.format("/game-copies?owner_id=%d", aGameOwner.getId());
+        String url = String.format("/game-copies?owner_id=%d", aGameOwner.getPerson().getId());
         HttpEntity<?> requestEntity = new HttpEntity<>(authenticationHeaders);
 
         ResponseEntity<GameCopyResponseDto[]> response = client.exchange(
@@ -292,6 +293,30 @@ public class GameManagementIntegrationTest {
 
     @Test
     @Order(9)
+    public void testFindGameCopiesByGame() {
+        Game game = gameRepository.save(new Game("Batman", "A batman game"));
+        GameCopy gc1 = gameCopyRepository.save(new GameCopy("Perfect condition", game, aGameOwner));
+        GameCopy gc2 = gameCopyRepository.save(new GameCopy("Missing piece", game, aGameOwner));
+        GameCopy gc3 = gameCopyRepository.save(new GameCopy("Missing instructions", game, aGameOwner));
+
+        String url = String.format("/game/%d/game-copies", game.getId());
+        HttpEntity<?> requestEntity = new HttpEntity<>(authenticationHeaders);
+
+        ResponseEntity<GameCopyResponseDto[]> response = client.exchange(
+                url,
+                HttpMethod.GET,
+                requestEntity,
+                GameCopyResponseDto[].class);
+
+        assertEquals(3, response.getBody().length);
+        GameCopyResponseDto[] gameCopiesQueried = response.getBody();
+        assertEquals(gameCopiesQueried[0].getId(), gc1.getId());
+        assertEquals(gameCopiesQueried[1].getId(), gc2.getId());
+        assertEquals(gameCopiesQueried[2].getId(), gc3.getId());
+    }
+
+    @Test
+    @Order(10)
     public void testDeleteGameCopy() {
         String url = String.format("/game-copies/%d", createdGameCopyId);
         HttpEntity<?> requestEntity = new HttpEntity<>(authenticationHeaders);

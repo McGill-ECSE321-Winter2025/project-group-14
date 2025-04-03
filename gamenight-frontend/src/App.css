@@ -1,210 +1,293 @@
 /* Global Styling */
 body {
-  background-color: #F4F4F4;
-  font-family: 'Helvetica Neue', 'Arial', sans-serif;
-  color: #1C1C1E;
-  margin: 0;
-  padding: 0;
-}
-
-/* Navbar */
-.navbar, .secondary-navbar {
-  background-color: #FFFFFF;
-  color: #1C1C1E;
-  padding: 20px;
-  display: flex;
-  justify-content: center;
-  gap: 40px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-}
-
-.nav-item {
-  color: #046307;
-  text-decoration: none;
-  font-weight: 600;
-  padding: 8px 16px;
-  border-radius: 10px;
-  transition: background-color 0.3s ease;
-}
-
-.nav-item:hover {
-  background-color: #E5E5EA;
-}
-
-/* Container Layout */
-.container {
-  display: flex;
-  justify-content: space-between;
-  align-items: stretch;
-  gap: 20px;
-  padding: 20px;
-  min-height: 80vh;
-}
-
-/* Column Styling */
-.left-column, .right-column {
-  flex: 1;
-  margin: 10px;
-}
-
-/* Button Base Styling */
-.btn, .card-button, .modal-close {
-  background-color: #046307;
-  color: white;
-  font-size: 16px;
-  font-weight: bold;
-  padding: 12px 20px;
-  border: none;
-  border-radius: 10px;
-  cursor: pointer;
-  transition: background-color 0.3s ease, transform 0.3s ease;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.btn:hover, .card-button:hover, .modal-close:hover {
-  background-color: #005BBB;
-  transform: scale(1.05);
-}
-
-/* Rounded and Seamless Buttons */
-.btn.rounded {
-  border-radius: 50px;
-  padding: 10px 20px;
-}
-
-.btn.seamless {
-  background: transparent;
-  color: #333;
-}
-
-.btn.seamless:hover {
-  background: rgba(0, 0, 0, 0.1);
-}
-
-/* Success and Danger Buttons */
-.btn.success {
-  background-color: #28a745;
-}
-
-.btn.danger {
-  background-color: #dc3545;
-}
-
-/* Card Styling */
-.request-card, .details-box, .game-card {
-  background-color: white;
-  border-radius: 12px;
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
-  padding: 20px;
-  margin: 10px;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-
-.request-card:hover, .details-box:hover, .game-card:hover {
-  transform: scale(1.05);
-  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
-}
-
-/* Details Box */
-.details-box {
-  background-color: #FAFAFA;
-}
-
-/* Divider Styling */
-.divider {
-  width: 4px;
-  background-color: #E5E5EA;
-  border-radius: 2px;
-  min-height: 100%;
-  height: auto;
-  align-self: stretch;
-}
-
-/* Responsive Design */
-@media (max-width: 768px) {
-  .container {
-      flex-direction: column;
+    background-color: #F4F4F4;
+    font-family: 'Helvetica Neue', 'Arial', sans-serif;
+    color: #1C1C1E;
+    margin: 0;
+    padding: 0;
   }
+  
 
-  .left-column, .right-column {
-      max-width: 100%;
+  .navbar {
+    background-color: #ffffff;
+    color: #1C1C1E;
+    padding: 16px 32px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    flex-wrap: wrap;
   }
-
+  /* Navbar */
+ .secondary-navbar {
+    background-color: #FFFFFF;
+    color: #1C1C1E;
+    padding: 20px;
+    display: flex;
+    justify-content: center;
+    gap: 40px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  }
+  
   .nav-item {
-      margin: 0 10px;
+    text-decoration: none;
+    color: #1C1C1E;
+    font-weight: 600;
+    font-size: 1rem;
+    padding: 8px 12px;
+    transition: color 0.2s ease;
   }
-}
-
-/* Game Card Image and Layout */
-.game-card-image img {
-  width: 100%;
-  height: 140px;
-  object-fit: cover;
-  border-radius: 8px;
-}
-
-/* Game List */
-.game-list {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 20px;
-  justify-content: center;
-}
-
-/* Auth Container */
-.auth-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 80vh;
-}
-
-/* Auth Form */
-.auth-form {
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-  align-items: center;
-  max-width: 400px;
-  width: 100%;
-  margin: auto;
-}
-
-.auth-form input {
-  width: 100%;
-  max-width: 320px;
-  padding: 12px;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  font-size: 16px;
-}
-
-.auth-form input:focus {
-  border-color: #28a745;
-  box-shadow: 0px 4px 8px rgba(40, 167, 69, 0.2);
-  outline: none;
-}
-
-/* Error Text */
-.error-text {
-  color: #dc3545;
-  font-size: 14px;
-}
-
-/* Animation */
-@keyframes fadeIn {
-  from {
-      opacity: 0;
-      transform: translateY(10px);
+  
+  .nav-item:hover {
+    color: #046307;
   }
-  to {
-      opacity: 1;
-      transform: translateY(0);
+  
+  /* Container Layout */
+  .container {
+    display: flex;
+    justify-content: space-between;
+    align-items: stretch;
+    gap: 20px;
+    padding: 20px;
+    min-height: 80vh;
   }
-}
+  
+  /* Column Styling */
+  .left-column, .right-column {
+    flex: 1;
+    margin: 10px;
+  }
+  
+  /* Button Base Styling */
+  .btn, .card-button, .modal-close {
+    background-color: #046307;
+    color: white;
+    font-size: 16px;
+    font-weight: bold;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .btn:hover, .card-button:hover, .modal-close:hover {
+    background-color: #005BBB;
+    transform: scale(1.05);
+  }
+  
+  /* Rounded and Seamless Buttons */
+  .btn.rounded {
+    border-radius: 50px;
+    padding: 10px 20px;
+  }
+  
+  .btn.seamless {
+    background: transparent;
+    color: #333;
+  }
+  
+  .btn.seamless:hover {
+    background: rgba(0, 0, 0, 0.1);
+  }
+  
+  /* Success and Danger Buttons */
+  .btn.success {
+    background-color: #28a745;
+  }
+  
+  .btn.danger {
+    background-color: #dc3545;
+  }
 
-.fade-in {
-  animation: fadeIn 0.3s ease-out;
-}
+  .request-card {
+    background-color: white;
+    border-radius: 12px;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    margin: 10px auto;         /* center horizontally */
+    width: 100%;               /* full width by default */
+    max-width: 1200px;         /* max size on large screens */
+    box-sizing: border-box;    /* padding won’t exceed max-width */
+  }
+  
+  
+  /* Card Styling */
+.details-box, .game-card {
+    background-color: white;
+    border-radius: 12px;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    margin: 10px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+
+.request-card:hover {
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+  }
+  
+  
+.details-box:hover, .game-card:hover {
+    transform: scale(1.05);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+  }
+  
+  /* Details Box */
+  .details-box {
+    background-color: #FAFAFA;
+  }
+  
+  /* Divider Styling */
+  .divider {
+    width: 4px;
+    background-color: #E5E5EA;
+    border-radius: 2px;
+    min-height: 100%;
+    height: auto;
+    align-self: stretch;
+  }
+  
+  /* Responsive Design */
+  @media (max-width: 768px) {
+    .container {
+        flex-direction: column;
+    }
+  
+    .left-column, .right-column {
+        max-width: 100%;
+    }
+  
+    .nav-item {
+        margin: 0 10px;
+    }
+    
+  }
+  
+  /* Game Card Image and Layout */
+  .game-card-image img {
+    width: 100%;
+    height: 140px;
+    object-fit: cover;
+    border-radius: 8px;
+  }
+  
+  /* Game List */
+  .game-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: center;
+  }
+  
+  /* Auth Container */
+  .auth-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 80vh;
+  }
+  
+  /* Auth Form */
+  .auth-form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    align-items: center;
+    max-width: 400px;
+    width: 100%;
+    margin: auto;
+  }
+  
+  .auth-form input {
+    width: 100%;
+    max-width: 320px;
+    padding: 12px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 16px;
+  }
+  
+  .auth-form input:focus {
+    border-color: #28a745;
+    box-shadow: 0px 4px 8px rgba(40, 167, 69, 0.2);
+    outline: none;
+  }
+  
+  /* Error Text */
+  .error-text {
+    color: #dc3545;
+    font-size: 14px;
+  }
+  
+  /* Animation */
+  @keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+  }
+  
+  .fade-in {
+    animation: fadeIn 0.3s ease-out;
+  }
+  
+  /* ➕ Additional Styles for SentRequestsPage */
+  .received-requests-container {
+    padding: 0 2rem;
+  }
+  
+  .request-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
+  
+  .request-user {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+  
+  .avatar {
+    background-color: #4f46e5;
+    color: #fff;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 1rem;
+  }
+  
+  .username {
+    font-weight: 700;
+    font-size: 1.2rem;
+    padding: 6px 0;
+  }
+  
+  .request-badge {
+    font-size: 0.95rem;
+    color: #4f46e5;
+    background-color: #e0e7ff;
+    padding: 4px 10px;
+    border-radius: 999px;
+    display: inline-block;
+    font-weight: 600;
+    margin-top: 4px;
+  }
+  
+  .request-info p {
+    margin: 0.4rem 0;
+    font-size: 0.95rem;
+  }
+  

@@ -102,4 +102,10 @@ public class GameManagementService {
         }
         return owner.get();
     }
+
+    public List<GameCopy> findGameCopiesByGame(int gameId) {
+        Game game = findGameById(gameId);
+        return gameCopyRepository.findByGame(game);
+    }
+    
 }

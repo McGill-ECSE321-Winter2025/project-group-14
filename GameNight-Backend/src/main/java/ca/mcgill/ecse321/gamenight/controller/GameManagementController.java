@@ -2,6 +2,7 @@ package ca.mcgill.ecse321.gamenight.controller;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -23,6 +24,7 @@ import ca.mcgill.ecse321.gamenight.middleware.RequireUser;
 import ca.mcgill.ecse321.gamenight.model.Game;
 import ca.mcgill.ecse321.gamenight.model.GameCopy;
 import ca.mcgill.ecse321.gamenight.service.GameManagementService;
+
 
 /**
  * REST controller for managing games and game copies
@@ -88,9 +90,41 @@ public class GameManagementController {
         ArrayList<GameResponseDto> games = new ArrayList<GameResponseDto>();
         Iterator<Game> iterator = gameManagementService.findAllGames().iterator();
         while (iterator.hasNext()) {
-            games.add(new GameResponseDto(iterator.next()));
+            Game game = iterator.next();
+            games.add(new GameResponseDto(game));
         }
         return games;
+    }
+
+    /**
+     * Return 10 random games (can repeat if there are less than 10)
+     * 
+     * Publicly accessible for the homepage
+     */
+    @GetMapping("/public-random-games")
+    public ArrayList<GameResponseDto> getPublicRandomGames() {
+        ArrayList<Game> allGames = new ArrayList<>();
+        Iterator<Game> iterator = gameManagementService.findAllGames().iterator();
+        while (iterator.hasNext()) {
+            allGames.add(iterator.next());
+        }
+
+        ArrayList<GameResponseDto> result = new ArrayList<>();
+
+        if (allGames.isEmpty()) {
+            return result;
+        }
+
+        while (result.size() < 10) {
+            java.util.Collections.shuffle(allGames);
+            for (Game g : allGames) {
+                result.add(new GameResponseDto(g));
+                if (result.size() == 10)
+                    break;
+            }
+        }
+
+        return result;
     }
 
     /**
@@ -163,4 +197,22 @@ public class GameManagementController {
     public void deleteGameCopy(@PathVariable int id) {
         gameManagementService.deleteGameCopy(id);
     }
+
+    /**
+     * Get all the copies of a given game
+     * 
+     * @param gameId The id of the game
+     * @return The game copies of the given game
+     */
+    @GetMapping("game/{gameId}/game-copies")
+    @RequireUser
+    public List<GameCopyResponseDto> findGameCopiesByGame(@PathVariable int gameId) {
+        ArrayList<GameCopyResponseDto> response = new ArrayList<>();
+        List<GameCopy> gameCopies = gameManagementService.findGameCopiesByGame(gameId);
+        for (GameCopy gameCopy : gameCopies) {
+            response.add(new GameCopyResponseDto(gameCopy));
+        }
+        return response;
+    }
+
 }

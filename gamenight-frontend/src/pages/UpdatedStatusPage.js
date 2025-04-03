@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import "../App.css";
 import ActiveRequestCard from "../components/ActiveRequestCard";
 import SecondaryNavBar from "../components/SecondaryNavBar";
 

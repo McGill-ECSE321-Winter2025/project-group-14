@@ -1,19 +1,11 @@
 import React, { useState, useEffect, useContext } from "react";
 import axios from "axios";
-import "../App.css";
-import RequestCard from "../components/RequestCard";
 import { AuthContext } from "../AuthContext";
-import {
-  Box,
-  Tabs,
-  Tab,
-  Typography,
-} from "@mui/material";
+import '../App.css';
+import { Box, Tabs, Tab } from "@mui/material";
 
 function SentRequestsPage() {
   const [allRequests, setAllRequests] = useState([]);
-  const [selectedRequest, setSelectedRequest] = useState(null);
-
   const { user } = useContext(AuthContext);
   const userId = user?.userId;
 
@@ -21,7 +13,7 @@ function SentRequestsPage() {
 
   useEffect(() => {
     if (!user || !userId) return;
-  
+
     const fetchSentRequests = async () => {
       try {
         const response = await axios.get(
@@ -35,18 +27,12 @@ function SentRequestsPage() {
         console.error("Error fetching sent requests:", error);
       }
     };
-  
+
     fetchSentRequests();
   }, [user, userId]);
-  
-
-  const handleViewDetails = (request) => {
-    setSelectedRequest(request);
-  };
 
   const handleTabChange = (event, newValue) => {
     setTabValue(newValue);
-    setSelectedRequest(null); // clear details panel on tab change
   };
 
   const filteredRequests =
@@ -58,7 +44,7 @@ function SentRequestsPage() {
 
   return (
     <div>
-      {/* MUI Secondary NavBar */}
+      {/* Secondary Nav */}
       <Box
         sx={{
           width: "100%",
@@ -79,53 +65,42 @@ function SentRequestsPage() {
         }}
       >
         <Tabs value={tabValue} onChange={handleTabChange} centered variant="fullWidth">
-          <Tab label="Sent Borrowing Requests" />
+          <Tab label="Sent BorrowingRequests" />
           <Tab label="Updated Status Requests" />
         </Tabs>
       </Box>
 
-      {/* Page Content */}
-      <div className="container">
-        <div className="left-column">
-          <h1 className="left-align">
-            {tabValue === 0 ? "Sent Borrowing Requests" : "Updated Status Requests"}
-          </h1>
-          <div className="card-list">
-            {filteredRequests.length > 0 ? (
-              filteredRequests.map((request, index) => (
-                <RequestCard
-                  key={index}
-                  title={request.gameName}
-                  status={request.status}
-                  onViewDetails={() => handleViewDetails(request)}
-                />
-              ))
-            ) : (
-              <Typography>
-                {tabValue === 0
-                  ? "No delivered requests found."
-                  : "No accepted or rejected requests found."}
-              </Typography>
-            )}
-          </div>
-        </div>
+      {/* Container */}
+      <div className="received-requests-container">
+        <h2 className="left-align">
+          {tabValue === 0 ? "Sent Borrowing Requests" : "Updated Status Requests"}
+        </h2>
 
-        <div className="divider"></div>
+        {filteredRequests.length > 0 ? (
+          filteredRequests.map((request, index) => (
+            <div className="request-card" key={index}>
+              <div className="request-header">
+                <div className="request-user">
+                  <div className="avatar">
+                    {request.gameName.charAt(0).toUpperCase()}
+                  </div>
+                  <div>
+                    <div className="username">{request.gameName}</div>
+                    <div className="request-badge">Sent</div>
+                  </div>
+                </div>
+              </div>
 
-        <div className="right-column">
-          {selectedRequest ? (
-            <div className="details-box">
-              <h2>{selectedRequest.gameName}</h2>
-              <p>Status: {selectedRequest.status}</p>
-              <p>Start Date: {selectedRequest.startTime}</p>
-              <p>End Date: {selectedRequest.endTime}</p>
+              <div className="request-info">
+                <p><strong>Status:</strong> {request.status}</p>
+                <p><strong>Dates:</strong> {request.startTime} - {request.endTime}</p>
+              </div>
+
             </div>
-          ) : (
-            <div className="details-box">
-              <p>Select a request to view details.</p>
-            </div>
-          )}
-        </div>
+          ))
+        ) : (
+          <p>No requests found.</p>
+        )}
       </div>
     </div>
   );
