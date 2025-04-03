@@ -12,6 +12,8 @@ const AccountSettings = () => {
     const [updateStatus, setUpdateStatus] = useState('');
     const [toggleStatus, setToggleStatus] = useState('');
     const [infoLocked, setInfoLocked] = useState('');
+    const [newUsername, setNewUsername] = useState('');
+    const [usernameMessage, setUsernameMessage] = useState('');
 
     useEffect(() => {
         if (user?.userId) {
@@ -46,7 +48,6 @@ const AccountSettings = () => {
         }
     };
 
-
     const handleDeleteAccount = async () => {
         if (window.confirm("Are you sure? This cannot be undone.")) {
             const success = await UserManagementAPI.deleteUser(user.userId);
@@ -54,6 +55,24 @@ const AccountSettings = () => {
                 sessionStorage.clear();
                 window.location.href = "/";
             }
+        }
+    };
+
+    const handleUsernameUpdate = async () => {
+        try {
+            const token = localStorage.getItem("token");
+            await fetch(`http://localhost:8080/users/${user.userId}/username?newUsername=${newUsername}`, {
+                method: 'PUT',
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    'User-Id': user.userId,
+                },
+            });
+            setUsernameMessage("✅ Username updated successfully!");
+            setNewUsername('');
+        } catch (error) {
+            console.error(error);
+            setUsernameMessage("❌ Failed to update username.");
         }
     };
 
@@ -97,7 +116,7 @@ const AccountSettings = () => {
 
             <div className="settings-card">
                 <h2 className="centered">Role Toggle</h2>
-                <h2 className="centered" style={{ fontSize: '30px', }}>
+                <h2 className="centered" style={{ fontSize: '30px' }}>
                     {isOwner ? 'OWNER' : 'PLAYER'}
                 </h2>
                 <InfoIcon id="toggleRole" />
@@ -114,6 +133,20 @@ const AccountSettings = () => {
                 <InfoText id="delete">Deletes your account permanently.</InfoText>
                 <div className="auth-form">
                     <button className="delete-btn" onClick={handleDeleteAccount}>Delete Account</button>
+                </div>
+            </div>
+
+            <div className="settings-card">
+                <h2 className="centered">Update Username</h2>
+                <div className="auth-form">
+                    <input
+                        type="text"
+                        placeholder="New username"
+                        value={newUsername}
+                        onChange={(e) => setNewUsername(e.target.value)}
+                    />
+                    <button className="update-username-button" onClick={handleUsernameUpdate}>Update</button>
+                    {usernameMessage && <p className="centered">{usernameMessage}</p>}
                 </div>
             </div>
 

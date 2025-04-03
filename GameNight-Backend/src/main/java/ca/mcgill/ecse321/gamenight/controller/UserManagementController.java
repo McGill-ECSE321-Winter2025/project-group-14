@@ -202,4 +202,23 @@ public class UserManagementController {
     public ResponseEntity<Boolean> isActiveOwner(@PathVariable int userId) {
         return ResponseEntity.ok(userService.isActiveOwner(userId));
     }
+
+    @PutMapping("/users/{id}/username")
+    @RequireUser
+    public ResponseEntity<?> updateUsername(
+            @PathVariable int id,
+            @RequestParam String newUsername,
+            HttpServletRequest request) {
+    
+        String headerUserId = request.getHeader("User-Id");
+    
+        if (headerUserId == null || Integer.parseInt(headerUserId) != id) {
+            throw new ForbiddenException("You can only update your own username.");
+        }
+    
+        userService.updateUsername(id, newUsername);
+        return ResponseEntity.ok("Username updated successfully.");
+    }
+    
+
 }

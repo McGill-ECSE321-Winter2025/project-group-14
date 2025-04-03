@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import { useAuth } from '../../AuthContext';
 import { UserManagementAPI } from '../../UserManagementAPI';
 import AccountSettings from './AccountSettings';
