@@ -3,7 +3,7 @@ import axios from 'axios';
 import { useAuth } from '../../AuthContext';
 import { UserManagementAPI } from '../../UserManagementAPI';
 import AccountSettings from './AccountSettings';
-import MyGames from './MyGames';
+import GameHistory from './GameHistory';
 import MyEvents from './MyEvents';
 import '../../styles/layout.css';
 import './Account.css';
@@ -71,7 +71,7 @@ const Account = () => {
             <Box className="tab-content fade-in-on-scroll">
                 {activeTab === 'settings' && <AccountSettings />}
                 {activeTab === 'reviews' && <p>Your submitted reviews will appear here.</p>}
-                {activeTab === 'games' && <MyGames />}
+                {activeTab === 'games' && <GameHistory />}
                 {activeTab === 'events' && <MyEvents />}
             </Box>
         </Box>
