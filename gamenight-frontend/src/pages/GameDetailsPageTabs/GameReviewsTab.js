@@ -21,6 +21,8 @@ const GameReviewsTab = () => {
     const [playerId, setPlayerId] = useState();
     const [reloadReviews, setReloadReviews] = useState(true);
     const [userObject, setUserObject] = useState();
+    const [review, setReview] = useState("");
+    const [rating, setRating] = useState(0);
 
     useEffect(() => {
         fetch(`http://localhost:8080/users/${user.userId}/player-id`, {
@@ -44,7 +46,6 @@ const GameReviewsTab = () => {
     }, [user, id, reloadReviews]);
 
     useEffect(() => {
-        if (reloadReviews) {
             fetch(`http://localhost:8080/users/${user.userId}`, {
                 headers: { 'Content-Type': 'application/json', "User-Id": user.userId }
             })
@@ -52,12 +53,7 @@ const GameReviewsTab = () => {
                 .then((data) => setUserObject(data))
                 .catch((error) => console.error("Error fetching reviews:", error));
             setReloadReviews(false)
-        }
     }, [user]);
-
-    const [review, setReview] = useState("");
-    const [rating, setRating] = useState(0);
-
 
     const handleReviewChange = (e) => {
         setReview(e.target.value);
@@ -103,10 +99,10 @@ const GameReviewsTab = () => {
 
                         <div className="user-section">
                             <div className="avatar">
-                                {userObject.name?.charAt(0).toUpperCase()}
+                                {userObject?.name?.charAt(0).toUpperCase()}
                             </div>
                             <div className="user-details">
-                                <h3 className="user-name">{userObject.name}</h3>
+                                <h3 className="user-name">{userObject?.name}</h3>
                             </div>
                         </div>
                         <div className="rating">
