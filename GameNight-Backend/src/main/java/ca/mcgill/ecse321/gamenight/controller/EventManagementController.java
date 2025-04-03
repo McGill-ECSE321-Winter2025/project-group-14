@@ -1,15 +1,21 @@
 package ca.mcgill.ecse321.gamenight.controller;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ca.mcgill.ecse321.gamenight.dto.EventRequestDto;
 import ca.mcgill.ecse321.gamenight.dto.EventResponseDto;
 import ca.mcgill.ecse321.gamenight.dto.GameResponseDto;
 import ca.mcgill.ecse321.gamenight.dto.PlayerResponseDto;
 import ca.mcgill.ecse321.gamenight.model.Event;
+import ca.mcgill.ecse321.gamenight.model.Game;
+import ca.mcgill.ecse321.gamenight.model.Player;
+import ca.mcgill.ecse321.gamenight.model.ScheduledGame;
 import ca.mcgill.ecse321.gamenight.service.EventManagementService;
+import ca.mcgill.ecse321.gamenight.service.GameReviewService;
 
 /**
  * REST controller for managing events
@@ -24,6 +30,9 @@ public class EventManagementController {
 
     @Autowired
     private EventManagementService eventService;
+
+    @Autowired
+    private GameReviewService reviewService;
 
     /**
      * Create a new event
@@ -102,10 +111,13 @@ public class EventManagementController {
      */
     @GetMapping("/scheduledevent/{eventId}")
     public List<GameResponseDto> getGamesForEvent(@PathVariable int eventId) {
-        return eventService.getGamesForEvent(eventId)
-                .stream()
-                .map(GameResponseDto::new)
-                .collect(Collectors.toList());
+        List<Game> games = eventService.getGamesForEvent(eventId);
+        ArrayList<GameResponseDto> response = new ArrayList<>();
+        for (Game game: games) {
+            Double rating = reviewService.getAverageRatingForGame(game);
+            response.add(new GameResponseDto(game, rating));
+        }
+        return response;
     }
 
     /**

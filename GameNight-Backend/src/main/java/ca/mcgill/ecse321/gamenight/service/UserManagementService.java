@@ -122,11 +122,23 @@ public class UserManagementService {
 
     @Transactional
     public void toggleAccountRole(int id) {
-        GameOwner owner = gameOwnerRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(
-                        HttpStatus.NOT_FOUND, "GameOwner not found with ID: " + id));
+        GameOwner owner = gameOwnerRepository.findByPersonId(id);
+        if (owner == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "GameOwner not found with ID: " + id);
+        }
         owner.setActive(!owner.isActive());
         gameOwnerRepository.save(owner);
+    }
+
+    @Transactional
+    public void updateUsername(int id, String newUsername) {
+        if (newUsername == null || newUsername.trim().isEmpty()) {
+            throw new InvalidInputException("Username cannot be empty.");
+        }
+
+        Person person = getUserById(id);
+        person.setName(newUsername);
+        personRepository.save(person);
     }
 
     public List<Person> getAllUsers() {
@@ -168,4 +180,28 @@ public class UserManagementService {
         }
     }
 
+    public Integer findOwnerIdByUserId(Integer userId) {
+        // Find the GameOwner associated with this user
+        GameOwner owner = gameOwnerRepository.findByPersonId(userId);
+        return owner.getId();
+    }
+
+    public Player getPlayerByPersonId(int personId) {
+        return playerRepository.findByPersonId(personId);
+    }
+
+    public GameOwner getGameOwnerByPersonId(int personId) {
+        return gameOwnerRepository.findByPersonId(personId);
+    }
+
+    public boolean isActiveOwner(int userId) {
+        GameOwner owner = getGameOwnerByPersonId(userId);
+        return owner != null && owner.isActive();
+    }
+
+   
+    
+    
+
 }
+

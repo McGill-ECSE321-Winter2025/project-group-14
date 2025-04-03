@@ -50,6 +50,8 @@ public class UserManagementIntegrationTest {
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     private int testUserId;
+    private int testPlayerId;
+    private String testUserName;
     private static final String ORIGINAL_EMAIL = "updateuser@gmail.com";
     private static final String ORIGINAL_PASSWORD = "oldpassword";
     private static final String NEW_EMAIL = "newemail@gmail.com";
@@ -66,6 +68,7 @@ public class UserManagementIntegrationTest {
         Person user = new Person(ORIGINAL_EMAIL, ORIGINAL_PASSWORD, "Test User");
         personRepository.save(user);
         testUserId = user.getId();
+        testUserName = user.getName();
 
         Optional<Person> savedUser = personRepository.findById(testUserId);
         assertTrue(savedUser.isPresent(), "User should be saved in the repository.");
@@ -73,6 +76,9 @@ public class UserManagementIntegrationTest {
         GameOwner gameOwner = new GameOwner(user);
         gameOwner.setActive(true);
         gameOwnerRepo.save(gameOwner);
+
+        Player player = playerRepo.save(new Player(user));
+        testPlayerId = player.getId();
     }
 
     @AfterAll
@@ -215,7 +221,7 @@ public class UserManagementIntegrationTest {
         gameOwner.setActive(true);
         gameOwnerRepo.save(gameOwner);
 
-        int userId = gameOwner.getId();
+        int userId = person.getId();
         String url = createURLWithPort("/users/" + userId + "/role");
 
         HttpHeaders headers = new HttpHeaders();
@@ -230,8 +236,9 @@ public class UserManagementIntegrationTest {
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
 
-        GameOwner updatedOwner = gameOwnerRepo.findById(userId).orElse(null);
+        GameOwner updatedOwner = gameOwnerRepo.findByPersonId(userId);
         assertNotNull(updatedOwner);
+
         assertFalse(updatedOwner.isActive());
     }
 
@@ -513,4 +520,33 @@ public class UserManagementIntegrationTest {
         assertEquals("Not Found", jsonNode.get("error").asText());
     }
 
+    @Test
+    public void testGetPlayerByPersonId() {
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("User-Id", String.valueOf(testUserId));
+        HttpEntity<?> requestEntity = new HttpEntity<>(headers);
+
+        ResponseEntity<Integer> response = restTemplate.exchange(
+                createURLWithPort("/players?person_id=" + testUserId),
+                HttpMethod.GET,
+                requestEntity,
+                Integer.class);
+
+        assertEquals(testPlayerId, response.getBody());
+    }
+
+    @Test
+    public void testGetGameOwnerByPersonId() {
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("User-Id", String.valueOf(testUserId));
+        HttpEntity<?> requestEntity = new HttpEntity<>(headers);
+
+        ResponseEntity<String> response = restTemplate.exchange(
+                createURLWithPort("/game-owners?person_id=" + testUserId),
+                HttpMethod.GET,
+                requestEntity,
+                String.class);
+
+        assertEquals(testUserName, response.getBody());
+    }
 }

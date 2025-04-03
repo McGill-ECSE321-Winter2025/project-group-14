@@ -2,6 +2,7 @@ package ca.mcgill.ecse321.gamenight.repo;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import java.util.Date;
 import java.util.List;
 
 import org.junit.jupiter.api.*;
@@ -110,6 +111,11 @@ public class GameReviewRepositoryTest {
 
         GameReview gameReview2 = new GameReview(4, "Good game!", player, game);
         gameReviewRepo.save(gameReview2);
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
 
         List<GameReview> reviews = gameReviewRepo.findByGameOrderByDatePostedDesc(game);
 
@@ -153,8 +159,10 @@ public class GameReviewRepositoryTest {
     @Test
     public void testFindByGameOrderByRatingDesc() {
         GameReview gameReview1 = new GameReview(5, "Great game!", player, game);
-        GameReview gameReview2 = new GameReview(4, "Good game!", player, game);
+        gameReview1.setDatePosted(new Date(0));
         gameReviewRepo.save(gameReview1);
+        
+        GameReview gameReview2 = new GameReview(4, "Good game!", player, game);
         gameReviewRepo.save(gameReview2);
 
         List<GameReview> reviews = gameReviewRepo.findByGameOrderByRatingDesc(game);
