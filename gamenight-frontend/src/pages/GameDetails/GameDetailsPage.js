@@ -23,17 +23,16 @@ const GameDetailsPage = () => {
 
   const { id } = useParams();
   const { user } = useContext(AuthContext);
-  const [activeTab, setActiveTab] = useState('details'); // Track the active tab
-
   const location = useLocation();
   const { title } = location.state || {};
 
+
+  const [activeTab, setActiveTab] = useState('details'); // Track the active tab
   const handleTabChange = (tab) => {
     setActiveTab(tab);
   };
 
-  const [game, setGame] = useState();
-
+  
   const [imageUrl, setImageUrl] = useState(null);
   const [imageLoading, setImageLoading] = useState(true);
   const [imageError, setImageError] = useState(false);
@@ -71,6 +70,8 @@ const GameDetailsPage = () => {
     };
   }, [id, imageUrl]);
 
+
+  const [game, setGame] = useState();
   useEffect(() => {
     fetch(`http://localhost:8080/games/${id}`, {
       headers: { 'Content-Type': 'application/json', "User-Id": user.userId }
@@ -80,8 +81,8 @@ const GameDetailsPage = () => {
       .catch((error) => console.error("Error fetching game:", error));
   }, [id, user]);
 
-  const [gameCopies, setGameCopies] = useState();
 
+  const [gameCopies, setGameCopies] = useState();
   useEffect(() => {
     fetch(`http://localhost:8080/game/${id}/game-copies`, {
       headers: { 'Content-Type': 'application/json', "User-Id": user.userId }

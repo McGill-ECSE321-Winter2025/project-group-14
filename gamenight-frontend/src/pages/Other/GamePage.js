@@ -3,8 +3,8 @@ import Game from '../../components/cards/ClickableGame';
 
 
 const GamePage = () => {
+    
     const [games, setGames] = useState([]);
-
     useEffect(() => {
         fetch("http://localhost:8080/games") // Adjust URL as needed
             .then((response) => response.json())
