@@ -220,5 +220,15 @@ public class UserManagementController {
         return ResponseEntity.ok("Username updated successfully.");
     }
     
+    /**
+     * Get the player ID for the given person ID (user ID)
+     * 
+     * Example: GET /users/33/player-id
+     */
+    @GetMapping("/users/{personId}/player-id")
+    public ResponseEntity<Integer> getPlayerIdFromPersonId(@PathVariable int personId) {
+        Player player = userService.getPlayerByPersonId(personId);
+        return ResponseEntity.ok(player.getId());
+    }
 
 }
