@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '../../AuthContext';
-import GameReview from '../../pages/GameDetails/GameReview';
+import MyGameReviews from './MyGamesReview'; 
 import Button from '../../components/ui/Button';
-import '../../pages/GameDetails/GameReview.css';
 import '../../styles/layout.css';
 import '../../styles/card.css';
 import '../../styles/animation.css';
@@ -10,6 +9,7 @@ import '../../styles/animation.css';
 const MyReviews = () => {
     const { user } = useAuth();
     const [reviews, setReviews] = useState([]);
+    const [gamesData, setGamesData] = useState({}); // Store game data by ID
     const [playerId, setPlayerId] = useState(null);
     const [editingReviewId, setEditingReviewId] = useState(null);
     const [editedComment, setEditedComment] = useState('');
@@ -24,24 +24,36 @@ const MyReviews = () => {
             setIsLoading(true);
             setError(null);
             try {
-                // Fetch player ID
-                console.log("Fetching data for user ID:", user.userId);
+
                 const playerIdResponse = await fetch(
                     `http://localhost:8080/users/${user.userId}/player-id`,
                     { headers: { 'Content-Type': 'application/json', "User-Id": user.userId } }
                 );
                 const playerIdData = await playerIdResponse.json();
-                console.log("Received player ID:", playerIdData); // Log player ID
                 setPlayerId(playerIdData);
     
-                // Fetch reviews
+
                 const reviewsResponse = await fetch(
                     `http://localhost:8080/users/${playerIdData}/reviews`,
                     { headers: { 'Content-Type': 'application/json', "User-Id": user.userId } }
                 );
                 const reviewsData = await reviewsResponse.json();
-                // 2. Log the complete reviews data structure
-                console.log("Full reviews data structure:", reviewsData);
+                
+
+                const gameIds = [...new Set(reviewsData.map(review => review.gameId))];
+                const gamesPromises = gameIds.map(gameId => 
+                    fetch(`http://localhost:8080/games/${gameId}`,
+                        { headers: { 'Content-Type': 'application/json', "User-Id": user.userId } })
+                        .then(res => res.json())
+                );
+                
+                const gamesResults = await Promise.all(gamesPromises);
+                const gamesMap = {};
+                gamesResults.forEach(game => {
+                    gamesMap[game.id] = game;
+                });
+                
+                setGamesData(gamesMap);
                 setReviews(reviewsData);
             } catch (err) {
                 console.error("Error fetching data:", err);
@@ -66,8 +78,9 @@ const MyReviews = () => {
             throw error; 
         }
     };
+
     const handleDeleteReview = async (reviewId) => {
-        if (!window.confirm("Are you sure you want to delete this review?")) return
+        if (!window.confirm("Are you sure you want to delete this review?")) return;
         try {
             const response = await fetch(`http://localhost:8080/reviews/${reviewId}`, {
                 method: 'DELETE',
@@ -75,9 +88,7 @@ const MyReviews = () => {
             });
             
             if (response.status === 204) {
-
                 await refreshReviews();
-                
             } else {
                 throw new Error(`Failed to delete review: ${response.status}`);
             }
@@ -124,7 +135,6 @@ const MyReviews = () => {
             }
 
             await refreshReviews();
-            
             setEditingReviewId(null);
         } catch (error) {
             console.error("Error updating review:", error);
@@ -146,37 +156,39 @@ const MyReviews = () => {
                 <p>You haven't submitted any reviews yet.</p>
             ) : (
                 reviews.map((review) => (
-                    <div key={review.reviewId} className="request-card">
+                    <div key={review.reviewId} className="mygamesreview-card">
                         <div className="card-content">
                             {editingReviewId === review.reviewId ? (
                                 <>
-                                    <div className="user-section">
-                                        <div className="avatar">
-                                            {review.author?.charAt(0).toUpperCase()}
-                                        </div>
-                                        <div className="user-details">
-                                            <h3 className="user-name">{review.author}</h3>
-                                        </div>
-                                    </div>
-                                    <div className="rating">
-                                        <div className="stars">
+                                    <div className="header-section">
+                                        <h3 className="review-game">
+                                            {gamesData[review.gameId]?.name || 'Loading game...'}
+                                        </h3>
+                                        <div className="stars-container">
                                             {[1, 2, 3, 4, 5].map((starValue) => (
                                                 <span
                                                     key={starValue}
-                                                    className="star"
+                                                    className={`star ${editedRating >= starValue ? "filled" : ""}`}
                                                     onClick={() => handleRatingChange(starValue)}
                                                 >
-                                                    <span className={editedRating >= starValue ? "filled" : ""}>★</span>
+                                                    ★
                                                 </span>
                                             ))}
                                         </div>
+                                        <div className="review-date">
+                                            Posted on: {new Date(review.datePosted).toLocaleDateString('en-US', {
+                                                year: 'numeric',
+                                                month: 'long',
+                                                day: 'numeric'
+                                            })}
+                                        </div>
                                     </div>
-                                    <div className="game-section">
+                                    <div className="review-content">
                                         <textarea
                                             value={editedComment}
                                             onChange={(e) => setEditedComment(e.target.value)}
                                             rows="5"
-                                            className='game-section-textarea'
+                                            className="review-comment-edit"
                                             onInput={(e) => {
                                                 e.target.style.height = "auto";
                                                 e.target.style.height = `${e.target.scrollHeight}px`;
@@ -194,11 +206,11 @@ const MyReviews = () => {
                                 </>
                             ) : (
                                 <>
-                                    <GameReview
-                                        author={review.author}
+                                    <MyGameReviews
                                         rating={review.rating}
                                         comment={review.comment}
                                         datePosted={review.datePosted || "1970-01-01 00:00:00"}
+                                        gameName={gamesData[review.gameId]?.name || 'Loading game...'}
                                     />
                                     <div className="review-buttons">
                                         <Button onClick={() => handleEditReview(review)}>
