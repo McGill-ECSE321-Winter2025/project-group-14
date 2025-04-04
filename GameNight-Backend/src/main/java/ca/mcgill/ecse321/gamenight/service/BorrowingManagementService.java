@@ -146,5 +146,20 @@ public class BorrowingManagementService {
         return requests;
     }
 
+    @Transactional
+    public List<BorrowingRequest> findAllBorrowingRequestsForSender(int senderId) {
+        System.out.println("Fetching requests for sender ID: " + senderId);
+        List<BorrowingRequest> requests = borrowingRequestRepository.findAllBySenderId(senderId);
+        System.out.println("Number of borrowing requests found: " + requests.size());
+        return requests;
+    }
+
+
+
+    public Player getPlayerById(int playerId) {
+        return playerRepository.findById(playerId)
+                .orElseThrow(() -> new ObjectNotFoundException("Player not found with ID: " + playerId));
+    }
+
 
 }

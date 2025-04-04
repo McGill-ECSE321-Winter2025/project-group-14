@@ -7,28 +7,41 @@ import { Box, Tabs, Tab } from "@mui/material";
 function SentRequestsPage() {
   const [allRequests, setAllRequests] = useState([]);
   const { user } = useContext(AuthContext);
-  const userId = user?.userId;
+  const userId = user?.userId; 
 
   const [tabValue, setTabValue] = useState(0);
+  const [senderId, setSenderId] = useState(null);
 
   useEffect(() => {
     if (!user || !userId) return;
-
-    const fetchSentRequests = async () => {
+  
+    const fetchSenderId = async () => {
       try {
-        const response = await axios.get(
-          `http://localhost:8080/borrowingRequests/${userId}/requests`,
-          {
-            headers: { "User-Id": userId },
-          }
-        );
-        setAllRequests(response.data);
+        console.log("Sending request with User-Id:", userId);
+        const response = await axios.get(`http://localhost:8080/players?person_id=${userId}`);
+        const senderId = response.data;
+        console.log("Sender ID fetched:", senderId);
+        setSenderId(senderId); 
+        fetchSentRequests(senderId); 
+      } catch (error) {
+        console.error("Error fetching sender ID:", error);
+      }
+    };
+    
+    const fetchSentRequests = async (senderId) => {
+      try {
+        console.log("Fetching sent requests for sender ID:", senderId);
+        const requestsResponse = await axios.get(`http://localhost:8080/borrowingRequests/${senderId}/sent-requests`, { 
+          headers: { "User-Id": userId }
+        });
+        console.log("Requests fetched:", requestsResponse.data);
+        setAllRequests(requestsResponse.data);
       } catch (error) {
         console.error("Error fetching sent requests:", error);
       }
     };
-
-    fetchSentRequests();
+  
+    fetchSenderId();
   }, [user, userId]);
 
   const handleTabChange = (event, newValue) => {
@@ -44,7 +57,6 @@ function SentRequestsPage() {
 
   return (
     <div>
-      {/* Secondary Nav */}
       <Box
         sx={{
           width: "100%",
@@ -65,12 +77,11 @@ function SentRequestsPage() {
         }}
       >
         <Tabs value={tabValue} onChange={handleTabChange} centered variant="fullWidth">
-          <Tab label="Sent BorrowingRequests" />
+          <Tab label="Sent Borrowing Requests" />
           <Tab label="Updated Status Requests" />
         </Tabs>
       </Box>
 
-      {/* Container */}
       <div className="received-requests-container">
         <h2 className="left-align">
           {tabValue === 0 ? "Sent Borrowing Requests" : "Updated Status Requests"}
@@ -95,7 +106,6 @@ function SentRequestsPage() {
                 <p><strong>Status:</strong> {request.status}</p>
                 <p><strong>Dates:</strong> {request.startTime} - {request.endTime}</p>
               </div>
-
             </div>
           ))
         ) : (

@@ -10,14 +10,17 @@ import org.springframework.web.bind.annotation.*;
 
 import ca.mcgill.ecse321.gamenight.dto.BorrowingRequestRequestDto;
 import ca.mcgill.ecse321.gamenight.dto.BorrowingRequestResponseDto;
+import ca.mcgill.ecse321.gamenight.exception.ForbiddenException;
 import ca.mcgill.ecse321.gamenight.exception.ObjectNotFoundException;
 import ca.mcgill.ecse321.gamenight.middleware.RequireUser;
 import ca.mcgill.ecse321.gamenight.model.BorrowingRequest;
 import ca.mcgill.ecse321.gamenight.model.BorrowingRequest.BorrowingRequestStatus;
 import ca.mcgill.ecse321.gamenight.model.GameCopy;
+import ca.mcgill.ecse321.gamenight.model.Player;
 import ca.mcgill.ecse321.gamenight.repo.BorrowingRequestRepository;
 import ca.mcgill.ecse321.gamenight.repo.GameCopyRepository;
 import ca.mcgill.ecse321.gamenight.service.BorrowingManagementService;
+import ca.mcgill.ecse321.gamenight.service.UserManagementService;
 
 @RestController
 @RequestMapping("/borrowingRequests")
@@ -31,6 +34,9 @@ public class BorrowingManagementController {
 
     @Autowired
     private BorrowingRequestRepository borrowingRequestRepository;
+
+    @Autowired
+    private UserManagementService userManagementService;
 
     /**
      * Creates a new borrowing request.
@@ -172,20 +178,67 @@ public class BorrowingManagementController {
     @GetMapping("/{borrowerId}/requests")
     @RequireUser
     public List<BorrowingRequestResponseDto> getAllRequestsForBorrower(
-            @PathVariable int borrowerId, 
+            @PathVariable int borrowerId,
             @RequestHeader("User-Id") int userId) {
-        System.out.println("Fetching borrowing requests for borrower ID: " + borrowerId);
-        System.out.println("Received User-Id from header: " + userId);
+        System.out.println("Fetching borrowing requests for borrower (player) ID: " + borrowerId);
+        System.out.println("Received User-Id (person) from header: " + userId);
 
-        if (borrowerId != userId) {
-            System.out.println("Mismatch between path variable and header! Borrower ID: " + borrowerId + ", User ID: " + userId);
-            throw new IllegalArgumentException("User ID does not match the borrower ID");
+        try {
+            Player borrowerPlayer = userManagementService.getPlayerById(borrowerId);
+            if (borrowerPlayer.getPerson().getId() != userId) {
+                 System.out.println("Forbidden: User " + userId + " tried to access requests for player " + borrowerId);
+                 throw new ForbiddenException("You can only view your own borrowing requests.");
+            }
+        } catch (ObjectNotFoundException e) {
+             System.out.println("Player not found for ID: " + borrowerId);
+             throw new ObjectNotFoundException("Borrower (player) not found.");
         }
 
+
         List<BorrowingRequest> requests = borrowingManagementService.findAllBorrowingRequestsForBorrower(borrowerId);
-        System.out.println("Number of requests found: " + requests.size());
+        System.out.println("Number of requests found for borrower ID " + borrowerId + ": " + requests.size());
+
+        for (BorrowingRequest request : requests) {
+            System.out.println("Request: " + request);
+        }
+
         return requests.stream().map(BorrowingRequestResponseDto::new).collect(Collectors.toList());
     }
+
+    @GetMapping("/{senderId}/sent-requests")
+    @RequireUser
+    public List<BorrowingRequestResponseDto> getAllRequestsForSender(
+            @PathVariable int senderId,
+            @RequestHeader("User-Id") int userId) {
+        System.out.println("Fetching sent requests for sender (player) ID: " + senderId);
+        System.out.println("Received User-Id (person) from header: " + userId);
+
+        
+        try {
+            Player senderPlayer = userManagementService.getPlayerById(senderId);
+
+            if (senderPlayer.getPerson().getId() != userId) {
+                System.out.println("Forbidden: User " + userId + " tried to access sent requests for player " + senderId);
+                throw new ForbiddenException("You can only view your own sent requests.");
+            }
+
+        } catch (ObjectNotFoundException e) {
+             System.out.println("Player not found for ID: " + senderId);
+             throw new ObjectNotFoundException("Sender (player) not found.");
+        }
+
+        List<BorrowingRequest> requests = borrowingManagementService.findAllBorrowingRequestsForSender(senderId);
+        System.out.println("Number of requests found for sender ID " + senderId + ": " + requests.size());
+
+        for (BorrowingRequest request : requests) {
+            System.out.println("Request: " + request);
+        }
+
+        return requests.stream().map(BorrowingRequestResponseDto::new).collect(Collectors.toList());
+    }
+
+
+
 
 
 
