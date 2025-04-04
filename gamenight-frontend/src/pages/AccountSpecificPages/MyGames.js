@@ -1,12 +1,10 @@
 import React, { useState, useEffect, useContext, useCallback } from "react";
 import { Tabs, Tab, Box, Modal, Backdrop, Fade } from "@mui/material";
 import GameCopyCard from "../../components/cards/GameCopyCard";
+import AddGameCopyCard from "../../components/cards/AddGameCopyCard"; // New import
 import AddGameCopyForm from "../../components/forms/AddGameCopyForm";
 import { AuthContext } from "../../AuthContext";
-import Button from "../../components/ui/Button";
 import BorrowingRequestItem from '../../components/cards/BorrowingRequestItem';
-
-
 
 function MyGamesPage() {
   const { user } = useContext(AuthContext);
@@ -16,7 +14,6 @@ function MyGamesPage() {
   const [borrowedGameCopies, setBorrowedGameCopies] = useState([]);
   const [showAddForm, setShowAddForm] = useState(false);
   const [loading, setLoading] = useState(true);
-
 
   const fetchMyGameCopies = useCallback(async () => {
     try {
@@ -30,7 +27,6 @@ function MyGamesPage() {
       setMyGameCopies([]);
     }
   }, [user?.userId]);
-
 
   const fetchBorrowedGameCopies = useCallback(async () => {
     try {
@@ -78,6 +74,7 @@ function MyGamesPage() {
     };
     loadData();
   }, [authChecked, fetchMyGameCopies, fetchBorrowedGameCopies, user]);
+
   const handleTabChange = (event, newValue) => {
     setTabValue(newValue);
   };
@@ -170,12 +167,6 @@ function MyGamesPage() {
 
       {tabValue === 0 && (
         <>
-          <Box display="flex" justifyContent="center" sx={{ mb: 3 }}>
-            <Box sx={{ display: "inline-block" }}>
-              <Button onClick={handleAddGameCopy}>Add Game Copy</Button>
-            </Box>
-          </Box>
-
           <Modal
             open={showAddForm}
             onClose={handleCancelAdd}
@@ -197,10 +188,6 @@ function MyGamesPage() {
             <Box display="flex" justifyContent="center">
               <p className="text-center">Loading your game collection...</p>
             </Box>
-          ) : myGameCopies.length === 0 ? (
-            <Box display="flex" justifyContent="center">
-              <p className="text-center">You don't have any games in your collection yet.</p>
-            </Box>
           ) : (
             <Box sx={{ 
               display: 'flex',
@@ -211,6 +198,15 @@ function MyGamesPage() {
               margin: '0 auto',
               padding: '0 16px'
             }}>
+              {/* Add Game Copy Card - always shown */}
+              <Box sx={{ 
+                width: { xs: '100%', sm: 'calc(50% - 8px)', md: 'calc(33.333% - 11px)' },
+                maxWidth: '280px'
+              }}>
+                <AddGameCopyCard onClick={handleAddGameCopy} />
+              </Box>
+
+              {/* Existing Game Copies */}
               {myGameCopies.map((gameCopy) => (
                 <Box key={gameCopy.id} sx={{ 
                   width: { xs: '100%', sm: 'calc(50% - 8px)', md: 'calc(33.333% - 11px)' },
