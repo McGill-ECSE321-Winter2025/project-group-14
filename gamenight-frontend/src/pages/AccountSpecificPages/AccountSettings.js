@@ -2,15 +2,15 @@ import React, { useState, useEffect } from 'react';
 import { UserManagementAPI } from '../../UserManagementAPI';
 import { useAuth } from '../../AuthContext';
 import './AccountSettings.css';
+import AccountRoleToggle from './AccountRoleToggle';
 
 const AccountSettings = () => {
-    const { user, isOwner, userDetails, refreshIsOwner } = useAuth();
+    const { user } = useAuth();
     const [userInfo, setUserInfo] = useState(null);
     const [email, setEmail] = useState('');
     const [newPassword, setNewPassword] = useState('');
     const [oldPassword, setOldPassword] = useState('');
     const [updateStatus, setUpdateStatus] = useState('');
-    const [toggleStatus, setToggleStatus] = useState('');
     const [infoLocked, setInfoLocked] = useState('');
 
     useEffect(() => {
@@ -26,23 +26,12 @@ const AccountSettings = () => {
 
         if (success) {
             const updatedInfo = await UserManagementAPI.getUserDetails(user.userId);
-            setUserInfo(updatedInfo);
             setUpdateStatus("Updated successfully.");
             setEmail('');
             setNewPassword('');
             setOldPassword('');
         } else {
             setUpdateStatus("Update failed.");
-        }
-    };
-
-    const handleToggleRole = async () => {
-        const success = await UserManagementAPI.toggleRole(user.userId);
-        if (success) {
-            await refreshIsOwner();
-            setToggleStatus("Role toggled successfully.");
-        } else {
-            setToggleStatus("Toggle failed.");
         }
     };
 
@@ -76,13 +65,6 @@ const AccountSettings = () => {
         <div className="account-settings-container">
 
             <div className="settings-card">
-                <h2 className="centered">Profile Info</h2>
-                <p><strong>Username:</strong> {userInfo?.name || "Unknown"}</p>
-                <p><strong>Email:</strong> {userInfo?.email || "Unknown"}</p>
-                <p><strong>Owner:</strong> {isOwner ? 'Yes' : 'No'}</p>
-            </div>
-
-            <div className="settings-card">
                 <h2 className="centered">Update Email & Password</h2>
                 <InfoIcon id="emailPass" />
                 <InfoText id="emailPass">Change email or password. Current password required.</InfoText>
@@ -97,15 +79,9 @@ const AccountSettings = () => {
 
             <div className="settings-card">
                 <h2 className="centered">Role Toggle</h2>
-                <h2 className="centered" style={{ fontSize: '30px', }}>
-                    {isOwner ? 'OWNER' : 'PLAYER'}
-                </h2>
                 <InfoIcon id="toggleRole" />
                 <InfoText id="toggleRole">Switch between player and owner mode.</InfoText>
-                <div className="auth-form">
-                    <button onClick={handleToggleRole}>Toggle Role</button>
-                    {toggleStatus && <p className="centered">{toggleStatus}</p>}
-                </div>
+                <AccountRoleToggle userId={user.userId}></AccountRoleToggle>
             </div>
 
             <div className="settings-card">
