@@ -130,6 +130,17 @@ public class UserManagementService {
         gameOwnerRepository.save(owner);
     }
 
+    @Transactional
+    public void updateUsername(int id, String newUsername) {
+        if (newUsername == null || newUsername.trim().isEmpty()) {
+            throw new InvalidInputException("Username cannot be empty.");
+        }
+
+        Person person = getUserById(id);
+        person.setName(newUsername);
+        personRepository.save(person);
+    }
+
     public List<Person> getAllUsers() {
         Iterable<Person> iterable = personRepository.findAll();
         return StreamSupport.stream(iterable.spliterator(), false)
@@ -188,4 +199,9 @@ public class UserManagementService {
         return owner != null && owner.isActive();
     }
 
+   
+    
+    
+
 }
+

@@ -37,3 +37,33 @@ export const GameAPI = {
         }
     }
 };
+
+export const GameHistoryAPI = {
+    getBorrowedGamesHistory: async () => {
+        try {
+            // Step 1: Get user info
+            const storedUser = sessionStorage.getItem("user");
+            if (!storedUser) throw new Error("User not logged in");
+
+            const user = JSON.parse(storedUser);
+            const userId = user.userId;
+
+            // Step 2: Get Player ID from user ID
+            const playerIdResponse = await axios.get(`http://localhost:8080/users/${userId}/player-id`, {
+                headers: { "User-Id": userId }
+            });
+            const playerId = playerIdResponse.data;
+
+            // Step 3: Get Borrowed Game History
+            const borrowedGamesResponse = await axios.get(`http://localhost:8080/borrowingRequests/${playerId}/status/accepted`, {
+                headers: { "User-Id": userId }
+            });
+
+            return borrowedGamesResponse.data;
+        } catch (error) {
+            console.error("Error fetching borrowed games history:", error);
+            return [];
+        }
+    }
+};
+
