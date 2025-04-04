@@ -83,12 +83,12 @@ function Events() {
       .catch(() => setLoading(false));
   }, [fetchAllEvents, fetchPlayerIdAndCreatedEvents]);
 
-  // Filter out events I created
+ 
   const events = allEvents.filter(
     (evt) => !createdByMe.some((myEvt) => myEvt.id === evt.id)
   );
 
-  // Apply search
+ 
   let filteredEvents = events;
   if (searchTerm.trim() !== "") {
     const lowerTerm = searchTerm.toLowerCase();
@@ -99,7 +99,7 @@ function Events() {
     );
   }
 
-  // Apply date filters
+ 
   if (filterStart) {
     const startFilter = new Date(filterStart);
     filteredEvents = filteredEvents.filter(
@@ -113,7 +113,7 @@ function Events() {
     );
   }
 
-  // Sort by name or start date
+ 
   const sortedEvents = [...filteredEvents].sort((a, b) => {
     let result = 0;
     if (sortField === "name") {
@@ -126,13 +126,12 @@ function Events() {
     return sortOrder === "asc" ? result : -result;
   });
 
-  // NEW: hide expired events entirely
-  // (If endTime is in the past, we exclude it from rendering below)
+ 
   const visibleEvents = sortedEvents.filter((event) => {
     return !(event.endTime && new Date(event.endTime) < new Date());
   });
 
-  // Filter/sort popover controls
+ 
   const handleFilterClick = (event) => {
     setFilterAnchorEl(event.currentTarget);
   };
@@ -170,98 +169,111 @@ function Events() {
     );
   }
 
-  // Card subcomponent
-  const EventCard = ({ event }) => {
-    const navigate = useNavigate();
-    const [games, setGames] = useState([]);
+// Card subcomponent
+const EventCard = ({ event }) => {
+  const navigate = useNavigate();
+  const [games, setGames] = useState([]);
 
-    useEffect(() => {
-      async function fetchGames() {
-        try {
-          const response = await fetch(
-            `http://localhost:8080/events/scheduledevent/${event.id}`
-          );
-          if (!response.ok) {
-            throw new Error("Failed to fetch games for event");
-          }
-          const data = await response.json();
-          setGames(data);
-        } catch (error) {
-          console.error("Error fetching games:", error);
+  useEffect(() => {
+    async function fetchGames() {
+      try {
+        const response = await fetch(
+          `http://localhost:8080/events/scheduledevent/${event.id}`
+        );
+        if (!response.ok) {
+          throw new Error("Failed to fetch games for event");
         }
+        const data = await response.json();
+        setGames(data);
+      } catch (error) {
+        console.error("Error fetching games:", error);
       }
-      fetchGames();
-    }, [event.id]);
+    }
+    fetchGames();
+  }, [event.id]);
 
-    const formattedStart = new Date(event.startTime).toLocaleString("en-US", {
-      month: "numeric",
-      day: "numeric",
-      year: "numeric",
-      hour: "numeric",
-      minute: "numeric",
-      hour12: true,
-    });
-    const formattedEnd = new Date(event.endTime).toLocaleString("en-US", {
-      month: "numeric",
-      day: "numeric",
-      year: "numeric",
-      hour: "numeric",
-      minute: "numeric",
-      hour12: true,
-    });
+ 
+  const hasValidStartTime = event.startTime && new Date(event.startTime).getTime() > 0;
+  const hasValidEndTime = event.endTime && new Date(event.endTime).getTime() > 0;
 
-    return (
-      <Grid item xs={12} sm={6} md={4} key={event.id}>
-        <Card className="event-card">
-          <CardContent>
-            <Typography variant="h6" className="event-title">{event.name}</Typography>
-            <Box className="event-date-box">
+  const formattedStart = hasValidStartTime
+    ? new Date(event.startTime).toLocaleString("en-US", {
+        month: "numeric",
+        day: "numeric",
+        year: "numeric",
+        hour: "numeric",
+        minute: "numeric",
+        hour12: true,
+      })
+    : null;
+
+  const formattedEnd = hasValidEndTime
+    ? new Date(event.endTime).toLocaleString("en-US", {
+        month: "numeric",
+        day: "numeric",
+        year: "numeric",
+        hour: "numeric",
+        minute: "numeric",
+        hour12: true,
+      })
+    : null;
+
+  return (
+    <Grid item xs={12} sm={6} md={4} key={event.id}>
+      <Card className="event-card">
+        <CardContent>
+          <Typography variant="h6" className="event-title">{event.name}</Typography>
+          <Box className="event-date-box">
+            {hasValidStartTime && (
               <Typography variant="body2" className="event-date">
                 <span className="date-icon">📅</span> Start: {formattedStart}
               </Typography>
+            )}
+            {hasValidEndTime && (
               <Typography variant="body2" className="event-date">
                 <span className="date-icon">⏱️</span> End: {formattedEnd}
               </Typography>
-            </Box>
-            <Typography variant="body2" className="event-description">
-              {event.description}
-            </Typography>
-            {games.length > 0 ? (
-              <Box className="games-box">
-                <Typography variant="subtitle2" className="games-title">
-                  <span className="games-icon">🎮</span> Games Scheduled:
-                </Typography>
-                <ul className="games-list">
-                  {games.map((g) => (
-                    <li key={g.id} className="game-item">{g.name}</li>
-                  ))}
-                </ul>
-              </Box>
-            ) : (
-              <Box className="games-box">
-                <Typography variant="subtitle2" className="games-title">
-                  <span className="games-icon">🎮</span> No games scheduled.
-                </Typography>
-              </Box>
             )}
-            <Box mt={2} className="card-actions">
-              <Button
-                variant="contained"
-                className="view-details-btn"
-                onClick={() => navigate(`/events/${event.id}`)}
-              >
-                View Details
-              </Button>
+          </Box>
+          <Typography variant="body2" className="event-description">
+            {event.description}
+          </Typography>
+          {games.length > 0 ? (
+            <Box className="games-box">
+              <Typography variant="subtitle2" className="games-title">
+                <span className="games-icon">🎮</span> Games Scheduled:
+              </Typography>
+              <ul className="games-list">
+                {games.map((g) => (
+                  <li key={g.id} className="game-item">{g.name}</li>
+                ))}
+              </ul>
             </Box>
-          </CardContent>
-        </Card>
-      </Grid>
-    );
-  };
+          ) : (
+            <Box className="games-box">
+              <Typography variant="subtitle2" className="games-title">
+                <span className="games-icon">🎮</span> No games scheduled.
+              </Typography>
+            </Box>
+          )}
+          <Box mt={2} className="card-actions">
+            <Button
+              variant="contained"
+              className="view-details-btn"
+              onClick={() => navigate(`/events/${event.id}`)}
+            >
+              View Details
+            </Button>
+          </Box>
+        </CardContent>
+      </Card>
+    </Grid>
+  );
+};
 
   return (
     <div className="events-container">
-      {/* Header */}
+      {}
       <Box display="flex" justifyContent="space-between" alignItems="center" mb={2} className="events-header">
         <Typography variant="h4" className="page-title">Explore Events</Typography>
         <Box display="flex" gap={2} alignItems="center" className="search-controls">
@@ -282,7 +294,7 @@ function Events() {
         </Box>
       </Box>
 
-      {/* Filter Popover */}
+      {}
       <Popover
         id={filterPopoverId}
         open={filterOpen}
@@ -321,7 +333,7 @@ function Events() {
         </Box>
       </Popover>
 
-      {/* Sort Popover */}
+      {}
       <Popover
         id={sortPopoverId}
         open={sortOpen}
@@ -365,7 +377,7 @@ function Events() {
         </Box>
       </Popover>
 
-      {/* Hide expired events by filtering them out entirely */}
+      {}
       {sortedEvents.filter(evt => !(evt.endTime && new Date(evt.endTime) < new Date())).length === 0 ? (
         <Typography className="no-events-message">No events available.</Typography>
       ) : (
