@@ -16,7 +16,6 @@ const AddGameCopyCard = ({ onClick }) => {
       onClick={onClick}
       sx={{
         width: 280,
-        height: '100%', 
         borderRadius: '14px',
         overflow: 'hidden',
         boxShadow: '0 3px 8px rgba(0,0,0,0.1)',
@@ -39,7 +38,7 @@ const AddGameCopyCard = ({ onClick }) => {
         className="add-icon-container"
         sx={{
           position: 'relative',
-          height: 280, 
+          height: 275, 
           backgroundColor: '#f5f5f5',
           display: 'flex',
           justifyContent: 'center',
@@ -73,7 +72,8 @@ const AddGameCopyCard = ({ onClick }) => {
         p: 2.5,
         flexGrow: 1,
         display: 'flex',
-        flexDirection: 'column'
+        flexDirection: 'column',
+
       }}>
         <Typography variant="subtitle1" sx={{ 
           mb: 1.5,
@@ -84,11 +84,11 @@ const AddGameCopyCard = ({ onClick }) => {
           overflow: 'hidden',
           textOverflow: 'ellipsis'
         }}>
-          Add New Game Copy
+          Add Game
         </Typography>
 
         <Typography variant="body2" sx={{ 
-          mb: 1.5,
+          mb: 1.0,
           color: 'text.secondary',
           textAlign: 'center',
           fontSize: '0.85rem',
@@ -106,7 +106,7 @@ const AddGameCopyCard = ({ onClick }) => {
           gap: 1.5,
           mt: 1.5,
           visibility: 'hidden',
-          minHeight: 42 
+          minHeight: 30 
         }}>
           <IconButton sx={{ visibility: 'hidden' }}>
             <EditIcon />

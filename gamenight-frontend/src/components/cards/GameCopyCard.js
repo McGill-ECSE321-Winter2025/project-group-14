@@ -78,6 +78,7 @@ const GameCopyCard = ({ gameCopy, onDelete, onUpdate, isOwner }) => {
   return (
     <Card sx={{
       width: 280, 
+      height: 500,
       borderRadius: '14px',
       overflow: 'hidden',
       boxShadow: '0 3px 8px rgba(0,0,0,0.1)',
@@ -161,7 +162,7 @@ const GameCopyCard = ({ gameCopy, onDelete, onUpdate, isOwner }) => {
             display: 'flex',
             justifyContent: 'center',
             gap: 1.5,
-            mt: 1.5
+            mt: 1.5,
           }}>
             {editMode ? (
               <>
