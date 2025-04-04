@@ -18,7 +18,7 @@ import jakarta.annotation.PostConstruct;
 @Service
 public class FileStorageService {
     private final Path root = Paths.get("uploads").toAbsolutePath().normalize();
-    private final List<String> allowedExtensions = List.of("jpg", "jpeg", "png", "gif");
+    private final List<String> allowedExtensions = List.of("jpg", "jpeg", "png", "gif", "webp");
     private final long maxFileSize = 2 * 1024 * 1024; // 2MB
 
     @PostConstruct

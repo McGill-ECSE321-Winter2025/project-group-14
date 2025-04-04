@@ -16,7 +16,7 @@ const AddGameCopyCard = ({ onClick }) => {
       onClick={onClick}
       sx={{
         width: 280,
-        height: '100%', // Ensure full height to match other cards
+        height: '100%', 
         borderRadius: '14px',
         overflow: 'hidden',
         boxShadow: '0 3px 8px rgba(0,0,0,0.1)',
@@ -39,7 +39,7 @@ const AddGameCopyCard = ({ onClick }) => {
         className="add-icon-container"
         sx={{
           position: 'relative',
-          height: 280, // Fixed height to match image area of GameCopyCard
+          height: 280, 
           backgroundColor: '#f5f5f5',
           display: 'flex',
           justifyContent: 'center',
@@ -106,7 +106,7 @@ const AddGameCopyCard = ({ onClick }) => {
           gap: 1.5,
           mt: 1.5,
           visibility: 'hidden',
-          minHeight: 42 // Maintain consistent height with action buttons
+          minHeight: 42 
         }}>
           <IconButton sx={{ visibility: 'hidden' }}>
             <EditIcon />
