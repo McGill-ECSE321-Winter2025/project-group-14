@@ -194,3 +194,16 @@
 .game-copy-card .MuiIconButton-root:hover {
     color: #000;
 }
+
+
+.review-comment-edit {
+    width: 100%;
+    resize: none;
+    padding: 10px;
+    margin: 10px 0; 
+    box-sizing: border-box;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-family: inherit;
+}

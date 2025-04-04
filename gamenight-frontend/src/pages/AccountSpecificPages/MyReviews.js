@@ -9,7 +9,7 @@ import '../../styles/animation.css';
 const MyReviews = () => {
     const { user } = useAuth();
     const [reviews, setReviews] = useState([]);
-    const [gamesData, setGamesData] = useState({}); // Store game data by ID
+    const [gamesData, setGamesData] = useState({}); 
     const [playerId, setPlayerId] = useState(null);
     const [editingReviewId, setEditingReviewId] = useState(null);
     const [editedComment, setEditedComment] = useState('');
