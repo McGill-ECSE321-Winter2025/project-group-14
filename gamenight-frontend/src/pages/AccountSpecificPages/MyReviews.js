@@ -117,6 +117,14 @@ const MyReviews = () => {
         }
     
         try {
+
+            const originalReview = reviews.find(review => review.reviewId === editingReviewId);
+            
+            if (!originalReview) {
+                setError("Original review not found");
+                return;
+            }
+    
             const response = await fetch(`http://localhost:8080/reviews/${editingReviewId}`, {
                 method: 'PUT',
                 headers: { 
@@ -124,16 +132,20 @@ const MyReviews = () => {
                     "User-Id": user.userId 
                 },
                 body: JSON.stringify({
+                    reviewId: originalReview.reviewId,
                     rating: editedRating,
-                    comment: editedComment
+                    comment: editedComment,
+                    reviewerId: originalReview.reviewerId,
+                    gameId: originalReview.gameId,
+                    author: originalReview.author,
+                    datePosted: originalReview.datePosted
                 })
             });
     
             if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.message || "Failed to update review");
+                throw new Error(`HTTP error! status: ${response.status}`);
             }
-
+    
             await refreshReviews();
             setEditingReviewId(null);
         } catch (error) {
