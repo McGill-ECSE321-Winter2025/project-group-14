@@ -52,8 +52,9 @@ const AccountSettings = () => {
         if (window.confirm("Are you sure? This cannot be undone.")) {
             const success = await UserManagementAPI.deleteUser(user.userId);
             if (success) {
-                sessionStorage.clear();
                 window.location.href = "/";
+                sessionStorage.clear();
+                
             }
         }
     };
