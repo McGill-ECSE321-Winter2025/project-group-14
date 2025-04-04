@@ -10,6 +10,8 @@ import './Account.css';
 import '../../styles/tabs.css';
 import '../../styles/card.css';
 import Box from '../../components/ui/Box';
+import MyReviews from './MyReviews';
+
 
 const Account = () => {
     const { user, isOwner } = useAuth();
@@ -63,14 +65,14 @@ const Account = () => {
 
             <div className="tabs fade-in-on-scroll">
                 <button className={`tab ${activeTab === 'settings' ? 'active' : ''}`} onClick={() => setActiveTab('settings')}>Settings</button>
-                <button className={`tab ${activeTab === 'reviews' ? 'active' : ''}`} onClick={() => setActiveTab('reviews')}>Past Reviews</button>
+                <button className={`tab ${activeTab === 'reviews' ? 'active' : ''}`} onClick={() => setActiveTab('reviews')}>My Reviews</button>
                 <button className={`tab ${activeTab === 'games' ? 'active' : ''}`} onClick={() => setActiveTab('games')}>Game History</button>
                 <button className={`tab ${activeTab === 'events' ? 'active' : ''}`} onClick={() => setActiveTab('events')}>Event History</button>
             </div>
 
             <Box className="tab-content fade-in-on-scroll">
                 {activeTab === 'settings' && <AccountSettings />}
-                {activeTab === 'reviews' && <p>Your submitted reviews will appear here.</p>}
+                {activeTab === 'reviews' && <MyReviews />}
                 {activeTab === 'games' && <GameHistory />}
                 {activeTab === 'events' && <MyEvents />}
             </Box>
