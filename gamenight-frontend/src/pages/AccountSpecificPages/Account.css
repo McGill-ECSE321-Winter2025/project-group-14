@@ -52,10 +52,10 @@
     -webkit-font-smoothing: antialiased;
 }
 
-/* ---------------------------
-   Optional Smooth Fade-In
---------------------------- */
-
+.central-image-container {
+    display: flex;
+    justify-content: center;
+}
 .central-image-container.fade-in-on-scroll {
     opacity: 0;
     transform: translateY(20px);
