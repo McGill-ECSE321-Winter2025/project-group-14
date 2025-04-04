@@ -5,12 +5,10 @@ import GameReview from '../../pages/GameDetails/GameReview';
 import Button from '../../components/ui/Button';
 import { AuthContext } from '../../AuthContext';
 
-import '../../pages/GameDetails/GameReview.css';
+import '../../styles/card-with-user.css';
 import '../../styles/layout.css';
 import '../../styles/card.css';
 import '../../styles/animation.css';
-
-
 
 const GameReviewsTab = () => {
 
@@ -20,10 +18,13 @@ const GameReviewsTab = () => {
     const { user } = useContext(AuthContext);
     const [playerId, setPlayerId] = useState();
     const [reloadReviews, setReloadReviews] = useState(true);
+    const [userObject, setUserObject] = useState();
+    const [review, setReview] = useState("");
+    const [rating, setRating] = useState(0);
 
     useEffect(() => {
-        fetch(`http://localhost:8080/players?person_id=${user.userId}`, {
-            headers: {'Content-Type': 'application/json', "User-Id": user.userId}
+        fetch(`http://localhost:8080/users/${user.userId}/player-id`, {
+            headers: { 'Content-Type': 'application/json', "User-Id": user.userId }
         })
             .then((response) => response.json())
             .then((data) => setPlayerId(data))
@@ -42,10 +43,15 @@ const GameReviewsTab = () => {
         }
     }, [user, id, reloadReviews]);
 
-    const [showReviewForm, setShowReviewForm] = useState(false);
-    const [review, setReview] = useState("");
-    const [rating, setRating] = useState(0);
-
+    useEffect(() => {
+            fetch(`http://localhost:8080/users/${user.userId}`, {
+                headers: { 'Content-Type': 'application/json', "User-Id": user.userId }
+            })
+                .then((response) => response.json())
+                .then((data) => setUserObject(data))
+                .catch((error) => console.error("Error fetching reviews:", error));
+            setReloadReviews(false)
+    }, [user]);
 
     const handleReviewChange = (e) => {
         setReview(e.target.value);
@@ -73,59 +79,58 @@ const GameReviewsTab = () => {
             .catch(error => console.error('Error:', error));;
 
         console.log("Review Submitted:", { review, rating, user }, "\nReponse:", response);
-        setShowReviewForm(false);
         setReloadReviews(true)
         setRating(0)
         setReview("");
     };
 
     const handleCancelReview = () => {
-        setShowReviewForm(false);
         setRating(0)
         setReview("");
     };
 
     return (
-        <div className='container'>
-            {/* Add Review Button */}
-            {!showReviewForm && (
-                <div className="centered">
-                    <Button type="success" onClick={() => setShowReviewForm(true)}>Add a review</Button>
-                </div>
-            )}
+        <div>
+            <div className='card' style={{ "min-width": "100%" }}>
+                <div className="card-content">
+                    <form onSubmit={handleSubmitReview}>
 
-        {/* Review Form */}
-        {showReviewForm && (
-            <div className='review-form-container'>
-            <form onSubmit={handleSubmitReview} className="review-form">
-            {/* Rating Section: Star Rating */}
-            <div className="rating">
-                <label>Rating:</label>
-                <div className="stars">
-                {[1, 2, 3, 4, 5].map((starValue) => (
-                    <span
-                    key={starValue}
-                    className="star"
-                    onClick={() => handleRatingChange(starValue)} // Click handler to update rating
-                    >
-                    {rating >= starValue ? '★' : '☆'}
-                    </span>
-                ))}
-                </div>
-            </div>
+                        <div className="user-section">
+                            <div className="avatar">
+                                {userObject?.name?.charAt(0).toUpperCase()}
+                            </div>
+                            <div className="user-details">
+                                <h3 className="user-name">{userObject?.name}</h3>
+                            </div>
+                        </div>
+                        <div className="rating">
+                            <div className="stars">
+                                {[1, 2, 3, 4, 5].map((starValue) => (
 
-                        {/* Review Section */}
-                        <div className="review-comment">
-                            <label>Review</label>
+                                    <span
+                                        key={starValue}
+                                        className="star"
+                                        onClick={() => handleRatingChange(starValue)}
+                                    >
+                                        <span className={rating >= starValue ? "filled" : ""}>★</span>
+                                    </span>
+                                ))}
+                            </div>
+                        </div>
+                        <div className="shaded-section">
                             <textarea
                                 value={review}
                                 onChange={handleReviewChange}
                                 placeholder="Write your review here..."
                                 rows="5"
                                 required
+                                className='textarea'
+                                onInput={(e) => {
+                                    e.target.style.height = "auto"; // Reset height
+                                    e.target.style.height = `${e.target.scrollHeight}px`; // Adjust to content
+                                }}
                             />
                         </div>
-
                         {/* Submit and Cancel Buttons */}
                         <div className="review-buttons">
                             <Button type="success">Submit review</Button>
@@ -133,17 +138,19 @@ const GameReviewsTab = () => {
                         </div>
                     </form>
                 </div>
-            )}
+            </div >
 
-            {reviews.map((review, index) => (
-                <GameReview
-                    key={index}
-                    author={review.author}
-                    rating={review.rating}
-                    comment={review.comment}
-                    datePosted={review.datePosted || "1970-01-01 00:00:00"} // Pass the date here
-                />
-            ))}
+            {
+                reviews.map((review, index) => (
+                    <GameReview
+                        key={index}
+                        author={review.author}
+                        rating={review.rating}
+                        comment={review.comment}
+                        datePosted={review.datePosted || "1970-01-01 00:00:00"} // Pass the date here
+                    />
+                ))
+            }
         </div>
     )
 }

@@ -1,28 +1,19 @@
 import React from 'react';
 
-// Component-specific styles
-import './GameReview.css';
-
-// Shared styles used in the component
+import '../../styles/card-with-user.css';
 import '../../styles/card.css';
 import '../../styles/layout.css';
 import '../../styles/animation.css';
-
+import '../../styles/rating.css';
 
 const GameReview = ({ author, rating, comment, datePosted }) => {
 
   const formattedDate = new Date(datePosted).toLocaleDateString();
 
-  // Generate stars ratings
-  const renderStars = (rating) => {
-    const filledStars = '★'.repeat(Math.round(rating));
-    const emptyStars = '☆'.repeat(5 - Math.round(rating));
-    return filledStars + emptyStars;
-  };
 
   return (
 
-    <div className="request-card">
+    <div className="card" style={{ "min-width": "100%" }}>
       <div className="card-content">
         <div className="user-section">
           <div className="avatar">
@@ -31,15 +22,16 @@ const GameReview = ({ author, rating, comment, datePosted }) => {
           <div className="user-details">
             <h3 className="user-name">{author}</h3>
           </div>
-          <div className="rating">
+          <div className="stars">
             <span>
-              {renderStars(rating)}
+            {Array.from({ length: 5 }, (_, i) => (
+                <span key={i} className={i < Math.round(rating) ? "filled" : ""}>★</span>
+            ))}
             </span>
           </div>
-
         </div>
 
-        <div className="game-section">
+        <div className="shaded-section">
           <div className="info-row">
             <span className="info-label">Date posted:</span>
             <span className="info-value"> {formattedDate}</span>

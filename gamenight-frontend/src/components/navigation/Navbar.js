@@ -4,7 +4,7 @@ import { AuthContext } from "../../AuthContext";
 import "./Navbar.css";
 
 function Navbar() {
-    const { user, logout } = useContext(AuthContext);
+    const { user, logout, isOwner } = useContext(AuthContext);
     const navigate = useNavigate();
 
     const handleLogout = () => {
@@ -19,7 +19,7 @@ function Navbar() {
                 {user && <Link to="/games">Games</Link>}
                 {user && <Link to="/events">Events</Link>}
                 {user && <Link to="/about">About</Link>}
-                {user && <Link to="/received-requests">Borrowing Requests</Link>}
+                {user && isOwner && <Link to="/received-requests">Borrowing Requests</Link>}
             </div>
 
             <div className="nav-center">
@@ -31,12 +31,12 @@ function Navbar() {
             </div>
 
             <div className="nav-right">
-                {user && <Link to="/my-games">My Games</Link>}
+                {user && isOwner && <Link to="/my-games">My Games</Link>}
                 {user && <Link to="/my-events">My Events</Link>}
                 {user && <Link to="/account">My Account</Link>}
 
                 {user ? (
-                    <button onClick={handleLogout}>Logout</button>
+                    <Link onClick={handleLogout}>Logout</Link>
                 ) : (
                     <>
                         <Link to="/login">Log In</Link>

@@ -50,8 +50,8 @@ public class UserManagementIntegrationTest {
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     private int testUserId;
+    private int testGameOwnerId;
     private int testPlayerId;
-    private String testUserName;
     private static final String ORIGINAL_EMAIL = "updateuser@gmail.com";
     private static final String ORIGINAL_PASSWORD = "oldpassword";
     private static final String NEW_EMAIL = "newemail@gmail.com";
@@ -68,7 +68,6 @@ public class UserManagementIntegrationTest {
         Person user = new Person(ORIGINAL_EMAIL, ORIGINAL_PASSWORD, "Test User");
         personRepository.save(user);
         testUserId = user.getId();
-        testUserName = user.getName();
 
         Optional<Person> savedUser = personRepository.findById(testUserId);
         assertTrue(savedUser.isPresent(), "User should be saved in the repository.");
@@ -76,6 +75,7 @@ public class UserManagementIntegrationTest {
         GameOwner gameOwner = new GameOwner(user);
         gameOwner.setActive(true);
         gameOwnerRepo.save(gameOwner);
+        testGameOwnerId = gameOwner.getId();
 
         Player player = playerRepo.save(new Player(user));
         testPlayerId = player.getId();
@@ -541,12 +541,12 @@ public class UserManagementIntegrationTest {
         headers.set("User-Id", String.valueOf(testUserId));
         HttpEntity<?> requestEntity = new HttpEntity<>(headers);
 
-        ResponseEntity<String> response = restTemplate.exchange(
-                createURLWithPort("/game-owners?person_id=" + testUserId),
+        ResponseEntity<Integer> response = restTemplate.exchange(
+                createURLWithPort("/users/" + testUserId + "/owner-id"),
                 HttpMethod.GET,
                 requestEntity,
-                String.class);
+                Integer.class);
 
-        assertEquals(testUserName, response.getBody());
+        assertEquals(testGameOwnerId, response.getBody());
     }
 }

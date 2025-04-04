@@ -13,6 +13,7 @@
     transition: transform 0.3s ease, box-shadow 0.3s ease;
     overflow: hidden;
     position: relative;
+    align-items: center;
 }
 
 .game-card:hover {
@@ -40,38 +41,11 @@
     transform: scale(1.05);
 }
 
-/* 🟡 Rating Badge - Bigger now */
-.game-card-rating {
-    position: absolute;
-    top: 16px;
-    right: 16px;
-    background: #222;
-    color: #fff;
-    font-size: 1.1rem;
-    /* ⬅️ bigger text */
-    font-weight: bold;
-    padding: 8px 14px;
-    /* ⬅️ bigger pill */
-    border-radius: 16px;
-    opacity: 0.95;
-}
-
 .game-card-content h3 {
     font-size: 22px;
     font-weight: 600;
     margin: 0;
     color: #333;
-}
-
-/* ⭐ Star Rating */
-.game-card-stars {
-    font-size: 35px;
-    letter-spacing: 2px;
-    color: #ccc;
-}
-
-.game-card-stars .filled {
-    color: gold;
 }
 
 /* 🕶️ Smooth Fade-In Animation */
@@ -193,4 +167,17 @@
 
 .game-copy-card .MuiIconButton-root:hover {
     color: #000;
+}
+
+
+.review-comment-edit {
+    width: 100%;
+    resize: none;
+    padding: 10px;
+    margin: 10px 0; 
+    box-sizing: border-box;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-family: inherit;
 }
