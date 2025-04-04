@@ -6,6 +6,10 @@ import '../../styles/layout.css';
 import '../../styles/card.css';
 import '../../styles/animation.css';
 import { Modal, Backdrop, Fade, Box } from '@mui/material';
+import EditIcon from "@mui/icons-material/Edit";
+import DeleteIcon from "@mui/icons-material/Delete";
+import IconButton from '@mui/material/IconButton';
+
 
 const MyReviews = () => {
     const { user } = useAuth();
@@ -241,28 +245,49 @@ const MyReviews = () => {
                                         </Button>
                                     </div>
                                 </>
-                            ) : (
-                                <>
-                                    <MyReviewsCard
-                                    rating={review.rating}
-                                    comment={review.comment}
-                                    datePosted={review.datePosted || "1970-01-01 00:00:00"}
-                                    gameName={gamesData[review.gameId]?.name || 'Loading game...'}
-                                    />
-                                    <div className="review-buttons">
-                                        <Button onClick={() => handleEditReview(review)}>
-                                            Edit
-                                        </Button>
-                                        <Button type="danger" onClick={() => handleDeleteClick(review.reviewId)}>
-                                            Delete
-                                        </Button>
-                                    </div>
-                                </>
-                            )}
-                        </div>
-                    </div>
-                ))
-            )}
+                                    ) : (
+                                        <>
+                                            <MyReviewsCard
+                                                rating={review.rating}
+                                                comment={review.comment}
+                                                datePosted={review.datePosted || "1970-01-01 00:00:00"}
+                                                gameName={gamesData[review.gameId]?.name || 'Loading game...'}
+                                            />
+                                            <div className="review-buttons" style={{ 
+                                                display: 'flex',
+                                                justifyContent: 'center',
+                                                gap: '1.5rem',
+                                                marginTop: '1.5rem'
+                                            }}>
+                                                <IconButton 
+                                                    aria-label="edit" 
+                                                    onClick={() => handleEditReview(review)}
+                                                    sx={{ 
+                                                        backgroundColor: '#0d90a4', 
+                                                        color: '#ffffff', 
+                                                        '&:hover': { backgroundColor: '#74e1eb' } 
+                                                    }}
+                                                >
+                                                    <EditIcon />
+                                                </IconButton>
+                                                <IconButton 
+                                                    aria-label="delete" 
+                                                    onClick={() => handleDeleteClick(review.reviewId)}
+                                                    sx={{ 
+                                                        backgroundColor: '#ff6574', 
+                                                        color: '#ffffff', 
+                                                        '&:hover': { backgroundColor: '#fcb559' } 
+                                                    }}
+                                                >
+                                                    <DeleteIcon />
+                                                </IconButton>
+                                            </div>
+                                        </>
+                                    )}
+                                </div>
+                            </div>
+                        ))
+                    )}
 
             {/* Delete Confirmation Modal */}
             <Modal
