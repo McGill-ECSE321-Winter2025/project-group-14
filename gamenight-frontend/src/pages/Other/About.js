@@ -5,7 +5,7 @@ import mathisImg from "../../assets/team/mathis.jpeg";
 import kassemImg from "../../assets/team/kassem.jpeg";
 import hamzaImg from "../../assets/team/hamza.jpeg";
 import marianneImg from "../../assets/team/marianne.jpeg";
-
+import "./About.css";
 import React from "react";
 
 function About() {
@@ -55,9 +55,9 @@ function About() {
     ];
     
     return (
-        <div className="about-container px-4 py-8 max-w-4xl mx-auto">
-            <h1 className="text-3xl font-bold text-center mb-6">About GameNight</h1>
-            <p className="text-center text-lg mb-10">
+        <div className="about-container">
+            <h1>About GameNight</h1>
+            <p className="about-description">
                 GameNight is a fun application made especially for board game enthusiasts!
                 <br /><br />
                 Select board games to borrow from a large selection, and lend your own games to other users.
@@ -65,18 +65,18 @@ function About() {
                 Look for gaming events you can join, and organize your own.
             </p>
 
-            <h2 className="text-2xl font-semibold text-center mb-6">Meet the Team</h2>
-            <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-6">
+            <h2>Meet the Team</h2>
+            <div className="team-grid">
                 {team.map((member, index) => (
-                    <div key={index} className="flex flex-col items-center text-center p-4 shadow rounded-lg bg-white">
+                    <div key={index} className="team-member">
                         <img 
                             src={member.image} 
                             alt={member.name}
-                            className="w-24 h-24 rounded-full object-cover mb-4 border-2 border-gray-200"
+                            className="team-member-image"
                         />
-                        <h3 className="text-lg font-semibold">{member.name}</h3>
-                        <p className="text-sm italic mb-2">{member.role}</p>
-                        <p className="text-sm text-gray-600">{member.description}</p>
+                        <h3>{member.name}</h3>
+                        <p className="team-member-role">{member.role}</p>
+                        <p className="team-member-description">{member.description}</p>
                     </div>
                 ))}
             </div>
