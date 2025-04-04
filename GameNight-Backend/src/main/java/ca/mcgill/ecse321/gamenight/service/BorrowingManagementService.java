@@ -97,6 +97,16 @@ public class BorrowingManagementService {
         existingRequest.setStatus(status);
         return borrowingRequestRepository.save(existingRequest);
     }
+    
+    @Transactional
+    public List<BorrowingRequest> findActiveBorrowingRequestsForBorrower(int senderId) {
+        Date currentDate = new Date(System.currentTimeMillis());
+        return borrowingRequestRepository.findActiveBorrowingRequestsForBorrower(
+            senderId, 
+            BorrowingRequestStatus.Accepted, 
+            currentDate
+        );
+    }
 
     public List<BorrowingRequest> findDeliveredBorrowingRequestsForBorrower(int BorrowerId) {
         return borrowingRequestRepository.findAllRequestsByStatusAndSender(BorrowingRequestStatus.Delivered,
@@ -120,8 +130,7 @@ public class BorrowingManagementService {
 
     public List<BorrowingRequest> findLendingHistory(int ownerId) {
         return Optional.ofNullable(
-                borrowingRequestRepository.findAllRequestsByStatusAndGameOwner(BorrowingRequestStatus.Accepted,
-                        ownerId))
+                borrowingRequestRepository.findAllByGameCopy_GameOwner_Id(ownerId))
                 .orElse(Collections.emptyList());
     }
 

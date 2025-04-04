@@ -1,0 +1,73 @@
+/* =====================
+   ✅ styles/button.css
+   ===================== */
+
+.btn {
+    background-color: #333;
+    color: white;
+    font-size: 16px;
+    font-weight: bold;
+    padding: 12px 18px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn:hover {
+    background-color: #444;
+    transform: scale(1.05);
+}
+
+.btn:active {
+    background-color: #222;
+    transform: scale(0.95);
+}
+
+.btn.rounded {
+    border-radius: 50px;
+    padding: 10px 20px;
+}
+
+.btn.seamless {
+    background: transparent;
+    color: #333;
+    transition: all 0.2s ease-in-out;
+}
+
+.btn.seamless:hover {
+    background: rgba(0, 0, 0, 0.1);
+}
+
+.btn.success {
+    background-color: #0D90A4;
+}
+
+.btn.success:hover {
+    background-color: #74E1EB;
+}
+
+.btn.danger {
+    background-color: #FF6574;
+}
+
+.call-to-action .btn {
+    background: #FF6574;
+    color: #fff;
+    border-radius: 50px;
+    padding: 15px 30px;
+    box-shadow: 0 4px 10px rgba(204, 0, 0, 0.2);
+    transition: all 0.3s;
+}
+
+.call-to-action .btn:hover {
+    background: #FCB559;
+    transform: scale(1.03);
+}
+
+.btn::before {
+    display: none !important;
+  }

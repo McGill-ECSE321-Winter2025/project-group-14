@@ -1,42 +1,80 @@
-import React, { createContext, useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { createContext, useState, useEffect, useContext } from "react";
 import { UserManagementAPI } from "./UserManagementAPI";
 
 export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
-    const navigate = useNavigate(); // Add navigation
+    const [loading, setLoading] = useState(true);
+    const [isOwner, setIsOwner] = useState(false);
 
-    // Load user from sessionStorage when the app starts
     useEffect(() => {
-        const storedUser = sessionStorage.getItem("user");
-        if (storedUser) {
-            setUser(JSON.parse(storedUser));
-        }
-    }, []);
+        const fetchData = async () => {
+            const storedUser = sessionStorage.getItem("user");
+            if (storedUser) {
+                const parsedUser = JSON.parse(storedUser);
+                setUser(parsedUser);
 
-    // Function to log in
+                try {
+                    const active = await UserManagementAPI.isActiveOwner(parsedUser.userId);
+                    setIsOwner(active);
+                } catch (err) {
+                    console.warn("Could not determine if user is owner.", err);
+                    setIsOwner(false);
+                }
+            }
+            setLoading(false);
+        };
+
+        fetchData();
+    }, []);
+    const refreshIsOwner = async () => {
+        if (!user) return;
+        try {
+            const result = await UserManagementAPI.isActiveOwner(user.userId);
+            setIsOwner(result);
+        } catch (e) {
+            console.error("Error refreshing owner status:", e);
+            setIsOwner(false);
+        }
+    };
+
+
     const login = async (email, password) => {
         const userData = await UserManagementAPI.loginUser(email, password);
         if (userData) {
             sessionStorage.setItem("user", JSON.stringify(userData));
             setUser(userData);
-            navigate("/my-games"); // Redirect to My Games
+
+            try {
+                const active = await UserManagementAPI.isActiveOwner(userData.userId);
+                setIsOwner(active);
+            } catch (err) {
+                console.warn("Could not determine if user is owner after login.", err);
+                setIsOwner(false);
+            }
         }
         return userData;
     };
 
-    // Function to log out
     const logout = () => {
         sessionStorage.removeItem("user");
         setUser(null);
-        navigate("/"); // Redirect to Home after logout
+        setIsOwner(false);
     };
 
     return (
-        <AuthContext.Provider value={{ user, login, logout }}>
+        <AuthContext.Provider value={{ user, setUser, loading, login, logout, isOwner, refreshIsOwner }}>
+
             {children}
         </AuthContext.Provider>
     );
 };
+
+export function useAuth() {
+    const context = useContext(AuthContext);
+    if (context === undefined) {
+        throw new Error("useAuth must be used within an AuthProvider");
+    }
+    return context;
+}

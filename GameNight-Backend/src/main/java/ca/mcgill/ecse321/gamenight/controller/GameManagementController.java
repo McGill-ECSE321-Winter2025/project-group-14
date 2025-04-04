@@ -1,19 +1,18 @@
 package ca.mcgill.ecse321.gamenight.controller;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import ca.mcgill.ecse321.gamenight.dto.GameCopyRequestDto;
 import ca.mcgill.ecse321.gamenight.dto.GameCopyResponseDto;
@@ -23,6 +22,7 @@ import ca.mcgill.ecse321.gamenight.middleware.RequireUser;
 import ca.mcgill.ecse321.gamenight.model.Game;
 import ca.mcgill.ecse321.gamenight.model.GameCopy;
 import ca.mcgill.ecse321.gamenight.service.GameManagementService;
+import ca.mcgill.ecse321.gamenight.service.GameReviewService;
 
 /**
  * REST controller for managing games and game copies
@@ -36,18 +36,24 @@ public class GameManagementController {
     @Autowired
     GameManagementService gameManagementService;
 
+    @Autowired
+    GameReviewService reviewService;
+
     /**
      * Create a new game
      * 
      * @param game The game to create
      * @return The created game
      */
-    @PostMapping("/games")
+    @PostMapping(value = "/games", consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
     @ResponseStatus(HttpStatus.CREATED)
     @RequireUser
-    public GameResponseDto createGame(@RequestBody GameRequestDto game) {
-        Game g = gameManagementService.createGame(game.getName(), game.getDescription());
-        return new GameResponseDto(g);
+    public GameResponseDto createGame(
+            @RequestPart GameRequestDto game,
+            @RequestPart(required = false) MultipartFile imageFile) throws IOException {
+
+        Game g = gameManagementService.createGame(game.getName(), game.getDescription(), imageFile);
+        return new GameResponseDto(g, 0.0);
     }
 
     /**
@@ -60,7 +66,16 @@ public class GameManagementController {
     @RequireUser
     public GameResponseDto findGameById(@PathVariable int id) {
         Game g = gameManagementService.findGameById(id);
-        return new GameResponseDto(g);
+        Double rating = reviewService.getAverageRatingForGame(g) / 5;
+        return new GameResponseDto(g, rating);
+    }
+
+    @GetMapping("/games/{id}/image")
+    public ResponseEntity<Resource> getGameImage(@PathVariable int id) throws IOException {
+        Resource image = gameManagementService.getGameImage(id);
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.IMAGE_JPEG_VALUE)
+                .body(image);
     }
 
     /**
@@ -70,11 +85,16 @@ public class GameManagementController {
      * @param game The updated game information
      * @return The updated game
      */
-    @PutMapping("/games/{id}")
+    @PutMapping(value = "/games/{id}", consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
     @RequireUser
-    public GameResponseDto updateGame(@PathVariable int id, @RequestBody GameRequestDto game) {
-        Game g = gameManagementService.updateGame(id, game.getName(), game.getDescription());
-        return new GameResponseDto(g);
+    public GameResponseDto updateGame(
+            @PathVariable int id,
+            @RequestPart GameRequestDto game,
+            @RequestPart(required = false) MultipartFile imageFile) throws IOException {
+
+        Game g = gameManagementService.updateGame(id, game.getName(), game.getDescription(), imageFile);
+        Double rating = reviewService.getAverageRatingForGame(g);
+        return new GameResponseDto(g, rating);
     }
 
     /**
@@ -83,14 +103,47 @@ public class GameManagementController {
      * @return All games in the system
      */
     @GetMapping("/games")
-    @RequireUser
     public ArrayList<GameResponseDto> findAllGames() {
         ArrayList<GameResponseDto> games = new ArrayList<GameResponseDto>();
         Iterator<Game> iterator = gameManagementService.findAllGames().iterator();
         while (iterator.hasNext()) {
-            games.add(new GameResponseDto(iterator.next()));
+            Game game = iterator.next();
+            Double rating = reviewService.getAverageRatingForGame(game) / 5;
+            games.add(new GameResponseDto(game, rating));
         }
         return games;
+    }
+
+    /**
+     * Return 10 random games (can repeat if there are less than 10)
+     * 
+     * Publicly accessible for the homepage
+     */
+    @GetMapping("/public-random-games")
+    public ArrayList<GameResponseDto> getPublicRandomGames() {
+        ArrayList<Game> allGames = new ArrayList<>();
+        Iterator<Game> iterator = gameManagementService.findAllGames().iterator();
+        while (iterator.hasNext()) {
+            allGames.add(iterator.next());
+        }
+
+        ArrayList<GameResponseDto> result = new ArrayList<>();
+
+        if (allGames.isEmpty()) {
+            return result;
+        }
+
+        while (result.size() < 10) {
+            java.util.Collections.shuffle(allGames);
+            for (Game g : allGames) {
+                Double rating = reviewService.getAverageRatingForGame(g);
+                result.add(new GameResponseDto(g, rating));
+                if (result.size() == 10)
+                    break;
+            }
+        }
+
+        return result;
     }
 
     /**
@@ -103,8 +156,9 @@ public class GameManagementController {
     @ResponseStatus(HttpStatus.CREATED)
     @RequireUser
     public GameCopyResponseDto createGameCopy(@RequestBody GameCopyRequestDto gameCopy) {
+        int ownerId = gameManagementService.getGameOwnerIdByPersonId(gameCopy.getOwnerId());
         GameCopy g = gameManagementService.createGameCopy(gameCopy.getDescription(), gameCopy.getGameId(),
-                gameCopy.getOwnerId());
+                ownerId);
         return new GameCopyResponseDto(g);
     }
 
@@ -143,7 +197,8 @@ public class GameManagementController {
      */
     @GetMapping("/game-copies")
     @RequireUser
-    public ArrayList<GameCopyResponseDto> findGameCopyByOwner(@RequestParam(name = "owner_id") int ownerId) {
+    public ArrayList<GameCopyResponseDto> findGameCopyByOwner(@RequestParam(name = "owner_id") int personId) {
+        int ownerId = gameManagementService.getGameOwnerIdByPersonId(personId);
         ArrayList<GameCopyResponseDto> games = new ArrayList<>();
         Iterator<GameCopy> iterator = gameManagementService.findGameCopiesByOwner(ownerId).iterator();
         while (iterator.hasNext()) {
@@ -162,5 +217,22 @@ public class GameManagementController {
     @RequireUser
     public void deleteGameCopy(@PathVariable int id) {
         gameManagementService.deleteGameCopy(id);
+    }
+
+    /**
+     * Get all the copies of a given game
+     * 
+     * @param gameId The id of the game
+     * @return The game copies of the given game
+     */
+    @GetMapping("/game/{gameId}/game-copies")
+    @RequireUser
+    public List<GameCopyResponseDto> findGameCopiesByGame(@PathVariable int gameId) {
+        ArrayList<GameCopyResponseDto> response = new ArrayList<>();
+        List<GameCopy> gameCopies = gameManagementService.findGameCopiesByGame(gameId);
+        for (GameCopy gameCopy : gameCopies) {
+            response.add(new GameCopyResponseDto(gameCopy));
+        }
+        return response;
     }
 }

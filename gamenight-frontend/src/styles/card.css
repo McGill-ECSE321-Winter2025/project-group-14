@@ -1,0 +1,170 @@
+/* 🎮 Game Card Styles */
+.game-card {
+    width: 280px;
+    /* ⬅️ wider */
+    height: 340px;
+    /* ⬅️ shorter */
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    background: #ffffff;
+    border-radius: 15px;
+    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    overflow: hidden;
+    position: relative;
+    align-items: center;
+}
+
+.game-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0px 8px 18px rgba(0, 0, 0, 0.15);
+}
+
+/* 📷 Game Image */
+.game-card-image {
+    position: relative;
+    width: 100%;
+    height: 220px;
+    /* ⬅️ shorter */
+    overflow: hidden;
+}
+
+.game-card-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.game-card:hover .game-card-image img {
+    transform: scale(1.05);
+}
+
+.game-card-content h3 {
+    font-size: 22px;
+    font-weight: 600;
+    margin: 0;
+    color: #333;
+}
+
+/* 🕶️ Smooth Fade-In Animation */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.fade-in-card {
+    animation: fadeIn 0.3s ease-out;
+    opacity: 0;
+    animation-fill-mode: forwards;
+}
+
+.game-card-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.game-card:hover .game-card-image img {
+    transform: scale(1.05);
+}
+
+/* 🟡 Rating Badge */
+.game-card-rating {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: #222;
+    color: #fff;
+    font-size: 0.85rem;
+    font-weight: bold;
+    padding: 5px 10px;
+    border-radius: 12px;
+    opacity: 0.9;
+}
+
+/* 🏆 Game Title */
+.game-card-content {
+    padding: 10px;
+    margin-bottom: 10px;
+}
+
+.game-card-content h3 {
+    font-size: 30px;
+    font-weight: 600;
+    margin: 0;
+    color: #333;
+}
+
+/* 🕶️ Smooth Fade-In Animation */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.fade-in-card {
+    animation: fadeIn 0.3s ease-out;
+    opacity: 0;
+    animation-fill-mode: forwards;
+}
+
+
+/* GameCopyCard lookalike to GameDetailsPage cards */
+
+.game-copy-card {
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+    border-radius: 12px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 16px;
+    background: #fff;
+
+}
+
+.game-copy-card:hover {
+    transform: scale(1.03);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+}
+
+.game-copy-card .MuiCardContent-root {
+    flex-grow: 1;
+}
+
+.game-copy-card .MuiTypography-h6 {
+    font-weight: 600;
+    font-size: 1.2rem;
+}
+
+.game-copy-card .MuiTypography-body2 {
+    color: #555;
+    font-size: 0.95rem;
+}
+
+.game-copy-card .MuiBox-root {
+    display: flex;
+    justify-content: space-between;
+    padding-top: 8px;
+}
+
+.game-copy-card .MuiIconButton-root {
+    color: #555;
+}
+
+.game-copy-card .MuiIconButton-root:hover {
+    color: #000;
+}

@@ -4,10 +4,12 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Optional;
@@ -17,6 +19,8 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.core.io.Resource;
+import org.springframework.web.multipart.MultipartFile;
 
 import ca.mcgill.ecse321.gamenight.exception.MissingFieldsException;
 import ca.mcgill.ecse321.gamenight.exception.ObjectNotFoundException;
@@ -47,6 +51,9 @@ public class GameManagementServiceTest {
     @InjectMocks
     GameManagementService gameManagementService;
 
+    @Mock
+    FileStorageService fileStorageService;
+
     private GameOwner owner;
 
     @BeforeEach
@@ -57,38 +64,96 @@ public class GameManagementServiceTest {
     }
 
     @Test
-    public void testCreateValidGame() {
+    public void testCreateValidGame() throws IOException {
         String name = "Uno";
         String description = "A card game";
-        Game game = new Game(name, description);
-        when(gameRepository.save(any(Game.class))).thenReturn(game);
+        MultipartFile mockFile = mock(MultipartFile.class);
+        when(mockFile.isEmpty()).thenReturn(false);
+        when(mockFile.getOriginalFilename()).thenReturn("test.jpg");
+        when(mockFile.getSize()).thenReturn(1024L);
 
-        Game createdGame = gameManagementService.createGame(name, description);
+        Game game = new Game(name, description);
+        game.setImagePath("games/test.jpg");
+        when(gameRepository.save(any(Game.class))).thenReturn(game);
+        when(fileStorageService.store(any(), any())).thenReturn("games/test.jpg");
+
+        Game createdGame = gameManagementService.createGame(name, description, mockFile);
 
         assertNotNull(createdGame);
         assertEquals(name, createdGame.getName());
         assertEquals(description, createdGame.getDescription());
+        assertEquals("games/test.jpg", createdGame.getImagePath());
+        verify(fileStorageService, times(1)).store(any(), any());
+    }
+
+    @Test
+    public void testCreateGameWithInvalidImage() throws IOException {
+        String name = "Uno";
+        String description = "A card game";
+        MultipartFile mockFile = mock(MultipartFile.class);
+        when(mockFile.isEmpty()).thenReturn(false);
+        when(mockFile.getOriginalFilename()).thenReturn("test.exe");
+
+        when(fileStorageService.store(any(), any()))
+                .thenThrow(new IOException("Invalid file type"));
+
+        assertThrows(IOException.class, () -> {
+            gameManagementService.createGame(name, description, mockFile);
+        });
     }
 
     @Test
     public void testCannotCreateGameWithNoName() {
         MissingFieldsException e = assertThrows(MissingFieldsException.class,
-                () -> gameManagementService.createGame(null, "A  card game"));
+                () -> gameManagementService.createGame(null, "A  card game", null));
 
         assertEquals("Game must have a name", e.getMessage());
     }
 
     @Test
-    public void testUpdateExistingGame() {
+    public void testUpdateExistingGame() throws IOException {
+        Game game = new Game("Uno", "A card game");
+        game.setImagePath("games/old.jpg");
+        when(gameRepository.findById(game.getId())).thenReturn(Optional.ofNullable(game));
+
+        MultipartFile mockFile = mock(MultipartFile.class);
+        when(mockFile.isEmpty()).thenReturn(false);
+        when(fileStorageService.store(any(), any())).thenReturn("games/new.jpg");
+
+        Game savedGame = gameManagementService.updateGame(
+                game.getId(),
+                "Monopoly",
+                "A board game",
+                mockFile);
+
+        assertNotNull(savedGame);
+        assertEquals("games/new.jpg", savedGame.getImagePath());
+        verify(fileStorageService, times(1)).delete("games/old.jpg");
+        verify(fileStorageService, times(1)).store(any(), any());
+    }
+
+    @Test
+    public void testGetGameImage() throws IOException {
+        Game game = new Game("Uno", "A card game");
+        game.setImagePath("games/test.jpg");
+        when(gameRepository.findById(game.getId())).thenReturn(Optional.ofNullable(game));
+
+        Resource mockResource = mock(Resource.class);
+        when(fileStorageService.load("games/test.jpg")).thenReturn(mockResource);
+
+        Resource result = gameManagementService.getGameImage(game.getId());
+
+        assertEquals(mockResource, result);
+    }
+
+    @Test
+    public void testGetGameImageNotFound() {
         Game game = new Game("Uno", "A card game");
         when(gameRepository.findById(game.getId())).thenReturn(Optional.ofNullable(game));
 
-        Game savedGame = gameManagementService.updateGame(game.getId(), "Monopoly", "A board game");
-
-        assertNotNull(savedGame);
-        assertEquals(game.getId(), savedGame.getId());
-        assertEquals("Monopoly", savedGame.getName());
-        assertEquals("A board game", savedGame.getDescription());
+        assertThrows(ObjectNotFoundException.class, () -> {
+            gameManagementService.getGameImage(game.getId());
+        });
     }
 
     @Test
@@ -221,5 +286,36 @@ public class GameManagementServiceTest {
                 () -> gameManagementService.findGameCopiesByOwner(ownerId));
 
         assertEquals("There is no owner with ID " + ownerId, e.getMessage());
+    }
+
+    @Test
+    public void testFindGameCopiesByGameSuccess() {
+        Game game = new Game("Uno", "A card game");
+        when(gameRepository.findById(game.getId())).thenReturn(Optional.ofNullable(game));
+        Game game1 = new Game("Uno", "A card game");
+        GameCopy gameCopy1 = new GameCopy("aaa", game1, owner);
+        Game game2 = new Game("Monopoly", "A board game");
+        GameCopy gameCopy2 = new GameCopy("aaa", game2, owner);
+        ArrayList<GameCopy> expected = new ArrayList<>();
+        expected.add(gameCopy1);
+        expected.add(gameCopy2);
+        when(gameCopyRepository.findByGame(game)).thenReturn(expected);
+
+        Iterable<GameCopy> result = gameManagementService.findGameCopiesByGame(game.getId());
+
+        assertEquals(expected, result);
+    }
+
+    @Test
+    public void testFindGameCopiesByNonexistentGame() {
+
+        int gameId = 5;
+
+        when(gameRepository.findById(gameId)).thenReturn(Optional.ofNullable(null));
+
+        ObjectNotFoundException e = assertThrows(ObjectNotFoundException.class,
+                () -> gameManagementService.findGameCopiesByGame(gameId));
+
+        assertEquals("There is no game with ID " + gameId, e.getMessage());
     }
 }
