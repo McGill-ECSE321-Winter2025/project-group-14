@@ -10,6 +10,7 @@ import '../../styles/layout.css';
 import '../../styles/card.css';
 import '../../styles/animation.css';
 import './GameReviewsTab.css'
+import '../../styles/rating.css'
 
 import { usePopup } from '../../components/PopupContext';
 
@@ -114,13 +115,13 @@ const GameReviewsTab = () => {
                                 <h3 className="user-name">{userObject?.name}</h3>
                             </div>
                         </div>
-                        <div className="rating">
-                            <div className="stars">
+                        <div>
+                            <div className="rating">
                                 {[1, 2, 3, 4, 5].map((starValue) => (
 
                                     <span
                                         key={starValue}
-                                        className="star"
+                                        className="stars"
                                         onClick={() => handleRatingChange(starValue)}
                                     >
                                         <span className={rating >= starValue ? "filled" : ""}>★</span>

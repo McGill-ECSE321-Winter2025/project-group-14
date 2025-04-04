@@ -1,4 +1,8 @@
 
+.rating {
+    padding-left: 10px;
+    padding-bottom: 10px;
+}
 .stars {
     font-size: 40px;
     letter-spacing: 2px;
