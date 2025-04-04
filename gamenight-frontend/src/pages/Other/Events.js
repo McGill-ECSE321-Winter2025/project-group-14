@@ -17,6 +17,7 @@ import {
 } from "@mui/material";
 import { useAuth } from "../../AuthContext";
 import "../../styles/events.css";
+import "../../styles/button.css";
 
 function Events() {
   const { user } = useAuth();
