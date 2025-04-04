@@ -3,7 +3,7 @@ import React from "react";
 function MyEvents() {
     return (
         <div>
-            <h1 className="centered">My Events</h1>
+            <h1 className="centered">MyEvents</h1>
         </div>
     );
 }

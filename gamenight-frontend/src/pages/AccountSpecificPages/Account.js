@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import { useAuth } from '../../AuthContext';
 import { UserManagementAPI } from '../../UserManagementAPI';
 import AccountSettings from './AccountSettings';
-import MyGames from './MyGames';
-import MyEvents from './MyEvents';
+import GameHistory from './GameHistory';
+import MyEvents from './EventHistory';
 import '../../styles/layout.css';
 import './Account.css';
 import '../../styles/tabs.css';
@@ -70,7 +71,7 @@ const Account = () => {
             <Box className="tab-content fade-in-on-scroll">
                 {activeTab === 'settings' && <AccountSettings />}
                 {activeTab === 'reviews' && <p>Your submitted reviews will appear here.</p>}
-                {activeTab === 'games' && <MyGames />}
+                {activeTab === 'games' && <GameHistory />}
                 {activeTab === 'events' && <MyEvents />}
             </Box>
         </Box>
