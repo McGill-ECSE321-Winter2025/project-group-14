@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import {
@@ -15,43 +16,98 @@ import {
   MenuItem,
   Popover,
 } from "@mui/material";
+import { useAuth } from "../../AuthContext"; 
 
 function Events() {
-  const [events, setEvents] = useState([]);
+  const { user } = useAuth(); 
+
+  const [playerId, setPlayerId] = useState(null);
+  const [allEvents, setAllEvents] = useState([]);   
+  const [createdByMe, setCreatedByMe] = useState([]); 
   const [loading, setLoading] = useState(true);
 
+ 
+  const [searchTerm, setSearchTerm] = useState("");
   const [filterStart, setFilterStart] = useState("");
   const [filterEnd, setFilterEnd] = useState("");
-
   const [filterAnchorEl, setFilterAnchorEl] = useState(null);
 
-  const [sortField, setSortField] = useState("start"); 
-  const [sortOrder, setSortOrder] = useState("asc"); 
+  const [sortField, setSortField] = useState("start");
+  const [sortOrder, setSortOrder] = useState("asc");
   const [sortAnchorEl, setSortAnchorEl] = useState(null);
 
   const navigate = useNavigate();
 
-  const fetchEvents = useCallback(async () => {
+  
+  const fetchAllEvents = useCallback(async () => {
     try {
       const response = await fetch("http://localhost:8080/events");
       if (!response.ok) {
         throw new Error("Failed to fetch events");
       }
       const data = await response.json();
-      setEvents(data);
+      setAllEvents(data);
     } catch (error) {
       console.error("Error fetching events:", error);
-      setEvents([]);
-    } finally {
-      setLoading(false);
+      setAllEvents([]);
     }
   }, []);
 
-  useEffect(() => {
-    fetchEvents();
-  }, [fetchEvents]);
+  
+  const fetchPlayerIdAndCreatedEvents = useCallback(async () => {
+    if (!user?.userId) {
+      setLoading(false);
+      return;
+    }
+    try {
+      
+      const res = await fetch(`http://localhost:8080/users/${user.userId}/player-id`);
+      if (!res.ok) {
+        throw new Error("Failed to fetch player ID");
+      }
+      const pid = await res.json();
+      setPlayerId(pid);
 
+      
+      const createdRes = await fetch(`http://localhost:8080/events/bycreator/${pid}`);
+      if (createdRes.ok) {
+        const createdData = await createdRes.json();
+        setCreatedByMe(createdData);
+      }
+    } catch (err) {
+      console.error("Error fetching events created by user:", err);
+    } finally {
+      setLoading(false);
+    }
+  }, [user]);
+
+  
+  useEffect(() => {
+    setLoading(true);
+    Promise.all([fetchAllEvents(), fetchPlayerIdAndCreatedEvents()])
+      .then(() => setLoading(false))
+      .catch(() => setLoading(false));
+  }, [fetchAllEvents, fetchPlayerIdAndCreatedEvents]);
+
+  
+  const events = allEvents.filter(
+    (evt) => !createdByMe.some((myEvt) => myEvt.id === evt.id)
+  );
+
+  
   let filteredEvents = events;
+
+  
+  if (searchTerm.trim() !== "") {
+    const lowerTerm = searchTerm.toLowerCase();
+    filteredEvents = filteredEvents.filter(
+      (event) =>
+        event.name.toLowerCase().includes(lowerTerm) ||
+        event.description.toLowerCase().includes(lowerTerm)
+    );
+  }
+
+  
   if (filterStart) {
     const startFilter = new Date(filterStart);
     filteredEvents = filteredEvents.filter(
@@ -65,6 +121,7 @@ function Events() {
     );
   }
 
+  
   const sortedEvents = [...filteredEvents].sort((a, b) => {
     let result = 0;
     if (sortField === "name") {
@@ -77,6 +134,7 @@ function Events() {
     return sortOrder === "asc" ? result : -result;
   });
 
+  
   const handleFilterClick = (event) => {
     setFilterAnchorEl(event.currentTarget);
   };
@@ -114,12 +172,94 @@ function Events() {
     );
   }
 
+  
+  const EventCard = ({ event }) => {
+    const navigate = useNavigate();
+    const [games, setGames] = useState([]);
+
+    useEffect(() => {
+      async function fetchGames() {
+        try {
+          const response = await fetch(`http://localhost:8080/events/scheduledevent/${event.id}`);
+          if (!response.ok) {
+            throw new Error("Failed to fetch games for event");
+          }
+          const data = await response.json();
+          setGames(data);
+        } catch (error) {
+          console.error("Error fetching games:", error);
+        }
+      }
+      fetchGames();
+    }, [event.id]);
+
+    const formattedStart = new Date(event.startTime).toLocaleString("en-US", {
+      month: "numeric",
+      day: "numeric",
+      year: "numeric",
+      hour: "numeric",
+      minute: "numeric",
+      hour12: true,
+    });
+    const formattedEnd = new Date(event.endTime).toLocaleString("en-US", {
+      month: "numeric",
+      day: "numeric",
+      year: "numeric",
+      hour: "numeric",
+      minute: "numeric",
+      hour12: true,
+    });
+
+    return (
+      <Grid item xs={12} sm={6} md={4} key={event.id}>
+        <Card>
+          <CardContent>
+            <Typography variant="h6">{event.name}</Typography>
+            {games.length > 0 ? (
+              <Box mb={1}>
+                <Typography variant="subtitle2">Games Scheduled:</Typography>
+                <ul style={{ margin: 0, paddingLeft: "20px" }}>
+                  {games.map((g) => (
+                    <li key={g.id}>{g.name}</li>
+                  ))}
+                </ul>
+              </Box>
+            ) : (
+              <Box mb={1}>
+                <Typography variant="subtitle2">No games scheduled.</Typography>
+              </Box>
+            )}
+            <Typography variant="body2">{event.description}</Typography>
+            <Typography variant="body2">Start: {formattedStart}</Typography>
+            <Typography variant="body2">End: {formattedEnd}</Typography>
+            <Box mt={2}>
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={() => navigate(`/events/${event.id}`)}
+              >
+                View Details
+              </Button>
+            </Box>
+          </CardContent>
+        </Card>
+      </Grid>
+    );
+  };
+
   return (
     <div className="container">
-      {}
+      {/* Header */}
       <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
         <Typography variant="h4">Events</Typography>
-        <Box display="flex" gap={2}>
+        <Box display="flex" gap={2} alignItems="center">
+          <TextField
+            label="Search"
+            variant="outlined"
+            size="small"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
           <Button variant="outlined" onClick={handleFilterClick}>
             Filter
           </Button>
@@ -135,14 +275,8 @@ function Events() {
         open={filterOpen}
         anchorEl={filterAnchorEl}
         onClose={handleFilterClose}
-        anchorOrigin={{
-          vertical: "bottom",
-          horizontal: "right",
-        }}
-        transformOrigin={{
-          vertical: "top",
-          horizontal: "right",
-        }}
+        anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+        transformOrigin={{ vertical: "top", horizontal: "right" }}
       >
         <Box p={2} display="flex" flexDirection="column" gap={2} minWidth={250}>
           <Typography variant="subtitle1">Filter Events</Typography>
@@ -177,14 +311,8 @@ function Events() {
         open={sortOpen}
         anchorEl={sortAnchorEl}
         onClose={handleSortClose}
-        anchorOrigin={{
-          vertical: "bottom",
-          horizontal: "right",
-        }}
-        transformOrigin={{
-          vertical: "top",
-          horizontal: "right",
-        }}
+        anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+        transformOrigin={{ vertical: "top", horizontal: "right" }}
       >
         <Box p={2} display="flex" flexDirection="column" gap={2} minWidth={250}>
           <Typography variant="subtitle1">Sort Events</Typography>
@@ -225,29 +353,7 @@ function Events() {
       ) : (
         <Grid container spacing={3}>
           {sortedEvents.map((event) => (
-            <Grid item xs={12} sm={6} md={4} key={event.id}>
-              <Card>
-                <CardContent>
-                  <Typography variant="h6">{event.name}</Typography>
-                  <Typography variant="body2">{event.description}</Typography>
-                  <Typography variant="body2">
-                    Start: {new Date(event.startTime).toLocaleString()}
-                  </Typography>
-                  <Typography variant="body2">
-                    End: {new Date(event.endTime).toLocaleString()}
-                  </Typography>
-                  <Box mt={2}>
-                    <Button
-                      variant="contained"
-                      color="primary"
-                      onClick={() => navigate(`/events/${event.id}`)}
-                    >
-                      View Details
-                    </Button>
-                  </Box>
-                </CardContent>
-              </Card>
-            </Grid>
+            <EventCard key={event.id} event={event} />
           ))}
         </Grid>
       )}
