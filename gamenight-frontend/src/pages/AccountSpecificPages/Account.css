@@ -66,3 +66,44 @@
     opacity: 1;
     transform: translateY(0);
 }
+
+.username-input {
+    width: 100%;
+    padding: 12px 16px;
+    font-size: 1rem;
+    border: 1px solid #d1d5db;
+    border-radius: 12px;
+    margin-bottom: 16px;
+    color: #374151;
+    background-color: #fff;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.username-input:focus {
+    outline: none;
+    border-color: #34d399;
+    box-shadow: 0 0 0 3px rgba(52, 211, 153, 0.25);
+}
+
+.update-username-button {
+    background-color: #34d399;
+    color: white;
+    font-weight: 600;
+    font-size: 1rem;
+    padding: 10px 5%;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+
+    /* position control */
+    display: block;
+    width: 50%;     
+    margin-left: 2%;
+    margin-top: 5%;
+}
+
+
+.update-username-button:hover {
+    background-color: #10b981;
+}

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import '../../styles/card.css';
+import '../../styles/rating.css'
 import {
     Box,
     CardMedia,
@@ -82,7 +83,7 @@ function GameCard({ gameId, title, rating }) {
             <div className="game-card-content">
                 <h3>{title}</h3>
                 {(starCount >= 0) ? (
-                    <div className="game-card-stars">
+                    <div className="stars">
                         {Array.from({ length: maxStars }, (_, i) => (
                             <span key={i} className={i < starCount ? "filled" : ""}>★</span>
                         ))}

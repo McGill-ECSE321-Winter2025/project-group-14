@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import './BorrowingRequestItem.css';
+import '../../styles/card-with-user.css'
 
 const BorrowingRequestItem = ({ 
   request, 
@@ -13,7 +14,7 @@ const BorrowingRequestItem = ({
   const displayInitial = displayName?.charAt(0).toUpperCase() || '?';
   
   return (
-    <div className="request-card">
+    <div className="card" style={{ "max-width": "420px" }}>
       <div className="card-content">
         {/* Borrower Info Section (Kept) */}
         <div className="user-section">
@@ -27,7 +28,7 @@ const BorrowingRequestItem = ({
         </div>
 
         {/* Game Info Section */}
-        <div className="game-section">
+        <div className="shaded-section">
           <div className="info-row">
             <span className="info-label">Game:</span>
             <span className="info-value">{request.gameName}</span>

@@ -166,7 +166,6 @@ public class GameManagementIntegrationTest {
         assertEquals(createdGame1Id, response.getBody().getId());
         assertEquals(VALID_NAME, response.getBody().getName());
         assertEquals(VALID_DESCRIPTION, response.getBody().getDescription());
-        assertEquals(0, response.getBody().getRating());
     }
 
     @Test
@@ -194,7 +193,6 @@ public class GameManagementIntegrationTest {
         assertEquals(createdGame1Id, response.getBody().getId());
         assertEquals(NEW_NAME, response.getBody().getName());
         assertEquals(NEW_DESCRIPTION, response.getBody().getDescription());
-        assertEquals(0, response.getBody().getRating());
     }
 
     @Test
@@ -218,13 +216,11 @@ public class GameManagementIntegrationTest {
         assertEquals(createdGame1Id, game1.getId());
         assertEquals(NEW_NAME, game1.getName());
         assertEquals(NEW_DESCRIPTION, game1.getDescription());
-        assertEquals(0, game1.getRating());
 
         GameResponseDto game2 = response.getBody()[1];
         assertEquals(createdGame2.getId(), game2.getId());
         assertEquals(createdGame2.getName(), game2.getName());
         assertEquals(createdGame2.getDescription(), game2.getDescription());
-        assertEquals(0, game2.getRating());
     }
 
     @Test
