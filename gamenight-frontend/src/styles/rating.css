@@ -1,0 +1,11 @@
+
+.stars {
+    font-size: 40px;
+    letter-spacing: 2px;
+    color: #ccc;
+    margin: 0;
+}
+
+.stars .filled {
+    color: gold;
+}

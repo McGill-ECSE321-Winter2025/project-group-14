@@ -12,6 +12,7 @@ import {
   DialogContent,
   DialogTitle
 } from "@mui/material";
+import '../../styles/card-with-user.css'
 
 
 const GameCopyCard = ({ gameCopyId, owner, description }) => {
@@ -63,7 +64,7 @@ const GameCopyCard = ({ gameCopyId, owner, description }) => {
   }
 
   return (
-    <div className="game-copy-card">
+    <div className="card">
       <div className="card-content">
         <div className="user-section">
           <div className="avatar">
@@ -74,7 +75,7 @@ const GameCopyCard = ({ gameCopyId, owner, description }) => {
           </div>
         </div>
 
-        <div className="game-section">
+        <div className="shaded-section">
           <div className="info-row">
             <span className="info-label">Details:</span>
             <span className="comment-value">{description}</span>

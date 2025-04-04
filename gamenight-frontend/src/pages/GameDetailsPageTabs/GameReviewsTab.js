@@ -5,12 +5,10 @@ import GameReview from '../../pages/GameDetails/GameReview';
 import Button from '../../components/ui/Button';
 import { AuthContext } from '../../AuthContext';
 
-import '../../pages/GameDetails/GameReview.css';
+import '../../styles/card-with-user.css';
 import '../../styles/layout.css';
 import '../../styles/card.css';
 import '../../styles/animation.css';
-
-
 
 const GameReviewsTab = () => {
 
@@ -93,7 +91,7 @@ const GameReviewsTab = () => {
 
     return (
         <div>
-            <div className='request-card'>
+            <div className='card' style={{ "min-width": "100%" }}>
                 <div className="card-content">
                     <form onSubmit={handleSubmitReview}>
 
@@ -119,14 +117,14 @@ const GameReviewsTab = () => {
                                 ))}
                             </div>
                         </div>
-                        <div className="game-section">
+                        <div className="shaded-section">
                             <textarea
                                 value={review}
                                 onChange={handleReviewChange}
                                 placeholder="Write your review here..."
                                 rows="5"
                                 required
-                                className='game-section-textarea'
+                                className='textarea'
                                 onInput={(e) => {
                                     e.target.style.height = "auto"; // Reset height
                                     e.target.style.height = `${e.target.scrollHeight}px`; // Adjust to content
