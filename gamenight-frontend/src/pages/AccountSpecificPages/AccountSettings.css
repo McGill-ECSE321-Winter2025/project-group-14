@@ -210,11 +210,6 @@
     text-align: center;
   }
   
-  .success {
-    background: #ecfdf5;
-    color: #059669;
-    border-left: 3px solid #059669;
-  }
   
   .error {
     background: #fee2e2;
