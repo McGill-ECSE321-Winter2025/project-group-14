@@ -434,41 +434,50 @@ public class BorrowingManagementServiceTest {
     }
 
     @Test
-    void testFindLendingHistoryValid() {
+    public void testFindLendingHistoryValid() {
         int ownerId = 10;
 
+        // Mock GameOwner setup
         Person ownerPerson = new Person();
         ownerPerson.setEmailAddress("owner@example.com");
         GameOwner gameOwner = new GameOwner();
         gameOwner.setPerson(ownerPerson);
 
+        // Mock Game setup
         Game game = new Game();
         game.setName("Uno");
 
+        // Mock GameCopy setup
         GameCopy gameCopy = new GameCopy();
         gameCopy.setGame(game);
         gameCopy.setGameOwner(gameOwner);
 
+        // Mock Player setup
         Person senderPerson = new Person();
         senderPerson.setEmailAddress("sender@example.com");
         Player sender = new Player();
         sender.setPerson(senderPerson);
 
+        // Mock BorrowingRequest setup
         BorrowingRequest request = new BorrowingRequest();
-        request.setStatus(BorrowingRequestStatus.Accepted);
+        request.setStatus(BorrowingRequestStatus.Accepted); // Ensure status is Accepted
         request.setGameCopy(gameCopy);
         request.setSender(sender);
 
-        List<BorrowingRequest> history = Collections.singletonList(request);
+        List<BorrowingRequest> history = Collections.singletonList(request); // List with one accepted request
 
-        when(borrowingRequestRepository.findAllByGameCopy_GameOwner_Id(ownerId))
+        // Mock repository behavior
+        when(borrowingRequestRepository.findAllRequestsByStatusAndGameOwner(BorrowingRequestStatus.Accepted, ownerId))
                 .thenReturn(history);
 
+        // Call the service method and assert
         List<BorrowingRequest> result = borrowingManagementService.findLendingHistory(ownerId);
-        assertNotNull(result);
-        assertEquals(1, result.size());
-        assertEquals(BorrowingRequestStatus.Accepted, result.get(0).getStatus());
+        assertNotNull(result); // Ensure the result is not null
+        assertEquals(1, result.size()); // Expect 1 accepted request
+        assertEquals(BorrowingRequestStatus.Accepted, result.get(0).getStatus()); // Verify the status is accepted
     }
+
+
 
     @Test
     void testLendingHistoryInvalidOwner() {
