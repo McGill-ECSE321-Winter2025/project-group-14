@@ -12,6 +12,7 @@ import '../../styles/card.css';
 import Box from '../../components/ui/Box';
 import MyReviews from './MyReviews';
 
+
 const Account = () => {
     const { user, isOwner } = useAuth();
     const [activeTab, setActiveTab] = useState('settings');
@@ -72,7 +73,7 @@ const Account = () => {
             <Box className="tab-content fade-in-on-scroll">
                 {activeTab === 'settings' && <AccountSettings />}
                 {activeTab === 'reviews' && <MyReviews />}
-                {activeTab === 'games' && <MyGames />}
+                {activeTab === 'games' && <GameHistory />}
                 {activeTab === 'events' && <MyEvents />}
             </Box>
         </Box>
