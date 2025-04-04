@@ -1,16 +1,17 @@
-
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useAuth } from '../../AuthContext';
 import '../../styles/layout.css';
 import '../../styles/event-history.css';
+import { Box, CircularProgress } from '@mui/material';
+
 
 const EventCard = ({ event, playerId, isCreator = false }) => {
     const [scheduledGames, setScheduledGames] = useState([]);
     const [isLoadingGames, setIsLoadingGames] = useState(false);
     const [errorGames, setErrorGames] = useState(null);
 
-    
+   
     const formatDateAndTime = (dateString) => {
         const d = new Date(dateString);
         const datePart = d.toLocaleDateString();
@@ -18,21 +19,21 @@ const EventCard = ({ event, playerId, isCreator = false }) => {
         return `${datePart} ${timePart}`;
     };
 
-    
+   
     let dateLine = "";
     if (event.startTime || event.endTime) {
-        
+       
         const startStr = event.startTime ? formatDateAndTime(event.startTime) : null;
         const endStr = event.endTime ? formatDateAndTime(event.endTime) : null;
 
         if (startStr && endStr) {
-            
+           
             dateLine = `Start: ${startStr} | End: ${endStr}`;
         } else if (startStr) {
-            
+           
             dateLine = `Start: ${startStr}`;
         } else if (endStr) {
-            
+           
             dateLine = `End: ${endStr}`;
         }
     }
@@ -60,7 +61,7 @@ const EventCard = ({ event, playerId, isCreator = false }) => {
         fetchScheduledGames();
     }, [event?.id]);
 
-    
+   
     const isExpired = event.endTime && new Date(event.endTime) < new Date();
 
     // Unregister
@@ -88,32 +89,27 @@ const EventCard = ({ event, playerId, isCreator = false }) => {
     };
 
     return (
-        <div className="request-card">
+        <div className={`request-card event-card ${isExpired ? 'expired-event' : ''}`}>
+            {isExpired && <span className="expired-badge">Expired</span>}
+           
             <div className="request-header">
-                <h3>{event.name || 'Unnamed Event'}</h3>
+                <h3 className="event-title">{event.name || 'Unnamed Event'}</h3>
             </div>
-            <div className="request-info">
-                {}
-                {dateLine && <p><strong>Date: </strong>{dateLine}</p>}
-                {event.description && <p>{event.description}</p>}
+           
+            <div className="request-info event-info">
+                {dateLine && <p className="event-date"><strong>📅</strong> {dateLine}</p>}
+                {event.description && <p className="event-description">{event.description}</p>}
             </div>
 
-            <div
-                className="scheduled-games-section"
-                style={{
-                    marginTop: '1rem',
-                    paddingTop: '0.5rem',
-                    borderTop: '1px solid #eee',
-                }}
-            >
-                <strong>Scheduled Games:</strong>
+            <div className="games-section">
+                <div className="games-section-title">📋 Scheduled Games:</div>
                 {isLoadingGames && <p>Loading games...</p>}
                 {errorGames && <p className="error-message">{errorGames}</p>}
                 {!isLoadingGames && !errorGames && (
                     scheduledGames.length > 0 ? (
                         <ul style={{ listStyle: 'none', paddingLeft: 0 }}>
                             {scheduledGames.map((game) => (
-                                <li key={game.id}>{game.name || 'Unnamed Game'}</li>
+                                <li key={game.id} className="games-list-item">🎮 {game.name || 'Unnamed Game'}</li>
                             ))}
                         </ul>
                     ) : (
@@ -122,15 +118,14 @@ const EventCard = ({ event, playerId, isCreator = false }) => {
                 )}
             </div>
 
-            {}
             {!isExpired && (
                 <div className="event-action-buttons" style={{ marginTop: '1rem' }}>
                     {isCreator ? (
-                        <button className="unregister-btn" onClick={handleCancelEvent}>
+                        <button className="action-button cancel-button" onClick={handleCancelEvent}>
                             Cancel My Event
                         </button>
                     ) : (
-                        <button className="unregister-btn" onClick={handleUnregister}>
+                        <button className="action-button" onClick={handleUnregister}>
                             Unregister from Event
                         </button>
                     )}
@@ -213,8 +208,19 @@ function MyEvents() {
         fetchEvents();
     }, [user?.userId]);
 
-    
+   
     const sortedEvents = [...events].sort((a, b) => {
+        const now = new Date();
+        const aExpired = a.endTime && new Date(a.endTime) < now;
+        const bExpired = b.endTime && new Date(b.endTime) < now;
+
+        if (aExpired && !bExpired) return 1;
+        if (!aExpired && bExpired) return -1;
+        return 0;
+    });
+
+   
+    const sortedCreatedEvents = [...createdEvents].sort((a, b) => {
         const now = new Date();
         const aExpired = a.endTime && new Date(a.endTime) < now;
         const bExpired = b.endTime && new Date(b.endTime) < now;
@@ -272,104 +278,78 @@ function MyEvents() {
     };
 
     return (
-        <div className="my-events-container" style={{ padding: '20px', position: 'relative' }}>
-            {isLoading && <p className="centered">Loading your events...</p>}
+        <div className="my-events-container" style={{ padding: '30px', position: 'relative', backgroundColor: '#F4F4F4' }}>
+            {isLoading && <p className="centered loading-message">Loading your events...</p>}
             {error && <p className="centered error-message">{error}</p>}
 
             {!isLoading && !error && (
                 <button
-                    style={{ position: 'absolute', top: 20, right: 20 }}
-                    className="unregister-btn"
+                    className="create-event-btn"
+                    style={{ position: 'absolute', top: 30, right: 30 }}
                     onClick={() => setShowCreateEvent(true)}
                 >
-                    Create Event
+                    ➕ Create Event
                 </button>
             )}
 
             {showCreateEvent && (
-                <div
-                    style={{
-                        position: 'fixed',
-                        top: 0,
-                        left: 0,
-                        width: '100%',
-                        height: '100%',
-                        backgroundColor: 'rgba(0,0,0,0.5)',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        zIndex: 9999,
-                        overflow: 'auto'
-                    }}
-                >
-                    <div
-                        style={{
-                            backgroundColor: '#fff',
-                            padding: '20px',
-                            borderRadius: '8px',
-                            width: '500px',
-                            maxWidth: '90%',
-                            maxHeight: '90vh',
-                            overflow: 'auto'
-                        }}
-                    >
-                        <h2 style={{ marginTop: 0 }}>Create New Event</h2>
-                        <label>
-                            Name:
+                <div className="modal-backdrop">
+                    <div className="modal-content">
+                        <h2 className="modal-title">Create New Event</h2>
+                       
+                        <div className="form-group">
+                            <label className="form-label">Event Name:</label>
                             <input
                                 type="text"
+                                className="form-input"
                                 value={newEventName}
                                 onChange={(e) => setNewEventName(e.target.value)}
-                                style={{ width: '100%', marginBottom: '1rem' }}
+                                placeholder="Enter event name..."
                             />
-                        </label>
-                        <label>
-                            Description:
+                        </div>
+                       
+                        <div className="form-group">
+                            <label className="form-label">Description:</label>
                             <textarea
+                                className="form-input form-textarea"
                                 value={newEventDesc}
                                 onChange={(e) => setNewEventDesc(e.target.value)}
-                                style={{ width: '100%', marginBottom: '1rem', minHeight: '80px' }}
+                                placeholder="Describe your event..."
                             />
-                        </label>
-                        <label>
-                            Start Time:
+                        </div>
+                       
+                        <div className="form-group">
+                            <label className="form-label">Start Time:</label>
                             <input
                                 type="datetime-local"
+                                className="form-input"
                                 value={newEventStart}
                                 onChange={(e) => setNewEventStart(e.target.value)}
-                                style={{ width: '100%', marginBottom: '1rem' }}
                             />
-                        </label>
-                        <label>
-                            End Time:
+                        </div>
+                       
+                        <div className="form-group">
+                            <label className="form-label">End Time:</label>
                             <input
                                 type="datetime-local"
+                                className="form-input"
                                 value={newEventEnd}
                                 onChange={(e) => setNewEventEnd(e.target.value)}
-                                style={{ width: '100%', marginBottom: '1rem' }}
                             />
-                        </label>
+                        </div>
 
-                        <div style={{ marginBottom: '1rem' }}>
-                            <strong>Select Games to Schedule:</strong>
-                            <div
-                                style={{
-                                    maxHeight: '200px',
-                                    overflowY: 'auto',
-                                    border: '1px solid #ccc',
-                                    marginTop: '0.5rem',
-                                    padding: '10px'
-                                }}
-                            >
+                        <div className="games-selection">
+                            <div className="games-selection-title">Select Games to Schedule:</div>
+                            <div className="games-list">
                                 {allGames.length > 0 ? (
                                     allGames.map((game) => (
-                                        <div key={game.id} style={{ padding: '5px 0' }}>
+                                        <div key={game.id} className="game-option">
                                             <label style={{ display: 'flex', alignItems: 'center' }}>
                                                 <input
                                                     type="checkbox"
+                                                    className="game-checkbox"
                                                     checked={selectedGameIds.includes(game.id)}
                                                     onChange={() => toggleSelectedGame(game.id)}
-                                                    style={{ marginRight: '8px' }}
                                                 />
                                                 {game.name}
                                             </label>
@@ -381,12 +361,12 @@ function MyEvents() {
                             </div>
                         </div>
 
-                        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '1rem', marginTop: '1rem' }}>
-                            <button className="unregister-btn" onClick={handleCancelCreate}>
+                        <div className="modal-actions">
+                            <button className="btn btn-secondary" onClick={handleCancelCreate}>
                                 Cancel
                             </button>
-                            <button className="unregister-btn" onClick={handleCreateEvent}>
-                                Create
+                            <button className="btn btn-primary" onClick={handleCreateEvent}>
+                                Create Event
                             </button>
                         </div>
                     </div>
@@ -395,12 +375,12 @@ function MyEvents() {
 
             {!isLoading && !error && (
                 <>
-                    <h2 className="centered" style={{ marginBottom: '1rem' }}>
+                    <h2 className="centered event-section-title">
                         Events You Created
                     </h2>
                     {createdEvents.length > 0 ? (
                         <div className="event-list-container">
-                            {createdEvents.map((event) => (
+                            {sortedCreatedEvents.map((event) => (
                                 <EventCard
                                     key={event.id}
                                     event={event}
@@ -410,12 +390,12 @@ function MyEvents() {
                             ))}
                         </div>
                     ) : (
-                        <p className="centered">You haven't created any events.</p>
+                        <p className="centered empty-message">You haven't created any events yet.</p>
                     )}
 
-                    <hr style={{ margin: '2rem auto', width: '60%' }} />
+                    <hr className="divider" />
 
-                    <h2 className="centered" style={{ marginBottom: '1rem' }}>
+                    <h2 className="centered event-section-title">
                         Events You Are Registered For
                     </h2>
                     {sortedEvents.length > 0 ? (
@@ -430,7 +410,7 @@ function MyEvents() {
                             ))}
                         </div>
                     ) : (
-                        <p className="centered">You are not registered for any events.</p>
+                        <p className="centered empty-message">You are not registered for any events.</p>
                     )}
                 </>
             )}

@@ -1,8 +1,8 @@
-
 import React, { useState, useEffect, useCallback, useContext } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Box, Typography, Button, CircularProgress } from "@mui/material";
-import { AuthContext } from "../../AuthContext"; 
+import { AuthContext } from "../../AuthContext";
+import '../../styles/event-details.css';
 
 function EventDetails() {
   const { eventId } = useParams();
@@ -12,8 +12,7 @@ function EventDetails() {
   const [event, setEvent] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isRegistered, setIsRegistered] = useState(false);
-
-  
+ 
   const [games, setGames] = useState([]);
 
   const fetchEvent = useCallback(async () => {
@@ -36,7 +35,6 @@ function EventDetails() {
     fetchEvent();
   }, [fetchEvent]);
 
-  
   useEffect(() => {
     async function fetchGames() {
       try {
@@ -54,12 +52,10 @@ function EventDetails() {
     fetchGames();
   }, [eventId]);
 
-  
   useEffect(() => {
     async function checkRegistration() {
       if (!user || !user.userId) return;
       try {
-        
         const playerResponse = await fetch(
           `http://localhost:8080/players?person_id=${user.userId}`
         );
@@ -70,7 +66,6 @@ function EventDetails() {
         const playerId = await playerResponse.json();
         console.log("Fetched player id:", playerId);
 
-        
         const playersResponse = await fetch(
           `http://localhost:8080/events/${eventId}/players`
         );
@@ -81,7 +76,6 @@ function EventDetails() {
         const players = await playersResponse.json();
         console.log("Fetched registered players:", players);
 
-        
         const registered = players.some(
           (p) => Number(p.playerId) === Number(playerId)
         );
@@ -99,7 +93,6 @@ function EventDetails() {
       return;
     }
     try {
-      
       const playerResponse = await fetch(
         `http://localhost:8080/players?person_id=${user.userId}`
       );
@@ -108,7 +101,6 @@ function EventDetails() {
       }
       const playerId = await playerResponse.json();
 
-      
       const registerResponse = await fetch(
         `http://localhost:8080/events/${eventId}/player/${playerId}`,
         { method: "POST" }
@@ -130,7 +122,6 @@ function EventDetails() {
       return;
     }
     try {
-      
       const playerResponse = await fetch(
         `http://localhost:8080/players?person_id=${user.userId}`
       );
@@ -139,7 +130,6 @@ function EventDetails() {
       }
       const playerId = await playerResponse.json();
 
-      
       const unregisterResponse = await fetch(
         `http://localhost:8080/events/${eventId}/player/${playerId}`,
         { method: "DELETE" }
@@ -158,21 +148,25 @@ function EventDetails() {
   if (loading) {
     return (
       <Box display="flex" justifyContent="center" alignItems="center" minHeight="50vh">
-        <CircularProgress />
+        <CircularProgress className="custom-progress" />
       </Box>
     );
   }
 
   if (!event) {
     return (
-      <Box>
-        <Typography variant="h5">Event not found</Typography>
-        <Button onClick={() => navigate("/events")}>Back to Events</Button>
+      <Box className="event-details-container not-found-container">
+        <Typography variant="h5" className="not-found-text">Event not found</Typography>
+        <Button onClick={() => navigate("/events")} className="back-button">
+          Back to Events
+        </Button>
       </Box>
     );
   }
 
-  
+  // Check if event is expired
+  const isExpired = event.endTime && new Date(event.endTime) < new Date();
+ 
   const formattedStart = new Date(event.startTime).toLocaleString("en-US", {
     month: "numeric",
     day: "numeric",
@@ -191,46 +185,74 @@ function EventDetails() {
   });
 
   return (
-    <Box className="container">
-      <Typography variant="h4">{event.name}</Typography>
-      
-      {}
-      {games && games.length > 0 ? (
-        <Box mb={2}>
-          <Typography variant="subtitle1">Games Scheduled:</Typography>
-          <ul>
-            {games.map((game) => (
-              <li key={game.id}>{game.name}</li>
-            ))}
-          </ul>
-        </Box>
-      ) : (
-        <Box mb={2}>
-          <Typography variant="subtitle1">No games scheduled.</Typography>
-        </Box>
-      )}
-      
-      <Typography variant="body1">{event.description}</Typography>
-      <Typography variant="body2">Start: {formattedStart}</Typography>
-      <Typography variant="body2">End: {formattedEnd}</Typography>
-      
-      <Box mt={2}>
-        {isRegistered ? (
-          <Button variant="contained" color="secondary" onClick={handleUnregister}>
-            Unregister for this Event
-          </Button>
-        ) : (
-          <Button variant="contained" color="primary" onClick={handleRegister}>
-            Register for this Event
-          </Button>
+    <div className="event-details-container">
+      <div className="event-details-card">
+        {isExpired && <span className="expired-badge">Expired</span>}
+       
+        <Typography variant="h4" className="event-details-title">{event.name}</Typography>
+       
+        <div className="event-details-dates">
+          <Typography variant="body2" className="event-date">
+            <span className="date-icon">📅</span> Start: {formattedStart}
+          </Typography>
+          <Typography variant="body2" className="event-date">
+            <span className="date-icon">⏱️</span> End: {formattedEnd}
+          </Typography>
+        </div>
+       
+        <Typography variant="body1" className="event-details-description">{event.description}</Typography>
+       
+        <div className="games-section">
+          <Typography variant="subtitle1" className="games-section-title">
+            <span className="games-icon">🎮</span> Games Scheduled:
+          </Typography>
+         
+          {games && games.length > 0 ? (
+            <ul className="games-list">
+              {games.map((game) => (
+                <li key={game.id} className="game-item">{game.name}</li>
+              ))}
+            </ul>
+          ) : (
+            <Typography variant="body2" className="no-games">
+              No games scheduled for this event.
+            </Typography>
+          )}
+        </div>
+       
+        {!isExpired && (
+          <Box className="registration-actions">
+            {isRegistered ? (
+              <Button
+                variant="contained"
+                className="unregister-button"
+                onClick={handleUnregister}
+              >
+                Unregister for this Event
+              </Button>
+            ) : (
+              <Button
+                variant="contained"
+                className="register-button"
+                onClick={handleRegister}
+              >
+                Register for this Event
+              </Button>
+            )}
+          </Box>
         )}
-      </Box>
-      <Box mt={2}>
-        <Button variant="outlined" onClick={() => navigate("/events")}>
-          Back to Events
-        </Button>
-      </Box>
-    </Box>
+       
+        <Box className="navigation-actions">
+          <Button
+            variant="outlined"
+            className="back-button"
+            onClick={() => navigate("/events")}
+          >
+            Back to Events
+          </Button>
+        </Box>
+      </div>
+    </div>
   );
 }
 

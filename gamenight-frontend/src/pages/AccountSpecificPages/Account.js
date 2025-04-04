@@ -4,12 +4,13 @@ import { useAuth } from '../../AuthContext';
 import { UserManagementAPI } from '../../UserManagementAPI';
 import AccountSettings from './AccountSettings';
 import MyGames from './MyGames';
-import MyEvents from './MyEvents';
+import EventHistory from './EventHistory';
 import '../../styles/layout.css';
 import './Account.css';
 import '../../styles/tabs.css';
 import '../../styles/card.css';
 import Box from '../../components/ui/Box';
+
 
 const Account = () => {
     const { user, isOwner } = useAuth();
@@ -72,7 +73,7 @@ const Account = () => {
                 {activeTab === 'settings' && <AccountSettings />}
                 {activeTab === 'reviews' && <p>Your submitted reviews will appear here.</p>}
                 {activeTab === 'games' && <MyGames />}
-                {activeTab === 'events' && <MyEvents />}
+                {activeTab === 'events' && <EventHistory />} {}
             </Box>
         </Box>
     );

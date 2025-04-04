@@ -1,0 +1,250 @@
+.events-container {
+    padding: 30px;
+    background-color: #F4F4F4;
+    min-height: 100vh;
+    font-family: 'Helvetica Neue', 'Arial', sans-serif;
+  }
+ 
+  .page-title {
+    color: #000000;
+    font-weight: 700;
+    font-size: 2rem;
+    position: relative;
+    padding-bottom: 8px;
+  }
+ 
+  .page-title::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 80px;
+    height: 3px;
+    background-color: #0D90A4;
+    border-radius: 2px;
+  }
+ 
+ 
+  .search-controls {
+    display: flex;
+    align-items: center;
+  }
+ 
+  .search-field .MuiOutlinedInput-root {
+    border-radius: 8px;
+  }
+ 
+  .search-field .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline {
+    border-color: #0D90A4;
+  }
+ 
+  .search-field .MuiInputLabel-root.Mui-focused {
+    color: #0D90A4;
+  }
+ 
+ 
+  .filter-btn, .sort-btn {
+    color: #0D90A4;
+    border-color: #0D90A4;
+    border-radius: 8px;
+    text-transform: none;
+    font-weight: 600;
+    padding: 6px 15px;
+    transition: all 0.2s;
+  }
+ 
+  .filter-btn:hover, .sort-btn:hover {
+    background-color: rgba(13, 144, 164, 0.08);
+    border-color: #0A7A8A;
+  }
+ 
+  .view-details-btn {
+    background-color: #0D90A4;
+    color: white;
+    border-radius: 6px;
+    text-transform: none;
+    font-weight: 600;
+    box-shadow: 0 2px 5px rgba(13, 144, 164, 0.2);
+    transition: all 0.2s;
+  }
+ 
+  .view-details-btn:hover {
+    background-color: #0A7A8A;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(13, 144, 164, 0.3);
+  }
+ 
+  .event-card {
+    background-color: white;
+    border-radius: 12px; /* More rounded corners */
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    margin-bottom: 10px;
+    transition: transform 0.2s, box-shadow 0.3s;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+  }
+ 
+  .event-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 20px rgba(0, 0, 0, 0.15);
+  }
+ 
+  .MuiCard-root {
+    border-radius: 12px !important;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1) !important;
+    transition: transform 0.2s, box-shadow 0.3s !important;
+  }
+ 
+  .MuiCard-root:hover {
+    transform: translateY(-5px) !important;
+    box-shadow: 0 12px 20px rgba(0, 0, 0, 0.15) !important;
+  }
+ 
+  .MuiCardContent-root {
+    padding: 20px !important;
+  }
+ 
+  .event-title {
+    color: #000000;
+    font-weight: 700;
+    margin-bottom: 12px;
+    font-size: 1.7rem;
+  }
+ 
+  .event-date-box {
+    margin: 10px 0;
+  }
+ 
+  .event-date {
+    color: #555;
+    margin: 4px 0;
+    display: flex;
+    align-items: center;
+  }
+ 
+  .date-icon {
+    margin-right: 8px;
+  }
+ 
+  .event-description {
+    color: #333;
+    margin: 12px 0;
+    line-height: 1.5;
+  }
+ 
+  .games-box {
+    margin-top: 1.2rem;
+    padding-top: 0.8rem;
+    border-top: 1px solid #eee;
+  }
+ 
+  .games-title {
+    color: #000000;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+ 
+  .games-icon {
+    margin-right: 8px;
+  }
+ 
+  .games-list {
+    list-style-type: none;
+    padding-left: 0;
+    margin-top: 8px;
+  }
+ 
+  .game-item {
+    padding: 5px 0;
+  }
+ 
+  .card-actions {
+    margin-top: auto;
+    padding-top: 15px;
+  }
+ 
+ 
+  .expired-event {
+    position: relative;
+    opacity: 0.7;
+  }
+ 
+  .expired-badge {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background-color: #FF6574;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    z-index: 1;
+  }
+ 
+ 
+  .filter-popover .MuiPaper-root,
+  .sort-popover .MuiPaper-root {
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  }
+ 
+  .popover-title {
+    color: #000000;
+    font-weight: 600;
+    margin-bottom: 12px;
+  }
+ 
+  .date-filter .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline {
+    border-color: #0D90A4;
+  }
+ 
+  .date-filter .MuiInputLabel-root.Mui-focused {
+    color: #0D90A4;
+  }
+ 
+  .sort-control .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline {
+    border-color: #0D90A4;
+  }
+ 
+  .sort-control .MuiInputLabel-root.Mui-focused {
+    color: #0D90A4;
+  }
+ 
+  .clear-btn {
+    color: #333;
+    border-color: #ddd;
+    text-transform: none;
+  }
+ 
+  .apply-btn {
+    background-color: #0D90A4;
+    color: white;
+    text-transform: none;
+  }
+ 
+  .apply-btn:hover {
+    background-color: #0A7A8A;
+  }
+ 
+ 
+  .custom-progress {
+    color: #0D90A4;
+  }
+ 
+  .no-events-message {
+    text-align: center;
+    color: #666;
+    font-style: italic;
+    margin: 2rem 0;
+  }
+ 
+ 
+  .events-grid {
+    padding-top: 10px;
+  }

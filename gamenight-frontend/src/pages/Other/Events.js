@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import {
@@ -16,17 +15,17 @@ import {
   MenuItem,
   Popover,
 } from "@mui/material";
-import { useAuth } from "../../AuthContext"; 
+import { useAuth } from "../../AuthContext";
+import "../../styles/events.css";
 
 function Events() {
-  const { user } = useAuth(); 
+  const { user } = useAuth();
 
   const [playerId, setPlayerId] = useState(null);
-  const [allEvents, setAllEvents] = useState([]);   
-  const [createdByMe, setCreatedByMe] = useState([]); 
+  const [allEvents, setAllEvents] = useState([]);
+  const [createdByMe, setCreatedByMe] = useState([]);
   const [loading, setLoading] = useState(true);
 
- 
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStart, setFilterStart] = useState("");
   const [filterEnd, setFilterEnd] = useState("");
@@ -38,7 +37,6 @@ function Events() {
 
   const navigate = useNavigate();
 
-  
   const fetchAllEvents = useCallback(async () => {
     try {
       const response = await fetch("http://localhost:8080/events");
@@ -53,14 +51,12 @@ function Events() {
     }
   }, []);
 
-  
   const fetchPlayerIdAndCreatedEvents = useCallback(async () => {
     if (!user?.userId) {
       setLoading(false);
       return;
     }
     try {
-      
       const res = await fetch(`http://localhost:8080/users/${user.userId}/player-id`);
       if (!res.ok) {
         throw new Error("Failed to fetch player ID");
@@ -68,7 +64,6 @@ function Events() {
       const pid = await res.json();
       setPlayerId(pid);
 
-      
       const createdRes = await fetch(`http://localhost:8080/events/bycreator/${pid}`);
       if (createdRes.ok) {
         const createdData = await createdRes.json();
@@ -81,7 +76,6 @@ function Events() {
     }
   }, [user]);
 
-  
   useEffect(() => {
     setLoading(true);
     Promise.all([fetchAllEvents(), fetchPlayerIdAndCreatedEvents()])
@@ -89,15 +83,13 @@ function Events() {
       .catch(() => setLoading(false));
   }, [fetchAllEvents, fetchPlayerIdAndCreatedEvents]);
 
-  
+  // Filter out events I created
   const events = allEvents.filter(
     (evt) => !createdByMe.some((myEvt) => myEvt.id === evt.id)
   );
 
-  
+  // Apply search
   let filteredEvents = events;
-
-  
   if (searchTerm.trim() !== "") {
     const lowerTerm = searchTerm.toLowerCase();
     filteredEvents = filteredEvents.filter(
@@ -107,7 +99,7 @@ function Events() {
     );
   }
 
-  
+  // Apply date filters
   if (filterStart) {
     const startFilter = new Date(filterStart);
     filteredEvents = filteredEvents.filter(
@@ -121,7 +113,7 @@ function Events() {
     );
   }
 
-  
+  // Sort by name or start date
   const sortedEvents = [...filteredEvents].sort((a, b) => {
     let result = 0;
     if (sortField === "name") {
@@ -134,7 +126,13 @@ function Events() {
     return sortOrder === "asc" ? result : -result;
   });
 
-  
+  // NEW: hide expired events entirely
+  // (If endTime is in the past, we exclude it from rendering below)
+  const visibleEvents = sortedEvents.filter((event) => {
+    return !(event.endTime && new Date(event.endTime) < new Date());
+  });
+
+  // Filter/sort popover controls
   const handleFilterClick = (event) => {
     setFilterAnchorEl(event.currentTarget);
   };
@@ -167,12 +165,12 @@ function Events() {
   if (loading) {
     return (
       <Box display="flex" justifyContent="center" alignItems="center" minHeight="50vh">
-        <CircularProgress />
+        <CircularProgress className="custom-progress" />
       </Box>
     );
   }
 
-  
+  // Card subcomponent
   const EventCard = ({ event }) => {
     const navigate = useNavigate();
     const [games, setGames] = useState([]);
@@ -180,7 +178,9 @@ function Events() {
     useEffect(() => {
       async function fetchGames() {
         try {
-          const response = await fetch(`http://localhost:8080/events/scheduledevent/${event.id}`);
+          const response = await fetch(
+            `http://localhost:8080/events/scheduledevent/${event.id}`
+          );
           if (!response.ok) {
             throw new Error("Failed to fetch games for event");
           }
@@ -212,30 +212,42 @@ function Events() {
 
     return (
       <Grid item xs={12} sm={6} md={4} key={event.id}>
-        <Card>
+        <Card className="event-card">
           <CardContent>
-            <Typography variant="h6">{event.name}</Typography>
+            <Typography variant="h6" className="event-title">{event.name}</Typography>
+            <Box className="event-date-box">
+              <Typography variant="body2" className="event-date">
+                <span className="date-icon">📅</span> Start: {formattedStart}
+              </Typography>
+              <Typography variant="body2" className="event-date">
+                <span className="date-icon">⏱️</span> End: {formattedEnd}
+              </Typography>
+            </Box>
+            <Typography variant="body2" className="event-description">
+              {event.description}
+            </Typography>
             {games.length > 0 ? (
-              <Box mb={1}>
-                <Typography variant="subtitle2">Games Scheduled:</Typography>
-                <ul style={{ margin: 0, paddingLeft: "20px" }}>
+              <Box className="games-box">
+                <Typography variant="subtitle2" className="games-title">
+                  <span className="games-icon">🎮</span> Games Scheduled:
+                </Typography>
+                <ul className="games-list">
                   {games.map((g) => (
-                    <li key={g.id}>{g.name}</li>
+                    <li key={g.id} className="game-item">{g.name}</li>
                   ))}
                 </ul>
               </Box>
             ) : (
-              <Box mb={1}>
-                <Typography variant="subtitle2">No games scheduled.</Typography>
+              <Box className="games-box">
+                <Typography variant="subtitle2" className="games-title">
+                  <span className="games-icon">🎮</span> No games scheduled.
+                </Typography>
               </Box>
             )}
-            <Typography variant="body2">{event.description}</Typography>
-            <Typography variant="body2">Start: {formattedStart}</Typography>
-            <Typography variant="body2">End: {formattedEnd}</Typography>
-            <Box mt={2}>
+            <Box mt={2} className="card-actions">
               <Button
                 variant="contained"
-                color="primary"
+                className="view-details-btn"
                 onClick={() => navigate(`/events/${event.id}`)}
               >
                 View Details
@@ -248,28 +260,29 @@ function Events() {
   };
 
   return (
-    <div className="container">
+    <div className="events-container">
       {/* Header */}
-      <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
-        <Typography variant="h4">Events</Typography>
-        <Box display="flex" gap={2} alignItems="center">
+      <Box display="flex" justifyContent="space-between" alignItems="center" mb={2} className="events-header">
+        <Typography variant="h4" className="page-title">Explore Events</Typography>
+        <Box display="flex" gap={2} alignItems="center" className="search-controls">
           <TextField
             label="Search"
             variant="outlined"
             size="small"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
+            className="search-field"
           />
-          <Button variant="outlined" onClick={handleFilterClick}>
+          <Button variant="outlined" onClick={handleFilterClick} className="filter-btn">
             Filter
           </Button>
-          <Button variant="outlined" onClick={handleSortClick}>
+          <Button variant="outlined" onClick={handleSortClick} className="sort-btn">
             Sort
           </Button>
         </Box>
       </Box>
 
-      {}
+      {/* Filter Popover */}
       <Popover
         id={filterPopoverId}
         open={filterOpen}
@@ -277,15 +290,17 @@ function Events() {
         onClose={handleFilterClose}
         anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
         transformOrigin={{ vertical: "top", horizontal: "right" }}
+        className="filter-popover"
       >
-        <Box p={2} display="flex" flexDirection="column" gap={2} minWidth={250}>
-          <Typography variant="subtitle1">Filter Events</Typography>
+        <Box p={2} display="flex" flexDirection="column" gap={2} minWidth={250} className="filter-popover-content">
+          <Typography variant="subtitle1" className="popover-title">Filter Events</Typography>
           <TextField
             label="Start Date (≥)"
             type="date"
             InputLabelProps={{ shrink: true }}
             value={filterStart}
             onChange={(e) => setFilterStart(e.target.value)}
+            className="date-filter"
           />
           <TextField
             label="End Date (≤)"
@@ -293,19 +308,20 @@ function Events() {
             InputLabelProps={{ shrink: true }}
             value={filterEnd}
             onChange={(e) => setFilterEnd(e.target.value)}
+            className="date-filter"
           />
-          <Box display="flex" justifyContent="flex-end" gap={1}>
-            <Button variant="outlined" size="small" onClick={handleClearFilters}>
+          <Box display="flex" justifyContent="flex-end" gap={1} className="filter-actions">
+            <Button variant="outlined" size="small" onClick={handleClearFilters} className="clear-btn">
               Clear
             </Button>
-            <Button variant="contained" size="small" onClick={handleApplyFilters}>
+            <Button variant="contained" size="small" onClick={handleApplyFilters} className="apply-btn">
               Apply
             </Button>
           </Box>
         </Box>
       </Popover>
 
-      {}
+      {/* Sort Popover */}
       <Popover
         id={sortPopoverId}
         open={sortOpen}
@@ -313,10 +329,11 @@ function Events() {
         onClose={handleSortClose}
         anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
         transformOrigin={{ vertical: "top", horizontal: "right" }}
+        className="sort-popover"
       >
-        <Box p={2} display="flex" flexDirection="column" gap={2} minWidth={250}>
-          <Typography variant="subtitle1">Sort Events</Typography>
-          <FormControl variant="outlined" size="small">
+        <Box p={2} display="flex" flexDirection="column" gap={2} minWidth={250} className="sort-popover-content">
+          <Typography variant="subtitle1" className="popover-title">Sort Events</Typography>
+          <FormControl variant="outlined" size="small" className="sort-control">
             <InputLabel id="sort-field-label">Field</InputLabel>
             <Select
               labelId="sort-field-label"
@@ -328,7 +345,7 @@ function Events() {
               <MenuItem value="start">Start Date</MenuItem>
             </Select>
           </FormControl>
-          <FormControl variant="outlined" size="small">
+          <FormControl variant="outlined" size="small" className="sort-control">
             <InputLabel id="sort-order-label">Order</InputLabel>
             <Select
               labelId="sort-order-label"
@@ -340,21 +357,25 @@ function Events() {
               <MenuItem value="desc">Descending</MenuItem>
             </Select>
           </FormControl>
-          <Box display="flex" justifyContent="flex-end" gap={1}>
-            <Button variant="contained" size="small" onClick={handleApplySort}>
+          <Box display="flex" justifyContent="flex-end" gap={1} className="sort-actions">
+            <Button variant="contained" size="small" onClick={handleApplySort} className="apply-btn">
               Apply
             </Button>
           </Box>
         </Box>
       </Popover>
 
-      {sortedEvents.length === 0 ? (
-        <Typography>No events available.</Typography>
+      {/* Hide expired events by filtering them out entirely */}
+      {sortedEvents.filter(evt => !(evt.endTime && new Date(evt.endTime) < new Date())).length === 0 ? (
+        <Typography className="no-events-message">No events available.</Typography>
       ) : (
-        <Grid container spacing={3}>
-          {sortedEvents.map((event) => (
-            <EventCard key={event.id} event={event} />
-          ))}
+        <Grid container spacing={3} className="events-grid">
+          {sortedEvents
+            .filter(evt => !(evt.endTime && new Date(evt.endTime) < new Date()))
+            .map((event) => (
+              <EventCard key={event.id} event={event} />
+            ))
+          }
         </Grid>
       )}
     </div>
