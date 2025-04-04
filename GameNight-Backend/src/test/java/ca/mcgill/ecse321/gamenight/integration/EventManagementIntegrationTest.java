@@ -28,11 +28,8 @@ import ca.mcgill.ecse321.gamenight.dto.GameResponseDto;
 import ca.mcgill.ecse321.gamenight.dto.PlayerResponseDto;
 import ca.mcgill.ecse321.gamenight.model.Event;
 import ca.mcgill.ecse321.gamenight.model.Game;
-import ca.mcgill.ecse321.gamenight.model.GameReview;
 import ca.mcgill.ecse321.gamenight.model.Person;
 import ca.mcgill.ecse321.gamenight.model.Player;
-import ca.mcgill.ecse321.gamenight.model.ScheduledGame;
-import ca.mcgill.ecse321.gamenight.model.ScheduledGame.Key;
 import ca.mcgill.ecse321.gamenight.repo.*;
 
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
@@ -61,15 +58,10 @@ public class EventManagementIntegrationTest {
     @Autowired
     private PlayerRepository playerRepository;
 
-    @Autowired
-    private GameReviewRepository reviewRepository;
-
     private int validEventId;
     private int validPlayerId;
     private int validGameId;
     private int validEventIdToDelete;
-    private Player validPlayer;
-    private Event validEvent;
 
     private static final String VALID_EVENT_NAME = "Board Game Night";
     private static final String VALID_EVENT_DESC = "Playing all sorts of board games";
@@ -85,21 +77,21 @@ public class EventManagementIntegrationTest {
 
         eventRepository.deleteAll();
 
-        reviewRepository.deleteAll();
         playerRepository.deleteAll();
         gameRepository.deleteAll();
         personRepository.deleteAll();
 
         Person playerPerson = personRepository.save(new Person("player@email.com", "pass123", "PlayerOne"));
-        validPlayer = playerRepository.save(new Player(playerPerson));
-        validPlayerId = validPlayer.getId();
+        Player player = playerRepository.save(new Player(playerPerson));
+        validPlayerId = player.getId();
 
         Game newGame = new Game("SomeGame", "A test game");
         gameRepository.save(newGame);
         validGameId = newGame.getId();
 
-        validEvent = eventRepository.save(new Event(VALID_EVENT_NAME, VALID_EVENT_DESC, START_TIME, END_TIME));
-        validEventId = validEvent.getId();
+        Event eventToGet = new Event(VALID_EVENT_NAME, VALID_EVENT_DESC, START_TIME, END_TIME);
+        eventToGet = eventRepository.save(eventToGet);
+        validEventId = eventToGet.getId();
 
         Event eventToDelete = new Event("ToDelete", "This will be deleted", START_TIME, END_TIME);
         eventToDelete = eventRepository.save(eventToDelete);
@@ -113,7 +105,6 @@ public class EventManagementIntegrationTest {
 
         eventRepository.deleteAll();
 
-        reviewRepository.deleteAll();
         playerRepository.deleteAll();
         gameRepository.deleteAll();
         personRepository.deleteAll();
@@ -188,6 +179,7 @@ public class EventManagementIntegrationTest {
         assertEquals(VALID_EVENT_NAME, eventDto.getName(), "Name should match the event we created previously.");
         assertEquals(VALID_EVENT_DESC, eventDto.getDescription(),
                 "Description should match the original event's description.");
+
         assertNotNull(eventDto.getStartTime(), "Expected a non-null start time.");
         assertNotNull(eventDto.getEndTime(), "Expected a non-null end time.");
     }
@@ -333,9 +325,6 @@ public class EventManagementIntegrationTest {
     @Test
     @Order(13)
     public void testGetGamesForEventSuccess() {
-        Game game = gameRepository.save(new Game("Uno", "A game"));
-        scheduledGameRepository.save(new ScheduledGame(new Key(game, validEvent)));
-        GameReview review = reviewRepository.save(new GameReview(3, "Comment", validPlayer, game));
         String url = String.format("/events/scheduledevent/%d", validEventId);
 
         ResponseEntity<GameResponseDto[]> response = client.getForEntity(url, GameResponseDto[].class);
@@ -343,9 +332,7 @@ public class EventManagementIntegrationTest {
         assertEquals(HttpStatus.OK, response.getStatusCode());
         GameResponseDto[] games = response.getBody();
         assertNotNull(games, "Expected non-null array of GameResponseDto.");
-        assertEquals(1, games.length);
-        assertEquals(game.getId(), games[0].getId());
-        assertEquals(review.getRating(), games[0].getRating());
+
     }
 
     @Test

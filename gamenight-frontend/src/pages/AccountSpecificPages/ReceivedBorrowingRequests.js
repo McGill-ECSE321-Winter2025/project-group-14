@@ -35,9 +35,9 @@ const ReceivedBorrowingRequests = () => {
             }
           }
         );
-        
         const fetchedOwnerId = ownerIdResponse.data;
         setOwnerId(fetchedOwnerId);
+        
         console.log('Fetched ownerId:', fetchedOwnerId);
 
         // Now fetch requests with the ownerId

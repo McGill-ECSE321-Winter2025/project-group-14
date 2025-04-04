@@ -17,10 +17,13 @@ public interface BorrowingRequestRepository extends CrudRepository<BorrowingRequ
 
     List<BorrowingRequest> findBySender(Player sender);
 
-    List<BorrowingRequest> findAllByGameCopy_GameOwner_Id(int ownerId);
-
     @Query("SELECT r FROM BorrowingRequest r WHERE r.status = ?1 AND r.sender.id = ?2 ORDER BY r.sendTime DESC")
     List<BorrowingRequest> findAllRequestsByStatusAndSender(BorrowingRequestStatus status, int senderId);
 
     List<BorrowingRequest> findByGameCopy(GameCopy gameCopy);
+
+    @Query("SELECT r FROM BorrowingRequest r WHERE r.sender.id = ?1 ORDER BY r.sendTime DESC")
+    List<BorrowingRequest> findAllBySenderId(int senderId);
+
+    List<BorrowingRequest> findAllByGameCopy_GameOwner_Id(int ownerId);
 }

@@ -50,8 +50,6 @@ public class UserManagementIntegrationTest {
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     private int testUserId;
-    private int testPlayerId;
-    private String testUserName;
     private static final String ORIGINAL_EMAIL = "updateuser@gmail.com";
     private static final String ORIGINAL_PASSWORD = "oldpassword";
     private static final String NEW_EMAIL = "newemail@gmail.com";
@@ -68,7 +66,6 @@ public class UserManagementIntegrationTest {
         Person user = new Person(ORIGINAL_EMAIL, ORIGINAL_PASSWORD, "Test User");
         personRepository.save(user);
         testUserId = user.getId();
-        testUserName = user.getName();
 
         Optional<Person> savedUser = personRepository.findById(testUserId);
         assertTrue(savedUser.isPresent(), "User should be saved in the repository.");
@@ -76,9 +73,6 @@ public class UserManagementIntegrationTest {
         GameOwner gameOwner = new GameOwner(user);
         gameOwner.setActive(true);
         gameOwnerRepo.save(gameOwner);
-
-        Player player = playerRepo.save(new Player(user));
-        testPlayerId = player.getId();
     }
 
     @AfterAll
@@ -522,6 +516,11 @@ public class UserManagementIntegrationTest {
 
     @Test
     public void testGetPlayerByPersonId() {
+        Person user = personRepository.findById(testUserId).orElseThrow();
+        Player player = new Player(user);
+        playerRepo.save(player);
+        int testPlayerId = player.getId();
+
         HttpHeaders headers = new HttpHeaders();
         headers.set("User-Id", String.valueOf(testUserId));
         HttpEntity<?> requestEntity = new HttpEntity<>(headers);
@@ -537,6 +536,9 @@ public class UserManagementIntegrationTest {
 
     @Test
     public void testGetGameOwnerByPersonId() {
+        Person user = personRepository.findById(testUserId).orElseThrow();
+        String testUserName = user.getName();
+
         HttpHeaders headers = new HttpHeaders();
         headers.set("User-Id", String.valueOf(testUserId));
         HttpEntity<?> requestEntity = new HttpEntity<>(headers);
@@ -549,4 +551,5 @@ public class UserManagementIntegrationTest {
 
         assertEquals(testUserName, response.getBody());
     }
+
 }

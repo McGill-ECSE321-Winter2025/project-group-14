@@ -67,7 +67,7 @@ public class GameReviewIntegrationTest {
     @Test
     public void testSubmitValidReview() {
 
-        GameReviewDto reviewDto = new GameReviewDto(0, 5, "Great game!", reviewer.getId(), game.getId(), "", null);
+        GameReviewDto reviewDto = new GameReviewDto(0, 5, "Great game!", reviewer.getId(), game.getId());
 
         ResponseEntity<GameReviewDto> response = gameReviewController.submitReview(reviewDto);
 
@@ -80,7 +80,7 @@ public class GameReviewIntegrationTest {
     @Test
     public void testSubmitReviewWithInvalidRating() {
 
-        GameReviewDto reviewDto = new GameReviewDto(0, 0, "Great game!", reviewer.getId(), game.getId(), "", null);
+        GameReviewDto reviewDto = new GameReviewDto(0, 0, "Great game!", reviewer.getId(), game.getId());
 
         ResponseEntity<GameReviewDto> response = gameReviewController.submitReview(reviewDto);
 
@@ -90,7 +90,7 @@ public class GameReviewIntegrationTest {
     @Test
     public void testSubmitReviewNonExistingGame() {
         int nonExistingGameId = 999;
-        GameReviewDto reviewDto = new GameReviewDto(0, 5, "Great game!", reviewer.getId(), nonExistingGameId, "", null);
+        GameReviewDto reviewDto = new GameReviewDto(0, 5, "Great game!", reviewer.getId(), nonExistingGameId);
 
         ResponseEntity<GameReviewDto> response = gameReviewController.submitReview(reviewDto);
 
@@ -122,7 +122,7 @@ public class GameReviewIntegrationTest {
         GameReview review = new GameReview(3, "Average game", reviewer, game);
         gameReviewRepository.save(review);
 
-        GameReviewDto reviewDto = new GameReviewDto(review.getId(), 5, "Great game!", reviewer.getId(), game.getId(), "", null);
+        GameReviewDto reviewDto = new GameReviewDto(review.getId(), 5, "Great game!", reviewer.getId(), game.getId());
         ResponseEntity<GameReviewDto> response = gameReviewController.updateReview(review.getId(), reviewDto);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -137,7 +137,7 @@ public class GameReviewIntegrationTest {
         GameReview review = new GameReview(3, "Average game", reviewer, game);
         gameReviewRepository.save(review);
 
-        GameReviewDto reviewDto = new GameReviewDto(review.getId(), 6, "Great game!", reviewer.getId(), game.getId(), "", null);
+        GameReviewDto reviewDto = new GameReviewDto(review.getId(), 6, "Great game!", reviewer.getId(), game.getId());
         ResponseEntity<GameReviewDto> response = gameReviewController.updateReview(review.getId(), reviewDto);
 
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
@@ -148,7 +148,7 @@ public class GameReviewIntegrationTest {
 
         int nonExistingReviewId = 999;
         GameReviewDto reviewDto = new GameReviewDto(nonExistingReviewId, 5, "Great game!", reviewer.getId(),
-                game.getId(), "", null);
+                game.getId());
 
         ResponseEntity<GameReviewDto> response = gameReviewController.updateReview(nonExistingReviewId, reviewDto);
 

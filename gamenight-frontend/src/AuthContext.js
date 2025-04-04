@@ -1,4 +1,5 @@
 import React, { createContext, useState, useEffect, useContext } from "react";
+import { useNavigate } from "react-router-dom";
 import { UserManagementAPI } from "./UserManagementAPI";
 
 export const AuthContext = createContext();
@@ -7,6 +8,7 @@ export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
     const [isOwner, setIsOwner] = useState(false);
+    const navigate = useNavigate();
 
     useEffect(() => {
         const fetchData = async () => {
@@ -28,6 +30,7 @@ export const AuthProvider = ({ children }) => {
 
         fetchData();
     }, []);
+
     const refreshIsOwner = async () => {
         if (!user) return;
         try {
@@ -39,33 +42,39 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
-
     const login = async (email, password) => {
-        const userData = await UserManagementAPI.loginUser(email, password);
-        if (userData) {
-            sessionStorage.setItem("user", JSON.stringify(userData));
-            setUser(userData);
+        try {
+            const userData = await UserManagementAPI.loginUser(email, password);
+            if (userData) {
+                sessionStorage.setItem("user", JSON.stringify(userData));
+                setUser(userData);
 
-            try {
-                const active = await UserManagementAPI.isActiveOwner(userData.userId);
-                setIsOwner(active);
-            } catch (err) {
-                console.warn("Could not determine if user is owner after login.", err);
-                setIsOwner(false);
+                try {
+                    const active = await UserManagementAPI.isActiveOwner(userData.userId);
+                    setIsOwner(active);
+                } catch (err) {
+                    console.warn("Could not determine if user is owner after login.", err);
+                    setIsOwner(false);
+                }
+
+                navigate("/my-games");
+            } else {
+                console.error("Login failed: No user data returned.");
             }
+        } catch (error) {
+            console.error("Login error:", error);
         }
-        return userData;
     };
 
     const logout = () => {
         sessionStorage.removeItem("user");
         setUser(null);
         setIsOwner(false);
+        navigate("/");
     };
 
     return (
         <AuthContext.Provider value={{ user, setUser, loading, login, logout, isOwner, refreshIsOwner }}>
-
             {children}
         </AuthContext.Provider>
     );

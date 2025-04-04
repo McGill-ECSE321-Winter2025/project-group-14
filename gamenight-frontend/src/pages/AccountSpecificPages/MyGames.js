@@ -1,24 +1,23 @@
 import React, { useState, useEffect, useContext, useCallback } from "react";
 import { Tabs, Tab, Box, Grid, CircularProgress, Modal, Backdrop, Fade } from "@mui/material";
-import GameCopyCard from '../../components/cards/GameCopyCard';
-import AddGameCopyForm from '../../components/forms/AddGameCopyForm';
+import GameCopyCard from "../../components/cards/GameCopyCard";
+import AddGameCopyForm from "../../components/forms/AddGameCopyForm";
 
 import { AuthContext } from "../../AuthContext";
 import Button from "../../components/ui/Button";
-import '../../styles/layout.css';
-import '../../styles/tabs.css';
-import '../../styles/button.css';
-import '../../components/cards/BorrowingRequestItem.css';
+import "../../styles/layout.css";
+import "../../styles/tabs.css";
+import "../../styles/button.css";
+import "../../components/cards/BorrowingRequestItem.css";
 
-
-function MyGamesPage() {
+function MyGames() {
   const { user } = useContext(AuthContext);
-  const [authChecked] = useState(true);
-  const [tabValue, setTabValue] = useState(0);
   const [myGameCopies, setMyGameCopies] = useState([]);
   const [borrowedGameCopies, setBorrowedGameCopies] = useState([]);
-  const [showAddForm, setShowAddForm] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [authChecked, setAuthChecked] = useState(true); // assuming user is already authenticated
+  const [tabValue, setTabValue] = useState(0);
+  const [showAddForm, setShowAddForm] = useState(false);
 
   const fetchMyGameCopies = useCallback(async () => {
     try {
@@ -28,7 +27,7 @@ function MyGamesPage() {
       const data = await response.json();
       setMyGameCopies(Array.isArray(data) ? data : []);
     } catch (error) {
-      console.error("Error fetching game copies:", error);
+      console.error("Error fetching owned games:", error);
       setMyGameCopies([]);
     }
   }, [user?.userId]);
@@ -54,16 +53,9 @@ function MyGamesPage() {
       await Promise.all([fetchMyGameCopies(), fetchBorrowedGameCopies()]);
       setLoading(false);
     };
+
     loadData();
   }, [authChecked, fetchMyGameCopies, fetchBorrowedGameCopies, user]);
-
-  if (!authChecked) {
-    return (
-      <Box display="flex" justifyContent="center" alignItems="center" minHeight="100vh">
-        <CircularProgress />
-      </Box>
-    );
-  }
 
   const handleTabChange = (event, newValue) => {
     setTabValue(newValue);
@@ -182,9 +174,7 @@ function MyGamesPage() {
             onClose={handleCancelAdd}
             closeAfterTransition
             BackdropComponent={Backdrop}
-            BackdropProps={{
-              timeout: 500,
-            }}
+            BackdropProps={{ timeout: 500 }}
           >
             <Fade in={showAddForm}>
               <Box sx={modalStyle}>
@@ -217,7 +207,6 @@ function MyGamesPage() {
                 </div>
               ))}
             </div>
-
           )}
         </>
       )}
@@ -243,7 +232,6 @@ function MyGamesPage() {
                 </div>
               ))}
             </div>
-
           )}
         </>
       )}
@@ -251,4 +239,4 @@ function MyGamesPage() {
   );
 }
 
-export default MyGamesPage;
+export default MyGames;
