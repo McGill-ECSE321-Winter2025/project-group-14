@@ -10,7 +10,6 @@ import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import IconButton from '@mui/material/IconButton';
 
-
 const MyReviews = () => {
     const { user } = useAuth();
     const [reviews, setReviews] = useState([]);
@@ -198,96 +197,94 @@ const MyReviews = () => {
             ) : (
                 reviews.map((review) => (
                     <div key={review.reviewId} className="mygamesreview-card">
-                        <div className="card-content">
-                            {editingReviewId === review.reviewId ? (
-                                <>
-                                    <div className="header-section">
-                                        <h3 className="review-game">
-                                            {gamesData[review.gameId]?.name || 'Loading game...'}
-                                        </h3>
-                                        <div className="stars-container">
-                                            {[1, 2, 3, 4, 5].map((starValue) => (
-                                                <span
-                                                    key={starValue}
-                                                    className={`star ${editedRating >= starValue ? "filled" : ""}`}
-                                                    onClick={() => handleRatingChange(starValue)}
-                                                >
-                                                    ★
-                                                </span>
-                                            ))}
-                                        </div>
-                                        <div className="review-date">
-                                            Posted on: {new Date(review.datePosted).toLocaleDateString('en-US', {
-                                                year: 'numeric',
-                                                month: 'long',
-                                                day: 'numeric'
-                                            })}
-                                        </div>
+                        {editingReviewId === review.reviewId ? (
+                            <>
+                                <div className="header-section">
+                                    <h3 className="review-game">
+                                        {gamesData[review.gameId]?.name || 'Loading game...'}
+                                    </h3>
+                                    <div className="stars-container">
+                                        {[1, 2, 3, 4, 5].map((starValue) => (
+                                            <span
+                                                key={starValue}
+                                                className={`star ${editedRating >= starValue ? "filled" : ""}`}
+                                                onClick={() => handleRatingChange(starValue)}
+                                            >
+                                                ★
+                                            </span>
+                                        ))}
                                     </div>
-                                    <div className="review-content">
-                                        <textarea
-                                            value={editedComment}
-                                            onChange={(e) => setEditedComment(e.target.value)}
-                                            rows="5"
-                                            className="review-comment-edit"
-                                            onInput={(e) => {
-                                                e.target.style.height = "auto";
-                                                e.target.style.height = `${e.target.scrollHeight}px`;
-                                            }}
-                                        />
+                                    <div className="review-date">
+                                        Posted on: {new Date(review.datePosted).toLocaleDateString('en-US', {
+                                            year: 'numeric',
+                                            month: 'long',
+                                            day: 'numeric'
+                                        })}
                                     </div>
-                                    <div className="review-buttons">
-                                        <Button type="success" onClick={handleSaveEdit}>
-                                            Save Changes
-                                        </Button>
-                                        <Button type="danger" onClick={handleCancelEdit}>
-                                            Cancel
-                                        </Button>
-                                    </div>
-                                </>
-                                    ) : (
-                                        <>
-                                            <MyReviewsCard
-                                                rating={review.rating}
-                                                comment={review.comment}
-                                                datePosted={review.datePosted || "1970-01-01 00:00:00"}
-                                                gameName={gamesData[review.gameId]?.name || 'Loading game...'}
-                                            />
-                                            <div className="review-buttons" style={{ 
-                                                display: 'flex',
-                                                justifyContent: 'center',
-                                                gap: '1.5rem',
-                                                marginTop: '1.5rem'
-                                            }}>
-                                                <IconButton 
-                                                    aria-label="edit" 
-                                                    onClick={() => handleEditReview(review)}
-                                                    sx={{ 
-                                                        backgroundColor: '#0d90a4', 
-                                                        color: '#ffffff', 
-                                                        '&:hover': { backgroundColor: '#74e1eb' } 
-                                                    }}
-                                                >
-                                                    <EditIcon />
-                                                </IconButton>
-                                                <IconButton 
-                                                    aria-label="delete" 
-                                                    onClick={() => handleDeleteClick(review.reviewId)}
-                                                    sx={{ 
-                                                        backgroundColor: '#ff6574', 
-                                                        color: '#ffffff', 
-                                                        '&:hover': { backgroundColor: '#fcb559' } 
-                                                    }}
-                                                >
-                                                    <DeleteIcon />
-                                                </IconButton>
-                                            </div>
-                                        </>
-                                    )}
                                 </div>
-                            </div>
-                        ))
-                    )}
+                                <div className="review-content">
+                                    <textarea
+                                        value={editedComment}
+                                        onChange={(e) => setEditedComment(e.target.value)}
+                                        rows="5"
+                                        className="review-comment-edit"
+                                        onInput={(e) => {
+                                            e.target.style.height = "auto";
+                                            e.target.style.height = `${e.target.scrollHeight}px`;
+                                        }}
+                                    />
+                                </div>
+                                <div className="review-buttons">
+                                    <Button type="success" onClick={handleSaveEdit}>
+                                        Save Changes
+                                    </Button>
+                                    <Button type="danger" onClick={handleCancelEdit}>
+                                        Cancel
+                                    </Button>
+                                </div>
+                            </>
+                        ) : (
+                            <>
+                                <MyReviewsCard
+                                    rating={review.rating}
+                                    comment={review.comment}
+                                    datePosted={review.datePosted || "1970-01-01 00:00:00"}
+                                    gameName={gamesData[review.gameId]?.name || 'Loading game...'}
+                                />
+                                <div className="review-buttons" style={{ 
+                                    display: 'flex',
+                                    justifyContent: 'center',
+                                    gap: '1.5rem',
+                                    padding: '1rem'
+                                }}>
+                                    <IconButton 
+                                        aria-label="edit" 
+                                        onClick={() => handleEditReview(review)}
+                                        sx={{ 
+                                            backgroundColor: '#0d90a4', 
+                                            color: '#ffffff', 
+                                            '&:hover': { backgroundColor: '#74e1eb' } 
+                                        }}
+                                    >
+                                        <EditIcon />
+                                    </IconButton>
+                                    <IconButton 
+                                        aria-label="delete" 
+                                        onClick={() => handleDeleteClick(review.reviewId)}
+                                        sx={{ 
+                                            backgroundColor: '#ff6574', 
+                                            color: '#ffffff', 
+                                            '&:hover': { backgroundColor: '#fcb559' } 
+                                        }}
+                                    >
+                                        <DeleteIcon />
+                                    </IconButton>
+                                </div>
+                            </>
+                        )}
+                    </div>
+                ))
+            )}
 
             {/* Delete Confirmation Modal */}
             <Modal
