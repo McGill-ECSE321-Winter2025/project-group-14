@@ -39,37 +39,37 @@ const GameDetailsPage = () => {
   const [imageError, setImageError] = useState(false);
 
   useEffect(() => {
-    const fetchGameImage = async () => {
-      try {
-        if (id) {
-          setImageError(true);
-          return;
-        }
-
-        const response = await fetch(`http://localhost:8080/games/${id}/image`);
-        if (response.ok) {
-          const imageBlob = await response.blob();
-          const url = URL.createObjectURL(imageBlob);
-          setImageUrl(url);
-        } else {
-          setImageError(true);
-        }
-      } catch (error) {
-        console.error("Error fetching game image:", error);
-        setImageError(true);
-      } finally {
-        setImageLoading(false);
-      }
-    };
-
-    fetchGameImage();
-
-    return () => {
-      if (imageUrl) {
-        URL.revokeObjectURL(imageUrl);
-      }
-    };
-  }, [id, imageUrl]);
+          const fetchGameImage = async () => {
+              try {
+                  if (!id) {
+                      setImageError(true);
+                      return;
+                  }
+  
+                  const response = await fetch(`http://localhost:8080/games/${id}/image`);
+                  if (response.ok) {
+                      const imageBlob = await response.blob();
+                      const url = URL.createObjectURL(imageBlob);
+                      setImageUrl(url);
+                  } else {
+                      setImageError(true);
+                  }
+              } catch (error) {
+                  console.error("Error fetching game image:", error);
+                  setImageError(true);
+              } finally {
+                  setImageLoading(false);
+              }
+          };
+  
+          fetchGameImage();
+  
+          return () => {
+              if (imageUrl) {
+                  URL.revokeObjectURL(imageUrl);
+              }
+          };
+      }, [id, imageUrl]);
 
 
   const [game, setGame] = useState();
@@ -121,7 +121,7 @@ const GameDetailsPage = () => {
               width: '100%',
               height: '100%',
               objectFit: 'contain',
-              margin: '0 auto'
+              borderRadius: '16px'
             }}
           />
         )}

@@ -35,8 +35,8 @@
   html .h6 {
     font-family: var(--font-secondary) !important;
     font-weight: 600 !important;
-    margin-top: 1.5em !important;
-    margin-bottom: 0.75em !important;
+    margin-top: 0.25em !important;
+    margin-bottom: 0.25em !important;
     line-height: var(--line-height-tight) !important;
     letter-spacing: -0.01em !important;
     color: var(--color-text-primary) !important;
@@ -79,7 +79,7 @@
 
   html p,
   html .paragraph {
-    margin-bottom: 1.25em !important;
+    margin-bottom: 1em !important;
     font-size: 1.2rem !important;
     line-height: var(--line-height-relaxed) !important;
     font-family: var(--font-primary) !important;

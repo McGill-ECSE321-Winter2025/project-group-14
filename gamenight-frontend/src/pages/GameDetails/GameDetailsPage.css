@@ -1,21 +1,3 @@
-.central-image {
-  height: 300px;
-  border-radius: 16px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  margin: 20px 0;
-  object-fit: contain;
-  margin: 0;
-}
-
-.central-image-container {
-  width: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 20px 0;
-}
-
-/* Review Buttons */
 .review-buttons {
   display: flex;
   justify-content: space-between;
