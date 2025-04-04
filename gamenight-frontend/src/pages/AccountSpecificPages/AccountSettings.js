@@ -51,15 +51,18 @@ const AccountSettings = () => {
     };
 
     const handleDeleteAccount = async () => {
-        if (window.confirm("Are you sure? This cannot be undone.")) {
-            const success = await UserManagementAPI.deleteUser(user.userId);
-            if (success) {
-                window.location.href = "/";
-                sessionStorage.clear();
-                
-            }
-        }
+        setConfirmDeleteAccountOpen(true);
     };
+
+    const deleteAccountConfirmed = async () => {
+        setConfirmDeleteAccountOpen(false);
+        const success = await UserManagementAPI.deleteUser(user.userId);
+        if (success) {
+            window.location.href = "/";
+            sessionStorage.clear();
+            
+        }
+    }
 
     const deleteAccountCanceled = () => {
         setConfirmDeleteAccountOpen(false);
