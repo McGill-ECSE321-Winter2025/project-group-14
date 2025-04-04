@@ -2,6 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { UserManagementAPI } from '../../UserManagementAPI';
 import { useAuth } from '../../AuthContext';
 import './AccountSettings.css';
+import {
+    Typography,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogTitle
+  } from "@mui/material";
+import Button from './../../components/ui/Button'
 
 const AccountSettings = () => {
     const { user, isOwner, userDetails, refreshIsOwner } = useAuth();
@@ -14,6 +22,7 @@ const AccountSettings = () => {
     const [infoLocked, setInfoLocked] = useState('');
     const [newUsername, setNewUsername] = useState('');
     const [usernameMessage, setUsernameMessage] = useState('');
+    const [confirmDeleteAccountOpen, setConfirmDeleteAccountOpen] = useState(false);
 
     useEffect(() => {
         if (user?.userId) {
@@ -49,14 +58,21 @@ const AccountSettings = () => {
     };
 
     const handleDeleteAccount = async () => {
-        if (window.confirm("Are you sure? This cannot be undone.")) {
-            const success = await UserManagementAPI.deleteUser(user.userId);
-            if (success) {
-                sessionStorage.clear();
-                window.location.href = "/";
-            }
+        setConfirmDeleteAccountOpen(true);
+    };
+
+    const deleteAccountConfirmed = async () => {
+        setConfirmDeleteAccountOpen(false)
+        const success = await UserManagementAPI.deleteUser(user.userId);
+        if (success) {
+            sessionStorage.clear();
+            window.location.href = "/";
         }
     };
+
+    const deleteAccountCanceled = () => {
+        setConfirmDeleteAccountOpen(false);
+    }
 
     const handleUsernameUpdate = async () => {
         try {
@@ -149,6 +165,21 @@ const AccountSettings = () => {
                     {usernameMessage && <p className="centered">{usernameMessage}</p>}
                 </div>
             </div>
+
+            <Dialog open={confirmDeleteAccountOpen}>
+                <DialogTitle>Warning</DialogTitle>
+                <DialogContent>
+                    <Typography>Do you really want to delete your account? This action cannot be undone.</Typography>
+                </DialogContent>
+                <DialogActions>
+                    <Button type="success" onClick={deleteAccountConfirmed}>
+                        Delete account
+                    </Button>
+                    <Button type="danger" onClick={deleteAccountCanceled}>
+                        Cancel
+                    </Button>
+                </DialogActions>
+            </Dialog>
 
         </div>
     );
