@@ -7,7 +7,6 @@ import Navbar from "./components/navigation/Navbar";
 import ProtectedRoute from "./components/navigation/ProtectedRoute";
 
 // Pages
-
 import Home from "./pages/Home/Home";
 import Login from "./pages/Auth/Login";
 import SignUp from "./pages/Auth/SignUp";
@@ -20,7 +19,8 @@ import About from "./pages/Other/About";
 import ReceivedBorrowingRequests from "./pages/AccountSpecificPages/ReceivedBorrowingRequests";
 import AddGame from "./pages/Other/AddGame";
 import GameDetailsPage from "./pages/GameDetails/GameDetailsPage";
-
+import SentRequests from "./pages/SentRequests";
+import UpdatedStatusPage from "./pages/UpdatedStatusPage";
 
 function App() {
   return (
@@ -28,7 +28,6 @@ function App() {
       <AuthProvider>
         <Navbar />
         <Routes>
-
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<SignUp />} />
@@ -42,10 +41,10 @@ function App() {
           <Route path="/about" element={<ProtectedRoute><About /></ProtectedRoute>} />
           <Route path="/add-game" element={<ProtectedRoute><AddGame /></ProtectedRoute>} />
           <Route path="/received-requests" element={<ProtectedRoute><ReceivedBorrowingRequests /></ProtectedRoute>} />
-          <Route path="/games/:id" element={<ProtectedRoute><GameDetailsPage /></ProtectedRoute>} />
+          <Route path="/sent-requests" element={<ProtectedRoute><SentRequests /></ProtectedRoute>} />
+          <Route path="/updated-status-requests" element={<ProtectedRoute><UpdatedStatusPage /></ProtectedRoute>} />
 
-          {/*<Route path="*" element={<Navigate to="/" />} />*/}
-
+          {/* <Route path="*" element={<Navigate to="/" />} /> */}
         </Routes>
       </AuthProvider>
     </Router>

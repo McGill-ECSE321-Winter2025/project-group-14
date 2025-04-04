@@ -24,7 +24,7 @@ import ca.mcgill.ecse321.gamenight.middleware.RequireUser;
 import ca.mcgill.ecse321.gamenight.model.Game;
 import ca.mcgill.ecse321.gamenight.model.GameCopy;
 import ca.mcgill.ecse321.gamenight.service.GameManagementService;
-import ca.mcgill.ecse321.gamenight.service.GameReviewService;
+
 
 /**
  * REST controller for managing games and game copies
@@ -38,9 +38,6 @@ public class GameManagementController {
     @Autowired
     GameManagementService gameManagementService;
 
-    @Autowired
-    GameReviewService reviewService;
-
     /**
      * Create a new game
      * 
@@ -52,7 +49,7 @@ public class GameManagementController {
     @RequireUser
     public GameResponseDto createGame(@RequestBody GameRequestDto game) {
         Game g = gameManagementService.createGame(game.getName(), game.getDescription());
-        return new GameResponseDto(g, 0d);
+        return new GameResponseDto(g);
     }
 
     /**
@@ -65,8 +62,7 @@ public class GameManagementController {
     @RequireUser
     public GameResponseDto findGameById(@PathVariable int id) {
         Game g = gameManagementService.findGameById(id);
-        Double rating = reviewService.getAverageRatingForGame(g) / 5;
-        return new GameResponseDto(g, rating);
+        return new GameResponseDto(g);
     }
 
     /**
@@ -80,8 +76,7 @@ public class GameManagementController {
     @RequireUser
     public GameResponseDto updateGame(@PathVariable int id, @RequestBody GameRequestDto game) {
         Game g = gameManagementService.updateGame(id, game.getName(), game.getDescription());
-        Double rating = reviewService.getAverageRatingForGame(g);
-        return new GameResponseDto(g, rating);
+        return new GameResponseDto(g);
     }
 
     /**
@@ -90,13 +85,13 @@ public class GameManagementController {
      * @return All games in the system
      */
     @GetMapping("/games")
+    @RequireUser
     public ArrayList<GameResponseDto> findAllGames() {
         ArrayList<GameResponseDto> games = new ArrayList<GameResponseDto>();
         Iterator<Game> iterator = gameManagementService.findAllGames().iterator();
         while (iterator.hasNext()) {
             Game game = iterator.next();
-            Double rating = reviewService.getAverageRatingForGame(game) / 5;
-            games.add(new GameResponseDto(game, rating));
+            games.add(new GameResponseDto(game));
         }
         return games;
     }
@@ -123,8 +118,7 @@ public class GameManagementController {
         while (result.size() < 10) {
             java.util.Collections.shuffle(allGames);
             for (Game g : allGames) {
-                Double rating = reviewService.getAverageRatingForGame(g);
-                result.add(new GameResponseDto(g, rating));
+                result.add(new GameResponseDto(g));
                 if (result.size() == 10)
                     break;
             }
@@ -143,9 +137,8 @@ public class GameManagementController {
     @ResponseStatus(HttpStatus.CREATED)
     @RequireUser
     public GameCopyResponseDto createGameCopy(@RequestBody GameCopyRequestDto gameCopy) {
-        int ownerId = gameManagementService.getGameOwnerIdByPersonId(gameCopy.getOwnerId());
         GameCopy g = gameManagementService.createGameCopy(gameCopy.getDescription(), gameCopy.getGameId(),
-                ownerId);
+                gameCopy.getOwnerId());
         return new GameCopyResponseDto(g);
     }
 
@@ -184,8 +177,7 @@ public class GameManagementController {
      */
     @GetMapping("/game-copies")
     @RequireUser
-    public ArrayList<GameCopyResponseDto> findGameCopyByOwner(@RequestParam(name = "owner_id") int personId) {
-        int ownerId = gameManagementService.getGameOwnerIdByPersonId(personId);
+    public ArrayList<GameCopyResponseDto> findGameCopyByOwner(@RequestParam(name = "owner_id") int ownerId) {
         ArrayList<GameCopyResponseDto> games = new ArrayList<>();
         Iterator<GameCopy> iterator = gameManagementService.findGameCopiesByOwner(ownerId).iterator();
         while (iterator.hasNext()) {
@@ -212,7 +204,7 @@ public class GameManagementController {
      * @param gameId The id of the game
      * @return The game copies of the given game
      */
-    @GetMapping("/game/{gameId}/game-copies")
+    @GetMapping("game/{gameId}/game-copies")
     @RequireUser
     public List<GameCopyResponseDto> findGameCopiesByGame(@PathVariable int gameId) {
         ArrayList<GameCopyResponseDto> response = new ArrayList<>();
@@ -222,4 +214,5 @@ public class GameManagementController {
         }
         return response;
     }
+
 }

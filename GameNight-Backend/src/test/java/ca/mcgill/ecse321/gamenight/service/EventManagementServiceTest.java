@@ -25,7 +25,6 @@ import ca.mcgill.ecse321.gamenight.repo.GameRepository;
 import ca.mcgill.ecse321.gamenight.repo.PlayerRepository;
 import ca.mcgill.ecse321.gamenight.repo.RegistrationRepository;
 import ca.mcgill.ecse321.gamenight.repo.ScheduledGameRepository;
-import ca.mcgill.ecse321.gamenight.dto.GameResponseDto;
 import ca.mcgill.ecse321.gamenight.exception.*;
 
 class EventManagementServiceTest {

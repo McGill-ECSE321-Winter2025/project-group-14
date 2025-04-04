@@ -36,9 +36,7 @@ public class GameReviewController {
                 review.getRating(),
                 review.getComment(),
                 review.getReviewer().getId(),
-                review.getGame().getId(),
-                review.getReviewer().getPerson().getName(),
-                review.getDatePosted());
+                review.getGame().getId());
     }
 
     private GameReview convertToEntity(GameReviewDto reviewDto) {
@@ -56,7 +54,7 @@ public class GameReviewController {
         try {
             GameReview review = convertToEntity(reviewDto);
             GameReview createdReview = gameReviewService.submitReview(
-                    reviewDto.getRating(),
+                    review.getRating(),
                     review.getComment(),
                     review.getReviewer(),
                     review.getGame());
@@ -119,6 +117,7 @@ public class GameReviewController {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
+
     @GetMapping("/users/{reviewerId}/reviews")
     public ResponseEntity<List<GameReviewDto>> getReviewsByUser(@PathVariable int reviewerId) {
         try {

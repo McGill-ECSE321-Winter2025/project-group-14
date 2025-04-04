@@ -1,6 +1,5 @@
 package ca.mcgill.ecse321.gamenight.service;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -10,7 +9,6 @@ import ca.mcgill.ecse321.gamenight.model.Event;
 import ca.mcgill.ecse321.gamenight.model.Game;
 import ca.mcgill.ecse321.gamenight.model.Player;
 import ca.mcgill.ecse321.gamenight.model.Registration;
-import ca.mcgill.ecse321.gamenight.model.ScheduledGame;
 import ca.mcgill.ecse321.gamenight.model.Registration.Key;
 import ca.mcgill.ecse321.gamenight.repo.EventRepository;
 import ca.mcgill.ecse321.gamenight.repo.GameRepository;
@@ -18,7 +16,6 @@ import ca.mcgill.ecse321.gamenight.repo.PlayerRepository;
 import ca.mcgill.ecse321.gamenight.repo.RegistrationRepository;
 import ca.mcgill.ecse321.gamenight.repo.ScheduledGameRepository;
 import jakarta.transaction.Transactional;
-import ca.mcgill.ecse321.gamenight.dto.GameResponseDto;
 import ca.mcgill.ecse321.gamenight.exception.*;
 
 @Service
@@ -26,21 +23,6 @@ public class EventManagementService {
 
     @Autowired
     private EventRepository eventRepository;
-
-    @Autowired
-    private GameReviewService reviewService;
-
-    @Autowired
-    private ScheduledGameRepository scheduledGameRepository;
-
-    @Autowired
-    private PlayerRepository playerRepository;
-
-    @Autowired
-    private RegistrationRepository registrationRepository;
-
-    @Autowired
-    private GameRepository gameRepository;
 
     @Transactional
     public Event createEvent(String name, String description, Date startTime, Date endTime) {
@@ -108,6 +90,18 @@ public class EventManagementService {
     public Iterable<Event> getAllEvents() {
         return eventRepository.findAll();
     }
+
+    @Autowired
+    private ScheduledGameRepository scheduledGameRepository;
+
+    @Autowired
+    private PlayerRepository playerRepository;
+
+    @Autowired
+    private RegistrationRepository registrationRepository;
+
+    @Autowired
+    private GameRepository gameRepository;
 
     @Transactional
     public List<Event> getScheduledEventsForAGame(int gameId) {

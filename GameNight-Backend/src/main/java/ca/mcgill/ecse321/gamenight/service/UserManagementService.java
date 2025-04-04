@@ -15,10 +15,14 @@ import ca.mcgill.ecse321.gamenight.dto.AuthRequestDto;
 import ca.mcgill.ecse321.gamenight.exception.InvalidInputException;
 import ca.mcgill.ecse321.gamenight.exception.ObjectNotFoundException;
 import ca.mcgill.ecse321.gamenight.exception.UniquenessConstaintException;
+import ca.mcgill.ecse321.gamenight.model.Game;
+import ca.mcgill.ecse321.gamenight.model.GameCopy;
 import ca.mcgill.ecse321.gamenight.model.GameOwner;
 import ca.mcgill.ecse321.gamenight.model.Person;
 import ca.mcgill.ecse321.gamenight.model.Player;
+import ca.mcgill.ecse321.gamenight.repo.GameCopyRepository;
 import ca.mcgill.ecse321.gamenight.repo.GameOwnerRepository;
+import ca.mcgill.ecse321.gamenight.repo.GameRepository;
 import ca.mcgill.ecse321.gamenight.repo.PersonRepository;
 import ca.mcgill.ecse321.gamenight.repo.PlayerRepository;
 import jakarta.transaction.Transactional;
@@ -31,6 +35,12 @@ public class UserManagementService {
 
     @Autowired
     private PersonRepository personRepository;
+
+    @Autowired
+    private GameRepository gameRepository;
+
+    @Autowired
+    private GameCopyRepository gameCopyRepository;
 
     @Autowired
     private GameOwnerRepository gameOwnerRepository;
@@ -199,9 +209,12 @@ public class UserManagementService {
         return owner != null && owner.isActive();
     }
 
-   
+    public List<GameCopy> findGameCopiesByGame(int gameId) {
+    Game game = gameRepository.findById(gameId)
+        .orElseThrow(() -> new ObjectNotFoundException("There is no game with ID " + gameId));
     
-    
+    return gameCopyRepository.findByGame(game);
+    }
 
 }
 

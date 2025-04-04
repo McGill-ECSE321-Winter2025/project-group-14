@@ -120,7 +120,8 @@ public class BorrowingManagementService {
 
     public List<BorrowingRequest> findLendingHistory(int ownerId) {
         return Optional.ofNullable(
-                borrowingRequestRepository.findAllByGameCopy_GameOwner_Id(ownerId))
+                borrowingRequestRepository.findAllRequestsByStatusAndGameOwner(BorrowingRequestStatus.Accepted,
+                        ownerId))
                 .orElse(Collections.emptyList());
     }
 
@@ -137,5 +138,28 @@ public class BorrowingManagementService {
                 .orElseThrow(() -> new ObjectNotFoundException(
                         "Borrowing request not found with ID: " + String.valueOf(requestId)));
     }
+    @Transactional
+    public List<BorrowingRequest> findAllBorrowingRequestsForBorrower(int borrowerId) {
+        System.out.println("Fetching requests for sender ID: " + borrowerId);
+        List<BorrowingRequest> requests = borrowingRequestRepository.findAllBySenderId(borrowerId);
+        System.out.println("Number of borrowing requests found: " + requests.size());
+        return requests;
+    }
+
+    @Transactional
+    public List<BorrowingRequest> findAllBorrowingRequestsForSender(int senderId) {
+        System.out.println("Fetching requests for sender ID: " + senderId);
+        List<BorrowingRequest> requests = borrowingRequestRepository.findAllBySenderId(senderId);
+        System.out.println("Number of borrowing requests found: " + requests.size());
+        return requests;
+    }
+
+
+
+    public Player getPlayerById(int playerId) {
+        return playerRepository.findById(playerId)
+                .orElseThrow(() -> new ObjectNotFoundException("Player not found with ID: " + playerId));
+    }
+
 
 }

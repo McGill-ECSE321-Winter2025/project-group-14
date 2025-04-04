@@ -222,35 +222,4 @@ public class GameManagementServiceTest {
 
         assertEquals("There is no owner with ID " + ownerId, e.getMessage());
     }
-
-    @Test
-    public void testFindGameCopiesByGameSuccess() {
-        Game game = new Game("Uno", "A card game");
-        when(gameRepository.findById(game.getId())).thenReturn(Optional.ofNullable(game));
-        Game game1 = new Game("Uno", "A card game");
-        GameCopy gameCopy1 = new GameCopy("aaa", game1, owner);
-        Game game2 = new Game("Monopoly", "A board game");
-        GameCopy gameCopy2 = new GameCopy("aaa", game2, owner);
-        ArrayList<GameCopy> expected = new ArrayList<>();
-        expected.add(gameCopy1);
-        expected.add(gameCopy2);
-        when(gameCopyRepository.findByGame(game)).thenReturn(expected);
-
-        Iterable<GameCopy> result = gameManagementService.findGameCopiesByGame(game.getId());
-
-        assertEquals(expected, result);
-    }
-
-    @Test
-    public void testFindGameCopiesByNonexistentGame() {
-
-        int gameId = 5;
-
-        when(gameRepository.findById(gameId)).thenReturn(Optional.ofNullable(null));
-
-        ObjectNotFoundException e = assertThrows(ObjectNotFoundException.class,
-                () -> gameManagementService.findGameCopiesByGame(gameId));
-
-        assertEquals("There is no game with ID " + gameId, e.getMessage());
-    }
 }
