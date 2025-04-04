@@ -20,7 +20,7 @@ import About from "./pages/Other/About";
 import ReceivedBorrowingRequests from "./pages/AccountSpecificPages/ReceivedBorrowingRequests";
 import AddGame from "./pages/Other/AddGame";
 import GameDetailsPage from "./pages/GameDetails/GameDetailsPage";
-import EventDetails from "./pages/EventDetails";
+import EventDetails from "./pages/Other/EventDetails.js";
 
 
 function App() {
