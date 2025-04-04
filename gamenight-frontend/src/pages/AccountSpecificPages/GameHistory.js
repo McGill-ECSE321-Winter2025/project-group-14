@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { GameHistoryAPI } from "../../GettingAllGamesAPI";
 import { useAuth } from "../../AuthContext";
+import BorrowedGameCard from "../../components/cards/BorrowedGameCard";
+import "./GameHistory.css";
 
 const GameHistory = () => {
     const { user, loading } = useAuth();
@@ -31,39 +33,24 @@ const GameHistory = () => {
     }, [user, loading]);
 
     if (loading || isLoading) {
-        return <div>Loading borrowed games history...</div>;
+        return <div className="game-history-container"><p className="centered">Loading borrowed games history...</p></div>;
     }
 
     if (error) {
-        return <div style={{ color: "red" }}>{error}</div>;
+        return <div className="game-history-container"><p className="centered error-message">{error}</p></div>;
     }
 
     if (history.length === 0) {
-        return <div>No borrowed games history found.</div>;
+        return <div className="game-history-container"><p className="centered">No borrowed games history found.</p></div>;
     }
 
     return (
-        <div className="game-history">
-            <h2>Borrowed Games History</h2>
-            <ul>
-                {history.map((request) => {
-                    const gameName = request.gameName;
-                    const ownerName = request.senderName;
-
-                    return (
-                        <li key={request.id} style={{ marginBottom: "1rem" }}>
-                            <strong>Game:</strong> {gameName} <br />
-                            <strong>From:</strong> {new Date(request.startTime).toLocaleDateString()} <br />
-                            <strong>Until:</strong> {new Date(request.endTime).toLocaleDateString()} <br />
-                            {ownerName && (
-                                <>
-                                    <strong>Owner:</strong> {ownerName}
-                                </>
-                            )}
-                        </li>
-                    );
-                })}
-            </ul>
+        <div className="game-history-container">
+            <div className="game-history-list">
+                {history.map((request) => (
+                    <BorrowedGameCard key={request.id} request={request} />
+                ))}
+            </div>
         </div>
     );
 };

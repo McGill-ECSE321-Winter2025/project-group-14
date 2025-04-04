@@ -4,7 +4,7 @@ import { useAuth } from '../../AuthContext';
 import { UserManagementAPI } from '../../UserManagementAPI';
 import AccountSettings from './AccountSettings';
 import GameHistory from './GameHistory';
-import MyEvents from './MyEvents';
+import MyEvents from './EventHistory';
 import '../../styles/layout.css';
 import './Account.css';
 import '../../styles/tabs.css';
