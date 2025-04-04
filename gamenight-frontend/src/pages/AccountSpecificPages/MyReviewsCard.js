@@ -2,9 +2,9 @@ import React from 'react';
 import '../../styles/card.css';
 import '../../styles/layout.css';
 import '../../styles/animation.css';
-import './MyGamesReview.css';
+import './MyReviewsCard.css';
 
-const MyGamesReview = ({ rating, comment, datePosted, gameName }) => {
+const MyReviewsCard = ({ rating, comment, datePosted, gameName }) => {
   const formattedDate = new Date(datePosted).toLocaleDateString('en-US', {
     year: 'numeric',
     month: 'long',
@@ -41,4 +41,4 @@ const MyGamesReview = ({ rating, comment, datePosted, gameName }) => {
   );
 };
 
-export default MyGamesReview;
+export default MyReviewsCard;

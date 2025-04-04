@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '../../AuthContext';
-import MyGameReviews from './MyGamesReview'; 
+import MyReviewsCard from './MyReviewsCard';
 import Button from '../../components/ui/Button';
 import '../../styles/layout.css';
 import '../../styles/card.css';
@@ -218,11 +218,11 @@ const MyReviews = () => {
                                 </>
                             ) : (
                                 <>
-                                    <MyGameReviews
-                                        rating={review.rating}
-                                        comment={review.comment}
-                                        datePosted={review.datePosted || "1970-01-01 00:00:00"}
-                                        gameName={gamesData[review.gameId]?.name || 'Loading game...'}
+                                    <MyReviewsCard
+                                    rating={review.rating}
+                                    comment={review.comment}
+                                    datePosted={review.datePosted || "1970-01-01 00:00:00"}
+                                    gameName={gamesData[review.gameId]?.name || 'Loading game...'}
                                     />
                                     <div className="review-buttons">
                                         <Button onClick={() => handleEditReview(review)}>
