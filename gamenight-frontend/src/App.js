@@ -22,6 +22,8 @@ import AddGame from "./pages/Other/AddGame";
 import GameDetailsPage from "./pages/GameDetails/GameDetailsPage";
 
 
+import './App.css'
+
 function App() {
   return (
     <Router>
