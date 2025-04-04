@@ -19,6 +19,8 @@
     color: var(--color-text-primary) !important;
     -webkit-font-smoothing: antialiased !important;
     -moz-osx-font-smoothing: grayscale !important;
+    min-height: 100vh;
+    background-color: #fff !important;
   }
   
   html h1, 

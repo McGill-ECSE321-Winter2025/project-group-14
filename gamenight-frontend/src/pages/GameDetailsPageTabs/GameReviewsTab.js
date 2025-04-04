@@ -9,6 +9,9 @@ import '../../styles/card-with-user.css';
 import '../../styles/layout.css';
 import '../../styles/card.css';
 import '../../styles/animation.css';
+import './GameReviewsTab.css'
+
+import { usePopup } from '../../components/PopupContext';
 
 const GameReviewsTab = () => {
 
@@ -21,6 +24,7 @@ const GameReviewsTab = () => {
     const [userObject, setUserObject] = useState();
     const [review, setReview] = useState("");
     const [rating, setRating] = useState(0);
+    const { showPopup } = usePopup();
 
     useEffect(() => {
         fetch(`http://localhost:8080/users/${user.userId}/player-id`, {
@@ -44,13 +48,13 @@ const GameReviewsTab = () => {
     }, [user, id, reloadReviews]);
 
     useEffect(() => {
-            fetch(`http://localhost:8080/users/${user.userId}`, {
-                headers: { 'Content-Type': 'application/json', "User-Id": user.userId }
-            })
-                .then((response) => response.json())
-                .then((data) => setUserObject(data))
-                .catch((error) => console.error("Error fetching reviews:", error));
-            setReloadReviews(false)
+        fetch(`http://localhost:8080/users/${user.userId}`, {
+            headers: { 'Content-Type': 'application/json', "User-Id": user.userId }
+        })
+            .then((response) => response.json())
+            .then((data) => setUserObject(data))
+            .catch((error) => console.error("Error fetching reviews:", error));
+        setReloadReviews(false)
     }, [user]);
 
     const handleReviewChange = (e) => {
@@ -63,25 +67,32 @@ const GameReviewsTab = () => {
 
     const handleSubmitReview = async (e) => {
         e.preventDefault();
+        if (rating === 0) {
+            showPopup("Please enter a rating");
+        } else {
+            const response = await fetch('http://localhost:8080/reviews/', {
+                method: 'POST',
+                body: JSON.stringify({
+                    reviewId: 0,
+                    rating: rating,
+                    comment: review,
+                    reviewerId: playerId,
+                    gameId: id,
+                    author: ""
+                }),
+                headers: { 'Content-Type': 'application/json', "User-Id": user.userId }
+            })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showPopup("The review could not be processed. Try again later.");
+                }
+                );
 
-        const response = await fetch('http://localhost:8080/reviews/', {
-            method: 'POST',
-            body: JSON.stringify({
-                reviewId: 0,
-                rating: rating,
-                comment: review,
-                reviewerId: playerId,
-                gameId: id,
-                author: ""
-            }),
-            headers: { 'Content-Type': 'application/json', "User-Id": user.userId }
-        })
-            .catch(error => console.error('Error:', error));;
-
-        console.log("Review Submitted:", { review, rating, user }, "\nReponse:", response);
-        setReloadReviews(true)
-        setRating(0)
-        setReview("");
+            console.log("Review Submitted:", { review, rating, user }, "\nReponse:", response);
+            setReloadReviews(true)
+            setRating(0)
+            setReview("");
+        }
     };
 
     const handleCancelReview = () => {
@@ -132,9 +143,9 @@ const GameReviewsTab = () => {
                             />
                         </div>
                         {/* Submit and Cancel Buttons */}
-                        <div className="review-buttons">
-                            <Button type="success">Submit review</Button>
+                        <div className="game-review-buttons">
                             <Button type="danger" onClick={handleCancelReview}>Cancel</Button>
+                            <Button type="success">Submit review</Button>
                         </div>
                     </form>
                 </div>

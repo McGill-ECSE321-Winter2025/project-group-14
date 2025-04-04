@@ -21,36 +21,38 @@ import ReceivedBorrowingRequests from "./pages/AccountSpecificPages/ReceivedBorr
 import AddGame from "./pages/Other/AddGame";
 import GameDetailsPage from "./pages/GameDetails/GameDetailsPage";
 
+import { PopupProvider } from './components/PopupContext';
 
 import './App.css'
 
 function App() {
   return (
-    <Router>
-      <AuthProvider>
-        <Navbar />
-        <Routes>
+    <PopupProvider>
+      <Router>
+        <AuthProvider>
+          <Navbar />
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/signup" element={<SignUp />} />
 
-          <Route path="/" element={<Home />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/signup" element={<SignUp />} />
+            <Route path="/games" element={<ProtectedRoute><GamePage /></ProtectedRoute>} />
+            <Route path="/games/:id" element={<ProtectedRoute><GameDetailsPage /></ProtectedRoute>} />
+            <Route path="/my-games" element={<ProtectedRoute><MyGamesPage /></ProtectedRoute>} />
+            <Route path="/my-events" element={<ProtectedRoute><MyEvents /></ProtectedRoute>} />
+            <Route path="/account" element={<ProtectedRoute><Account /></ProtectedRoute>} />
+            <Route path="/events" element={<ProtectedRoute><Events /></ProtectedRoute>} />
+            <Route path="/about" element={<ProtectedRoute><About /></ProtectedRoute>} />
+            <Route path="/add-game" element={<ProtectedRoute><AddGame /></ProtectedRoute>} />
+            <Route path="/received-requests" element={<ProtectedRoute><ReceivedBorrowingRequests /></ProtectedRoute>} />
+            <Route path="/games/:id" element={<ProtectedRoute><GameDetailsPage /></ProtectedRoute>} />
 
-          <Route path="/games" element={<ProtectedRoute><GamePage /></ProtectedRoute>} />
-          <Route path="/games/:id" element={<ProtectedRoute><GameDetailsPage /></ProtectedRoute>} />
-          <Route path="/my-games" element={<ProtectedRoute><MyGamesPage /></ProtectedRoute>} />
-          <Route path="/my-events" element={<ProtectedRoute><MyEvents /></ProtectedRoute>} />
-          <Route path="/account" element={<ProtectedRoute><Account /></ProtectedRoute>} />
-          <Route path="/events" element={<ProtectedRoute><Events /></ProtectedRoute>} />
-          <Route path="/about" element={<ProtectedRoute><About /></ProtectedRoute>} />
-          <Route path="/add-game" element={<ProtectedRoute><AddGame /></ProtectedRoute>} />
-          <Route path="/received-requests" element={<ProtectedRoute><ReceivedBorrowingRequests /></ProtectedRoute>} />
-          <Route path="/games/:id" element={<ProtectedRoute><GameDetailsPage /></ProtectedRoute>} />
+            {/*<Route path="*" element={<Navigate to="/" />} />*/}
 
-          {/*<Route path="*" element={<Navigate to="/" />} />*/}
-
-        </Routes>
-      </AuthProvider>
-    </Router>
+          </Routes>
+        </AuthProvider>
+      </Router>
+    </PopupProvider>
   );
 }
 
