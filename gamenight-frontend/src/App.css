@@ -1,0 +1,147 @@
+:root {
+    --font-primary: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    --font-secondary: 'Nunito', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    --font-monospace: 'JetBrains Mono', 'SF Mono', 'Menlo', 'Monaco', 'Consolas', 'Liberation Mono', 'Courier New', monospace;
+    
+    --color-text-primary: #333333;
+    --color-text-secondary: #555555;
+    --color-text-tertiary: #777777;
+    
+    --line-height-tight: 1.2;
+    --line-height-normal: 1.5;
+    --line-height-relaxed: 1.7;
+  }
+  
+  html body {
+    font-family: var(--font-primary) !important;
+    font-size: 16px !important;
+    line-height: var(--line-height-normal) !important;
+    color: var(--color-text-primary) !important;
+    -webkit-font-smoothing: antialiased !important;
+    -moz-osx-font-smoothing: grayscale !important;
+  }
+  
+  html h1, 
+  html h2, 
+  html h3, 
+  html h4, 
+  html h5, 
+  html h6,
+  html .h1,
+  html .h2,
+  html .h3,
+  html .h4,
+  html .h5,
+  html .h6 {
+    font-family: var(--font-secondary) !important;
+    font-weight: 600 !important;
+    margin-top: 1.5em !important;
+    margin-bottom: 0.75em !important;
+    line-height: var(--line-height-tight) !important;
+    letter-spacing: -0.01em !important;
+    color: var(--color-text-primary) !important;
+  }
+  
+  html h1,
+  html .h1 {
+    font-size: 2.5rem !important;
+    font-weight: 800 !important;
+    letter-spacing: -0.02em !important;
+  }
+  
+  html h2,
+  html .h2 {
+    font-size: 2rem !important;
+    font-weight: 700 !important;
+  }
+  
+  html h3,
+  html .h3 {
+    font-size: 1.6rem !important;
+  }
+  
+  html h4,
+  html .h4 {
+    font-size: 1.6rem !important;
+  }
+  
+  html h5,
+  html .h5 {
+    font-size: 1.6rem !important;
+  }
+  
+  html h6,
+  html .h6 {
+    font-size: 1.6rem !important;
+    letter-spacing: 0.03em !important;
+  }
+  
+
+  html p,
+  html .paragraph {
+    margin-bottom: 1.25em !important;
+    font-size: 1.2rem !important;
+    line-height: var(--line-height-relaxed) !important;
+    font-family: var(--font-primary) !important;
+  }
+  
+  html small,
+  html .small {
+    font-size: 0.875rem !important;
+    color: var(--color-text-tertiary) !important;
+    font-family: var(--font-primary) !important;
+  }
+  
+  html .caption {
+    font-size: 1rem !important;
+    color: var(--color-text-tertiary) !important;
+    line-height: var(--line-height-normal) !important;
+    font-family: var(--font-primary) !important;
+  }
+  
+
+  html input, 
+  html textarea, 
+  html select, 
+  html button,
+  html .form-control,
+  html .btn {
+    font-family: var(--font-primary) !important;
+  }
+  
+
+  html .text-center {
+    text-align: center !important;
+  }
+  
+  html .text-right {
+    text-align: right !important;
+  }
+  
+  html .text-bold {
+    font-weight: 600 !important;
+  }
+  
+  html .text-italic {
+    font-style: italic !important;
+  }
+  
+
+  html div,
+  html span,
+  html label,
+  html strong,
+  html em,
+  html table,
+  html th,
+  html td,
+  html header,
+  html footer,
+  html article,
+  html section,
+  html nav,
+  html aside {
+    font-family: var(--font-primary) !important;
+  }
+  
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Nunito:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
