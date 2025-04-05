@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { 
-  Card, 
-  CardContent, 
+import {
+  Card,
+  CardContent,
   CardMedia,
-  Typography, 
-  Button, 
-  Box, 
-  IconButton, 
+  Typography,
+  Button,
+  Box,
+  IconButton,
   TextField,
   Dialog,
   DialogActions,
@@ -33,7 +33,7 @@ const GameCopyCard = ({ gameCopy, onDelete, onUpdate, isOwner }) => {
           setImageError(true);
           return;
         }
-        
+
         const response = await fetch(`http://localhost:8080/games/${gameCopy.game.id}/image`);
         if (response.ok) {
           const imageBlob = await response.blob();
@@ -57,7 +57,7 @@ const GameCopyCard = ({ gameCopy, onDelete, onUpdate, isOwner }) => {
         URL.revokeObjectURL(imageUrl);
       }
     };
-  }, [gameCopy.game.id, imageUrl]);
+  }, [gameCopy.game.id]);
 
   const handleEditClick = () => setEditMode(true);
   const handleSaveClick = () => {
@@ -77,7 +77,7 @@ const GameCopyCard = ({ gameCopy, onDelete, onUpdate, isOwner }) => {
 
   return (
     <Card sx={{
-      width: 280, 
+      width: 280,
       height: 500,
       borderRadius: '14px',
       overflow: 'hidden',
@@ -87,10 +87,10 @@ const GameCopyCard = ({ gameCopy, onDelete, onUpdate, isOwner }) => {
         transform: 'translateY(-3px)'
       }
     }}>
-      
+
       <Box sx={{
         position: 'relative',
-        paddingTop: '100%', 
+        paddingTop: '100%',
         backgroundColor: '#f5f5f5'
       }}>
         {imageLoading ? (
@@ -118,7 +118,7 @@ const GameCopyCard = ({ gameCopy, onDelete, onUpdate, isOwner }) => {
       </Box>
 
       <CardContent sx={{ p: 2.5 }}>
-        <Typography variant="subtitle1" sx={{ 
+        <Typography variant="subtitle1" sx={{
           mb: 1.5,
           fontWeight: 600,
           textAlign: 'center',
@@ -141,7 +141,7 @@ const GameCopyCard = ({ gameCopy, onDelete, onUpdate, isOwner }) => {
             size="small"
           />
         ) : (
-          <Typography variant="body2" sx={{ 
+          <Typography variant="body2" sx={{
             mb: 1.5,
             color: 'text.secondary',
             textAlign: 'center',
@@ -156,9 +156,9 @@ const GameCopyCard = ({ gameCopy, onDelete, onUpdate, isOwner }) => {
           </Typography>
         )}
 
-        
+
         {isOwner && (
-          <Box sx={{ 
+          <Box sx={{
             display: 'flex',
             justifyContent: 'center',
             gap: 1.5,
@@ -166,16 +166,16 @@ const GameCopyCard = ({ gameCopy, onDelete, onUpdate, isOwner }) => {
           }}>
             {editMode ? (
               <>
-                <Button 
-                  variant="outlined" 
+                <Button
+                  variant="outlined"
                   onClick={handleCancelEdit}
                   size="small"
                   sx={{ borderRadius: '18px', px: 2 }}
                 >
                   Cancel
                 </Button>
-                <Button 
-                  variant="contained" 
+                <Button
+                  variant="contained"
                   onClick={handleSaveClick}
                   size="small"
                   sx={{ borderRadius: '18px', px: 2 }}
@@ -185,49 +185,49 @@ const GameCopyCard = ({ gameCopy, onDelete, onUpdate, isOwner }) => {
               </>
             ) : (
               <>
-              <IconButton 
-                aria-label="edit" 
-                onClick={handleEditClick}
-                sx={{ 
-                  backgroundColor: '#0d90a4', // Blue
-                  color: '#ffffff', // Black icon color
-                  '&:hover': { backgroundColor: '#74e1eb' } // Light blue on hover
-                }}
-              >
-                <EditIcon />
-              </IconButton>
-              <IconButton 
-                aria-label="delete" 
-                onClick={handleDeleteClick}
-                sx={{ 
-                  backgroundColor: '#ff6574', // Red
-                  color: '#ffffff', // Black icon color
-                  '&:hover': { backgroundColor: '#fcb559' } // Yellow on hover
-                }}
-              >
-                <DeleteIcon />
-              </IconButton>
+                <IconButton
+                  aria-label="edit"
+                  onClick={handleEditClick}
+                  sx={{
+                    backgroundColor: '#0d90a4', // Blue
+                    color: '#ffffff', // Black icon color
+                    '&:hover': { backgroundColor: '#74e1eb' } // Light blue on hover
+                  }}
+                >
+                  <EditIcon />
+                </IconButton>
+                <IconButton
+                  aria-label="delete"
+                  onClick={handleDeleteClick}
+                  sx={{
+                    backgroundColor: '#ff6574', // Red
+                    color: '#ffffff', // Black icon color
+                    '&:hover': { backgroundColor: '#fcb559' } // Yellow on hover
+                  }}
+                >
+                  <DeleteIcon />
+                </IconButton>
               </>
             )}
           </Box>
         )}
       </CardContent>
 
-      
+
       <Dialog open={deleteConfirmOpen} onClose={handleCancelDelete}>
         <DialogTitle sx={{ textAlign: 'center' }}>Confirm Delete</DialogTitle>
         <DialogContent sx={{ textAlign: 'center' }}>
           <Typography>Are you sure you want to delete this game copy?</Typography>
         </DialogContent>
         <DialogActions sx={{ justifyContent: 'center', pb: 3, px: 3 }}>
-          <Button 
+          <Button
             onClick={handleCancelDelete}
             sx={{ borderRadius: '18px', px: 3 }}
           >
             Cancel
           </Button>
-          <Button 
-            onClick={handleConfirmDelete} 
+          <Button
+            onClick={handleConfirmDelete}
             color="error"
             variant="contained"
             sx={{ borderRadius: '18px', px: 3 }}

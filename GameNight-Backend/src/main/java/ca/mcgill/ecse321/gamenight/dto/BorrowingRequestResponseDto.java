@@ -5,7 +5,6 @@ import java.sql.Date;
 import ca.mcgill.ecse321.gamenight.model.BorrowingRequest;
 import ca.mcgill.ecse321.gamenight.model.BorrowingRequest.BorrowingRequestStatus;
 
-
 public class BorrowingRequestResponseDto {
     private int id;
     private Date sendTime;
@@ -14,18 +13,21 @@ public class BorrowingRequestResponseDto {
     private String gameName;
     private String senderName;
     private BorrowingRequestStatus status;
-    
-    @SuppressWarnings("unused")
-    private BorrowingRequestResponseDto(){}
+    private int gameCopyId;
 
-    public BorrowingRequestResponseDto(BorrowingRequest request){
+    @SuppressWarnings("unused")
+    private BorrowingRequestResponseDto() {
+    }
+
+    public BorrowingRequestResponseDto(BorrowingRequest request) {
         this.id = request.getId();
         this.sendTime = request.getSendTime();
         this.endTime = request.getEndTime();
         this.startTime = request.getStartTime();
-        this.status=request.getStatus();
+        this.status = request.getStatus();
         this.gameName = request.getGameCopy().getGame().getName();
         this.senderName = request.getSender().getPerson().getName();
+        this.gameCopyId = request.getGameCopy().getId();
     }
 
     public int getId() {
@@ -56,5 +58,8 @@ public class BorrowingRequestResponseDto {
         return status;
     }
 
-}
+    public int getGameCopyId() {
+        return gameCopyId;
+    }
 
+}

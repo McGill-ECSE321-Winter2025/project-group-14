@@ -103,7 +103,7 @@ const GameReviewsTab = () => {
 
     return (
         <div>
-            <div className='card' style={{ "min-width": "100%" }}>
+            <div className='card' style={{ "minWidth": "100%" }}>
                 <div className="card-content">
                     <form onSubmit={handleSubmitReview}>
 
