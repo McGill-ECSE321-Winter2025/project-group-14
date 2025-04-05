@@ -35,7 +35,7 @@ const GamePage = () => {
                 {filteredGames.length > 0 || query === "" ? (
                     filteredGames.map((game, index) => (
                         <div key={index} className="fade-in-card">
-                            <Game id={game.id} title={game.name} rating={Math.round(game.rating * 100)} />
+                            <Game key={game.id} id={game.id} title={game.name} rating={Math.round(game.rating * 100)} />
                         </div>
                     ))
                 ) : (
