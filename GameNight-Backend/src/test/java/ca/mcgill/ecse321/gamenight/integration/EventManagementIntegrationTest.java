@@ -64,6 +64,9 @@ public class EventManagementIntegrationTest {
     @Autowired
     private GameReviewRepository reviewRepository;
 
+    @Autowired
+    private GameOwnerRepository gameOwnerRepository;
+
     private int validEventId;
     private int validPlayerId;
     private int validGameId;
@@ -88,6 +91,7 @@ public class EventManagementIntegrationTest {
         reviewRepository.deleteAll();
         playerRepository.deleteAll();
         gameRepository.deleteAll();
+        gameOwnerRepository.deleteAll();
         personRepository.deleteAll();
 
         Person playerPerson = personRepository.save(new Person("player@email.com", "pass123", "PlayerOne"));

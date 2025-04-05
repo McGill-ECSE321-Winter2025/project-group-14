@@ -184,4 +184,33 @@ public class EventManagementController {
                 .collect(Collectors.toList());
     }
 
+        /**
+     * Returns all events that the specified player is considered the creator of
+     * @param playerId The primary key of the player
+     * @return A list of events created by the specified player
+     */
+    @GetMapping("/bycreator/{playerId}")
+    public List<EventResponseDto> getEventsCreatedByPlayer(@PathVariable int playerId) {
+        return eventService.getEventsCreatedByPlayer(playerId)
+                .stream()
+                .map(EventResponseDto::new)
+                .collect(Collectors.toList());
+    }
+
+        /**
+     * Schedules multiple *existing* games for the specified event.
+     * The request body is a list of game IDs (integers) already in the database.
+     * @param eventId The ID of the event
+     * @param gameIds A list of existing game IDs to schedule for this event
+     */
+    @PostMapping("/{eventId}/scheduleGames")
+    public void scheduleExistingGamesForEvent(
+        @PathVariable int eventId,
+        @RequestBody List<Integer> gameIds) 
+        {
+        eventService.scheduleGamesForEvent(eventId, gameIds);
+    }
+
+
+
 }

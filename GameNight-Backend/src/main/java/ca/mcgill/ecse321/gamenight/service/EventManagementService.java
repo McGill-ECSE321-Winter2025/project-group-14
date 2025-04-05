@@ -45,17 +45,21 @@ public class EventManagementService {
     @Transactional
     public Event createEvent(String name, String description, Date startTime, Date endTime) {
         if (name == null || name.trim().isEmpty()) {
-
             throw new InvalidInputException("Event name cannot be null or empty.");
         }
+        
         if (startTime != null && endTime != null && endTime.before(startTime)) {
-
             throw new InvalidInputException("Event end time cannot be before the start time.");
         }
-
+        
+        if (endTime != null && endTime.before(new Date())) {
+            throw new InvalidInputException("Event end time cannot be before the current time.");
+        }
+    
         Event newEvent = new Event(name, description, startTime, endTime);
         return eventRepository.save(newEvent);
     }
+    
 
     @Transactional
     public List<Game> getGamesForEvent(int eventId) {
@@ -101,8 +105,21 @@ public class EventManagementService {
     @Transactional
     public void deleteEvent(int eventId) {
         Event event = getEventById(eventId);
+    
+        List<ScheduledGame> scheduled = scheduledGameRepository.findByKey_EventId(eventId);
+        for (ScheduledGame sg : scheduled) {
+            scheduledGameRepository.delete(sg);
+        }
+    
+        List<Registration> regs = registrationRepository.findByKey_EventId(eventId);
+        for (Registration r : regs) {
+            registrationRepository.delete(r);
+        }
+    
         eventRepository.delete(event);
     }
+    
+    
 
     @Transactional
     public Iterable<Event> getAllEvents() {
@@ -162,4 +179,47 @@ public class EventManagementService {
                 .map(r -> r.getKey().getPlayer())
                 .collect(Collectors.toList());
     }
+
+    @Transactional
+    public List<Event> getEventsCreatedByPlayer(int playerId) {
+        playerRepository.findById(playerId)
+                .orElseThrow(() -> new ObjectNotFoundException("Player not found with ID: " + playerId));
+
+        List<Event> allEvents = (List<Event>) eventRepository.findAll();
+
+        List<Event> createdByPlayer = new ArrayList<>();
+
+        for (Event event : allEvents) {
+            Registration earliestReg = registrationRepository.findFirstByKey_EventIdOrderByCreatedAtAsc(event.getId());
+            if (earliestReg != null && earliestReg.getKey().getPlayer().getId() == playerId) {
+                createdByPlayer.add(event);
+            }
+        }
+
+        return createdByPlayer;
+    }
+
+
+
+    @Transactional
+    public void scheduleGamesForEvent(int eventId, List<Integer> gameIds) {
+        Event event = getEventById(eventId);
+    
+        if (gameIds == null || gameIds.isEmpty()) {
+            throw new InvalidInputException("Cannot schedule an empty list of games.");
+        }
+    
+        for (Integer gameId : gameIds) {
+            Game game = gameRepository.findById(gameId)
+                    .orElseThrow(() -> new ObjectNotFoundException("Game not found with ID: " + gameId));
+    
+            ScheduledGame.Key key = new ScheduledGame.Key(game, event);
+    
+            ScheduledGame scheduledGame = new ScheduledGame(key);
+            scheduledGameRepository.save(scheduledGame);
+        }
+    }
+    
+    
+
 }

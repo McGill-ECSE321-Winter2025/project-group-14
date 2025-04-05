@@ -7,19 +7,21 @@ import Navbar from "./components/navigation/Navbar";
 import ProtectedRoute from "./components/navigation/ProtectedRoute";
 
 // Pages
-
 import Home from "./pages/Home/Home";
 import Login from "./pages/Auth/Login";
 import SignUp from "./pages/Auth/SignUp";
 import GamePage from "./pages/Other/GamePage";
 import MyGamesPage from "./pages/AccountSpecificPages/MyGames.js";
 import MyEvents from "./pages/AccountSpecificPages/MyEvents";
+import EventHistory from "./pages/AccountSpecificPages/EventHistory";
 import Events from "./pages/Other/Events";
 import Account from "./pages/AccountSpecificPages/Account";
 import About from "./pages/Other/About";
 import ReceivedBorrowingRequests from "./pages/AccountSpecificPages/ReceivedBorrowingRequests";
 import AddGame from "./pages/Other/AddGame";
 import GameDetailsPage from "./pages/GameDetails/GameDetailsPage";
+import EventDetails from "./pages/Other/EventDetails.js";
+
 import SentRequests from "./pages/AccountSpecificPages/SentRequests";
 
 import { PopupProvider } from './components/PopupContext';
@@ -43,6 +45,8 @@ function App() {
             <Route path="/my-events" element={<ProtectedRoute><MyEvents /></ProtectedRoute>} />
             <Route path="/account" element={<ProtectedRoute><Account /></ProtectedRoute>} />
             <Route path="/events" element={<ProtectedRoute><Events /></ProtectedRoute>} />
+            <Route path="/events/:eventId" element={<ProtectedRoute><EventDetails /></ProtectedRoute>} />
+            <Route path="/event-history" element={<ProtectedRoute><EventHistory /></ProtectedRoute>} />
             <Route path="/about" element={<ProtectedRoute><About /></ProtectedRoute>} />
             <Route path="/add-game" element={<ProtectedRoute><AddGame /></ProtectedRoute>} />
             <Route path="/received-requests" element={<ProtectedRoute><ReceivedBorrowingRequests /></ProtectedRoute>} />
@@ -56,6 +60,7 @@ function App() {
         </AuthProvider>
       </Router>
     </PopupProvider>
+
   );
 }
 

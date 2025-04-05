@@ -2,8 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../AuthContext';
 import { UserManagementAPI } from '../../UserManagementAPI';
 import AccountSettings from './AccountSettings';
+
 import GameHistory from './GameHistory';
-import MyEvents from './EventHistory';
+import EventHistory from './EventHistory';
+
+
 import '../../styles/layout.css';
 import './Account.css';
 import '../../styles/tabs.css';
@@ -16,6 +19,7 @@ import {
     Tabs,
     Tab
   } from "@mui/material";
+
 
 
 const Account = () => {
@@ -81,10 +85,12 @@ const Account = () => {
             </Box>
 
             <Box className="tab-content fade-in-on-scroll">
+
                 {tabValue === 0 && <AccountSettings />}
                 {tabValue === 1 && <MyReviews />}
                 {tabValue === 2 && <GameHistory />}
-                {tabValue === 3 && <MyEvents />}
+                {tabValue === 3 && <EventHistory />}
+
             </Box>
         </div>
     );
