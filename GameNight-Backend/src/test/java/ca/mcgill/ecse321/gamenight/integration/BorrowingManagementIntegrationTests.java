@@ -39,6 +39,7 @@ import ca.mcgill.ecse321.gamenight.repo.BorrowingRequestRepository;
 import ca.mcgill.ecse321.gamenight.repo.GameCopyRepository;
 import ca.mcgill.ecse321.gamenight.repo.GameOwnerRepository;
 import ca.mcgill.ecse321.gamenight.repo.GameRepository;
+import ca.mcgill.ecse321.gamenight.repo.GameReviewRepository;
 import ca.mcgill.ecse321.gamenight.repo.PersonRepository;
 import ca.mcgill.ecse321.gamenight.repo.PlayerRepository;
 import ca.mcgill.ecse321.gamenight.service.EmailService;
@@ -68,6 +69,9 @@ public class BorrowingManagementIntegrationTests {
         @Autowired
         private BorrowingRequestRepository borrowingRequestRepository;
 
+        @Autowired
+        private GameReviewRepository gameReviewRepository;
+
         @Mock
         private EmailService emailService;
 
@@ -96,6 +100,7 @@ public class BorrowingManagementIntegrationTests {
 
         @BeforeAll
         public void setup() {
+                gameReviewRepository.deleteAll();
                 gameCopyRepository.deleteAll();
                 gameRepository.deleteAll();
                 gameOwnerRepository.deleteAll();
@@ -125,6 +130,7 @@ public class BorrowingManagementIntegrationTests {
         public void cleanup() {
                 borrowingRequestRepository.deleteAll();
                 gameCopyRepository.deleteAll();
+                gameReviewRepository.deleteAll();
                 playerRepository.deleteAll();
                 gameOwnerRepository.deleteAll();
                 gameRepository.deleteAll();
