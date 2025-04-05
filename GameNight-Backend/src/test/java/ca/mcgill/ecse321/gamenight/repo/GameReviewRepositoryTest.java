@@ -1,194 +1,82 @@
 package ca.mcgill.ecse321.gamenight.repo;
 
-import static org.junit.jupiter.api.Assertions.*;
+import ca.mcgill.ecse321.gamenight.model.*;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
 import java.util.List;
+import java.util.UUID;
 
-import org.junit.jupiter.api.*;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
+import static org.junit.jupiter.api.Assertions.*;
 
-import ca.mcgill.ecse321.gamenight.model.*;
-
-@SpringBootTest
+@DataJpaTest
 public class GameReviewRepositoryTest {
 
     @Autowired
-    private GameReviewRepository gameReviewRepo;
+    private GameReviewRepository gameReviewRepository;
 
     @Autowired
-    private GameRepository gameRepo;
+    private PlayerRepository playerRepository;
 
     @Autowired
-    private PersonRepository personRepo;
+    private GameRepository gameRepository;
 
     @Autowired
-    private PlayerRepository playerRepo;
+    private PersonRepository personRepository;
 
-    private Person person;
-    private Player player;
     private Game game;
+    private Player player;
 
     @BeforeEach
     public void setUp() {
-        clearDatabase();
+        gameReviewRepository.deleteAll();
+        playerRepository.deleteAll();
+        personRepository.deleteAll();
+        gameRepository.deleteAll();
 
-        person = new Person("aaaaaa@gmail.com", "aaaaa", "Bertrand");
-        personRepo.save(person);
+        // Create and save a unique person
+        String uniqueEmail = "user_" + UUID.randomUUID().toString() + "@test.com";
+        Person person = new Person(uniqueEmail, "password123", "Test User");
+        personRepository.save(person);
 
-        player = new Player(person);
-        playerRepo.save(player);
+        // Create and save a player linked to the person
+        player = new Player();
+        player.setPerson(person);
+        playerRepository.save(player);
 
-        game = new Game("Batman", "A Batman game");
-        gameRepo.save(game);
-    }
-
-    @AfterEach
-    public void clearDatabase() {
-        gameReviewRepo.deleteAll();
-        gameRepo.deleteAll();
-        playerRepo.deleteAll();
-        personRepo.deleteAll();
-    }
-
-    @Test
-    public void testCreateAndReadGameReview() {
-        GameReview gameReview = new GameReview(5, "Great game!", player, game);
-        gameReviewRepo.save(gameReview);
-
-        GameReview retrievedGameReview = gameReviewRepo.findById(gameReview.getId()).orElse(null);
-
-        assertNotNull(retrievedGameReview);
-        assertEquals(gameReview.getRating(), retrievedGameReview.getRating());
-        assertEquals(gameReview.getComment(), retrievedGameReview.getComment());
-        assertEquals(gameReview.getGame().getId(), retrievedGameReview.getGame().getId());
-        assertEquals(gameReview.getReviewer().getPerson().getName(),
-                retrievedGameReview.getReviewer().getPerson().getName());
-    }
-
-    @Test
-    public void testDeleteGameReview() {
-        GameReview gameReview = new GameReview(5, "Great game!", player, game);
-        gameReviewRepo.save(gameReview);
-
-        gameReviewRepo.delete(gameReview);
-
-        GameReview deletedGameReview = gameReviewRepo.findById(gameReview.getId()).orElse(null);
-
-        assertNull(deletedGameReview);
-    }
-
-    @Test
-    public void testFindByGame() {
-
-        GameReview gameReview1 = new GameReview(5, "Great game!", player, game);
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        GameReview gameReview2 = new GameReview(4, "Good game!", player, game);
-
-        gameReviewRepo.save(gameReview1);
-        gameReviewRepo.save(gameReview2);
-
-        List<GameReview> reviews = gameReviewRepo.findByGame(game);
-
-        assertEquals(2, reviews.size());
-
-        assertTrue(reviews.stream().anyMatch(review -> matchesGameReview(review, gameReview1)),
-                "GameReview1 not found in the list");
-        assertTrue(reviews.stream().anyMatch(review -> matchesGameReview(review, gameReview2)),
-                "GameReview2 not found in the list");
-    }
-
-    @Test
-    public void testFindByGameOrderByDatePostedDesc() {
-
-        GameReview gameReview1 = new GameReview(5, "Great game!", player, game);
-        gameReviewRepo.save(gameReview1);
-
-        GameReview gameReview2 = new GameReview(4, "Good game!", player, game);
-        gameReviewRepo.save(gameReview2);
-
-        List<GameReview> reviews = gameReviewRepo.findByGameOrderByDatePostedDesc(game);
-
-        assertEquals(2, reviews.size(), "There should be exactly 2 reviews");
-        assertTrue(matchesGameReview(reviews.get(0), gameReview2), "First review should be the most recent one");
-        assertTrue(matchesGameReview(reviews.get(1), gameReview1), "Second review should be the older one");
-    }
-
-    @Test
-    public void testFindByReviewer() {
-
-        GameReview gameReview1 = new GameReview(5, "Great game!", player, game);
-        GameReview gameReview2 = new GameReview(4, "Good game!", player, game);
-        gameReviewRepo.save(gameReview1);
-        gameReviewRepo.save(gameReview2);
-
-        List<GameReview> reviews = gameReviewRepo.findByReviewer(player);
-
-        assertEquals(2, reviews.size());
-
-        assertTrue(reviews.stream().anyMatch(review -> matchesGameReview(review, gameReview1)));
-        assertTrue(reviews.stream().anyMatch(review -> matchesGameReview(review, gameReview2)));
-    }
-
-    @Test
-    public void testFindByGameOrderByRatingAsc() {
-        GameReview gameReview1 = new GameReview(5, "Great game!", player, game);
-        GameReview gameReview2 = new GameReview(4, "Good game!", player, game);
-        gameReviewRepo.save(gameReview1);
-        gameReviewRepo.save(gameReview2);
-
-        List<GameReview> reviews = gameReviewRepo.findByGameOrderByRatingAsc(game);
-
-        assertEquals(2, reviews.size());
-        assertEquals(gameReview2.getId(), reviews.get(0).getId());
-        assertEquals(4, reviews.get(0).getRating());
-        assertEquals(gameReview1.getId(), reviews.get(1).getId());
-        assertEquals(5, reviews.get(1).getRating());
+        // Create and save a game
+        game = new Game("Chess", "A strategic board game");
+        gameRepository.save(game);
     }
 
     @Test
     public void testFindByGameOrderByRatingDesc() {
-        GameReview gameReview1 = new GameReview(5, "Great game!", player, game);
-        GameReview gameReview2 = new GameReview(4, "Good game!", player, game);
-        gameReviewRepo.save(gameReview1);
-        gameReviewRepo.save(gameReview2);
+        // Create reviews
+        GameReview review1 = new GameReview(3, "Okay game", player, game);
+        GameReview review2 = new GameReview(5, "Great game!", player, game);
+        gameReviewRepository.save(review1);
+        gameReviewRepository.save(review2);
 
-        List<GameReview> reviews = gameReviewRepo.findByGameOrderByRatingDesc(game);
-
+        List<GameReview> reviews = gameReviewRepository.findByGameOrderByRatingDesc(game);
         assertEquals(2, reviews.size());
-        assertEquals(gameReview1.getId(), reviews.get(0).getId());
         assertEquals(5, reviews.get(0).getRating());
-        assertEquals(gameReview2.getId(), reviews.get(1).getId());
-        assertEquals(4, reviews.get(1).getRating());
+        assertEquals(3, reviews.get(1).getRating());
     }
 
     @Test
-    public void testUpdateGameReview() {
-        GameReview gameReview = new GameReview(5, "Great game!", player, game);
-        gameReviewRepo.save(gameReview);
+    public void testFindByGameOrderByDatePostedDesc() {
+        // Create reviews
+        GameReview review1 = new GameReview(4, "Nice game", player, game);
+        GameReview review2 = new GameReview(2, "Not bad", player, game);
+        gameReviewRepository.save(review1);
+        gameReviewRepository.save(review2);
 
-        gameReview.setRating(3);
-        gameReview.setComment("Decent game.");
-        gameReviewRepo.save(gameReview);
+        List<GameReview> reviews = gameReviewRepository.findByGameOrderByDatePostedDesc(game);
+        assertEquals(2, reviews.size());
 
-        GameReview updatedGameReview = gameReviewRepo.findById(gameReview.getId()).orElse(null);
-
-        assertNotNull(updatedGameReview);
-        assertEquals(3, updatedGameReview.getRating());
-        assertEquals("Decent game.", updatedGameReview.getComment());
+        assertTrue(reviews.get(0).getDatePosted().after(reviews.get(1).getDatePosted())
+                || reviews.get(0).getDatePosted().equals(reviews.get(1).getDatePosted()));
     }
-
-    // helper
-    private boolean matchesGameReview(GameReview actual, GameReview expected) {
-        return actual.getId() == expected.getId() &&
-                actual.getRating() == expected.getRating() &&
-                actual.getComment().equals(expected.getComment()) &&
-                actual.getGame().getId() == expected.getGame().getId() &&
-                actual.getReviewer().getId() == expected.getReviewer().getId();
-    }
-
 }

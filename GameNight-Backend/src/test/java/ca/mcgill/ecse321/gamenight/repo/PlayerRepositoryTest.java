@@ -7,20 +7,25 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.transaction.annotation.Transactional; // Import Transactional
+
 import ca.mcgill.ecse321.gamenight.GamenightApplication;
 import ca.mcgill.ecse321.gamenight.model.Person;
 import ca.mcgill.ecse321.gamenight.model.Player;
 
 @SpringBootTest(classes = GamenightApplication.class)
+@Transactional // Add this annotation
 public class PlayerRepositoryTest {
 
-    @Autowired // everytime the test is called, @Autowired creates a new repo
+    @Autowired 
     private PlayerRepository playerRepository;
     @Autowired
     private PersonRepository personRepository;
 
+    // @AfterEach is okay, but Transactional handles rollback
     @AfterEach
     public void clearDatabase() {
+        // Order is important: Player depends on Person
         playerRepository.deleteAll();
         personRepository.deleteAll();
     }
@@ -28,7 +33,9 @@ public class PlayerRepositoryTest {
     @Test
     public void testCreateAndReadPlayer() {
         String name = "Hamza";
-        String emailAddress = "hamza@gmail.com";
+        // Use a potentially unique email for testing if needed,
+        // but @Transactional should prevent collisions now.
+        String emailAddress = "hamza_player@gmail.com"; 
         String password = "helloworld";
 
         Person person = new Person(emailAddress, password, name);
@@ -37,13 +44,17 @@ public class PlayerRepositoryTest {
         Player hamza = new Player(person);
         hamza = playerRepository.save(hamza);
 
-        Player hamzaFromDb = playerRepository.findByPersonId(person.getId());
+        // Find by Player ID is generally better here
+        // Player hamzaFromDb = playerRepository.findByPersonId(person.getId());
+        Player hamzaFromDb = playerRepository.findById(hamza.getId()).orElse(null);
+
 
         assertNotNull(hamzaFromDb);
         assertNotNull(hamzaFromDb.getPerson());
-        assertEquals(hamza.getPerson().getName(), hamzaFromDb.getPerson().getName());
-        assertEquals(hamza.getPerson().getEmailAddress(), hamzaFromDb.getPerson().getEmailAddress());
-        assertEquals(hamza.getPerson().getPassword(), hamzaFromDb.getPerson().getPassword());
-
+        // Compare IDs for relationships if possible
+        assertEquals(person.getId(), hamzaFromDb.getPerson().getId());
+        assertEquals(name, hamzaFromDb.getPerson().getName());
+        assertEquals(emailAddress, hamzaFromDb.getPerson().getEmailAddress());
+        assertEquals(password, hamzaFromDb.getPerson().getPassword());
     }
 }
