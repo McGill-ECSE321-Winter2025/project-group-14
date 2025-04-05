@@ -20,6 +20,7 @@ import About from "./pages/Other/About";
 import ReceivedBorrowingRequests from "./pages/AccountSpecificPages/ReceivedBorrowingRequests";
 import AddGame from "./pages/Other/AddGame";
 import GameDetailsPage from "./pages/GameDetails/GameDetailsPage";
+import SentRequests from "./pages/AccountSpecificPages/SentRequests";
 
 import { PopupProvider } from './components/PopupContext';
 
@@ -46,6 +47,8 @@ function App() {
             <Route path="/add-game" element={<ProtectedRoute><AddGame /></ProtectedRoute>} />
             <Route path="/received-requests" element={<ProtectedRoute><ReceivedBorrowingRequests /></ProtectedRoute>} />
             <Route path="/games/:id" element={<ProtectedRoute><GameDetailsPage /></ProtectedRoute>} />
+            <Route path="/sent-requests" element={<ProtectedRoute>< SentRequests/></ProtectedRoute>} />
+            
 
             {/*<Route path="*" element={<Navigate to="/" />} />*/}
 

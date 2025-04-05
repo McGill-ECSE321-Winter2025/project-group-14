@@ -33,5 +33,8 @@ public interface BorrowingRequestRepository extends CrudRepository<BorrowingRequ
     @Param("senderId") int senderId,
     @Param("status") BorrowingRequestStatus status,
     @Param("currentDate") Date currentDate);
+
+    @Query("SELECT r FROM BorrowingRequest r WHERE r.sender.id = ?1 ORDER BY r.sendTime DESC")
+    List<BorrowingRequest> findAllBySenderId(int senderId);
 }
 
