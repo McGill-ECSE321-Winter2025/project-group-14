@@ -14,7 +14,8 @@ import {
 import Button from './../../components/ui/Button'
 
 const AccountSettings = () => {
-    const { user } = useAuth();
+    const { user, isOwner } = useAuth();
+    const [userDetails, setUserDetails] = useState(null);
     const [userInfo, setUserInfo] = useState(null);
     const [email, setEmail] = useState('');
     const [newPassword, setNewPassword] = useState('');
@@ -22,11 +23,40 @@ const AccountSettings = () => {
     const [updateStatus, setUpdateStatus] = useState('');
     const [infoLocked, setInfoLocked] = useState('');
     const [confirmDeleteAccountOpen, setConfirmDeleteAccountOpen] = useState(false);
+    const placeholderImage = `https://i.pravatar.cc/150?u=${user?.userId || 'guest'}`;
 
     useEffect(() => {
         if (user?.userId) {
             UserManagementAPI.getUserDetails(user.userId).then(setUserInfo);
         }
+    }, [user]);
+
+    useEffect(() => {
+        if (!user?.userId) return;
+
+        const fetchDetails = async () => {
+            const details = await UserManagementAPI.getUserDetails(user.userId);
+            setUserDetails(details);
+        };
+        fetchDetails();
+
+        const handleFadeIn = () => {
+            document.querySelectorAll('.fade-in-on-scroll').forEach(section => {
+                const rect = section.getBoundingClientRect();
+                if (rect.top < window.innerHeight - 50) {
+                    section.classList.add('visible');
+                }
+            });
+        };
+
+        window.addEventListener('scroll', handleFadeIn);
+        window.addEventListener('resize', handleFadeIn);
+        handleFadeIn();
+
+        return () => {
+            window.removeEventListener('scroll', handleFadeIn);
+            window.removeEventListener('resize', handleFadeIn);
+        };
     }, [user]);
 
     const handleUpdate = async () => {
@@ -60,7 +90,7 @@ const AccountSettings = () => {
         if (success) {
             window.location.href = "/";
             sessionStorage.clear();
-            
+
         }
     }
 
@@ -85,84 +115,14 @@ const AccountSettings = () => {
     );
 
     return (
-        <div className="account-settings-container">
-            <div className="settings-card">
-                <div className="card-header">
-                    <div className="header-title">
-                        <FiUser className="header-icon" />
-                        <h2>Account Settings</h2>
-                    </div>
-                    <div className="header-actions">
-                        <AccountRoleToggle userId={user.userId} />
-                        <InfoIcon id="toggleRole" />
-                    </div>
-                </div>
-                <InfoText id="toggleRole">Switch between player and owner mode.</InfoText>
-
-                <div className="settings-section">
-                    <div className="section-header">
-                        <div className="section-title">
-                            <FiMail className="section-icon" />
-                            <h3>Update Credentials</h3>
-                        </div>
-                        <InfoIcon id="emailPass" />
-                    </div>
-                    <InfoText id="emailPass">Change email or password. Current password required.</InfoText>
-
-                    <div className="auth-form">
-                        <div className="form-group">
-                            <label htmlFor="email">
-                                <FiMail className="input-icon" />
-                                New Email
-                            </label>
-                            <input
-                                id="email"
-                                type="email"
-                                placeholder="Enter new email address"
-                                value={email}
-                                onChange={e => setEmail(e.target.value)}
-                            />
-                        </div>
-
-                        <div className="form-group">
-                            <label htmlFor="newPassword">
-                                <FiLock className="input-icon" />
-                                New Password
-                            </label>
-                            <input
-                                id="newPassword"
-                                type="password"
-                                placeholder="Enter new password"
-                                value={newPassword}
-                                onChange={e => setNewPassword(e.target.value)}
-                            />
-                        </div>
-
-                        <div className="form-group">
-                            <label htmlFor="currentPassword">
-                                <FiLock className="input-icon" />
-                                Current Password
-                            </label>
-                            <input
-                                id="currentPassword"
-                                type="password"
-                                placeholder="Enter current password"
-                                required
-                                value={oldPassword}
-                                onChange={e => setOldPassword(e.target.value)}
-                            />
-                        </div>
-
-                        <button className="update-button" onClick={handleUpdate}>
-                            <FiCheck className="button-icon" />
-                            Save Changes
-                        </button>
-
-                        {updateStatus && (
-                            <p className={`status-message ${updateStatus.includes("success") ? "success" : "error"}`}>
-                                {updateStatus}
-                            </p>
-                        )}
+        <div className='account-settings-container'>
+            <div className='account-settings-item '>
+                <div className="profile-container">
+                    <img className="profile-image" src={placeholderImage} alt="profile" />
+                    <div className="profile-details">
+                        <h2>{userDetails?.name || 'Unknown User'}</h2>
+                        <p>{userDetails?.email || 'Unknown Email'}</p>
+                        <p>{isOwner ? 'Game Owner' : 'Player'}</p>
                     </div>
                 </div>
 
@@ -182,20 +142,103 @@ const AccountSettings = () => {
                 </div>
             </div>
 
-            <Dialog open={confirmDeleteAccountOpen}>
-                <DialogTitle>Warning</DialogTitle>
-                <DialogContent>
-                    <Typography>Do you really want to delete your account? This action cannot be undone.</Typography>
-                </DialogContent>
-                <DialogActions>
-                    <Button type="success" onClick={deleteAccountConfirmed}>
-                        Delete account
-                    </Button>
-                    <Button type="danger" onClick={deleteAccountCanceled}>
-                        Cancel
-                    </Button>
-                </DialogActions>
-            </Dialog>
+            <div className='account-settings-item '>
+                <div className="settings-card">
+                    <div className="card-header">
+                        <div className="header-title">
+                            <FiUser className="header-icon" />
+                            <h2>Account Settings</h2>
+                        </div>
+                        <div className="header-actions">
+                            <AccountRoleToggle userId={user.userId} />
+                            <InfoIcon id="toggleRole" />
+                        </div>
+                    </div>
+                    <InfoText id="toggleRole">Switch between player and owner mode.</InfoText>
+
+                    <div className="settings-section">
+                        <div className="section-header">
+                            <div className="section-title">
+                                <FiMail className="section-icon" />
+                                <h3>Update Credentials</h3>
+                            </div>
+                            <InfoIcon id="emailPass" />
+                        </div>
+                        <InfoText id="emailPass">Change email or password. Current password required.</InfoText>
+
+                        <div className="auth-form">
+                            <div className="form-group">
+                                <label htmlFor="email">
+                                    <FiMail className="input-icon" />
+                                    New Email
+                                </label>
+                                <input
+                                    id="email"
+                                    type="email"
+                                    placeholder="Enter new email address"
+                                    value={email}
+                                    onChange={e => setEmail(e.target.value)}
+                                />
+                            </div>
+
+                            <div className="form-group">
+                                <label htmlFor="newPassword">
+                                    <FiLock className="input-icon" />
+                                    New Password
+                                </label>
+                                <input
+                                    id="newPassword"
+                                    type="password"
+                                    placeholder="Enter new password"
+                                    value={newPassword}
+                                    onChange={e => setNewPassword(e.target.value)}
+                                />
+                            </div>
+
+                            <div className="form-group">
+                                <label htmlFor="currentPassword">
+                                    <FiLock className="input-icon" />
+                                    Current Password
+                                </label>
+                                <input
+                                    id="currentPassword"
+                                    type="password"
+                                    placeholder="Enter current password"
+                                    required
+                                    value={oldPassword}
+                                    onChange={e => setOldPassword(e.target.value)}
+                                />
+                            </div>
+
+                            <button className="update-button" onClick={handleUpdate}>
+                                <FiCheck className="button-icon" />
+                                Save Changes
+                            </button>
+
+                            {updateStatus && (
+                                <p className={`status-message ${updateStatus.includes("success") ? "success" : "error"}`}>
+                                    {updateStatus}
+                                </p>
+                            )}
+                        </div>
+                    </div>
+                </div>
+
+                <Dialog open={confirmDeleteAccountOpen}>
+                    <DialogTitle>Warning</DialogTitle>
+                    <DialogContent>
+                        <Typography>Do you really want to delete your account? This action cannot be undone.</Typography>
+                    </DialogContent>
+                    <DialogActions>
+                        <Button type="success" onClick={deleteAccountConfirmed}>
+                            Delete account
+                        </Button>
+                        <Button type="danger" onClick={deleteAccountCanceled}>
+                            Cancel
+                        </Button>
+                    </DialogActions>
+                </Dialog>
+            </div>
         </div>
     );
 };

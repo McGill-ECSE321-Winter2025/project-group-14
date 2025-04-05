@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
 import { useAuth } from '../../AuthContext';
 import { UserManagementAPI } from '../../UserManagementAPI';
 import AccountSettings from './AccountSettings';
@@ -9,14 +8,24 @@ import '../../styles/layout.css';
 import './Account.css';
 import '../../styles/tabs.css';
 import '../../styles/card.css';
-import Box from '../../components/ui/Box';
 import MyReviews from './MyReviews';
+import {
+    Box,
+    CardMedia,
+    CircularProgress,
+    Tabs,
+    Tab
+  } from "@mui/material";
 
 
 const Account = () => {
     const { user, isOwner } = useAuth();
-    const [activeTab, setActiveTab] = useState('settings');
     const [userDetails, setUserDetails] = useState(null);
+    const [tabValue, setTabValue] = useState(0);
+
+    const handleTabChange = (event, tab) => {
+        setTabValue(tab);
+    };
 
     useEffect(() => {
         if (!user?.userId) return;
@@ -46,37 +55,38 @@ const Account = () => {
         };
     }, [user]);
 
-    const placeholderImage = `https://i.pravatar.cc/150?u=${user?.userId || 'guest'}`;
-
     return (
-        <Box>
-            <h1 className="centered">My Account</h1>
-
-            <div className="central-image-container fade-in-on-scroll">
-                <div className="profile-container">
-                    <img className="profile-image" src={placeholderImage} alt="profile" />
-                    <div className="profile-details">
-                        <h2>{userDetails?.name || 'Unknown User'}</h2>
-                        <p>{userDetails?.email || 'Unknown Email'}</p>
-                        <p>{isOwner ? 'Game Owner' : 'Player'}</p>
-                    </div>
-                </div>
-            </div>
-
-            <div className="tabs fade-in-on-scroll">
-                <button className={`tab ${activeTab === 'settings' ? 'active' : ''}`} onClick={() => setActiveTab('settings')}>Settings</button>
-                <button className={`tab ${activeTab === 'reviews' ? 'active' : ''}`} onClick={() => setActiveTab('reviews')}>My Reviews</button>
-                <button className={`tab ${activeTab === 'games' ? 'active' : ''}`} onClick={() => setActiveTab('games')}>Game History</button>
-                <button className={`tab ${activeTab === 'events' ? 'active' : ''}`} onClick={() => setActiveTab('events')}>Event History</button>
-            </div>
+        <div>
+            <Box sx={{
+                width: '100%',
+                mb: 3,
+                '& .MuiTabs-indicator': { backgroundColor: 'black', height: '3px' },
+                '& .MuiTab-root': {
+                    color: '#666',
+                    fontSize: '1rem',
+                    textTransform: 'none',
+                    fontWeight: 500,
+                    padding: '12px 24px',
+                    minWidth: 'unset',
+                    '&.Mui-selected': { color: 'black', fontWeight: 600 },
+                    '&:hover': { color: 'black', opacity: 1 }
+                }
+            }}>
+                <Tabs value={tabValue} onChange={handleTabChange} centered variant="fullWidth">
+                    <Tab label="My Account" />
+                    <Tab label="My Review" />
+                    <Tab label="Game History" />
+                    <Tab label="Game History" />
+                </Tabs>
+            </Box>
 
             <Box className="tab-content fade-in-on-scroll">
-                {activeTab === 'settings' && <AccountSettings />}
-                {activeTab === 'reviews' && <MyReviews />}
-                {activeTab === 'games' && <GameHistory />}
-                {activeTab === 'events' && <MyEvents />}
+                {tabValue === 0 && <AccountSettings />}
+                {tabValue === 1 && <MyReviews />}
+                {tabValue === 2 && <GameHistory />}
+                {tabValue === 3 && <MyEvents />}
             </Box>
-        </Box>
+        </div>
     );
 };
 
