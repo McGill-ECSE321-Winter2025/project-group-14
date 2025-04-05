@@ -6,13 +6,13 @@ import "./GameCopyGameDetailsPage.css";
 import { AuthContext } from "../../AuthContext";
 import Button from "../../components/ui/Button"
 import {
-  Card,
   Typography,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle
 } from "@mui/material";
+import '../../styles/card-with-user.css'
 
 
 const GameCopyCard = ({ gameCopyId, owner, description }) => {
@@ -23,7 +23,7 @@ const GameCopyCard = ({ gameCopyId, owner, description }) => {
   const [requestBorrowOpen, setBorrowRequestOpen] = useState(false);
 
   useEffect(() => {
-    fetch(`http://localhost:8080/players?person_id=${user.userId}`, {
+    fetch(`http://localhost:8080/users/${user.userId}/player-id`, {
       headers: { "Content-Type": "application/json", "User-Id": user.userId },
     })
       .then((response) => response.json())
@@ -64,27 +64,27 @@ const GameCopyCard = ({ gameCopyId, owner, description }) => {
   }
 
   return (
-    <Card>
-      <div className="game-copy-card">
-        <div className="card-content">
-          <div className="user-section">
-            <div className="avatar">
-              {owner?.charAt(0).toUpperCase()}
-            </div>
-            <div className="user-details">
-              <h3 className="user-name">{owner}</h3>
-            </div>
+    <div className="card">
+      <div className="card-content">
+        <div className="user-section">
+          <div className="avatar">
+            {owner?.charAt(0).toUpperCase()}
           </div>
+          <div className="user-details">
+            <h3 className="user-name">{owner}</h3>
+          </div>
+        </div>
 
-          <div className="game-section">
-            <div className="info-row">
-              <span className="info-label">Details:</span>
-              <span className="comment-value">{description}</span>
-            </div>
+        <div className="shaded-section">
+          <div className="info-row">
+            <span className="info-label">Details:</span>
+            <span className="comment-value">{description}</span>
           </div>
-          <Button onClick={handleBorrowClick}>
-            Ask to Borrow
-          </Button>
+        </div>
+        <div className="asktoborrow-button-container">
+        <Button onClick={handleBorrowClick}>
+          Ask to Borrow
+        </Button>
         </div>
       </div>
 
@@ -116,7 +116,7 @@ const GameCopyCard = ({ gameCopyId, owner, description }) => {
           </div>
         </DialogActions>
       </Dialog>
-    </Card>
+    </div>
   );
 };
 

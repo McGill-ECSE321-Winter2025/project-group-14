@@ -109,13 +109,14 @@ public class GameReviewRepositoryTest {
         GameReview gameReview1 = new GameReview(5, "Great game!", player, game);
         gameReviewRepo.save(gameReview1);
 
-        GameReview gameReview2 = new GameReview(4, "Good game!", player, game);
-        gameReviewRepo.save(gameReview2);
         try {
             Thread.sleep(1000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+        
+        GameReview gameReview2 = new GameReview(4, "Good game!", player, game);
+        gameReviewRepo.save(gameReview2);
 
         List<GameReview> reviews = gameReviewRepo.findByGameOrderByDatePostedDesc(game);
 
@@ -143,8 +144,16 @@ public class GameReviewRepositoryTest {
     @Test
     public void testFindByGameOrderByRatingAsc() {
         GameReview gameReview1 = new GameReview(5, "Great game!", player, game);
-        GameReview gameReview2 = new GameReview(4, "Good game!", player, game);
         gameReviewRepo.save(gameReview1);
+
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new RuntimeException(e);
+        }
+
+        GameReview gameReview2 = new GameReview(4, "Good game!", player, game);
         gameReviewRepo.save(gameReview2);
 
         List<GameReview> reviews = gameReviewRepo.findByGameOrderByRatingAsc(game);
@@ -159,9 +168,15 @@ public class GameReviewRepositoryTest {
     @Test
     public void testFindByGameOrderByRatingDesc() {
         GameReview gameReview1 = new GameReview(5, "Great game!", player, game);
-        gameReview1.setDatePosted(new Date(0));
         gameReviewRepo.save(gameReview1);
-        
+
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new RuntimeException(e);
+        }
+
         GameReview gameReview2 = new GameReview(4, "Good game!", player, game);
         gameReviewRepo.save(gameReview2);
 

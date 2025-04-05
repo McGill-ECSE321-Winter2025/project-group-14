@@ -1,0 +1,13 @@
+.game-review-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 2rem;
+    margin-top: 1rem;
+    margin-right: 10px;
+  }
+
+  .game-review-buttons Button {
+    flex: 0 0 auto;
+    width: auto;
+  }
+  

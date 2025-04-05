@@ -252,7 +252,7 @@ public class GameReviewServiceTest {
 
         double averageRating = gameReviewService.getAverageRatingForGame(game);
 
-        assertEquals(0.0, averageRating);
+        assertEquals(-1, averageRating);
     }
 
     @Test

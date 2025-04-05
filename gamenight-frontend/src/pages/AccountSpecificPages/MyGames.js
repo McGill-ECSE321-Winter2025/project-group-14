@@ -1,15 +1,10 @@
 import React, { useState, useEffect, useContext, useCallback } from "react";
-import { Tabs, Tab, Box, Grid, CircularProgress, Modal, Backdrop, Fade } from "@mui/material";
-import GameCopyCard from '../../components/cards/GameCopyCard';
-import AddGameCopyForm from '../../components/forms/AddGameCopyForm';
-
+import { Tabs, Tab, Box, Modal, Backdrop, Fade } from "@mui/material";
+import GameCopyCard from "../../components/cards/GameCopyCard";
+import AddGameCopyCard from "../../components/cards/AddGameCopyCard"; // New import
+import AddGameCopyForm from "../../components/forms/AddGameCopyForm";
 import { AuthContext } from "../../AuthContext";
-import Button from "../../components/ui/Button";
-import '../../styles/layout.css';
-import '../../styles/tabs.css';
-import '../../styles/button.css';
-import '../../components/cards/BorrowingRequestItem.css';
-
+import BorrowingRequestItem from '../../components/cards/BorrowingRequestItem';
 
 function MyGamesPage() {
   const { user } = useContext(AuthContext);
@@ -35,35 +30,50 @@ function MyGamesPage() {
 
   const fetchBorrowedGameCopies = useCallback(async () => {
     try {
-      const response = await fetch(`http://localhost:8080/game-copies/borrowed?borrower_id=${user?.userId}`, {
-        headers: { "Content-Type": "application/json", "User-Id": user?.userId },
+      const playerResponse = await fetch(`http://localhost:8080/users/${user?.userId}/player-id`, {
+        headers: { 
+          "Content-Type": "application/json",
+          "User-Id": user?.userId 
+        }
       });
-      const data = await response.json();
+      
+      if (!playerResponse.ok) throw new Error("Failed to fetch player ID");
+      const playerId = await playerResponse.json();
+  
+      const requestsResponse = await fetch(
+        `http://localhost:8080/borrowingRequests/${playerId}/status/accepted`,
+        {
+          headers: { 
+            "Content-Type": "application/json",
+            "User-Id": user?.userId 
+          }
+        }
+      );
+  
+      if (!requestsResponse.ok) throw new Error("Failed to fetch borrowed games");
+      
+      const data = await requestsResponse.json();
       setBorrowedGameCopies(Array.isArray(data) ? data : []);
+      
     } catch (error) {
-      console.error("Error fetching borrowed games:", error);
+      console.error("Error in fetchBorrowedGameCopies:", error);
       setBorrowedGameCopies([]);
     }
   }, [user?.userId]);
-
+  
   useEffect(() => {
     if (!authChecked || !user) return;
 
     const loadData = async () => {
       setLoading(true);
-      await Promise.all([fetchMyGameCopies(), fetchBorrowedGameCopies()]);
+      await Promise.all([
+        fetchMyGameCopies(), 
+        fetchBorrowedGameCopies(), 
+      ]);
       setLoading(false);
     };
     loadData();
   }, [authChecked, fetchMyGameCopies, fetchBorrowedGameCopies, user]);
-
-  if (!authChecked) {
-    return (
-      <Box display="flex" justifyContent="center" alignItems="center" minHeight="100vh">
-        <CircularProgress />
-      </Box>
-    );
-  }
 
   const handleTabChange = (event, newValue) => {
     setTabValue(newValue);
@@ -134,13 +144,10 @@ function MyGamesPage() {
         <h1 className="centered">My Games</h1>
       </div>
 
-      <Box sx={{
-        width: '100%',
+      <Box sx={{ 
+        width: '100%', 
         mb: 3,
-        '& .MuiTabs-indicator': {
-          backgroundColor: 'black',
-          height: '3px'
-        },
+        '& .MuiTabs-indicator': { backgroundColor: 'black', height: '3px' },
         '& .MuiTab-root': {
           color: '#666',
           fontSize: '1rem',
@@ -148,22 +155,11 @@ function MyGamesPage() {
           fontWeight: 500,
           padding: '12px 24px',
           minWidth: 'unset',
-          '&.Mui-selected': {
-            color: 'black',
-            fontWeight: 600
-          },
-          '&:hover': {
-            color: 'black',
-            opacity: 1
-          }
+          '&.Mui-selected': { color: 'black', fontWeight: 600 },
+          '&:hover': { color: 'black', opacity: 1 }
         }
       }}>
-        <Tabs
-          value={tabValue}
-          onChange={handleTabChange}
-          centered
-          variant="fullWidth"
-        >
+        <Tabs value={tabValue} onChange={handleTabChange} centered variant="fullWidth">
           <Tab label="My Collection" />
           <Tab label="Borrowed Games" />
         </Tabs>
@@ -171,20 +167,12 @@ function MyGamesPage() {
 
       {tabValue === 0 && (
         <>
-          <Box display="flex" justifyContent="center" sx={{ mb: 3 }}>
-            <Button onClick={handleAddGameCopy}>
-              Add Game Copy
-            </Button>
-          </Box>
-
           <Modal
             open={showAddForm}
             onClose={handleCancelAdd}
             closeAfterTransition
             BackdropComponent={Backdrop}
-            BackdropProps={{
-              timeout: 500,
-            }}
+            BackdropProps={{ timeout: 500 }}
           >
             <Fade in={showAddForm}>
               <Box sx={modalStyle}>
@@ -200,24 +188,39 @@ function MyGamesPage() {
             <Box display="flex" justifyContent="center">
               <p className="text-center">Loading your game collection...</p>
             </Box>
-          ) : myGameCopies.length === 0 ? (
-            <Box display="flex" justifyContent="center">
-              <p className="text-center">You don't have any games in your collection yet.</p>
-            </Box>
           ) : (
-            <div className="game-list">
+            <Box sx={{ 
+              display: 'flex',
+              justifyContent: 'center',
+              flexWrap: 'wrap',
+              gap: '16px',
+              maxWidth: '1200px',
+              margin: '0 auto',
+              padding: '0 16px'
+            }}>
+              {/* Add Game Copy Card - always shown */}
+              <Box sx={{ 
+                width: { xs: '100%', sm: 'calc(50% - 8px)', md: 'calc(33.333% - 11px)' },
+                maxWidth: '280px'
+              }}>
+                <AddGameCopyCard onClick={handleAddGameCopy} />
+              </Box>
+
+              {/* Existing Game Copies */}
               {myGameCopies.map((gameCopy) => (
-                <div className="fade-in-card" key={gameCopy.id}>
-                  <GameCopyCard
-                    gameCopy={gameCopy}
+                <Box key={gameCopy.id} sx={{ 
+                  width: { xs: '100%', sm: 'calc(50% - 8px)', md: 'calc(33.333% - 11px)' },
+                  maxWidth: '280px'
+                }}>
+                  <GameCopyCard 
+                    gameCopy={gameCopy} 
                     onDelete={handleDeleteGameCopy}
                     onUpdate={handleUpdateGameCopy}
                     isOwner={true}
                   />
-                </div>
+                </Box>
               ))}
-            </div>
-
+            </Box>
           )}
         </>
       )}
@@ -233,17 +236,27 @@ function MyGamesPage() {
               <p className="text-center">You haven't borrowed any games yet.</p>
             </Box>
           ) : (
-            <div className="game-list">
+            <Box sx={{ 
+              display: 'flex',
+              justifyContent: 'center',
+              flexWrap: 'wrap',
+              gap: '16px',
+              maxWidth: '1200px',
+              margin: '0 auto',
+              padding: '0 16px'
+            }}>
               {borrowedGameCopies.map((gameCopy) => (
-                <div className="fade-in-card" key={gameCopy.id}>
-                  <GameCopyCard
-                    gameCopy={gameCopy}
-                    isOwner={false}
+                <Box key={gameCopy.id} sx={{ 
+                  width: { xs: '100%', sm: 'calc(50% - 8px)', md: 'calc(33.333% - 11px)' },
+                  maxWidth: '280px'
+                }}>
+                  <BorrowingRequestItem 
+                    request={gameCopy} 
+                    badgeText="Active Borrow"
                   />
-                </div>
+                </Box>
               ))}
-            </div>
-
+            </Box>
           )}
         </>
       )}

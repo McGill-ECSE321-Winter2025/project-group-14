@@ -1,15 +1,15 @@
 import React, { useContext } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { AuthContext } from "../../AuthContext";
-import "./Navbar.css";
+import { AuthContext } from "../../AuthContext"; // Assuming path is correct
+import "./Navbar.css"; // Assuming path is correct
 
 function Navbar() {
-    const { user, logout, isOwner } = useContext(AuthContext);
+    const { user, logout, isOwner } = useContext(AuthContext); // Get isOwner state
     const navigate = useNavigate();
 
     const handleLogout = () => {
         logout();
-        setTimeout(() => navigate("/"), 0);
+        navigate("/");
     };
 
     return (
@@ -20,14 +20,20 @@ function Navbar() {
                 {user && <Link to="/events">Events</Link>}
                 {user && <Link to="/about">About</Link>}
                 {user && isOwner && <Link to="/received-requests">Borrowing Requests</Link>}
+
+                {/* Show "My Sent Requests" only if logged in AND NOT an owner */}
+                {/* --- TEXT CHANGED HERE --- */}
+                {user && !isOwner && <Link to="/sent-requests">My Sent Requests</Link> }
             </div>
 
             <div className="nav-center">
+                <Link to="/">
                 <img
                     src="https://cpmfiles1.com/christchurchsa.com/game_night_logo_web.png"
                     alt="Game Night Temporary Logo"
                     className="navbar-logo"
                 />
+                </Link>
             </div>
 
             <div className="nav-right">
@@ -36,7 +42,7 @@ function Navbar() {
                 {user && <Link to="/account">My Account</Link>}
 
                 {user ? (
-                    <Link onClick={handleLogout}>Logout</Link>
+                    <Link to="#" onClick={handleLogout}>Logout</Link>
                 ) : (
                     <>
                         <Link to="/login">Log In</Link>

@@ -1,20 +1,18 @@
 package ca.mcgill.ecse321.gamenight.controller;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import ca.mcgill.ecse321.gamenight.dto.GameCopyRequestDto;
 import ca.mcgill.ecse321.gamenight.dto.GameCopyResponseDto;
@@ -47,12 +45,15 @@ public class GameManagementController {
      * @param game The game to create
      * @return The created game
      */
-    @PostMapping("/games")
+    @PostMapping(value = "/games", consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
     @ResponseStatus(HttpStatus.CREATED)
     @RequireUser
-    public GameResponseDto createGame(@RequestBody GameRequestDto game) {
-        Game g = gameManagementService.createGame(game.getName(), game.getDescription());
-        return new GameResponseDto(g, 0d);
+    public GameResponseDto createGame(
+            @RequestPart GameRequestDto game,
+            @RequestPart(required = false) MultipartFile imageFile) throws IOException {
+
+        Game g = gameManagementService.createGame(game.getName(), game.getDescription(), imageFile);
+        return new GameResponseDto(g, 0.0);
     }
 
     /**
@@ -69,6 +70,14 @@ public class GameManagementController {
         return new GameResponseDto(g, rating);
     }
 
+    @GetMapping("/games/{id}/image")
+    public ResponseEntity<Resource> getGameImage(@PathVariable int id) throws IOException {
+        Resource image = gameManagementService.getGameImage(id);
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.IMAGE_JPEG_VALUE)
+                .body(image);
+    }
+
     /**
      * Update the game with the given ID
      * 
@@ -76,10 +85,14 @@ public class GameManagementController {
      * @param game The updated game information
      * @return The updated game
      */
-    @PutMapping("/games/{id}")
+    @PutMapping(value = "/games/{id}", consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
     @RequireUser
-    public GameResponseDto updateGame(@PathVariable int id, @RequestBody GameRequestDto game) {
-        Game g = gameManagementService.updateGame(id, game.getName(), game.getDescription());
+    public GameResponseDto updateGame(
+            @PathVariable int id,
+            @RequestPart GameRequestDto game,
+            @RequestPart(required = false) MultipartFile imageFile) throws IOException {
+
+        Game g = gameManagementService.updateGame(id, game.getName(), game.getDescription(), imageFile);
         Double rating = reviewService.getAverageRatingForGame(g);
         return new GameResponseDto(g, rating);
     }

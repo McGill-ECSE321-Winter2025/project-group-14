@@ -87,7 +87,7 @@ public class GameReviewService {
         }
         List<GameReview> reviews = gameReviewRepository.findByGame(game);
         if (reviews.isEmpty()) {
-            return 0.0; // No reviews yet
+            return -1; // No reviews yet
         }
         return reviews.stream()
                 .mapToInt(GameReview::getRating)

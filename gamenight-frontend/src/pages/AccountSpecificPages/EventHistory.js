@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+
 import { useAuth } from '../../AuthContext';
 import '../../styles/layout.css';
 import '../../styles/event-history.css';
@@ -124,18 +125,22 @@ function EventHistory() {
     const [createdEvents, setCreatedEvents] = useState([]);
     const [playerId, setPlayerId] = useState(null);
     const [loading, setLoading] = useState(true);
+
     const [error, setError] = useState(null);
 
     useEffect(() => {
         const fetchEvents = async () => {
             if (!user?.userId) {
+
                 setLoading(false);
                 setError("Please log in to view your event history.");
+
                 return;
             }
 
             try {
                 const playerRes = await axios.get(`/users/${user.userId}/player-id`);
+
                 const pid = playerRes.data;
                 setPlayerId(pid);
 
@@ -165,11 +170,13 @@ function EventHistory() {
                 setCreatedEvents([]);
             } finally {
                 setLoading(false);
+
             }
         };
 
         fetchEvents();
     }, [user?.userId]);
+
 
    
     const sortedEvents = [...events].sort((a, b) => {
@@ -237,9 +244,11 @@ function EventHistory() {
                 </div>
             ) : (
                 <p className="centered empty-message">You are not registered for any events.</p>
+
             )}
         </div>
     );
 }
 
-export default EventHistory;
+export default MyEvents;
+

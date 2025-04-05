@@ -120,19 +120,19 @@ const AddGameCopyForm = ({ onCancel, onSuccess }) => {
                     borderTop: '1px solid #e0e0e0',
                     marginTop: 1,
                     '&.MuiMenuItem-root': {
-                      backgroundColor: '#f5f5f5', // Base state
-                    },
-                    '&.MuiMenuItem-root:hover': {
-                      backgroundColor: '#e0e0e0 !important', // Darker gray on hover
-                      color: '#1b5e20'
-                    },
-                    '&.Mui-selected': {
-                      backgroundColor: '#f5f5f5' // Prevent blue when selected
-                    },
-                    '&.Mui-focusVisible': {
-                      backgroundColor: '#f5f5f5' // Prevent focus state from changing color
-                    }
-                  }}
+                        backgroundColor: '#f5f5f5', 
+                      },
+                      '&.MuiMenuItem-root:hover': {
+                        backgroundColor: '#e0e0e0 !important',
+                        color: '#1b5e20'
+                      },
+                      '&.Mui-selected': {
+                        backgroundColor: '#f5f5f5' 
+                      },
+                      '&.Mui-focusVisible': {
+                        backgroundColor: '#f5f5f5' 
+                      }
+                    }}
                 >
                   Create a new game
                 </MenuItem>

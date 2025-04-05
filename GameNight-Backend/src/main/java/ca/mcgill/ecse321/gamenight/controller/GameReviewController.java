@@ -18,8 +18,12 @@ import ca.mcgill.ecse321.gamenight.exception.InvalidInputException;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 @RestController
 public class GameReviewController {
+    private static final Logger logger = LoggerFactory.getLogger(GameReviewController.class);
 
     @Autowired
     private GameReviewService gameReviewService;
@@ -84,8 +88,16 @@ public class GameReviewController {
     public ResponseEntity<GameReviewDto> updateReview(
             @PathVariable int reviewId,
             @RequestBody GameReviewDto reviewDto) {
+
+        logger.info("in the update endpoint");
         try {
+            logger.info(reviewDto.getAuthor());
+            logger.info(reviewDto.getComment());
+            logger.info(Integer.toString(reviewDto.getRating()));
+            logger.info(Integer.toString(reviewDto.getReviewId()));
+            logger.info(Integer.toString(reviewDto.getReviewerId()));
             GameReview review = convertToEntity(reviewDto);
+
             GameReview updatedReview = gameReviewService.updateReview(reviewId, review.getRating(),
                     review.getComment());
             return new ResponseEntity<>(convertToDto(updatedReview), HttpStatus.OK);
@@ -119,6 +131,7 @@ public class GameReviewController {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
+
     @GetMapping("/users/{reviewerId}/reviews")
     public ResponseEntity<List<GameReviewDto>> getReviewsByUser(@PathVariable int reviewerId) {
         try {

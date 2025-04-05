@@ -1,7 +1,10 @@
+
+
 package ca.mcgill.ecse321.gamenight.service;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
@@ -57,6 +60,8 @@ public class BorrowingManagementServiceTest {
     private Person ownerPerson;
     private BorrowingRequest request;
     private Game game;
+    private BorrowingRequest activeRequest;
+    private BorrowingRequest inactiveRequest;
 
     @BeforeEach
     public void setUp() {
@@ -86,6 +91,14 @@ public class BorrowingManagementServiceTest {
         request.setGameCopy(gameCopy);
         request.setSender(sender);
         request.setStatus(BorrowingRequestStatus.Delivered);
+
+        activeRequest = new BorrowingRequest();
+        activeRequest.setId(1);
+        activeRequest.setStatus(BorrowingRequestStatus.Accepted);
+        
+        inactiveRequest = new BorrowingRequest();
+        inactiveRequest.setId(2);
+        inactiveRequest.setStatus(BorrowingRequestStatus.Accepted);
     }
 
     @Test
@@ -621,4 +634,26 @@ public class BorrowingManagementServiceTest {
         assertEquals("Person not found with ID: " + playerId, exception.getMessage());
     }
 
+
+    @Test
+    public void testFindActiveBorrowingRequests() {
+        // Mock current date
+        Date currentDate = Date.valueOf("2023-06-01");
+        
+        // Mock repository response
+        when(borrowingRequestRepository.findActiveBorrowingRequestsForBorrower(
+            anyInt(), 
+            any(BorrowingRequestStatus.class), 
+            any(Date.class))
+        ).thenReturn(Arrays.asList(activeRequest));
+
+        // Call service method
+        List<BorrowingRequest> results = borrowingManagementService.findActiveBorrowingRequestsForBorrower(1);
+
+        // Verify results
+        assertEquals(1, results.size());
+        assertEquals(activeRequest.getId(), results.get(0).getId());
+    }
+
 }
+

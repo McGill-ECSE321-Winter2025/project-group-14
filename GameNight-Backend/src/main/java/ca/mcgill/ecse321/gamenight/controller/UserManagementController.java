@@ -174,9 +174,9 @@ public class UserManagementController {
      * @param personId Id of the person
      * @return The id of the player
      */
-    @GetMapping("/players")
-    public Integer getPlayerByPersonId(@RequestParam(name = "person_id") int personId) {
-        Player player = userService.getPlayerByPersonId(personId);
+    @GetMapping("/users/{userId}/player-id")
+    public Integer getPlayerByPersonId(@PathVariable Integer userId) {
+        Player player = userService.getPlayerByPersonId(userId);
         return player.getId();
     }
 
@@ -218,17 +218,6 @@ public class UserManagementController {
     
         userService.updateUsername(id, newUsername);
         return ResponseEntity.ok("Username updated successfully.");
-    }
-    
-    /**
-     * Get the player ID for the given person ID (user ID)
-     * 
-     * Example: GET /users/33/player-id
-     */
-    @GetMapping("/users/{personId}/player-id")
-    public ResponseEntity<Integer> getPlayerIdFromPersonId(@PathVariable int personId) {
-        Player player = userService.getPlayerByPersonId(personId);
-        return ResponseEntity.ok(player.getId());
     }
 
 }
