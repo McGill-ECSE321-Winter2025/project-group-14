@@ -44,10 +44,6 @@
   padding-top: 1rem;
 }
 
-.game-copies-section::-webkit-scrollbar {
-  display: none;
-}
-
 .reviews-section {
   padding: 2rem;
   padding-left: 4rem;
