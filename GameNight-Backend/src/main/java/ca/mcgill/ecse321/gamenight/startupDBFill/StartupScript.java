@@ -31,6 +31,12 @@ public class StartupScript implements CommandLineRunner {
     @Autowired
     private GameReviewRepository reviewRepo;
 
+    @Autowired
+    private ScheduledGameRepository scheduleRepo;
+
+    @Autowired
+    private RegistrationRepository registrationRepo;
+
     @Override
     public void run(String... args) throws Exception {
         System.out.println("Application has started!");
@@ -65,6 +71,8 @@ public class StartupScript implements CommandLineRunner {
     private void cleanup() {
         borrowingRepo.deleteAll();
         reviewRepo.deleteAll();
+        scheduleRepo.deleteAll();
+        registrationRepo.deleteAll();
         gameCopyRepo.deleteAll();
         gameRepo.deleteAll();
         gameOwnerRepo.deleteAll();
