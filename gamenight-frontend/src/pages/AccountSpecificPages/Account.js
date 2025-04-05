@@ -76,7 +76,7 @@ const Account = () => {
                     <Tab label="My Account" />
                     <Tab label="My Review" />
                     <Tab label="Game History" />
-                    <Tab label="Game History" />
+                    <Tab label="Event History" />
                 </Tabs>
             </Box>
 
