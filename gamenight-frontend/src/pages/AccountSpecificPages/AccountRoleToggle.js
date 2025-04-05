@@ -8,7 +8,7 @@ export default function ToggleButton() {
     const { user, isOwner, refreshIsOwner } = useAuth();
 
     const handleToggleRole = async () => {
-        const success = UserManagementAPI.toggleRole(user.userId);
+        const success = await UserManagementAPI.toggleRole(user.userId);
         if (success) {
             await refreshIsOwner();
         } else {
@@ -19,7 +19,7 @@ export default function ToggleButton() {
     return (
         <div className="toggle-container">
             <span className={`label ${!isOwner ? "active" : ""}`}>Player</span>
-            
+
             <label className="switch">
                 <input
                     type="checkbox"
@@ -29,7 +29,7 @@ export default function ToggleButton() {
                 />
                 <span className="slider"></span>
             </label>
-            
+
             <span className={`label ${isOwner ? "active" : ""}`}>Game owner</span>
         </div>
     );

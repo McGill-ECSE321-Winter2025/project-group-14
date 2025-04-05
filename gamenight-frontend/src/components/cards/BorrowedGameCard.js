@@ -1,18 +1,52 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import '../../styles/EventCard.css';
+import { CircularProgress } from '@mui/material';
 
 const BorrowedGameCard = ({ request }) => {
     const [expanded, setExpanded] = useState(false);
+    const [imageUrl, setImageUrl] = useState(null);
+    const [imageLoading, setImageLoading] = useState(true);
+    const [imageError, setImageError] = useState(false);
 
     const {
+        gameId,
         gameName = "Untitled Game",
         senderName = "Unknown",
         startTime,
         endTime,
-        gameImageUrl = "https://mixmag.net/assets/uploads/images/_columns2/shrekrave2.png"//"/default-game-image.png"
     } = request;
 
-    const toggleExpand = () => setExpanded(!expanded);
+    useEffect(() => {
+        const fetchGameImage = async () => {
+            try {
+                if (!gameId) {
+                    setImageError(true);
+                    return;
+                }
+                const response = await fetch(`http://localhost:8080/games/${gameId}/image`);
+                if (response.ok) {
+                    const imageBlob = await response.blob();
+                    const url = URL.createObjectURL(imageBlob);
+                    setImageUrl(url);
+                } else {
+                    setImageError(true);
+                }
+            } catch (error) {
+                console.error("Error fetching game image:", error);
+                setImageError(true);
+            } finally {
+                setImageLoading(false);
+            }
+        };
+
+        fetchGameImage();
+
+        return () => {
+            if (imageUrl) URL.revokeObjectURL(imageUrl);
+        };
+    }, [gameId]);
+
+    const toggleExpand = () => setExpanded((prev) => !prev);
 
     const start = new Date(startTime);
     const end = new Date(endTime);
@@ -33,8 +67,19 @@ const BorrowedGameCard = ({ request }) => {
             </div>
 
             {expanded && (
-                <div className="event-details" style={{ display: 'flex', flexWrap: 'wrap', gap: '20px', alignItems: 'center', justifyContent: 'v=ce=' }}>
-                    <div className="borrow-info" style={{ flex: '1 1 300px' }}>
+                <div
+                    className="event-details"
+                    style={{
+                        display: 'grid',
+                        gridTemplateColumns: '160px 1fr',
+                        gap: '200px',
+                        alignItems: 'center',
+                        padding: '16px',
+                        boxSizing: 'border-box',
+                    }}
+                >
+                    {/* Info Section */}
+                    <div className="borrow-info">
                         <div className="section">
                             <strong>Borrow Duration:</strong>
                             <p>{duration} day{duration !== 1 ? 's' : ''}</p>
@@ -50,25 +95,28 @@ const BorrowedGameCard = ({ request }) => {
                             <p>{senderName}</p>
                         </div>
                     </div>
-
-                    <div className="central-image-container" style={{
-                        flex: '0 0 160px',
+                    {/* Image Section */}
+                    <div style={{
+                        width: '160px',
                         display: 'flex',
                         justifyContent: 'center',
                         alignItems: 'center',
-                        margin: 'auto'
                     }}>
-                        <img
-                            src={gameImageUrl}
-                            alt={`${gameName} cover`}
-                            className="central-image"
-                            style={{
-                                height: '150px',
-                                borderRadius: '12px',
-                                boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
-                                objectFit: 'contain'
-                            }}
-                        />
+                        {imageLoading ? (
+                            <CircularProgress size={32} />
+                        ) : (
+                            <img
+                                src={imageError ? '/default-game-image.jpg' : imageUrl}
+                                alt={`${gameName} cover`}
+                                style={{
+                                    width: '100%',
+                                    maxHeight: '160px',
+                                    objectFit: 'contain',
+                                    borderRadius: '12px',
+                                    boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
+                                }}
+                            />
+                        )}
                     </div>
                 </div>
             )}
