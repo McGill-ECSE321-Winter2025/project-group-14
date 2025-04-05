@@ -774,115 +774,124 @@ public class BorrowingManagementIntegrationTests {
         @Test
         @Order(22)
         public void testGetAcceptedRequestsForBorrowerMapsCorrectly() {
-                BorrowingRequestRequestDto requestDto = new BorrowingRequestRequestDto(START_TIME, END_TIME,
-                                validSenderId, validGameCopyId);
-                HttpEntity<BorrowingRequestRequestDto> requestEntity = createRequestWithHeaders(requestDto,
-                                senderUserId);
+        // Create dates that ensure the request will be "active" (current date between start and end)
+        Date currentDate = new Date(System.currentTimeMillis());
+        Date startDate = new Date(currentDate.getTime() - 86400000); // yesterday
+        Date endDate = new Date(currentDate.getTime() + 86400000);   // tomorrow
+        
+        BorrowingRequestRequestDto requestDto = new BorrowingRequestRequestDto(startDate, endDate,
+                        validSenderId, validGameCopyId);
+        HttpEntity<BorrowingRequestRequestDto> requestEntity = createRequestWithHeaders(requestDto,
+                        senderUserId);
 
-                ResponseEntity<BorrowingRequestResponseDto> createResponse = client.exchange(
-                                "/borrowingRequests",
-                                HttpMethod.POST,
-                                requestEntity,
-                                BorrowingRequestResponseDto.class);
+        ResponseEntity<BorrowingRequestResponseDto> createResponse = client.exchange(
+                        "/borrowingRequests",
+                        HttpMethod.POST,
+                        requestEntity,
+                        BorrowingRequestResponseDto.class);
 
-                assertEquals(HttpStatus.CREATED, createResponse.getStatusCode());
-                BorrowingRequestResponseDto createdRequest = createResponse.getBody();
-                assertNotNull(createdRequest);
+        assertEquals(HttpStatus.CREATED, createResponse.getStatusCode());
+        BorrowingRequestResponseDto createdRequest = createResponse.getBody();
+        assertNotNull(createdRequest);
 
-                String updateUrl = String.format("/borrowingRequests/%d/status?status=Accepted",
-                                createdRequest.getId());
-                HttpEntity<?> updateRequest = createRequestWithHeaders(null, senderUserId);
+        String updateUrl = String.format("/borrowingRequests/%d/status?status=Accepted",
+                        createdRequest.getId());
+        HttpEntity<?> updateRequest = createRequestWithHeaders(null, senderUserId);
 
-                ResponseEntity<BorrowingRequestResponseDto> updateResponse = client.exchange(
-                                updateUrl,
-                                HttpMethod.PUT,
-                                updateRequest,
-                                BorrowingRequestResponseDto.class);
+        ResponseEntity<BorrowingRequestResponseDto> updateResponse = client.exchange(
+                        updateUrl,
+                        HttpMethod.PUT,
+                        updateRequest,
+                        BorrowingRequestResponseDto.class);
 
-                assertEquals(HttpStatus.OK, updateResponse.getStatusCode());
+        assertEquals(HttpStatus.OK, updateResponse.getStatusCode());
 
-                String acceptedUrl = String.format("/borrowingRequests/%d/status/accepted", validSenderId);
-                ResponseEntity<BorrowingRequestResponseDto[]> acceptedResponse = client.exchange(
-                                acceptedUrl,
-                                HttpMethod.GET,
-                                updateRequest,
-                                BorrowingRequestResponseDto[].class);
+        String acceptedUrl = String.format("/borrowingRequests/%d/status/accepted", validSenderId);
+        ResponseEntity<BorrowingRequestResponseDto[]> acceptedResponse = client.exchange(
+                        acceptedUrl,
+                        HttpMethod.GET,
+                        updateRequest,
+                        BorrowingRequestResponseDto[].class);
 
-                assertEquals(HttpStatus.OK, acceptedResponse.getStatusCode());
+        assertEquals(HttpStatus.OK, acceptedResponse.getStatusCode());
 
-                BorrowingRequestResponseDto[] acceptedRequests = acceptedResponse.getBody();
-                assertNotNull(acceptedRequests);
-                assertTrue(acceptedRequests.length > 0);
+        BorrowingRequestResponseDto[] acceptedRequests = acceptedResponse.getBody();
+        assertNotNull(acceptedRequests);
+        assertTrue(acceptedRequests.length > 0);
 
-                boolean found = false;
-                for (BorrowingRequestResponseDto dto : acceptedRequests) {
-                        if (dto.getId() == createdRequest.getId()) {
-                                found = true;
-                                assertEquals(createdRequest.getGameName(), dto.getGameName());
-                                assertEquals(createdRequest.getSenderName(), dto.getSenderName());
-                                assertTrue(dto.getStatus().toString().contains("Accepted"),
-                                                "Status should be Accepted but was: " + dto.getStatus());
-                                break;
-                        }
+        boolean found = false;
+        for (BorrowingRequestResponseDto dto : acceptedRequests) {
+                if (dto.getId() == createdRequest.getId()) {
+                        found = true;
+                        assertEquals(createdRequest.getGameName(), dto.getGameName());
+                        assertEquals(createdRequest.getSenderName(), dto.getSenderName());
+                        assertTrue(dto.getStatus().toString().contains("Accepted"),
+                                        "Status should be Accepted but was: " + dto.getStatus());
+                        break;
                 }
-                assertTrue(found, "Created request should be found in accepted requests");
+        }
+        assertTrue(found, "Created request should be found in accepted requests");
         }
 
         @Test
         @Order(23)
         public void testHandleBorrowingRequestStatusWithRespondAction() {
-                BorrowingRequestRequestDto requestDto = new BorrowingRequestRequestDto(START_TIME, END_TIME,
-                                validSenderId, validGameCopyId);
-                HttpEntity<BorrowingRequestRequestDto> requestEntity = createRequestWithHeaders(requestDto,
-                                senderUserId);
+        // Create dates that ensure the request will be "active" (current date between start and end)
+        Date currentDate = new Date(System.currentTimeMillis());
+        Date startDate = new Date(currentDate.getTime() - 86400000); // yesterday
+        Date endDate = new Date(currentDate.getTime() + 86400000);   // tomorrow
+        
+        BorrowingRequestRequestDto requestDto = new BorrowingRequestRequestDto(startDate, endDate,
+                        validSenderId, validGameCopyId);
+        HttpEntity<BorrowingRequestRequestDto> requestEntity = createRequestWithHeaders(requestDto,
+                        senderUserId);
 
-                ResponseEntity<BorrowingRequestResponseDto> createResponse = client.exchange(
-                                "/borrowingRequests",
-                                HttpMethod.POST,
-                                requestEntity,
-                                BorrowingRequestResponseDto.class);
+        ResponseEntity<BorrowingRequestResponseDto> createResponse = client.exchange(
+                        "/borrowingRequests",
+                        HttpMethod.POST,
+                        requestEntity,
+                        BorrowingRequestResponseDto.class);
 
-                assertEquals(HttpStatus.CREATED, createResponse.getStatusCode());
-                BorrowingRequestResponseDto createdRequest = createResponse.getBody();
-                assertNotNull(createdRequest);
+        assertEquals(HttpStatus.CREATED, createResponse.getStatusCode());
+        BorrowingRequestResponseDto createdRequest = createResponse.getBody();
+        assertNotNull(createdRequest);
 
-                String updateUrl = String.format("/borrowingRequests/%d/status?status=Accepted&action=respond",
-                                createdRequest.getId());
-                HttpEntity<?> updateRequest = createRequestWithHeaders(null, senderUserId);
+        String updateUrl = String.format("/borrowingRequests/%d/status?status=Accepted&action=respond",
+                        createdRequest.getId());
+        HttpEntity<?> updateRequest = createRequestWithHeaders(null, senderUserId);
 
-                ResponseEntity<BorrowingRequestResponseDto> updateResponse = client.exchange(
-                                updateUrl,
-                                HttpMethod.PUT,
-                                updateRequest,
-                                BorrowingRequestResponseDto.class);
+        ResponseEntity<BorrowingRequestResponseDto> updateResponse = client.exchange(
+                        updateUrl,
+                        HttpMethod.PUT,
+                        updateRequest,
+                        BorrowingRequestResponseDto.class);
 
-                assertEquals(HttpStatus.OK, updateResponse.getStatusCode());
-                BorrowingRequestResponseDto updatedRequest = updateResponse.getBody();
-                assertNotNull(updatedRequest);
-                assertTrue(updatedRequest.getStatus().toString().contains("Accepted"),
-                                "Status should be Accepted but was: " + updatedRequest.getStatus());
+        assertEquals(HttpStatus.OK, updateResponse.getStatusCode());
+        BorrowingRequestResponseDto updatedRequest = updateResponse.getBody();
+        assertNotNull(updatedRequest);
+        assertTrue(updatedRequest.getStatus().toString().contains("Accepted"),
+                        "Status should be Accepted but was: " + updatedRequest.getStatus());
 
-                String acceptedUrl = String.format("/borrowingRequests/%d/status/accepted", validSenderId);
-                ResponseEntity<BorrowingRequestResponseDto[]> acceptedResponse = client.exchange(
-                                acceptedUrl,
-                                HttpMethod.GET,
-                                updateRequest,
-                                BorrowingRequestResponseDto[].class);
+        String acceptedUrl = String.format("/borrowingRequests/%d/status/accepted", validSenderId);
+        ResponseEntity<BorrowingRequestResponseDto[]> acceptedResponse = client.exchange(
+                        acceptedUrl,
+                        HttpMethod.GET,
+                        updateRequest,
+                        BorrowingRequestResponseDto[].class);
 
-                assertEquals(HttpStatus.OK, acceptedResponse.getStatusCode());
-                BorrowingRequestResponseDto[] acceptedRequests = acceptedResponse.getBody();
-                assertNotNull(acceptedRequests);
+        assertEquals(HttpStatus.OK, acceptedResponse.getStatusCode());
+        BorrowingRequestResponseDto[] acceptedRequests = acceptedResponse.getBody();
+        assertNotNull(acceptedRequests);
 
-                boolean found = false;
-                for (BorrowingRequestResponseDto dto : acceptedRequests) {
-                        if (dto.getId() == createdRequest.getId()) {
-                                found = true;
-                                break;
-                        }
+        boolean found = false;
+        for (BorrowingRequestResponseDto dto : acceptedRequests) {
+                if (dto.getId() == createdRequest.getId()) {
+                        found = true;
+                        break;
                 }
-                assertTrue(found, "Created request should be found in accepted requests after using respond action");
         }
-
+        assertTrue(found, "Created request should be found in accepted requests after using respond action");
+        }
         @Test
         @Order(24)
         public void testHandleBorrowingRequestStatusWithRespondActionRejected() {
