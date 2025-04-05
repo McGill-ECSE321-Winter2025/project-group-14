@@ -12,9 +12,12 @@ import {
     DialogTitle
 } from "@mui/material";
 import Button from './../../components/ui/Button'
+import { useNavigate } from 'react-router-dom';
+import { usePopup } from '../../components/PopupContext';
+    
 
 const AccountSettings = () => {
-    const { user, isOwner } = useAuth();
+    const { user, logout, isOwner } = useAuth();
     const [userDetails, setUserDetails] = useState(null);
     const [userInfo, setUserInfo] = useState(null);
     const [email, setEmail] = useState('');
@@ -24,6 +27,8 @@ const AccountSettings = () => {
     const [infoLocked, setInfoLocked] = useState('');
     const [confirmDeleteAccountOpen, setConfirmDeleteAccountOpen] = useState(false);
     const placeholderImage = `https://i.pravatar.cc/150?u=${user?.userId || 'guest'}`;
+    const navigate = useNavigate();
+    const { showPopup } = usePopup();
 
     useEffect(() => {
         if (user?.userId) {
@@ -88,9 +93,10 @@ const AccountSettings = () => {
         setConfirmDeleteAccountOpen(false);
         const success = await UserManagementAPI.deleteUser(user.userId);
         if (success) {
-            window.location.href = "/";
-            sessionStorage.clear();
-
+            logout();
+            setTimeout(() => navigate("/"), 0);
+        } else {
+            showPopup("Deleting account failed.")
         }
     }
 
