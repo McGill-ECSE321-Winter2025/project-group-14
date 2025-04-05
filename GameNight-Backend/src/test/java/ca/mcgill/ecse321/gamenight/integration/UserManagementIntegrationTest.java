@@ -3,9 +3,7 @@ package ca.mcgill.ecse321.gamenight.integration;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-import static org.hamcrest.Matchers.containsString;
 
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,39 +11,48 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.http.*;
-import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.annotation.DirtiesContext.ClassMode;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.transaction.annotation.Transactional;
 
+import ca.mcgill.ecse321.gamenight.repo.PersonRepository;
+import ca.mcgill.ecse321.gamenight.repo.GameOwnerRepository;
+import ca.mcgill.ecse321.gamenight.repo.PlayerRepository;
 import ca.mcgill.ecse321.gamenight.repo.BorrowingRequestRepository;
 import ca.mcgill.ecse321.gamenight.repo.EventRepository;
 import ca.mcgill.ecse321.gamenight.repo.GameCopyRepository;
-import ca.mcgill.ecse321.gamenight.repo.GameOwnerRepository;
 import ca.mcgill.ecse321.gamenight.repo.GameRepository;
 import ca.mcgill.ecse321.gamenight.repo.GameReviewRepository;
-import ca.mcgill.ecse321.gamenight.repo.PersonRepository;
-import ca.mcgill.ecse321.gamenight.repo.PlayerRepository;
 import ca.mcgill.ecse321.gamenight.repo.RegistrationRepository;
 import ca.mcgill.ecse321.gamenight.repo.ScheduledGameRepository;
+
 
 import ca.mcgill.ecse321.gamenight.dto.AuthRequestDto;
 import ca.mcgill.ecse321.gamenight.dto.LoginResponseDto;
 import ca.mcgill.ecse321.gamenight.dto.PersonResponseDto;
+
 import ca.mcgill.ecse321.gamenight.model.GameOwner;
 import ca.mcgill.ecse321.gamenight.model.Person;
 import ca.mcgill.ecse321.gamenight.model.Player;
+import ca.mcgill.ecse321.gamenight.model.BorrowingRequest;
+import ca.mcgill.ecse321.gamenight.model.Event;
+import ca.mcgill.ecse321.gamenight.model.Game;
+import ca.mcgill.ecse321.gamenight.model.GameCopy;
+import ca.mcgill.ecse321.gamenight.model.GameReview;
+import ca.mcgill.ecse321.gamenight.model.Registration;
+import ca.mcgill.ecse321.gamenight.model.ScheduledGame;
+
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
 @Transactional
-@DirtiesContext(classMode = ClassMode.AFTER_EACH_TEST_METHOD)
 public class UserManagementIntegrationTest {
 
     @LocalServerPort
@@ -64,6 +71,7 @@ public class UserManagementIntegrationTest {
     @Autowired private RegistrationRepository registrationRepository;
     @Autowired private GameReviewRepository gameReviewRepository;
     @Autowired private ScheduledGameRepository scheduledGameRepository;
+
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -92,21 +100,8 @@ public class UserManagementIntegrationTest {
         Player player = new Player();
         player.setPerson(setupPerson);
         playerRepo.save(player);
-    }
+        }
 
-    @AfterEach
-    public void clearDatabase() {
-        registrationRepository.deleteAll();
-        borrowingRequestRepository.deleteAll();
-        gameReviewRepository.deleteAll();
-        scheduledGameRepository.deleteAll();
-        gameCopyRepository.deleteAll();
-        eventRepository.deleteAll();
-        gameRepository.deleteAll();
-        personRepository.deleteAll();
-        playerRepo.deleteAll();
-        gameOwnerRepo.deleteAll();
-    }
 
     @Test
     public void testCreateUserAccount() throws Exception {
@@ -144,11 +139,11 @@ public class UserManagementIntegrationTest {
     @Test
     public void testDeleteUser() throws Exception {
         Person user = new Person("deleteuser_test@gmail.com", "password123", "Delete Test User");
-        personRepository.save(user);
-        int userId = user.getId();
+        Person savedUser = personRepository.save(user);
+        int userId = savedUser.getId();
 
-        GameOwner owner = new GameOwner(); owner.setPerson(user); gameOwnerRepo.save(owner);
-        Player player = new Player(); player.setPerson(user); playerRepo.save(player);
+        GameOwner owner = new GameOwner(); owner.setPerson(savedUser); gameOwnerRepo.save(owner);
+        Player player = new Player(); player.setPerson(savedUser); playerRepo.save(player);
 
         mockMvc.perform(delete("/users/{id}", userId)
                 .header("User-Id", String.valueOf(userId)))
@@ -197,7 +192,7 @@ public class UserManagementIntegrationTest {
                 .param("oldPassword", WRONG_PASSWORD)
                 )
                .andExpect(status().isUnauthorized())
-               .andExpect(content().string(ERROR_MESSAGE));
+               .andExpect(jsonPath("$.errors[0]").value(ERROR_MESSAGE));
     }
 
     @Test
@@ -210,19 +205,24 @@ public class UserManagementIntegrationTest {
                 .param("newEmail", NEW_EMAIL)
                 .param("oldPassword", ORIGINAL_PASSWORD)
                 )
+               
                .andExpect(status().isForbidden());
     }
 
     @Test
     public void testToggleRoleGameOwner() throws Exception {
         Person person = new Person("toggleuser_test@gmail.com", "password123", "Toggle User");
-        personRepository.save(person);
-        int userId = person.getId();
+        Person savedPerson = personRepository.save(person);
+        int userId = savedPerson.getId();
 
         GameOwner gameOwner = new GameOwner();
-        gameOwner.setPerson(person);
+        gameOwner.setPerson(savedPerson);
         gameOwner.setActive(true);
         gameOwnerRepo.save(gameOwner);
+
+        Player player = new Player();
+        player.setPerson(savedPerson);
+        playerRepo.save(player);
 
         mockMvc.perform(put("/users/{id}/role", userId)
                 .header("User-Id", String.valueOf(userId)))
@@ -232,18 +232,21 @@ public class UserManagementIntegrationTest {
         assertNotNull(updatedOwner);
         assertFalse(updatedOwner.isActive(), "GameOwner should be inactive after toggle");
 
-        Player player = playerRepo.findByPersonId(userId);
-        assertNotNull(player, "Player role should exist after toggle");
+        Player updatedPlayer = playerRepo.findByPersonId(userId);
+        assertNotNull(updatedPlayer, "Player role should exist after toggle");
     }
 
     @Test
     public void testGetUserById() throws Exception {
         String email = "getbyid_test@example.com";
         Person testPerson = new Person(email, "password123", "GetById Test User");
-        personRepository.save(testPerson);
-        int personId = testPerson.getId();
+        Person savedPerson = personRepository.save(testPerson);
+        int personId = savedPerson.getId();
 
-        GameOwner gameOwner = new GameOwner(); gameOwner.setPerson(testPerson); gameOwner.setActive(true); gameOwnerRepo.save(gameOwner);
+        GameOwner gameOwner = new GameOwner();
+        gameOwner.setPerson(savedPerson);
+        gameOwner.setActive(true);
+        gameOwnerRepo.save(gameOwner);
 
         mockMvc.perform(get("/users/{id}", personId)
                 .header("User-Id", String.valueOf(personId)))
@@ -276,12 +279,12 @@ public class UserManagementIntegrationTest {
     @Test
     public void testGetAllUsers() throws Exception {
         Person user1 = new Person("getalluser1_test@example.com", "password123", "Get All User One");
-        personRepository.save(user1);
-        GameOwner go1 = new GameOwner(); go1.setPerson(user1); gameOwnerRepo.save(go1);
+        Person savedUser1 = personRepository.save(user1);
+        GameOwner go1 = new GameOwner(); go1.setPerson(savedUser1); gameOwnerRepo.save(go1);
 
         Person user2 = new Person("getalluser2_test@example.com", "password456", "Get All User Two");
-        personRepository.save(user2);
-        Player p2 = new Player(); p2.setPerson(user2); playerRepo.save(p2);
+        Person savedUser2 = personRepository.save(user2);
+        Player p2 = new Player(); p2.setPerson(savedUser2); playerRepo.save(p2);
 
         MvcResult result = mockMvc.perform(get("/users")
                                    .header("User-Id", String.valueOf(testUserId)))
@@ -295,8 +298,8 @@ public class UserManagementIntegrationTest {
         boolean foundUser2 = false;
         boolean foundSetupUser = false;
         for (PersonResponseDto user : users) {
-            if (user.getEmail().equals(user1.getEmailAddress())) foundUser1 = true;
-            if (user.getEmail().equals(user2.getEmailAddress())) foundUser2 = true;
+            if (user.getEmail().equals(savedUser1.getEmailAddress())) foundUser1 = true;
+            if (user.getEmail().equals(savedUser2.getEmailAddress())) foundUser2 = true;
             if (user.getEmail().equals(setupPerson.getEmailAddress())) foundSetupUser = true;
         }
         assertTrue(foundUser1, "User One should be in the response");
@@ -372,12 +375,12 @@ public class UserManagementIntegrationTest {
         assertNotNull(setupPerson);
         GameOwner gameOwner = gameOwnerRepo.findByPersonId(testUserId);
         assertNotNull(gameOwner, "GameOwner should exist for setup person from @BeforeEach");
-        int testGameOwnerId = gameOwner.getId();
+        String expectedName = setupPerson.getName();
 
         mockMvc.perform(get("/game-owners")
                 .param("person_id", String.valueOf(testUserId))
                 .header("User-Id", String.valueOf(testUserId)))
                .andExpect(status().isOk())
-               .andExpect(content().string(String.valueOf(testGameOwnerId)));
+               .andExpect(content().string(expectedName));
     }
 }

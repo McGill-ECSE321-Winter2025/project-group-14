@@ -1,15 +1,11 @@
 package ca.mcgill.ecse321.gamenight.repo;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue; 
-import static org.junit.jupiter.api.Assertions.assertFalse; 
+import static org.junit.jupiter.api.Assertions.*; 
 
 import java.util.List;
 import java.util.Optional; 
 
-import org.junit.jupiter.api.AfterEach;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,28 +13,23 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional; 
 
 import ca.mcgill.ecse321.gamenight.model.Person;
+import ca.mcgill.ecse321.gamenight.model.Player; 
 import ca.mcgill.ecse321.gamenight.model.Game;
 import ca.mcgill.ecse321.gamenight.model.GameCopy;
 import ca.mcgill.ecse321.gamenight.model.GameOwner;
+
+
 
 @SpringBootTest
 @Transactional 
 public class GameCopyRepositoryTest {
 
-    @Autowired
-    private GameCopyRepository gameCopyRepo;
+    @Autowired private GameCopyRepository gameCopyRepo;
+    @Autowired private GameRepository gameRepo;
+    @Autowired private GameOwnerRepository gameOwnerRepo;
+    @Autowired private PersonRepository personRepo;
+    @Autowired private PlayerRepository playerRepo; 
 
-    @Autowired
-    private GameRepository gameRepo;
-
-    @Autowired
-    private GameOwnerRepository gameOwnerRepo;
-
-    @Autowired
-    private PersonRepository personRepo;
-    
-    @Autowired
-    private PlayerRepository playerRepo; 
 
     private Person person;
     private GameOwner owner;
@@ -57,14 +48,6 @@ public class GameCopyRepositoryTest {
         game = gameRepo.save(game);
     }
 
-    @AfterEach
-    public void clearDatabase() {
-        gameCopyRepo.deleteAll();
-        gameRepo.deleteAll(); 
-        playerRepo.deleteAll(); 
-        gameOwnerRepo.deleteAll(); 
-        personRepo.deleteAll(); 
-    }
 
     @Test
     public void testCreateAndReadGameCopy() {
@@ -88,8 +71,6 @@ public class GameCopyRepositoryTest {
     public void testModifyGameCopy() {
         GameCopy gameCopy = new GameCopy("My modifiable copy", game, owner);
         gameCopy = gameCopyRepo.save(gameCopy);
-        // Use Integer wrapper type for ID if it comes from getId() which might return null before save
-        // However, since we saved it, getId() should return a valid primitive int
         int copyId = gameCopy.getId(); 
 
         String updatedDescription = "Updated description";
@@ -129,11 +110,11 @@ public class GameCopyRepositoryTest {
     public void testFindByGame() {
         GameCopy gameCopy1 = new GameCopy("GC FindByGame 1", game, owner);
         gameCopyRepo.save(gameCopy1);
-        int gameCopy1Id = gameCopy1.getId(); // Store ID after save
+        int gameCopy1Id = gameCopy1.getId(); 
 
         GameCopy gameCopy2 = new GameCopy("GC FindByGame 2", game, owner);
         gameCopyRepo.save(gameCopy2);
-        int gameCopy2Id = gameCopy2.getId(); // Store ID after save
+        int gameCopy2Id = gameCopy2.getId(); 
         
         Game otherGame = new Game("Other Game", "...");
         gameRepo.save(otherGame);
@@ -144,21 +125,19 @@ public class GameCopyRepositoryTest {
 
         assertNotNull(gameCopies);
         assertEquals(2, gameCopies.size());
-        // --- FIX: Use == for primitive int comparison ---
         assertTrue(gameCopies.stream().anyMatch(gc -> gc.getId() == gameCopy1Id));
         assertTrue(gameCopies.stream().anyMatch(gc -> gc.getId() == gameCopy2Id));
-        // --- End of FIX ---
     }
 
     @Test
     public void testFindByGameOwner() {
         GameCopy gameCopy1 = new GameCopy("GC FindByOwner 1", game, owner);
         gameCopyRepo.save(gameCopy1);
-        int gameCopy1Id = gameCopy1.getId(); // Store ID after save
+        int gameCopy1Id = gameCopy1.getId(); 
 
         GameCopy gameCopy2 = new GameCopy("GC FindByOwner 2", game, owner);
         gameCopyRepo.save(gameCopy2);
-        int gameCopy2Id = gameCopy2.getId(); // Store ID after save
+        int gameCopy2Id = gameCopy2.getId(); 
         
         Person otherPerson = new Person("otherowner@gcopy.com", "pw", "Other Owner");
         personRepo.save(otherPerson);
@@ -166,7 +145,6 @@ public class GameCopyRepositoryTest {
         gameOwnerRepo.save(otherOwner);
         GameCopy otherCopy = new GameCopy("Other Owner Copy", game, otherOwner);
         gameCopyRepo.save(otherCopy);
-
 
         List<GameCopy> gameCopies = gameCopyRepo.findByGameOwner(owner);
 

@@ -67,7 +67,7 @@ public class UserManagementController {
      *
      * @param request The authentication request containing login credentials.
      * @return A ResponseEntity containing the login response with user ID and
-     *         email.
+     * email.
      * @throws InvalidInputException if the username or password is incorrect.
      */
     @PostMapping("/users/login")
@@ -84,10 +84,12 @@ public class UserManagementController {
      * @param newEmail    The new email (optional).
      * @param newPassword The new password (optional).
      * @param oldPassword The user's current password for verification.
+     * @param httpRequest The incoming HTTP request to extract authentication info.
      * @return A ResponseEntity with a success message if the update is successful.
-     * @throws UnauthorizedException   if the provided old password is incorrect.
+     * @throws UnauthorizedException   if the provided old password is incorrect or authentication fails.
+     * @throws ForbiddenException      if the authenticated user tries to update another user.
      * @throws ObjectNotFoundException if the user does not exist.
-     * @throws InvalidInputException   if no new values are provided for update.
+     * @throws InvalidInputException   if no new values are provided for update or header format is wrong.
      */
     @PutMapping("/users/{id}")
     @RequireUser
@@ -95,12 +97,28 @@ public class UserManagementController {
             @PathVariable int id,
             @RequestParam(required = false) String newEmail,
             @RequestParam(required = false) String newPassword,
-            @RequestParam String oldPassword) {
+            @RequestParam String oldPassword,
+            HttpServletRequest httpRequest) { 
+
+        String headerUserIdStr = httpRequest.getHeader("User-Id");
+        if (headerUserIdStr == null) {
+             throw new UnauthorizedException("Missing User-Id header.");
+        }
+        int authenticatedUserId;
+        try {
+            authenticatedUserId = Integer.parseInt(headerUserIdStr);
+        } catch (NumberFormatException e) {
+             throw new InvalidInputException("Invalid User-Id format.");
+        }
+
+        if (authenticatedUserId != id) {
+            throw new ForbiddenException("Users can only update their own profile.");
+        }
 
         boolean success = userService.updatePerson(id, oldPassword, newEmail, newPassword);
 
         if (!success) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Incorrect old password.");
+            throw new UnauthorizedException("Incorrect old password.");
         }
 
         return ResponseEntity.ok("User updated successfully.");
@@ -142,21 +160,29 @@ public class UserManagementController {
      * @param id      The ID of the user to retrieve.
      * @param request The HTTP request containing authentication headers.
      * @return A ResponseEntity with the user's details.
-     * @throws UnauthorizedException   if no authentication is provided.
+     * @throws UnauthorizedException   if no authentication is provided or header is invalid.
      * @throws ObjectNotFoundException if the user does not exist.
      * @throws ForbiddenException      if the authenticated user attempts to view
-     *                                 another user's profile.
+     * another user's profile.
      */
     @GetMapping("/users/{id}")
     @RequireUser
     public ResponseEntity<?> getUserDetail(@PathVariable int id, HttpServletRequest request) {
-        String headerUserId = request.getHeader("User-Id");
+        String headerUserIdStr = request.getHeader("User-Id");
+        if (headerUserIdStr == null) {
+             throw new UnauthorizedException("Missing User-Id header.");
+        }
+        int authenticatedUserId;
+        try {
+            authenticatedUserId = Integer.parseInt(headerUserIdStr);
+        } catch (NumberFormatException e) {
+             throw new InvalidInputException("Invalid User-Id format.");
+        }
 
-        Person authUser = userService.getUserById(Integer.parseInt(headerUserId));
         Person targetUser = userService.getUserById(id);
 
-        if (authUser.getId() != id) {
-            throw new ForbiddenException("You can only view your own profile.");
+        if (authenticatedUserId != targetUser.getId()) {
+             throw new ForbiddenException("You can only view your own profile.");
         }
 
         return ResponseEntity.ok(new PersonResponseDto(targetUser));
@@ -170,8 +196,7 @@ public class UserManagementController {
 
     /**
      * Get the player id for the given person
-     * 
-     * @param personId Id of the person
+     * * @param personId Id of the person
      * @return The id of the player
      */
     @GetMapping("/players")
@@ -182,8 +207,7 @@ public class UserManagementController {
 
     /**
      * Get the owner id for the given person
-     * 
-     * @param personId Id of the person
+     * * @param personId Id of the person
      * @return The id of the game owner
      */
     @GetMapping("/game-owners")
@@ -209,21 +233,29 @@ public class UserManagementController {
             @PathVariable int id,
             @RequestParam String newUsername,
             HttpServletRequest request) {
-    
-        String headerUserId = request.getHeader("User-Id");
-    
-        if (headerUserId == null || Integer.parseInt(headerUserId) != id) {
+
+        String headerUserIdStr = request.getHeader("User-Id");
+        if (headerUserIdStr == null) {
+             throw new UnauthorizedException("Missing User-Id header.");
+        }
+        int authenticatedUserId;
+        try {
+            authenticatedUserId = Integer.parseInt(headerUserIdStr);
+        } catch (NumberFormatException e) {
+             throw new InvalidInputException("Invalid User-Id format.");
+        }
+
+        if (authenticatedUserId != id) {
             throw new ForbiddenException("You can only update your own username.");
         }
-    
+
         userService.updateUsername(id, newUsername);
         return ResponseEntity.ok("Username updated successfully.");
     }
-    
+
     /**
      * Get the player ID for the given person ID (user ID)
-     * 
-     * Example: GET /users/33/player-id
+     * * Example: GET /users/33/player-id
      */
     @GetMapping("/users/{personId}/player-id")
     public ResponseEntity<Integer> getPlayerIdFromPersonId(@PathVariable int personId) {

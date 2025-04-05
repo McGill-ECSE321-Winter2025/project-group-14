@@ -2,10 +2,11 @@ package ca.mcgill.ecse321.gamenight.repo;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import java.sql.Date; 
 import java.util.List;
 import java.util.Optional; 
 
-import org.junit.jupiter.api.AfterEach;
+
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -33,13 +34,6 @@ public class RegistrationRepositoryTest {
     @Autowired
     private PersonRepository personRepo;
 
-    @AfterEach
-    public void clearDatabase() {
-        registrationRepo.deleteAll();
-        eventRepo.deleteAll();
-        personRepo.deleteAll();
-        playerRepo.deleteAll();
-    }
 
     private Player createAndSaveTestPlayer(String email, String name) {
         Person person = new Person(email, "password", name);
