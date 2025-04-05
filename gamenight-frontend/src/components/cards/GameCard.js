@@ -47,7 +47,7 @@ function GameCard({ gameId, title, rating }) {
                 URL.revokeObjectURL(imageUrl);
             }
         };
-    }, [gameId]);
+    }, [gameId, imageUrl]);
 
 
     return (
@@ -72,10 +72,9 @@ function GameCard({ gameId, title, rating }) {
                         image={imageError ? '/default-game-image.jpg' : imageUrl}
                         alt={title || "Game image"}
                         sx={{
-                            width: '100%',
                             height: '100%',
-                            objectFit: 'contain',
-                            margin: '0 auto'
+                            aspectRatio: '1 / 1',
+                            objectFit: 'cover'
                         }}
                     />
                 )}

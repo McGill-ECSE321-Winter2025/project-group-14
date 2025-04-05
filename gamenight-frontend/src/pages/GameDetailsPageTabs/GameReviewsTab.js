@@ -134,7 +134,7 @@ const GameReviewsTab = () => {
                                 value={review}
                                 onChange={handleReviewChange}
                                 placeholder="Write your review here..."
-                                rows="5"
+                                rows="1"
                                 required
                                 className='textarea'
                                 onInput={(e) => {

@@ -3,3 +3,71 @@
   justify-content: space-between;
   margin-top: 20px;
 }
+
+.game-info-container {
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+  vertical-align: top;
+  align-self: flex-start;
+  flex: 0.45;
+  vertical-align: middle;
+}
+
+
+.game-page-container {
+  display: flex;
+  width: 100%;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center; 
+  height: 100%;
+}
+
+.game-copies-container {
+  flex: 0.55;
+  width: 55%;
+  display: flex;
+  flex-direction: column;
+  margin-right: 7rem;
+  border-radius: 10px;
+}
+.game-copies-section {
+  display: flex;
+  flex-direction: row;
+  overflow-x: scroll;
+  gap: 1rem;
+  overflow-y: hidden;
+  overflow-y: hidden;
+  height: fit-content;
+  padding-top: 1rem;
+}
+
+.game-copies-section::-webkit-scrollbar {
+  display: none;
+}
+
+.reviews-section {
+  padding: 2rem;
+  padding-left: 4rem;
+  padding-right: 4rem;
+}
+
+.game-page-top-level-container {
+  display: flex;
+  flex-direction: column;
+}
+
+.game-copy {
+  min-height: fit-content;
+  min-width: 400px;
+}
+
+.carousel-slide {
+  display: flex;
+  height: 100%;
+  width: 100%;
+  align-items: center;
+  justify-items: center;
+}

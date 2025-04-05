@@ -3,9 +3,7 @@ import { useParams, useLocation } from 'react-router-dom';
 import {
   Box,
   CardMedia,
-  CircularProgress,
-  Tabs,
-  Tab
+  CircularProgress
 } from "@mui/material";
 
 // Styles
@@ -20,56 +18,50 @@ import GameCopyCard from "./GameCopyGameDetailsPage";
 import { AuthContext } from "../../AuthContext";
 
 
-
 const GameDetailsPage = () => {
 
   const { id } = useParams();
   const { user } = useContext(AuthContext);
   const location = useLocation();
   const { title } = location.state || {};
-  const [tabValue, setTabValue] = useState(0);
 
-  const handleTabChange = (event, tab) => {
-    setTabValue(tab);
-  };
 
-  
   const [imageUrl, setImageUrl] = useState(null);
   const [imageLoading, setImageLoading] = useState(true);
   const [imageError, setImageError] = useState(false);
 
   useEffect(() => {
-          const fetchGameImage = async () => {
-              try {
-                  if (!id) {
-                      setImageError(true);
-                      return;
-                  }
-  
-                  const response = await fetch(`http://localhost:8080/games/${id}/image`);
-                  if (response.ok) {
-                      const imageBlob = await response.blob();
-                      const url = URL.createObjectURL(imageBlob);
-                      setImageUrl(url);
-                  } else {
-                      setImageError(true);
-                  }
-              } catch (error) {
-                  console.error("Error fetching game image:", error);
-                  setImageError(true);
-              } finally {
-                  setImageLoading(false);
-              }
-          };
-  
-          fetchGameImage();
-  
-          return () => {
-              if (imageUrl) {
-                  URL.revokeObjectURL(imageUrl);
-              }
-          };
-      }, [id, imageUrl]);
+    const fetchGameImage = async () => {
+      try {
+        if (!id) {
+          setImageError(true);
+          return;
+        }
+
+        const response = await fetch(`http://localhost:8080/games/${id}/image`);
+        if (response.ok) {
+          const imageBlob = await response.blob();
+          const url = URL.createObjectURL(imageBlob);
+          setImageUrl(url);
+        } else {
+          setImageError(true);
+        }
+      } catch (error) {
+        console.error("Error fetching game image:", error);
+        setImageError(true);
+      } finally {
+        setImageLoading(false);
+      }
+    };
+
+    fetchGameImage();
+
+    return () => {
+      if (imageUrl) {
+        URL.revokeObjectURL(imageUrl);
+      }
+    };
+  }, [id, imageUrl]);
 
 
   const [game, setGame] = useState();
@@ -93,87 +85,71 @@ const GameDetailsPage = () => {
       .catch((error) => console.error("Error fetching game:", error));
   }, [id, user]);
 
+  const carouselItems = gameCopies?.map((game) => (
+    <div className='game-copy'>
+      <GameCopyCard
+        key={game.id}
+        gameCopyId={game.id}
+        owner={game.gameOwnerName}
+        description={game.description}
+      />
+    </div>
+  )) || [];
+
   return (
-    <div>
-      <h1 className="centered">{title}</h1>
-      <div>
-      <Box sx={{
-        position: 'relative',
-        maxWidth: '350px',
-        height: 'auto',
-        backgroundColor: '#f5f5f5',
-        overflow: 'hidden',
-        margin: '0 auto'
-      }}>
-        {imageLoading ? (
-          <CircularProgress size={24} sx={{
-            position: 'absolute',
-            top: '50%',
-            left: '50%',
-            transform: 'translate(-50%, -50%)'
-          }} />
-        ) : (
-          <CardMedia
-            component="img"
-            image={imageError ? '/default-game-image.jpg' : imageUrl}
-            alt={title || "Game image"}
-            sx={{
-              width: '100%',
-              height: '100%',
-              objectFit: 'contain',
-              borderRadius: '16px'
-            }}
-          />
-        )}
-      </Box>
+    <div className='game-page-top-level-container'>
+      <h1 className='centered'>{title}</h1>
+      <div className='game-page-container'>
+        <div className='game-info-container'>
+          <div>
+            <Box sx={{
+              position: 'relative',
+              maxWidth: '500px',
+              height: 'auto',
+              backgroundColor: '#f5f5f5',
+              overflow: 'hidden',
+              margin: '0 auto'
+            }}>
+              {imageLoading ? (
+                <CircularProgress size={24} sx={{
+                  position: 'absolute',
+                  top: '50%',
+                  left: '50%',
+                  transform: 'translate(-50%, -50%)'
+                }} />
+              ) : (
+                <CardMedia
+                  component="img"
+                  image={imageError ? '/default-game-image.jpg' : imageUrl}
+                  alt={title || "Game image"}
+                  sx={{
+                    height: '100%',
+                    aspectRatio: '1 / 1',
+                    objectFit: 'cover',
+                    borderRadius: '16px'
+                  }}
+                />
+              )}
+            </Box>
+          </div>
+          <div>
+            <p>{game?.description}</p>
+          </div>
+        </div>
+
+        <div className='game-copies-container'>
+          <div>
+            <h3 className='centered'>Available game copies</h3>
+          </div>
+          <div className='game-copies-section'>
+            {carouselItems}
+          </div>
+        </div>
       </div>
 
-      <Box sx={{ 
-        width: '100%', 
-        mb: 3,
-        '& .MuiTabs-indicator': { backgroundColor: 'black', height: '3px' },
-        '& .MuiTab-root': {
-          color: '#666',
-          fontSize: '1rem',
-          textTransform: 'none',
-          fontWeight: 500,
-          padding: '12px 24px',
-          minWidth: 'unset',
-          '&.Mui-selected': { color: 'black', fontWeight: 600 },
-          '&:hover': { color: 'black', opacity: 1 }
-        }
-      }}>
-        <Tabs value={tabValue} onChange={handleTabChange} centered variant="fullWidth">
-          <Tab label="Details" />
-          <Tab label="Reviews" />
-          <Tab label="Game Copies" />
-        </Tabs>
-      </Box>
-
-      {/* Tab Content */}
-      <div className="tab-content">
-        {tabValue === 0 && game && (
-          <div>
-            <p>{game.description}</p>
-          </div>
-        )}
-        {tabValue === 1 && (
-          <div>
-            <GameReviewsTab key={id} />
-          </div>
-        )}
-        {tabValue === 2 && game && (
-          <div>
-            {gameCopies?.map((game) => (
-              <GameCopyCard
-                key={game.id}
-                gameCopyId={game.id}
-                owner={game.gameOwnerName}
-                description={game.description}
-              />
-            ))}
-          </div>
-        )}
+      <h2 className='centered'>Reviews</h2>
+      <div className='reviews-section'>
+        <GameReviewsTab key={id} />
       </div>
     </div>
   );

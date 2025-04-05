@@ -1,13 +1,13 @@
 .game-review-buttons {
     display: flex;
-    justify-content: flex-end; /* centers children horizontally */
-    gap: 2rem; /* optional: adds space between buttons */
-    margin-top: 1rem; /* optional: some spacing from content above */
+    justify-content: flex-end;
+    gap: 2rem;
+    margin-top: 1rem;
     margin-right: 10px;
   }
 
   .game-review-buttons Button {
-    flex: 0 0 auto; /* don't stretch */
-    width: auto; /* use intrinsic size */
+    flex: 0 0 auto;
+    width: auto;
   }
   
