@@ -99,7 +99,7 @@ const GameDetailsPage = () => {
       <div>
       <Box sx={{
         position: 'relative',
-        maxWidth: '400px',
+        maxWidth: '350px',
         height: 'auto',
         backgroundColor: '#f5f5f5',
         overflow: 'hidden',
