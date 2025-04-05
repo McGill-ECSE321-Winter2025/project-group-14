@@ -57,7 +57,7 @@ function EventDetails() {
       if (!user || !user.userId) return;
       try {
         const playerResponse = await fetch(
-          `http://localhost:8080/players?person_id=${user.userId}`
+          `http://localhost:8080/users/${user.userId}/player-id`
         );
         if (!playerResponse.ok) {
           console.error("Failed to fetch player id for registration check");
@@ -94,7 +94,7 @@ function EventDetails() {
     }
     try {
       const playerResponse = await fetch(
-        `http://localhost:8080/players?person_id=${user.userId}`
+        `http://localhost:8080/users/${user.userId}/player-id`
       );
       if (!playerResponse.ok) {
         throw new Error("Failed to fetch player id");
@@ -123,7 +123,7 @@ function EventDetails() {
     }
     try {
       const playerResponse = await fetch(
-        `http://localhost:8080/players?person_id=${user.userId}`
+        `http://localhost:8080/users/${user.userId}/player-id`
       );
       if (!playerResponse.ok) {
         throw new Error("Failed to fetch player id");
@@ -164,109 +164,107 @@ function EventDetails() {
     );
   }
 
-
-const isExpired = event.endTime && new Date(event.endTime) < new Date();
+  const isExpired = event.endTime && new Date(event.endTime) < new Date();
  
+  const hasValidStartTime = event.startTime && new Date(event.startTime).getTime() > 0;
+  const hasValidEndTime = event.endTime && new Date(event.endTime).getTime() > 0;
 
-const hasValidStartTime = event.startTime && new Date(event.startTime).getTime() > 0;
-const hasValidEndTime = event.endTime && new Date(event.endTime).getTime() > 0;
+  const formattedStart = hasValidStartTime
+    ? new Date(event.startTime).toLocaleString("en-US", {
+        month: "numeric",
+        day: "numeric",
+        year: "numeric",
+        hour: "numeric",
+        minute: "numeric",
+        hour12: true,
+      })
+    : null;
 
-const formattedStart = hasValidStartTime
-  ? new Date(event.startTime).toLocaleString("en-US", {
-      month: "numeric",
-      day: "numeric",
-      year: "numeric",
-      hour: "numeric",
-      minute: "numeric",
-      hour12: true,
-    })
-  : null;
+  const formattedEnd = hasValidEndTime
+    ? new Date(event.endTime).toLocaleString("en-US", {
+        month: "numeric",
+        day: "numeric",
+        year: "numeric",
+        hour: "numeric",
+        minute: "numeric",
+        hour12: true,
+      })
+    : null;
 
-const formattedEnd = hasValidEndTime
-  ? new Date(event.endTime).toLocaleString("en-US", {
-      month: "numeric",
-      day: "numeric",
-      year: "numeric",
-      hour: "numeric",
-      minute: "numeric",
-      hour12: true,
-    })
-  : null;
-
-return (
-  <div className="event-details-container">
-    <div className="event-details-card">
-      {isExpired && <span className="expired-badge">Expired</span>}
+  return (
+    <div className="event-details-container">
+      <div className="event-details-card">
+        {isExpired && <span className="expired-badge">Expired</span>}
      
-      <Typography variant="h4" className="event-details-title">{event.name}</Typography>
+        <Typography variant="h4" className="event-details-title">{event.name}</Typography>
      
-      <div className="event-details-dates">
-        {hasValidStartTime && (
-          <Typography variant="body2" className="event-date">
-            <span className="date-icon">📅</span> Start: {formattedStart}
-          </Typography>
-        )}
-        {hasValidEndTime && (
-          <Typography variant="body2" className="event-date">
-            <span className="date-icon">⏱️</span> End: {formattedEnd}
-          </Typography>
-        )}
-      </div>
-     
-      <Typography variant="body1" className="event-details-description">{event.description}</Typography>
-     
-      <div className="games-section">
-        <Typography variant="subtitle1" className="games-section-title">
-          <span className="games-icon">🎮</span> Games Scheduled:
-        </Typography>
-       
-        {games && games.length > 0 ? (
-          <ul className="games-list">
-            {games.map((game) => (
-              <li key={game.id} className="game-item">{game.name}</li>
-            ))}
-          </ul>
-        ) : (
-          <Typography variant="body2" className="no-games">
-            No games scheduled for this event.
-          </Typography>
-        )}
-      </div>
-     
-      {!isExpired && (
-        <Box className="registration-actions">
-          {isRegistered ? (
-            <Button
-              variant="contained"
-              className="unregister-button"
-              onClick={handleUnregister}
-            >
-              Unregister for this Event
-            </Button>
-          ) : (
-            <Button
-              variant="contained"
-              className="register-button"
-              onClick={handleRegister}
-            >
-              Register for this Event
-            </Button>
+        <div className="event-details-dates">
+          {hasValidStartTime && (
+            <Typography variant="body2" className="event-date">
+              <span className="date-icon">📅</span> Start: {formattedStart}
+            </Typography>
           )}
-        </Box>
-      )}
+          {hasValidEndTime && (
+            <Typography variant="body2" className="event-date">
+              <span className="date-icon">⏱️</span> End: {formattedEnd}
+            </Typography>
+          )}
+        </div>
      
-      <Box className="navigation-actions">
-        <Button
-          variant="outlined"
-          className="back-button"
-          onClick={() => navigate("/events")}
-        >
-          Back to Events
-        </Button>
-      </Box>
+        <Typography variant="body1" className="event-details-description">{event.description}</Typography>
+     
+        <div className="games-section">
+          <Typography variant="subtitle1" className="games-section-title">
+            <span className="games-icon">🎮</span> Games Scheduled:
+          </Typography>
+       
+          {games && games.length > 0 ? (
+            <ul className="games-list">
+              {games.map((game) => (
+                <li key={game.id} className="game-item">{game.name}</li>
+              ))}
+            </ul>
+          ) : (
+            <Typography variant="body2" className="no-games">
+              No games scheduled for this event.
+            </Typography>
+          )}
+        </div>
+     
+        {!isExpired && (
+          <Box className="registration-actions">
+            {isRegistered ? (
+              <Button
+                variant="contained"
+                className="unregister-button"
+                onClick={handleUnregister}
+              >
+                Unregister for this Event
+              </Button>
+            ) : (
+              <Button
+                variant="contained"
+                className="register-button"
+                onClick={handleRegister}
+              >
+                Register for this Event
+              </Button>
+            )}
+          </Box>
+        )}
+     
+        <Box className="navigation-actions">
+          <Button
+            variant="outlined"
+            className="back-button"
+            onClick={() => navigate("/events")}
+          >
+            Back to Events
+          </Button>
+        </Box>
+      </div>
     </div>
-  </div>
-);
+  );
 }
 
 export default EventDetails;

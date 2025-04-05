@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-
 import { useAuth } from '../../AuthContext';
 import '../../styles/layout.css';
 import '../../styles/event-history.css';
@@ -56,10 +55,10 @@ const EventCard = ({ event, playerId, isCreator = false }) => {
         fetchScheduledGames();
     }, [event?.id]);
 
-   
+    
     const isExpired = event.endTime && new Date(event.endTime) < new Date();
 
-   
+    
     const handleUnregister = async () => {
         try {
             await axios.delete(`/events/${event.id}/player/${playerId}`);
@@ -85,11 +84,11 @@ const EventCard = ({ event, playerId, isCreator = false }) => {
     return (
         <div className={`request-card event-card ${isExpired ? 'expired-event' : ''}`}>
             {isExpired && <span className="expired-badge">Expired</span>}
-           
+            
             <div className="request-header">
                 <h3 className="event-title">{event.name || 'Unnamed Event'}</h3>
             </div>
-           
+            
             <div className="request-info event-info">
                 {dateLine && <p className="event-date"><strong>📅</strong> {dateLine}</p>}
                 {event.description && <p className="event-description">{event.description}</p>}
@@ -113,8 +112,6 @@ const EventCard = ({ event, playerId, isCreator = false }) => {
                     )
                 )}
             </div>
-
-            {}
         </div>
     );
 };
@@ -125,22 +122,18 @@ function EventHistory() {
     const [createdEvents, setCreatedEvents] = useState([]);
     const [playerId, setPlayerId] = useState(null);
     const [loading, setLoading] = useState(true);
-
     const [error, setError] = useState(null);
 
     useEffect(() => {
         const fetchEvents = async () => {
             if (!user?.userId) {
-
                 setLoading(false);
                 setError("Please log in to view your event history.");
-
                 return;
             }
 
             try {
                 const playerRes = await axios.get(`/users/${user.userId}/player-id`);
-
                 const pid = playerRes.data;
                 setPlayerId(pid);
 
@@ -170,15 +163,13 @@ function EventHistory() {
                 setCreatedEvents([]);
             } finally {
                 setLoading(false);
-
             }
         };
 
         fetchEvents();
     }, [user?.userId]);
 
-
-   
+    
     const sortedEvents = [...events].sort((a, b) => {
         const now = new Date();
         const aExpired = a.endTime && new Date(a.endTime) < now;
@@ -188,7 +179,7 @@ function EventHistory() {
         return 0;
     });
 
-   
+    
     const sortedCreatedEvents = [...createdEvents].sort((a, b) => {
         const now = new Date();
         const aExpired = a.endTime && new Date(a.endTime) < now;
@@ -244,11 +235,9 @@ function EventHistory() {
                 </div>
             ) : (
                 <p className="centered empty-message">You are not registered for any events.</p>
-
             )}
         </div>
     );
 }
 
-export default MyEvents;
-
+export default EventHistory;
