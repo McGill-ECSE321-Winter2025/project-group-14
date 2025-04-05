@@ -23,11 +23,13 @@ function Navbar() {
             </div>
 
             <div className="nav-center">
+                <Link to="/">
                 <img
                     src="https://cpmfiles1.com/christchurchsa.com/game_night_logo_web.png"
                     alt="Game Night Temporary Logo"
                     className="navbar-logo"
                 />
+                </Link>
             </div>
 
             <div className="nav-right">
