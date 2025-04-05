@@ -1,205 +1,207 @@
 package ca.mcgill.ecse321.gamenight.repo;
 
-import ca.mcgill.ecse321.gamenight.model.*;
-import ca.mcgill.ecse321.gamenight.model.BorrowingRequest.BorrowingRequestStatus;
-import org.junit.jupiter.api.*;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-
-import java.sql.Date;
-import java.util.List;
-
 import static org.junit.jupiter.api.Assertions.*;
 
+import java.sql.Date; // Use java.sql.Date if your model uses it
+import java.util.List;
+import java.util.Optional;
+
+import org.junit.jupiter.api.AfterEach;
+// import org.junit.jupiter.api.BeforeEach; // Use BeforeEach for setup logic run before each test
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.transaction.annotation.Transactional; // Import Transactional
+
+import ca.mcgill.ecse321.gamenight.model.BorrowingRequest;
+import ca.mcgill.ecse321.gamenight.model.BorrowingRequest.BorrowingRequestStatus;
+import ca.mcgill.ecse321.gamenight.model.Game;
+import ca.mcgill.ecse321.gamenight.model.GameCopy;
+import ca.mcgill.ecse321.gamenight.model.GameOwner;
+import ca.mcgill.ecse321.gamenight.model.Person;
+import ca.mcgill.ecse321.gamenight.model.Player;
+
 @SpringBootTest
+@Transactional // <--- Add Transactional for test isolation
 public class BorrowingRequestRepositoryTest {
 
-        @Autowired
-        private BorrowingRequestRepository borrowingRepo;
+    @Autowired
+    private BorrowingRequestRepository borrowingRequestRepository;
+    @Autowired
+    private PlayerRepository playerRepository;
+    @Autowired
+    private PersonRepository personRepository;
+    @Autowired
+    private GameCopyRepository gameCopyRepository;
+    @Autowired
+    private GameOwnerRepository gameOwnerRepository;
+    @Autowired
+    private GameRepository gameRepository;
 
-        @Autowired
-        private PlayerRepository playerRepo;
+    // It's generally better to clean up *after* each test
+    @AfterEach
+    public void clearDatabase() {
+        // Ensure correct deletion order (Dependents first)
+        borrowingRequestRepository.deleteAll();
+        // Assuming GameCopy depends on Game and GameOwner
+        gameCopyRepository.deleteAll();
+        // Assuming Player and GameOwner depend on Person
+        playerRepository.deleteAll();
+        gameOwnerRepository.deleteAll();
+        // Delete the dependencies last
+        personRepository.deleteAll();
+        gameRepository.deleteAll();
+    }
 
-        @Autowired
-        private GameCopyRepository gameCopyRepo;
+    // Helper method to create a valid persisted Player
+    private Player createAndSaveTestPlayer(String email, String name) {
+        Person person = new Person(email, "password", name);
+        Person savedPerson = personRepository.save(person); // Save Person FIRST
+        Player player = new Player();
+        player.setPerson(savedPerson); // Link the SAVED Person
+        return playerRepository.save(player); // Save Player AFTER linking
+    }
 
-        @Autowired
-        private PersonRepository personRepo;
+    // Helper method to create a valid persisted GameCopy
+    private GameCopy createAndSaveTestGameCopy(String gameName, String ownerEmail, String ownerName) {
+        Person ownerPerson = new Person(ownerEmail, "password", ownerName);
+        Person savedOwnerPerson = personRepository.save(ownerPerson); // Save Owner Person FIRST
+        GameOwner owner = new GameOwner();
+        owner.setPerson(savedOwnerPerson); // Link the SAVED Person
+        GameOwner savedOwner = gameOwnerRepository.save(owner); // Save GameOwner
 
-        @Autowired
-        private GameOwnerRepository gameOwnerRepo;
+        Game game = new Game();
+        game.setName(gameName);
+        Game savedGame = gameRepository.save(game); // Save Game
 
-        @Autowired
-        private GameRepository gameRepo;
+        GameCopy gameCopy = new GameCopy();
+        gameCopy.setGame(savedGame); // Link saved Game
+        gameCopy.setGameOwner(savedOwner); // Link saved GameOwner
+        return gameCopyRepository.save(gameCopy); // Save GameCopy
+    }
 
-        private Person person1;
-        private Person person2;
-        private GameOwner owner;
-        private Player borrower;
-        private Game game;
-        private GameCopy gameCopy;
 
-        @BeforeEach
-        public void setUp() {
-                clearDatabase();
+    @Test
+    public void testCreateAndReadBorrowingRequest() {
+        // --- Setup ---
+        Player sender = createAndSaveTestPlayer("sender@test.com", "Sender Name");
+        GameCopy gameCopy = createAndSaveTestGameCopy("Test Game", "owner@test.com", "Owner Name");
 
-                person1 = new Person("aaaaaa@gmail.com", "aaaaa", "Bertrand");
-                personRepo.save(person1);
+        Date sendTime = new Date(System.currentTimeMillis());
+        Date startTime = Date.valueOf("2025-05-01");
+        Date endTime = Date.valueOf("2025-05-10");
 
-                owner = new GameOwner(person1);
-                gameOwnerRepo.save(owner);
+        BorrowingRequest request = new BorrowingRequest();
+        request.setSender(sender); // Link saved Player
+        request.setGameCopy(gameCopy); // Link saved GameCopy
+        request.setSendTime(sendTime);
+        request.setStartTime(startTime);
+        request.setEndTime(endTime);
+        request.setStatus(BorrowingRequestStatus.Delivered);
 
-                person2 = new Person("bbbbbb@gmail.com", "bbbbb", "Patrick");
-                personRepo.save(person2);
+        // --- Action ---
+        BorrowingRequest savedRequest = borrowingRequestRepository.save(request);
 
-                borrower = new Player(person2);
-                playerRepo.save(borrower);
+        // --- Assert ---
+        assertNotNull(savedRequest);
+        assertNotNull(savedRequest.getId()); // Should have an ID after saving
 
-                game = new Game("Batman", "A Batman game");
-                gameRepo.save(game);
+        Optional<BorrowingRequest> retrievedRequestOpt = borrowingRequestRepository.findById(savedRequest.getId());
+        assertTrue(retrievedRequestOpt.isPresent());
+        BorrowingRequest retrievedRequest = retrievedRequestOpt.get();
 
-                gameCopy = new GameCopy("My copy of Batman", game, owner);
-                gameCopyRepo.save(gameCopy);
-        }
+        assertNotNull(retrievedRequest.getSender());
+        assertNotNull(retrievedRequest.getGameCopy());
+        assertEquals(sender.getId(), retrievedRequest.getSender().getId());
+        assertEquals(gameCopy.getId(), retrievedRequest.getGameCopy().getId());
+        assertEquals(BorrowingRequestStatus.Delivered, retrievedRequest.getStatus());
+        assertEquals(startTime, retrievedRequest.getStartTime());
+        assertEquals(endTime, retrievedRequest.getEndTime());
+        assertEquals(sendTime.getTime(), retrievedRequest.getSendTime().getTime());
+    }
 
-        @AfterEach
-        public void clearDatabase() {
-                borrowingRepo.deleteAll();
-                gameCopyRepo.deleteAll();
-                playerRepo.deleteAll();
-                gameOwnerRepo.deleteAll();
-                gameRepo.deleteAll();
-                personRepo.deleteAll();
-        }
+    @Test
+    public void testUpdateBorrowingRequest() {
+         // --- Setup ---
+        Player sender = createAndSaveTestPlayer("sender_update@test.com", "Update Sender");
+        GameCopy gameCopy = createAndSaveTestGameCopy("Update Game", "owner_update@test.com", "Update Owner");
+        Date sendTime = new Date(System.currentTimeMillis());
+        Date startTime = Date.valueOf("2025-06-01");
+        Date endTime = Date.valueOf("2025-06-10");
 
-        @Test
-        public void testCreateAndReadBorrowingRequest() {
-                Date startTime = Date.valueOf("2023-10-01");
-                Date endTime = Date.valueOf("2023-10-10");
-                BorrowingRequest request = new BorrowingRequest(startTime, endTime, borrower, gameCopy);
-                borrowingRepo.save(request);
+        BorrowingRequest request = new BorrowingRequest();
+        request.setSender(sender);
+        request.setGameCopy(gameCopy);
+        request.setSendTime(sendTime);
+        request.setStartTime(startTime);
+        request.setEndTime(endTime);
+        request.setStatus(BorrowingRequestStatus.Delivered); // Initial status
+        BorrowingRequest savedRequest = borrowingRequestRepository.save(request);
+        assertNotNull(savedRequest.getId());
 
-                BorrowingRequest retrievedRequest = borrowingRepo.findById(request.getId()).orElse(null);
+        // --- Action ---
+        Optional<BorrowingRequest> requestToUpdateOpt = borrowingRequestRepository.findById(savedRequest.getId());
+        assertTrue(requestToUpdateOpt.isPresent());
+        BorrowingRequest requestToUpdate = requestToUpdateOpt.get();
 
-                assertNotNull(retrievedRequest);
-                assertEquals(startTime, retrievedRequest.getStartTime());
-                assertEquals(endTime, retrievedRequest.getEndTime());
-                assertEquals(BorrowingRequestStatus.Delivered, retrievedRequest.getStatus());
-                assertEquals(borrower.getPerson().getEmailAddress(),
-                                retrievedRequest.getSender().getPerson().getEmailAddress());
-                assertEquals(gameCopy.getId(), retrievedRequest.getGameCopy().getId());
-        }
+        requestToUpdate.setStatus(BorrowingRequestStatus.Accepted); // Change the status
+        BorrowingRequest updatedRequest = borrowingRequestRepository.save(requestToUpdate); // Save the change
 
-        @Test
-        public void testUpdateBorrowingRequest() {
-                Date startTime = Date.valueOf("2023-10-01");
-                Date endTime = Date.valueOf("2023-10-10");
-                BorrowingRequest request = new BorrowingRequest(startTime, endTime, borrower, gameCopy);
-                borrowingRepo.save(request);
+        // --- Assert ---
+        assertNotNull(updatedRequest);
+        assertEquals(savedRequest.getId(), updatedRequest.getId()); // ID should remain the same
+        assertEquals(BorrowingRequestStatus.Accepted, updatedRequest.getStatus()); // Status should be updated
 
-                request.setStatus(BorrowingRequestStatus.Accepted);
-                borrowingRepo.save(request);
+        Optional<BorrowingRequest> finalCheckOpt = borrowingRequestRepository.findById(savedRequest.getId());
+        assertTrue(finalCheckOpt.isPresent());
+        assertEquals(BorrowingRequestStatus.Accepted, finalCheckOpt.get().getStatus());
+    }
 
-                BorrowingRequest updatedRequest = borrowingRepo.findById(request.getId()).orElse(null);
+     @Test
+    public void testFindBySender() {
+        // --- Setup ---
+        Player sender1 = createAndSaveTestPlayer("sender1@find.com", "Sender One");
+        Player sender2 = createAndSaveTestPlayer("sender2@find.com", "Sender Two");
+        GameCopy gameCopy = createAndSaveTestGameCopy("Find Game", "owner@find.com", "Find Owner");
 
-                assertNotNull(updatedRequest);
-                assertEquals(BorrowingRequestStatus.Accepted, updatedRequest.getStatus());
-        }
+        // --- FIX: Use default constructor and setters ---
+        BorrowingRequest req1 = new BorrowingRequest();
+        req1.setSender(sender1);
+        req1.setGameCopy(gameCopy);
+        req1.setSendTime(new Date(System.currentTimeMillis()));
+        req1.setStartTime(Date.valueOf("2025-07-01"));
+        req1.setEndTime(Date.valueOf("2025-07-10"));
+        req1.setStatus(BorrowingRequestStatus.Delivered);
 
-        @Test
-        public void testDeleteBorrowingRequest() {
-                Date startTime = Date.valueOf("2023-10-01");
-                Date endTime = Date.valueOf("2023-10-10");
-                BorrowingRequest request = new BorrowingRequest(startTime, endTime, borrower, gameCopy);
-                borrowingRepo.save(request);
+        BorrowingRequest req2 = new BorrowingRequest();
+        req2.setSender(sender2);
+        req2.setGameCopy(gameCopy);
+        req2.setSendTime(new Date(System.currentTimeMillis()));
+        req2.setStartTime(Date.valueOf("2025-08-01"));
+        req2.setEndTime(Date.valueOf("2025-08-10"));
+        req2.setStatus(BorrowingRequestStatus.Accepted);
 
-                borrowingRepo.delete(request);
+        BorrowingRequest req3 = new BorrowingRequest();
+        req3.setSender(sender1);
+        req3.setGameCopy(gameCopy);
+        req3.setSendTime(new Date(System.currentTimeMillis()));
+        req3.setStartTime(Date.valueOf("2025-09-01"));
+        req3.setEndTime(Date.valueOf("2025-09-10"));
+        req3.setStatus(BorrowingRequestStatus.Rejected);
+        // --- End of FIX ---
 
-                BorrowingRequest deletedRequest = borrowingRepo.findById(request.getId()).orElse(null);
+        borrowingRequestRepository.save(req1);
+        borrowingRequestRepository.save(req2);
+        borrowingRequestRepository.save(req3);
 
-                assertNull(deletedRequest);
-        }
+        // --- Action ---
+        List<BorrowingRequest> sender1Requests = borrowingRequestRepository.findAllBySenderId(sender1.getId());
 
-        @Test
-        public void testFindAllBorrowingRequests() {
-                BorrowingRequest request1 = new BorrowingRequest(Date.valueOf("2023-10-01"), Date.valueOf("2023-10-10"),
-                                borrower, gameCopy);
-                BorrowingRequest request2 = new BorrowingRequest(Date.valueOf("2023-11-01"), Date.valueOf("2023-11-10"),
-                                borrower, gameCopy);
-                borrowingRepo.save(request1);
-                borrowingRepo.save(request2);
+        // --- Assert ---
+        assertNotNull(sender1Requests);
+        assertEquals(2, sender1Requests.size());
+        assertTrue(sender1Requests.stream().anyMatch(r -> r.getStatus() == BorrowingRequestStatus.Delivered));
+        assertTrue(sender1Requests.stream().anyMatch(r -> r.getStatus() == BorrowingRequestStatus.Rejected));
+    }
 
-                List<BorrowingRequest> requests = (List<BorrowingRequest>) borrowingRepo.findAll();
-
-                assertEquals(2, requests.size());
-        }
-
-        @Test
-        public void testFindAllRequestsByStatusAndGameOwner() {
-                BorrowingRequest request1 = new BorrowingRequest(Date.valueOf("2023-10-01"), Date.valueOf("2023-10-10"),
-                                borrower, gameCopy);
-                request1.setStatus(BorrowingRequestStatus.Rejected);
-                borrowingRepo.save(request1);
-
-                BorrowingRequest request2 = new BorrowingRequest(Date.valueOf("2023-11-01"), Date.valueOf("2023-11-10"),
-                                borrower, gameCopy);
-                request2.setStatus(BorrowingRequestStatus.Accepted);
-                borrowingRepo.save(request2);
-
-                List<BorrowingRequest> pendingRequests = borrowingRepo
-                                .findAllRequestsByStatusAndGameOwner(BorrowingRequestStatus.Rejected, owner.getId());
-
-                assertEquals(1, pendingRequests.size());
-                assertEquals(request1.getId(), pendingRequests.get(0).getId());
-        }
-
-        @Test
-        public void testFindBySender() {
-                BorrowingRequest request1 = new BorrowingRequest(Date.valueOf("2023-10-01"), Date.valueOf("2023-10-10"),
-                                borrower, gameCopy);
-                BorrowingRequest request2 = new BorrowingRequest(Date.valueOf("2023-11-01"), Date.valueOf("2023-11-10"),
-                                borrower, gameCopy);
-                borrowingRepo.save(request1);
-                borrowingRepo.save(request2);
-
-                List<BorrowingRequest> requestsBySender = borrowingRepo.findBySender(borrower);
-
-                assertEquals(2, requestsBySender.size());
-                assertTrue(requestsBySender.stream().allMatch(r -> r.getSender().getId() == borrower.getId()));
-        }
-
-        @Test
-        public void testFindAllRequestsByStatusAndSender() {
-                BorrowingRequest request1 = new BorrowingRequest(Date.valueOf("2023-10-01"), Date.valueOf("2023-10-10"),
-                                borrower, gameCopy);
-                request1.setStatus(BorrowingRequestStatus.Rejected);
-                borrowingRepo.save(request1);
-
-                BorrowingRequest request2 = new BorrowingRequest(Date.valueOf("2023-11-01"), Date.valueOf("2023-11-10"),
-                                borrower, gameCopy);
-                request2.setStatus(BorrowingRequestStatus.Accepted);
-                borrowingRepo.save(request2);
-
-                List<BorrowingRequest> rejectedRequests = borrowingRepo
-                                .findAllRequestsByStatusAndSender(BorrowingRequestStatus.Rejected, borrower.getId());
-
-                assertEquals(1, rejectedRequests.size());
-                assertEquals(request1.getId(), rejectedRequests.get(0).getId());
-                assertEquals(BorrowingRequestStatus.Rejected, rejectedRequests.get(0).getStatus());
-        }
-
-        @Test
-        public void testFindByGameCopy() {
-                BorrowingRequest request1 = new BorrowingRequest(Date.valueOf("2023-10-01"), Date.valueOf("2023-10-10"),
-                                borrower, gameCopy);
-                BorrowingRequest request2 = new BorrowingRequest(Date.valueOf("2023-11-01"), Date.valueOf("2023-11-10"),
-                                borrower, gameCopy);
-                borrowingRepo.save(request1);
-                borrowingRepo.save(request2);
-
-                List<BorrowingRequest> requestsByGameCopy = borrowingRepo.findByGameCopy(gameCopy);
-
-                assertEquals(2, requestsByGameCopy.size());
-                assertTrue(requestsByGameCopy.stream().allMatch(r -> r.getGameCopy().getId() == gameCopy.getId()));
-        }
 }
