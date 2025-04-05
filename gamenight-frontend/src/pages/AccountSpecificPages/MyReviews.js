@@ -226,9 +226,9 @@ const MyReviews = () => {
                         <h3>Confirm Deletion</h3>
                         <p>Are you sure you want to delete this review?</p>
                         <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '20px' }}>
-                            <Button onClick={handleCancelDelete} style={{ marginRight: '10px' }}>
-                                Cancel
-                            </Button>
+                        <Button type="success" onClick={handleCancelDelete}>
+                    Cancel
+                </Button>
                             <Button type="danger" onClick={handleConfirmDelete}>
                                 Delete
                             </Button>
