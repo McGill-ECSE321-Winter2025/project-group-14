@@ -941,34 +941,46 @@ public class BorrowingManagementIntegrationTests {
         @Test
         @Order(25)
         public void testGetGameCopyLendingStatus_NoAcceptedBorrowingRequest() {
-                GameCopy gameCopy = new GameCopy();
-                gameCopy.setDescription("Test Game Copy");
-                gameCopy = gameCopyRepository.save(gameCopy);
-
-                BorrowingRequest rejectedRequest = new BorrowingRequest();
-                rejectedRequest.setGameCopy(gameCopy);
-                rejectedRequest.setStatus(BorrowingRequest.BorrowingRequestStatus.Rejected);
-                borrowingRequestRepository.save(rejectedRequest);
-
-                BorrowingRequest pendingRequest = new BorrowingRequest();
-                pendingRequest.setGameCopy(gameCopy);
-                pendingRequest.setStatus(BorrowingRequest.BorrowingRequestStatus.Delivered);
-                borrowingRequestRepository.save(pendingRequest);
-
-                String url = String.format("/borrowingRequests/game-copies/%d/lending-status", gameCopy.getId());
-                HttpEntity<?> requestEntity = createRequestWithHeaders(null, senderUserId);
-
-                ResponseEntity<String> response = client.exchange(
-                                url,
-                                HttpMethod.GET,
-                                requestEntity,
-                                String.class);
-
-                System.out.println("Response Body: " + response.getBody());
-
-                assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
-                assertTrue(response.getBody().contains("No active borrowing request found for this game copy"),
-                                "Unexpected response: " + response.getBody());
-        }
-
-}
+            Game game = gameRepository.findGameByName(VALID_GAMENAME).orElseGet(() -> 
+                gameRepository.save(new Game(VALID_GAMENAME, VALID_DESCRIPTION)));
+            
+            GameOwner owner = createdGameOwner;
+        
+            GameCopy gameCopy = new GameCopy();
+            gameCopy.setDescription("Test Game Copy");
+            gameCopy.setGame(game);
+            gameCopy.setGameOwner(owner);
+            gameCopy = gameCopyRepository.save(gameCopy);
+        
+            BorrowingRequest rejectedRequest = new BorrowingRequest();
+            rejectedRequest.setGameCopy(gameCopy);
+            rejectedRequest.setStatus(BorrowingRequest.BorrowingRequestStatus.Rejected);
+            rejectedRequest.setStartTime(START_TIME);
+            rejectedRequest.setEndTime(END_TIME);
+            rejectedRequest.setSendTime(new Date(System.currentTimeMillis()));
+            Player sender = playerRepository.findById(validSenderId).orElseThrow();
+            rejectedRequest.setSender(sender);
+            borrowingRequestRepository.save(rejectedRequest);
+        
+            BorrowingRequest pendingRequest = new BorrowingRequest();
+            pendingRequest.setGameCopy(gameCopy);
+            pendingRequest.setStatus(BorrowingRequest.BorrowingRequestStatus.Delivered);
+            pendingRequest.setStartTime(START_TIME);
+            pendingRequest.setEndTime(END_TIME);
+            pendingRequest.setSendTime(new Date(System.currentTimeMillis()));
+            pendingRequest.setSender(sender);
+            borrowingRequestRepository.save(pendingRequest);
+        
+            String url = String.format("/borrowingRequests/game-copies/%d/lending-status", gameCopy.getId());
+            HttpEntity<?> requestEntity = createRequestWithHeaders(null, senderUserId);
+        
+            ResponseEntity<String> response = client.exchange(
+                    url,
+                    HttpMethod.GET,
+                    requestEntity,
+                    String.class);
+        
+            assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+            assertTrue(response.getBody().contains("No active borrowing request found for this game copy"),
+                    "Unexpected response: " + response.getBody());
+        }}
