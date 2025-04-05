@@ -47,7 +47,7 @@ function GameCard({ gameId, title, rating }) {
                 URL.revokeObjectURL(imageUrl);
             }
         };
-    }, [gameId, imageUrl]);
+    }, [gameId]);
 
 
     return (
@@ -88,7 +88,7 @@ function GameCard({ gameId, title, rating }) {
                             <span key={i} className={i < starCount ? "filled" : ""}>★</span>
                         ))}
                     </div>
-                ):(
+                ) : (
                     <div></div>
                 )}
 
