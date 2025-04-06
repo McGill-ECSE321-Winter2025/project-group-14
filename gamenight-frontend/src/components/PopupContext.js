@@ -1,3 +1,4 @@
+// src/components/PopupContext.js
 import React, { createContext, useState, useContext, useCallback } from 'react';
 import {
     Typography,
@@ -8,7 +9,6 @@ import {
     Button as MuiButton
 } from "@mui/material";
 
-
 const PopupContext = createContext();
 
 export const usePopup = () => useContext(PopupContext);
@@ -17,46 +17,40 @@ export const PopupProvider = ({ children }) => {
     const [popup, setPopup] = useState({
         open: false,
         message: '',
-        title: '',             // Optional title
-        type: 'info',          // 'info' or 'confirm'
-        onConfirm: null,       // Callback for confirm action
+        title: '', 
+        type: 'info',
+        onConfirm: null,
         confirmText: 'OK',
         cancelText: 'Cancel',
-        confirmVariant: 'contained', // MUI Button variants: 'contained', 'outlined', 'text'
-        confirmColor: 'primary',   // MUI Button colors: 'primary', 'secondary', 'error', 'warning', 'info', 'success'
-        isProcessing: false   // Loading state for confirm button
+        confirmVariant: 'contained',
+        confirmColor: 'primary',
+        isProcessing: false
     });
 
     const showPopup = useCallback((options) => {
         if (typeof options === 'string') {
+            // Handle simple info popup call: showPopup("My message")
             setPopup({
-                open: true,
-                message: options,
-                title: '', // No title for simple info
-                type: 'info',
-                onConfirm: null, // No confirm action
-                confirmText: 'OK',
-                cancelText: 'Cancel', // Not shown
-                confirmVariant: 'contained',
-                confirmColor: 'primary',
-                isProcessing: false
+                open: true, message: options, title: '', type: 'info', onConfirm: null,
+                confirmText: 'OK', cancelText: 'Cancel', confirmVariant: 'contained',
+                confirmColor: 'primary', isProcessing: false
             });
         } else {
             const isConfirm = options.type === 'confirm';
             setPopup({
                 open: true,
                 message: options.message || '',
-                title: options.title || (isConfirm ? 'Confirm Action' : ''), // Default title for confirm
+                title: options.title || (isConfirm ? 'Confirm Action' : ''),
                 type: options.type || 'info',
                 onConfirm: options.onConfirm || null,
-                confirmText: options.confirmText || (isConfirm ? 'Confirm' : 'OK'), // Default button text
+                confirmText: options.confirmText || (isConfirm ? 'Confirm' : 'OK'),
                 cancelText: options.cancelText || 'Cancel',
                 confirmVariant: options.confirmVariant || 'contained',
                 confirmColor: options.confirmButtonVariant === 'danger' ? 'error' : (options.confirmColor || 'primary'),
-                isProcessing: false // Always reset processing state when showing
+                isProcessing: false
             });
         }
-    }, []); // useCallback depends on nothing external here
+    }, []);
 
     const hidePopup = useCallback(() => {
         setPopup(prev => ({ ...prev, open: false, isProcessing: false }));
@@ -68,44 +62,47 @@ export const PopupProvider = ({ children }) => {
 
     const handleConfirm = async () => {
         if (popup.type === 'info') {
-            hidePopup(); // Simple OK button just closes it
+            hidePopup();
         } else if (popup.type === 'confirm' && popup.onConfirm) {
-
-             setProcessing(true); // Indicate processing starts
+             setProcessing(true);
              try {
-                 await popup.onConfirm();
+                 await popup.onConfirm(); 
                  hidePopup();
              } catch (error) {
                   console.error("Error during popup confirmation action:", error);
                   setProcessing(false);
              }
         } else {
-            hidePopup(); // Default action if something is misconfigured
+            hidePopup();
         }
     };
 
     return (
-        <PopupContext.Provider value={{ showPopup, hidePopup, setProcessing }}> {/* Expose setProcessing */}
+        <PopupContext.Provider value={{ showPopup, hidePopup, setProcessing }}>
             {children}
 
-            <Dialog open={popup.open} onClose={hidePopup} sx={{ zIndex: 100000 }}> {/* High z-index */}
-                {popup.title && <DialogTitle>{popup.title}</DialogTitle>}
+            <Dialog
+                open={popup.open}
+                onClose={(event, reason) => {
+                    if (reason === 'backdropClick' && popup.isProcessing) return;
+                    if (!popup.isProcessing) hidePopup();
+                }}
+                sx={{ zIndex: 100000 }} // High z-index if needed
+                aria-labelledby="popup-dialog-title"
+                aria-describedby="popup-dialog-description"
+            >
+                {popup.title && <DialogTitle id="popup-dialog-title">{popup.title}</DialogTitle>}
                 <DialogContent>
-                    {/* Render message - could be string or React node */}
-                    {typeof popup.message === 'string' ? (
-                        <Typography>{popup.message}</Typography>
-                    ) : (
-                        popup.message
-                    )}
+                    <Typography component="div" id="popup-dialog-description">{popup.message}</Typography>
                 </DialogContent>
                 <DialogActions>
-                    {/* Conditionally show Cancel button only for confirmation types */}
+                    {/* Conditionally show Cancel button only for 'confirm' type */}
                     {popup.type === 'confirm' && (
                         <MuiButton
                             onClick={hidePopup}
-                            size="small" // SMALLER BUTTON
-                            variant='outlined' // Example style for cancel
-                            disabled={popup.isProcessing} // Disable if confirm is processing
+                            size="small" // Use MUI's small size
+                            variant='outlined'
+                            disabled={popup.isProcessing}
                         >
                             {popup.cancelText}
                         </MuiButton>
@@ -113,10 +110,10 @@ export const PopupProvider = ({ children }) => {
                     {/* OK or Confirm button */}
                     <MuiButton
                         onClick={handleConfirm}
-                        size="small" // SMALLER BUTTON
+                        size="small" // Use MUI's small size
                         variant={popup.confirmVariant}
                         color={popup.confirmColor}
-                        disabled={popup.isProcessing} // Disable while processing
+                        disabled={popup.isProcessing}
                     >
                         {popup.isProcessing ? 'Processing...' : popup.confirmText}
                     </MuiButton>

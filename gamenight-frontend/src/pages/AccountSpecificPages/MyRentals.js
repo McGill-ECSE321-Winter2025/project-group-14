@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext } from "react";
 import { Box } from "@mui/material";
-import BorrowingRequestItem from '../../components/cards/BorrowingRequestItem';
+import BorrowingRequestItem from '../../components/cards/rentalcard';
 import { AuthContext } from "../../AuthContext";
 
 function MyRentals() {
@@ -54,41 +54,36 @@ function MyRentals() {
   }, [authChecked, user]);
 
   return (
-    <div className="container">
-      <div>
-        <h1 className="centered">My Rentals</h1>
+    <div className="rentals-container">
+      <div className="rentals-header">
+        <h1>My Rentals</h1>
+        <p className="subtitle">Your currently active game rentals</p>
       </div>
 
       {loading ? (
-        <Box display="flex" justifyContent="center">
-          <p className="text-center">Loading your rentals...</p>
+        <Box display="flex" justifyContent="center" alignItems="center" minHeight="200px">
+          <div className="loading-spinner"></div>
         </Box>
       ) : borrowedGameCopies.length === 0 ? (
-        <Box display="flex" justifyContent="center">
-          <p className="text-center">You don't have any active rentals.</p>
+        <Box 
+          display="flex" 
+          justifyContent="center" 
+          alignItems="center" 
+          minHeight="200px"
+          sx={{ background: '#f9fafb', borderRadius: '12px' }}
+        >
+          <p className="empty-state">You don't have any active rentals yet.</p>
         </Box>
       ) : (
-        <Box sx={{ 
-          display: 'flex',
-          justifyContent: 'center',
-          flexWrap: 'wrap',
-          gap: '16px',
-          maxWidth: '1200px',
-          margin: '0 auto',
-          padding: '0 16px'
-        }}>
+        <div className="rentals-grid">
           {borrowedGameCopies.map((gameCopy) => (
-            <Box key={gameCopy.id} sx={{ 
-              width: { xs: '100%', sm: 'calc(50% - 8px)', md: 'calc(33.333% - 11px)' },
-              maxWidth: '280px'
-            }}>
-              <BorrowingRequestItem 
-                request={gameCopy} 
-                badgeText="Active Rental"
-              />
-            </Box>
+            <BorrowingRequestItem 
+              key={gameCopy.id}
+              request={gameCopy} 
+              badgeText="Active Rental"
+            />
           ))}
-        </Box>
+        </div>
       )}
     </div>
   );

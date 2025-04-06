@@ -12,11 +12,11 @@ You can start reading the project report with the following links:
 ## Overview Table
 | Name          |GitHub Username|             Role              | Deliverable 1 Individual Effort (h) | Deliverable 2 Individual Effort (h) | Deliverable 3 Individual Effort (h) |
 | ------------- | ------------- | ----------------------------- |   :---------------: |   :---------------: |   :---------------: | 
-| Deniz Kuru    | deniz-kuru    | UI/UX designer                |        15           |          35         |                     |
-| Ayham Nassar  | dtuXu         | Back-End Developer            |        15           |          35         |                     |
-| Reina El-Hoz  | ReinaEl-Hoz   | Front-End Developer           |        15           |          35         |                     |
-|Mathis Bélanger| Matblg        | Project Manager               |        15           |          35         |                     |
-| Kassem Yassine| KassemYassine | Full-Stack Developer          |        15           |          35         |                     |
-| Hamza Abudaqa |  HamzaAbudaqa | Test & Verification Developer |        15           |          35         |                     |
-|Marianne Romero| MarianneRomero| Software Systems Integration  |        15           |          35         |                     |
+| Deniz Kuru    | deniz-kuru    | UI/UX designer                |        15           |          35         |          50         |
+| Ayham Nassar  | dtuXu         | Back-End Developer            |        15           |          35         |          50         |
+| Reina El-Hoz  | ReinaEl-Hoz   | Front-End Developer           |        15           |          35         |          50         |
+|Mathis Bélanger| Matblg        | Project Manager               |        15           |          35         |          50         |
+| Kassem Yassine| KassemYassine | Full-Stack Developer          |        15           |          35         |          50         |
+| Hamza Abudaqa |  HamzaAbudaqa | Test & Verification Developer |        15           |          35         |          50         |
+|Marianne Romero| MarianneRomero| Software Systems Integration  |        15           |          35         |          50         |
 

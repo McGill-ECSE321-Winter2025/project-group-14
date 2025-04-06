@@ -13,7 +13,7 @@ import {
   DialogTitle
 } from "@mui/material";
 import '../../styles/card-with-user.css'
-
+import { usePopup } from '../../components/PopupContext';
 
 const GameCopyCard = ({ gameCopyId, owner, description }) => {
   const [startDate, setStartDate] = useState(null);
@@ -21,6 +21,7 @@ const GameCopyCard = ({ gameCopyId, owner, description }) => {
   const { user } = useContext(AuthContext);
   const [playerId, setPlayerId] = useState();
   const [requestBorrowOpen, setBorrowRequestOpen] = useState(false);
+  const { showPopup } = usePopup();
 
   useEffect(() => {
     fetch(`http://localhost:8080/users/${user.userId}/player-id`, {
@@ -54,8 +55,8 @@ const GameCopyCard = ({ gameCopyId, owner, description }) => {
       setBorrowRequestOpen(false);
       setStartDate(null);
       setEndDate(null);
-    } else {
-      alert("Please select both start and end dates before submitting.");
+      } else {
+        showPopup("Please select both start and end dates before submitting.");
     }
   };
 
@@ -88,7 +89,7 @@ const GameCopyCard = ({ gameCopyId, owner, description }) => {
         </div>
       </div>
 
-      <Dialog open={requestBorrowOpen} onClose={handleCancelBorrowRequest}>
+      <Dialog open={requestBorrowOpen} onClose={handleCancelBorrowRequest} maxWidth={'xs'}>
         <DialogTitle>Send a borrowing request to {owner}</DialogTitle>
         <DialogContent>
           <Typography>Select dates for your request.</Typography>
