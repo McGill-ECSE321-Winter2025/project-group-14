@@ -88,7 +88,7 @@ const ReceivedBorrowingRequests = () => {
           return <div className="message-area"><p className="error-text">Error: {error.toString()}</p></div>;
       }
       if (requests.length === 0) {
-          return <div className="message-area"><p>No pending borrowing requests require your attention.</p></div>;
+          return <div className="message-area"><p>No borrowing requests have come in yet 📭 Sit back and relax — we’ll let you know when someone reaches out!</p></div>;
       }
       return (
           <div className="requests-list-container"> 
