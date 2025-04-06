@@ -190,7 +190,6 @@ const MyReviews = () => {
 
     return (
         <div>
-            <h2>My Reviews</h2>
             {reviews.length === 0 ? (
                 <p>You haven't submitted any reviews yet.</p>
             ) : (
