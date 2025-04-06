@@ -2,6 +2,7 @@ package ca.mcgill.ecse321.gamenight.service;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.*;
 
 import java.util.Optional;
@@ -23,9 +24,15 @@ import ca.mcgill.ecse321.gamenight.exception.UniquenessConstaintException;
 import ca.mcgill.ecse321.gamenight.model.GameOwner;
 import ca.mcgill.ecse321.gamenight.model.Person;
 import ca.mcgill.ecse321.gamenight.model.Player;
+import ca.mcgill.ecse321.gamenight.repo.BorrowingRequestRepository;
+import ca.mcgill.ecse321.gamenight.repo.EventRepository;
+import ca.mcgill.ecse321.gamenight.repo.GameCopyRepository;
 import ca.mcgill.ecse321.gamenight.repo.GameOwnerRepository;
+import ca.mcgill.ecse321.gamenight.repo.GameReviewRepository;
 import ca.mcgill.ecse321.gamenight.repo.PersonRepository;
 import ca.mcgill.ecse321.gamenight.repo.PlayerRepository;
+import ca.mcgill.ecse321.gamenight.repo.RegistrationRepository;
+import ca.mcgill.ecse321.gamenight.repo.ScheduledGameRepository;
 
 public class UserManagementServiceTest {
 
@@ -39,10 +46,25 @@ public class UserManagementServiceTest {
     private GameOwnerRepository gameOwnerRepository;
 
     @Mock
-    private UserManagementService userService;
+    private UserManagementController userController;
 
     @Mock
-    private UserManagementController userController;
+    private RegistrationRepository registrationRepository;
+
+    @Mock
+    private GameReviewRepository gameReviewRepository;
+
+    @Mock
+    private BorrowingRequestRepository borrowingRequestRepository;
+
+    @Mock
+    private GameCopyRepository gameCopyRepository;
+
+    @Mock
+    private ScheduledGameRepository scheduledGameRepository;
+
+    @Mock
+    private EventRepository eventRepository;
 
     @InjectMocks
     private UserManagementService userManagementService;
@@ -343,6 +365,11 @@ public class UserManagementServiceTest {
         when(gameOwnerRepository.findByPersonId(testUser.getId())).thenReturn(testGameOwner);
         when(playerRepository.findByPersonId(testUser.getId())).thenReturn(testPlayer);
         when(personRepository.findPersonById(testUser.getId())).thenReturn(Optional.of(testUser));
+        when(registrationRepository.findByKey_PlayerId(anyInt())).thenReturn(List.of());
+        when(gameReviewRepository.findByReviewer(any())).thenReturn(List.of());
+        when(borrowingRequestRepository.findBySender(any())).thenReturn(List.of());
+        when(gameCopyRepository.findByGameOwner(any())).thenReturn(List.of());
+        when(eventRepository.findAll()).thenReturn(List.of());
 
         userManagementService.deletePerson(testUser.getId());
 

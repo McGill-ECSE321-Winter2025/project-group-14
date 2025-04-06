@@ -18,9 +18,16 @@ import ca.mcgill.ecse321.gamenight.exception.UniquenessConstaintException;
 import ca.mcgill.ecse321.gamenight.model.GameOwner;
 import ca.mcgill.ecse321.gamenight.model.Person;
 import ca.mcgill.ecse321.gamenight.model.Player;
+import ca.mcgill.ecse321.gamenight.model.Registration;
+import ca.mcgill.ecse321.gamenight.repo.BorrowingRequestRepository;
+import ca.mcgill.ecse321.gamenight.repo.EventRepository;
+import ca.mcgill.ecse321.gamenight.repo.GameCopyRepository;
 import ca.mcgill.ecse321.gamenight.repo.GameOwnerRepository;
+import ca.mcgill.ecse321.gamenight.repo.GameReviewRepository;
 import ca.mcgill.ecse321.gamenight.repo.PersonRepository;
 import ca.mcgill.ecse321.gamenight.repo.PlayerRepository;
+import ca.mcgill.ecse321.gamenight.repo.RegistrationRepository;
+import ca.mcgill.ecse321.gamenight.repo.ScheduledGameRepository;
 import jakarta.transaction.Transactional;
 
 @Service
@@ -35,13 +42,23 @@ public class UserManagementService {
     @Autowired
     private GameOwnerRepository gameOwnerRepository;
 
-    public UserManagementService(PersonRepository personRepository,
-            PlayerRepository playerRepository,
-            GameOwnerRepository gameOwnerRepository) {
-        this.personRepository = personRepository;
-        this.playerRepository = playerRepository;
-        this.gameOwnerRepository = gameOwnerRepository;
-    }
+    @Autowired
+    private GameCopyRepository gameCopyRepository;
+
+    @Autowired
+    private BorrowingRequestRepository borrowingRequestRepository;
+
+    @Autowired
+    private GameReviewRepository gameReviewRepository;
+
+    @Autowired
+    private RegistrationRepository registrationRepository;
+
+    @Autowired
+    private EventRepository eventRepository;
+
+    @Autowired
+    private ScheduledGameRepository scheduledGameRepository;
 
     @Transactional
     public void createPerson(AuthRequestDto request) {
@@ -112,12 +129,58 @@ public class UserManagementService {
 
     @Transactional
     public void deletePerson(int userId) {
-        Person user = personRepository
-                .findPersonById(userId)
+        Person person = personRepository.findPersonById(userId)
                 .orElseThrow(() -> new ObjectNotFoundException("User not found"));
-        gameOwnerRepository.delete(gameOwnerRepository.findByPersonId(userId));
-        playerRepository.delete(playerRepository.findByPersonId(userId));
-        personRepository.delete(user);
+
+        // -- Remove Events this person hosted (must come FIRST) --
+        // This MUST happen before deleting player and registrations
+        eventRepository.findAll().forEach(event -> {
+            Registration earliest = registrationRepository.findFirstByKey_EventIdOrderByCreatedAtAsc(event.getId());
+            if (earliest != null && earliest.getKey().getPlayer().getPerson().getId() == userId) {
+                // Delete all registrations for this event
+                registrationRepository.findByKey_EventId(event.getId())
+                        .forEach(registrationRepository::delete);
+
+                // Delete scheduled games in this event
+                scheduledGameRepository.findByKey_EventId(event.getId())
+                        .forEach(scheduledGameRepository::delete);
+
+                // Delete event
+                eventRepository.delete(event);
+            }
+        });
+
+        // -- Remove Player-based links --
+        Player player = playerRepository.findByPersonId(userId);
+        if (player != null) {
+            // Delete all remaining registrations
+            registrationRepository.findByKey_PlayerId(player.getId())
+                    .forEach(registrationRepository::delete);
+
+            // Delete reviews made by this player
+            gameReviewRepository.findByReviewer(player)
+                    .forEach(gameReviewRepository::delete);
+
+            // Delete borrowing requests made by this player
+            borrowingRequestRepository.findBySender(player)
+                    .forEach(borrowingRequestRepository::delete);
+
+            playerRepository.delete(player);
+        }
+
+        // -- Remove GameOwner-based links --
+        GameOwner owner = gameOwnerRepository.findByPersonId(userId);
+        if (owner != null) {
+            gameCopyRepository.findByGameOwner(owner).forEach(copy -> {
+                borrowingRequestRepository.findByGameCopy(copy)
+                        .forEach(borrowingRequestRepository::delete);
+                gameCopyRepository.delete(copy);
+            });
+            gameOwnerRepository.delete(owner);
+        }
+
+        // -- Delete Person --
+        personRepository.delete(person);
     }
 
     @Transactional
@@ -199,9 +262,4 @@ public class UserManagementService {
         return owner != null && owner.isActive();
     }
 
-   
-    
-    
-
 }
-
