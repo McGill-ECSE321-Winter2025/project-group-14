@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useCallback, useContext } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { Box, Typography, Button, CircularProgress } from "@mui/material";
 import { AuthContext } from "../../AuthContext";
 import { usePopup } from "../../components/PopupContext"; 
 import '../../styles/event-details.css';
@@ -149,20 +148,20 @@ function EventDetails() {
 
   if (loading) {
     return (
-      <Box display="flex" justifyContent="center" alignItems="center" minHeight="50vh">
-        <CircularProgress className="custom-progress" />
-      </Box>
+      <div className="loading-container">
+        <div className="custom-progress"></div>
+      </div>
     );
   }
 
   if (!event) {
     return (
-      <Box className="event-details-container not-found-container">
-        <Typography variant="h5" className="not-found-text">Event not found</Typography>
-        <Button onClick={() => navigate("/events")} className="back-button">
+      <div className="event-details-container not-found-container">
+        <h5 className="not-found-text">Event not found</h5>
+        <button onClick={() => navigate("/events")} className="back-button">
           Back to Events
-        </Button>
-      </Box>
+        </button>
+      </div>
     );
   }
 
@@ -198,27 +197,27 @@ function EventDetails() {
       <div className="event-details-card">
         {isExpired && <span className="expired-badge">Expired</span>}
      
-        <Typography variant="h4" className="event-details-title">{event.name}</Typography>
+        <h4 className="event-details-title">{event.name}</h4>
      
         <div className="event-details-dates">
           {hasValidStartTime && (
-            <Typography variant="body2" className="event-date">
-              <span className="date-icon">📅</span> Start: {formattedStart}
-            </Typography>
+            <p className="event-date">
+               Start: {formattedStart}
+            </p>
           )}
           {hasValidEndTime && (
-            <Typography variant="body2" className="event-date">
-              <span className="date-icon">⏱️</span> End: {formattedEnd}
-            </Typography>
+            <p className="event-date">
+               End: {formattedEnd}
+            </p>
           )}
         </div>
      
-        <Typography variant="body1" className="event-details-description">{event.description}</Typography>
+        <p className="event-details-description">{event.description}</p>
      
         <div className="games-section">
-          <Typography variant="subtitle1" className="games-section-title">
-            <span className="games-icon">🎮</span> Games Scheduled:
-          </Typography>
+          <h5 className="games-section-title">
+             Games Scheduled:
+          </h5>
        
           {games && games.length > 0 ? (
             <ul className="games-list">
@@ -227,43 +226,40 @@ function EventDetails() {
               ))}
             </ul>
           ) : (
-            <Typography variant="body2" className="no-games">
+            <p className="no-games">
               No games scheduled for this event.
-            </Typography>
+            </p>
           )}
         </div>
      
         {!isExpired && (
-          <Box className="registration-actions">
+          <div className="registration-actions">
             {isRegistered ? (
-              <Button
-                variant="contained"
+              <button
                 className="unregister-button"
                 onClick={handleUnregister}
               >
                 Unregister for this Event
-              </Button>
+              </button>
             ) : (
-              <Button
-                variant="contained"
+              <button
                 className="register-button"
                 onClick={handleRegister}
               >
                 Register for this Event
-              </Button>
+              </button>
             )}
-          </Box>
+          </div>
         )}
      
-        <Box className="navigation-actions">
-          <Button
-            variant="outlined"
+        <div className="navigation-actions">
+          <button
             className="back-button"
             onClick={() => navigate("/events")}
           >
             Back to Events
-          </Button>
-        </Box>
+          </button>
+        </div>
       </div>
     </div>
   );
