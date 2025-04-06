@@ -4,8 +4,9 @@ import axios from 'axios';
 import { useAuth } from '../../AuthContext';
 import '../../styles/layout.css';
 import '../../styles/event-history.css';
-import { Box, CircularProgress } from '@mui/material';
+import { Box, CircularProgress,Button  } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
+import '../../styles/button.css';
 
 
 const EventCard = ({ event, playerId, isCreator = false }) => {
@@ -286,8 +287,7 @@ function MyEvents() {
 
             {!isLoading && !error && (
                 <button
-                    className="create-event-btn"
-                    style={{ position: 'absolute', top: 30, right: 30 }}
+                    className="btn success create-event-btn"
                     onClick={() => setShowCreateEvent(true)}
                 >
                     <AddIcon sx={{ color: 'inherit' }} /> Create Event
