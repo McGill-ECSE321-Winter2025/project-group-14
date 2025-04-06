@@ -4,7 +4,6 @@ import { UserManagementAPI } from '../../UserManagementAPI';
 import AccountSettings from './AccountSettings';
 
 import GameHistory from './GameHistory';
-import EventHistory from './EventHistory';
 
 
 import '../../styles/layout.css';
@@ -78,9 +77,9 @@ const Account = () => {
             }}>
                 <Tabs value={tabValue} onChange={handleTabChange} centered variant="fullWidth">
                     <Tab label="My Account" />
-                    <Tab label="My Review" />
+                    <Tab label="My Reviews" />
                     <Tab label="Game History" />
-                    <Tab label="Event History" />
+                    
                 </Tabs>
             </Box>
 
@@ -89,7 +88,7 @@ const Account = () => {
                 {tabValue === 0 && <AccountSettings />}
                 {tabValue === 1 && <MyReviews />}
                 {tabValue === 2 && <GameHistory />}
-                {tabValue === 3 && <EventHistory />}
+                
 
             </Box>
         </div>

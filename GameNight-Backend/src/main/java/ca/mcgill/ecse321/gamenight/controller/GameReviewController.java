@@ -89,13 +89,7 @@ public class GameReviewController {
             @PathVariable int reviewId,
             @RequestBody GameReviewDto reviewDto) {
 
-        logger.info("in the update endpoint");
         try {
-            logger.info(reviewDto.getAuthor());
-            logger.info(reviewDto.getComment());
-            logger.info(Integer.toString(reviewDto.getRating()));
-            logger.info(Integer.toString(reviewDto.getReviewId()));
-            logger.info(Integer.toString(reviewDto.getReviewerId()));
             GameReview review = convertToEntity(reviewDto);
 
             GameReview updatedReview = gameReviewService.updateReview(reviewId, review.getRating(),

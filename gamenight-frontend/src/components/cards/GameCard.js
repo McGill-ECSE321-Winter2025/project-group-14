@@ -43,11 +43,12 @@ function GameCard({ gameId, title, rating }) {
         fetchGameImage();
 
         return () => {
-            if (imageUrl) {
+
+            if (imageUrl && !gameId) {
                 URL.revokeObjectURL(imageUrl);
             }
         };
-    }, [gameId, imageUrl]);
+    }, [gameId]);
 
 
     return (

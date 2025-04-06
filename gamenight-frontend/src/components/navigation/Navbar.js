@@ -37,7 +37,8 @@ function Navbar() {
             </div>
 
             <div className="nav-right">
-                {user && isOwner && <Link to="/my-games">My Games</Link>}
+                {user && <Link to="/my-rentals">My Rentals</Link>}
+                {user && isOwner && <Link to="/my-games">My Collection</Link>}
                 {user && <Link to="/my-events">My Events</Link>}
                 {user && <Link to="/account">My Account</Link>}
 
