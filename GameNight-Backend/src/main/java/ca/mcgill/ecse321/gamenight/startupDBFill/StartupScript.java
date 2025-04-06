@@ -63,7 +63,7 @@ public class StartupScript implements CommandLineRunner {
         game3.setImagePath("games/monopoly.jpg");
         gameRepo.save(game3);
         Game game4 = new Game("Jenga", "A fun block game");
-        game4.setImagePath("games/jenga.jpg");
+        game4.setImagePath("games/jenga.webp");
         gameRepo.save(game4);
         Game game5 = new Game("Twister", "A game");
         game5.setImagePath("games/twister.jpg");
