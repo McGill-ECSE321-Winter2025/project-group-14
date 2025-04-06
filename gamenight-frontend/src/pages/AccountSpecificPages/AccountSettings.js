@@ -3,7 +3,7 @@ import { UserManagementAPI } from '../../UserManagementAPI';
 import { useAuth } from '../../AuthContext';
 import './AccountSettings.css';
 import AccountRoleToggle from './AccountRoleToggle';
-import { FiInfo, FiMail, FiLock, FiTrash2, FiUser, FiCheck } from 'react-icons/fi';
+import { FiLock, FiTrash2, FiUser, FiCheck } from 'react-icons/fi';
 import {
     Typography,
     Dialog,
@@ -11,7 +11,7 @@ import {
     DialogContent,
     DialogTitle
 } from "@mui/material";
-import Button from './../../components/ui/Button'
+import Button from './../../components/ui/Button';
 import { useNavigate } from 'react-router-dom';
 import { usePopup } from '../../components/PopupContext';
 
@@ -19,24 +19,16 @@ const AccountSettings = () => {
     const { user, logout, isOwner } = useAuth();
     const [userDetails, setUserDetails] = useState(null);
     const [userInfo, setUserInfo] = useState(null);
-    const [email, setEmail] = useState('');
     const [username, setUsername] = useState('');
     const [newPassword, setNewPassword] = useState('');
     const [oldPassword, setOldPassword] = useState('');
     const [updateStatus, setUpdateStatus] = useState('');
-    const [infoLocked, setInfoLocked] = useState('');
     const [confirmDeleteAccountOpen, setConfirmDeleteAccountOpen] = useState(false);
-    const [usernameSectionOpen, setUsernameSectionOpen] = useState(true);
-    const [passwordSectionOpen, setPasswordSectionOpen] = useState(false);
-    const [emailSectionOpen, setEmailSectionOpen] = useState(false);
+    const [openSection, setOpenSection] = useState('username');
+
     const placeholderImage = `https://i.pravatar.cc/150?u=${user?.userId || 'guest'}`;
     const navigate = useNavigate();
     const { showPopup } = usePopup();
-    const [openSection, setOpenSection] = useState('username');
-
-    const toggleSection = (section) => {
-        setOpenSection(prev => (prev === section ? '' : section));
-    };
 
     useEffect(() => {
         if (user?.userId) {
@@ -72,71 +64,57 @@ const AccountSettings = () => {
         };
     }, [user]);
 
-    const handleUpdateUsername = async () => {
-        if (!username) return alert("Enter a new username.");
-        const success = await UserManagementAPI.updateUsername(user.userId, username);
-        if (success) {
-            const updated = await UserManagementAPI.getUserDetails(user.userId);
-            setUserDetails(updated);
-            setUsername('');
-            setUpdateStatus("Username updated successfully.");
-        } else {
-            setUpdateStatus("Username update failed.");
-        }
+    const toggleSection = (section) => {
+        setOpenSection(prev => (prev === section ? '' : section));
     };
 
-    const handleUpdateEmail = async () => {
-        if (!oldPassword || !email) return alert("Provide current password and new email.");
-        const success = await UserManagementAPI.updateUser(
-            user.userId,
-            oldPassword,
-            email,
-            oldPassword
-        );
+    const handleUpdateUsername = async () => {
+        if (!username) return showPopup("Please enter a new username.");
 
-        if (success) {
-            const updatedInfo = await UserManagementAPI.getUserDetails(user.userId);
-            setUserDetails(updatedInfo);
-            setUpdateStatus("Email updated successfully.");
-            setEmail('');
-            setOldPassword('');
-        } else {
-            setUpdateStatus("Email update failed.");
+        try {
+            const success = await UserManagementAPI.updateUsername(user.userId, username);
+            if (!success) throw new Error("Username update failed.");
+            setUsername('');
+            const updated = await UserManagementAPI.getUserDetails(user.userId);
+            setUserDetails(updated);
+            setUpdateStatus("Username updated successfully.");
+        } catch (err) {
+            showPopup(err.message || "Username update failed.");
         }
     };
 
     const handleUpdatePassword = async () => {
-        if (!oldPassword || !newPassword) return alert("Provide current and new password.");
-        const currentEmail = userDetails?.email || userInfo?.email;
+        if (!newPassword || !oldPassword)
+            return showPopup("Please fill in both new and current passwords.");
 
-        const success = await UserManagementAPI.updateUser(
-            user.userId,
-            oldPassword,
-            currentEmail,
-            newPassword
-        );
-
-        if (success) {
-            setUpdateStatus("Password updated successfully.");
+        try {
+            const currentEmail = userDetails?.email || userInfo?.email;
+            const success = await UserManagementAPI.updateUser(user.userId, oldPassword, currentEmail, newPassword);
+            if (!success) throw new Error("Password update failed.");
             setNewPassword('');
             setOldPassword('');
-        } else {
-            setUpdateStatus("Password update failed.");
+            setUpdateStatus("Password updated successfully.");
+        } catch (err) {
+            showPopup(err.message || "Password update failed.");
         }
     };
 
-    const handleDeleteAccount = async () => {
+    const handleDeleteAccount = () => {
         setConfirmDeleteAccountOpen(true);
     };
 
     const deleteAccountConfirmed = async () => {
         setConfirmDeleteAccountOpen(false);
-        const success = await UserManagementAPI.deleteUser(user.userId);
-        if (success) {
-            logout();
-            setTimeout(() => navigate("/"), 0);
-        } else {
-            showPopup("Deleting account failed.");
+        try {
+            const success = await UserManagementAPI.deleteUser(user.userId);
+            if (success) {
+                logout();
+                navigate("/");
+            } else {
+                showPopup("Deleting account failed.");
+            }
+        } catch (err) {
+            showPopup(err.message || "Deleting account failed.");
         }
     };
 
@@ -144,22 +122,9 @@ const AccountSettings = () => {
         setConfirmDeleteAccountOpen(false);
     };
 
-    const InfoIcon = ({ id }) => (
-        <button
-            className="info-icon-container"
-            onClick={() => setInfoLocked(infoLocked === id ? '' : id)}
-            aria-label="Information"
-        >
-            <FiInfo className="info-icon" />
-        </button>
-    );
-
-    const InfoText = ({ id, children }) =>
-        infoLocked === id ? <div className="info-text">{children}</div> : null;
-
     return (
         <div className='account-settings-container'>
-            <div className='account-settings-item '>
+            <div className='account-settings-item'>
                 <div className="profile-container">
                     <img className="profile-image" src={placeholderImage} alt="profile" />
                     <div className="profile-details">
@@ -175,9 +140,7 @@ const AccountSettings = () => {
                             <FiTrash2 className="section-icon" />
                             <h3>Delete Account</h3>
                         </div>
-                        <InfoIcon id="delete" />
                     </div>
-                    <InfoText id="delete">Deletes your account permanently.</InfoText>
                     <button className="delete-button" onClick={handleDeleteAccount}>
                         <FiTrash2 className="button-icon" />
                         Delete Account
@@ -185,7 +148,7 @@ const AccountSettings = () => {
                 </div>
             </div>
 
-            <div className='account-settings-item '>
+            <div className='account-settings-item'>
                 <div className="settings-card">
                     <div className="card-header">
                         <div className="header-title">
@@ -194,10 +157,8 @@ const AccountSettings = () => {
                         </div>
                         <div className="header-actions">
                             <AccountRoleToggle userId={user.userId} />
-                            <InfoIcon id="toggleRole" />
                         </div>
                     </div>
-                    <InfoText id="toggleRole">Switch between player and owner mode.</InfoText>
 
                     {/* Update Username */}
                     <div className="settings-section">
@@ -282,53 +243,6 @@ const AccountSettings = () => {
                         )}
                     </div>
 
-                    {/* Update Email */}
-                    <div className="settings-section">
-                        <div
-                            className="section-header collapsible-header"
-                            onClick={() => toggleSection('email')}
-                        >
-                            <div className="section-title">
-                                <FiMail className="section-icon" />
-                                <h3>Update Email</h3>
-                            </div>
-                        </div>
-
-                        {openSection === 'email' && (
-                            <div className="auth-form">
-                                <div className="form-group">
-                                    <label htmlFor="email">
-                                        <FiMail className="input-icon" />
-                                        New Email
-                                    </label>
-                                    <input
-                                        id="email"
-                                        type="email"
-                                        placeholder="Enter new email address"
-                                        value={email}
-                                        onChange={e => setEmail(e.target.value)}
-                                    />
-                                </div>
-                                <div className="form-group">
-                                    <label htmlFor="currentPasswordEmail">
-                                        <FiLock className="input-icon" />
-                                        Current Password
-                                    </label>
-                                    <input
-                                        id="currentPasswordEmail"
-                                        type="password"
-                                        placeholder="Enter current password"
-                                        value={oldPassword}
-                                        onChange={e => setOldPassword(e.target.value)}
-                                    />
-                                </div>
-                                <button className="update-button" onClick={handleUpdateEmail}>
-                                    <FiCheck className="button-icon" />
-                                    Update Email
-                                </button>
-                            </div>
-                        )}
-                    </div>
                     {updateStatus && (
                         <p className={`status-message ${updateStatus.includes("success") ? "success" : "error"}`}>
                             {updateStatus}
