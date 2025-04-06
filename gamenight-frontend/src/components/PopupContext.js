@@ -86,7 +86,7 @@ export const PopupProvider = ({ children }) => {
                 if (reason === 'backdropClick' && popup.isProcessing) return;
                 if (!popup.isProcessing) hidePopup();
             }}
-            sx={{ 
+            sx={{ zIndex: 100000,
                 '& .MuiPaper-root': {
                     borderRadius: '12px',
                     minWidth: '350px',

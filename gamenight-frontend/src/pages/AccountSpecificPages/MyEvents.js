@@ -84,6 +84,10 @@ function MyEvents() {
         const start = newEventStart ? new Date(newEventStart) : null;
         const end = newEventEnd ? new Date(newEventEnd) : null;
         if (start && end && start >= end) { showPopup("End time must be after start time.", "warning"); return; }
+        if (end && end < new Date()) { 
+            showPopup("End time cannot be in the past.", "warning"); 
+            return; 
+        }
 
         setIsCreating(true);
         let newEvent;
