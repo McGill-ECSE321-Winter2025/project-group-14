@@ -285,7 +285,7 @@ function MyEvents() {
             {isLoading && <p className="centered loading-message">Loading your events...</p>}
             {error && <p className="centered error-message">{error}</p>}
 
-            {!isLoading && !error && (
+            {!isLoading && !error && !showCreateEvent && (
                 <button
                     className="btn success create-event-btn"
                     onClick={() => setShowCreateEvent(true)}
