@@ -191,7 +191,7 @@ const MyReviews = () => {
     return (
         <div>
             {reviews.length === 0 ? (
-                <p>You haven't submitted any reviews yet.</p>
+                <p className="centered">You haven't submitted any reviews yet.</p>
             ) : (
                 reviews.map((review) => (
                     <MyReviewsCard
