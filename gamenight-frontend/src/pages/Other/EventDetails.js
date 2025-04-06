@@ -106,7 +106,7 @@ function EventDetails() {
         { method: "POST" }
       );
       if (registerResponse.ok) {
-        alert("Registered successfully!");
+        
         setIsRegistered(true);
       } else {
         alert("Error registering for event.");
@@ -135,7 +135,7 @@ function EventDetails() {
         { method: "DELETE" }
       );
       if (unregisterResponse.ok) {
-        alert("Unregistered successfully!");
+        
         setIsRegistered(false);
       } else {
         alert("Error unregistering for event.");

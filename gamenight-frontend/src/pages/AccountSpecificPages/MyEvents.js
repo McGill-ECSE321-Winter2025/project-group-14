@@ -71,7 +71,7 @@ const EventCard = ({ event, playerId, isCreator = false }) => {
     const handleUnregister = async () => {
         try {
             await axios.delete(`/events/${event.id}/player/${playerId}`);
-            alert("You have unregistered from this event.");
+            
             window.location.reload();
         } catch (error) {
             console.error(error);
@@ -83,7 +83,7 @@ const EventCard = ({ event, playerId, isCreator = false }) => {
     const handleCancelEvent = async () => {
         try {
             await axios.delete(`/events/${event.id}`);
-            alert("Event canceled successfully!");
+            
             window.location.reload();
         } catch (error) {
             console.error(error);
@@ -235,33 +235,35 @@ function MyEvents() {
 
     const handleCreateEvent = async () => {
         if (!newEventName.trim()) {
-            alert("Please provide an event name.");
-            return;
+          alert("Please provide an event name.");
+          return;
         }
         try {
-            const createRes = await axios.post("/events", {
-                name: newEventName,
-                description: newEventDesc,
-                startTime: newEventStart ? new Date(newEventStart) : null,
-                endTime: newEventEnd ? new Date(newEventEnd) : null
-            });
-            const newEvent = createRes.data;
-
-            if (selectedGameIds.length > 0) {
-                await axios.post(`/events/${newEvent.id}/scheduleGames`, selectedGameIds);
-            }
-
-            if (playerId) {
-                await axios.post(`/events/${newEvent.id}/player/${playerId}`);
-            }
-
-            alert("Event created successfully!");
-            window.location.reload();
+          const createRes = await axios.post("/events", {
+            name: newEventName,
+            description: newEventDesc,
+            startTime: newEventStart ? new Date(newEventStart) : null,
+            endTime: newEventEnd ? new Date(newEventEnd) : null
+          });
+          const newEvent = createRes.data;
+      
+          if (selectedGameIds.length > 0) {
+            await axios.post(`/events/${newEvent.id}/scheduleGames`, selectedGameIds);
+          }
+      
+          if (playerId) {
+            await axios.post(`/events/${newEvent.id}/player/${playerId}`);
+          }
+      
+      
+          setShowCreateEvent(false);
+          window.location.reload();
         } catch (error) {
-            console.error("Error creating event:", error);
-            alert("Failed to create event. Check console for details.");
+          console.error("Error creating event:", error);
+          alert("Failed to create event. Check console for details.");
         }
-    };
+      };
+      
 
     const handleCancelCreate = () => {
         setShowCreateEvent(false);
