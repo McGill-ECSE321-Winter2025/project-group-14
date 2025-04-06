@@ -6,7 +6,9 @@ import { usePopup } from "../../components/PopupContext";
 import ClickableEventCard from '../../components/cards/ClickableEventCard';
 import '../../styles/layout.css';
 import '../../styles/button.css';
-import '../../styles/EventCard.css'; 
+import '../../styles/EventCard.css';
+import './modal.css' 
+
 function MyEvents() {
     const { user } = useAuth();
     const { showPopup } = usePopup();
