@@ -308,7 +308,7 @@ body {
 }
 
 .action-button {
-  background-color: #0D90A4;
+  background-color: #FF6574;
   color: white;
   border: none;
   border-radius: 6px;
@@ -319,7 +319,7 @@ body {
 }
 
 .action-button:hover {
-  background-color: #0A7A8A;
+  background-color:#E55564;
 }
 
 .cancel-button {
