@@ -26,7 +26,7 @@ import {
       <PopupContext.Provider value={{ showPopup, hidePopup }}>
       {children}
 
-      <Dialog open={popup.visible} onClose={hidePopup}>
+      <Dialog open={popup.visible} onClose={hidePopup} maxWidth={'xs'}>
         <DialogContent>
           <Typography>{popup.message}</Typography>
         </DialogContent>
