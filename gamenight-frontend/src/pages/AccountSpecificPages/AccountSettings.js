@@ -20,16 +20,23 @@ const AccountSettings = () => {
     const [userDetails, setUserDetails] = useState(null);
     const [userInfo, setUserInfo] = useState(null);
     const [email, setEmail] = useState('');
+    const [username, setUsername] = useState('');
     const [newPassword, setNewPassword] = useState('');
     const [oldPassword, setOldPassword] = useState('');
     const [updateStatus, setUpdateStatus] = useState('');
     const [infoLocked, setInfoLocked] = useState('');
     const [confirmDeleteAccountOpen, setConfirmDeleteAccountOpen] = useState(false);
-    const [emailSectionOpen, setEmailSectionOpen] = useState(true);
+    const [usernameSectionOpen, setUsernameSectionOpen] = useState(true);
     const [passwordSectionOpen, setPasswordSectionOpen] = useState(false);
+    const [emailSectionOpen, setEmailSectionOpen] = useState(false);
     const placeholderImage = `https://i.pravatar.cc/150?u=${user?.userId || 'guest'}`;
     const navigate = useNavigate();
     const { showPopup } = usePopup();
+    const [openSection, setOpenSection] = useState('username');
+
+    const toggleSection = (section) => {
+        setOpenSection(prev => (prev === section ? '' : section));
+    };
 
     useEffect(() => {
         if (user?.userId) {
@@ -64,6 +71,19 @@ const AccountSettings = () => {
             window.removeEventListener('resize', handleFadeIn);
         };
     }, [user]);
+
+    const handleUpdateUsername = async () => {
+        if (!username) return alert("Enter a new username.");
+        const success = await UserManagementAPI.updateUsername(user.userId, username);
+        if (success) {
+            const updated = await UserManagementAPI.getUserDetails(user.userId);
+            setUserDetails(updated);
+            setUsername('');
+            setUpdateStatus("Username updated successfully.");
+        } else {
+            setUpdateStatus("Username update failed.");
+        }
+    };
 
     const handleUpdateEmail = async () => {
         if (!oldPassword || !email) return alert("Provide current password and new email.");
@@ -179,51 +199,36 @@ const AccountSettings = () => {
                     </div>
                     <InfoText id="toggleRole">Switch between player and owner mode.</InfoText>
 
-                    {/* Update Email */}
+                    {/* Update Username */}
                     <div className="settings-section">
                         <div
                             className="section-header collapsible-header"
-                            onClick={() => setEmailSectionOpen(!emailSectionOpen)}
+                            onClick={() => toggleSection('username')}
                         >
                             <div className="section-title">
-                                <FiMail className="section-icon" />
-                                <h3>Update Email</h3>
+                                <FiUser className="section-icon" />
+                                <h3>Update Username</h3>
                             </div>
-                            <FiInfo className={`toggle-icon ${emailSectionOpen ? 'open' : ''}`} />
                         </div>
-                        <InfoText id="emailUpdate">Change your email. Requires current password.</InfoText>
 
-                        {emailSectionOpen && (
+                        {openSection === 'username' && (
                             <div className="auth-form">
                                 <div className="form-group">
-                                    <label htmlFor="email">
-                                        <FiMail className="input-icon" />
-                                        New Email
+                                    <label htmlFor="username">
+                                        <FiUser className="input-icon" />
+                                        New Username
                                     </label>
                                     <input
-                                        id="email"
-                                        type="email"
-                                        placeholder="Enter new email address"
-                                        value={email}
-                                        onChange={e => setEmail(e.target.value)}
+                                        id="username"
+                                        type="text"
+                                        placeholder="Enter new username"
+                                        value={username}
+                                        onChange={e => setUsername(e.target.value)}
                                     />
                                 </div>
-                                <div className="form-group">
-                                    <label htmlFor="currentPasswordEmail">
-                                        <FiLock className="input-icon" />
-                                        Current Password
-                                    </label>
-                                    <input
-                                        id="currentPasswordEmail"
-                                        type="password"
-                                        placeholder="Enter current password"
-                                        value={oldPassword}
-                                        onChange={e => setOldPassword(e.target.value)}
-                                    />
-                                </div>
-                                <button className="update-button" onClick={handleUpdateEmail}>
+                                <button className="update-button" onClick={handleUpdateUsername}>
                                     <FiCheck className="button-icon" />
-                                    Update Email
+                                    Update Username
                                 </button>
                             </div>
                         )}
@@ -233,17 +238,15 @@ const AccountSettings = () => {
                     <div className="settings-section">
                         <div
                             className="section-header collapsible-header"
-                            onClick={() => setPasswordSectionOpen(!passwordSectionOpen)}
+                            onClick={() => toggleSection('password')}
                         >
                             <div className="section-title">
                                 <FiLock className="section-icon" />
                                 <h3>Update Password</h3>
                             </div>
-                            <FiInfo className={`toggle-icon ${passwordSectionOpen ? 'open' : ''}`} />
                         </div>
-                        <InfoText id="passwordUpdate">Change your password. Requires current password.</InfoText>
 
-                        {passwordSectionOpen && (
+                        {openSection === 'password' && (
                             <div className="auth-form">
                                 <div className="form-group">
                                     <label htmlFor="newPassword">
@@ -279,6 +282,53 @@ const AccountSettings = () => {
                         )}
                     </div>
 
+                    {/* Update Email */}
+                    <div className="settings-section">
+                        <div
+                            className="section-header collapsible-header"
+                            onClick={() => toggleSection('email')}
+                        >
+                            <div className="section-title">
+                                <FiMail className="section-icon" />
+                                <h3>Update Email</h3>
+                            </div>
+                        </div>
+
+                        {openSection === 'email' && (
+                            <div className="auth-form">
+                                <div className="form-group">
+                                    <label htmlFor="email">
+                                        <FiMail className="input-icon" />
+                                        New Email
+                                    </label>
+                                    <input
+                                        id="email"
+                                        type="email"
+                                        placeholder="Enter new email address"
+                                        value={email}
+                                        onChange={e => setEmail(e.target.value)}
+                                    />
+                                </div>
+                                <div className="form-group">
+                                    <label htmlFor="currentPasswordEmail">
+                                        <FiLock className="input-icon" />
+                                        Current Password
+                                    </label>
+                                    <input
+                                        id="currentPasswordEmail"
+                                        type="password"
+                                        placeholder="Enter current password"
+                                        value={oldPassword}
+                                        onChange={e => setOldPassword(e.target.value)}
+                                    />
+                                </div>
+                                <button className="update-button" onClick={handleUpdateEmail}>
+                                    <FiCheck className="button-icon" />
+                                    Update Email
+                                </button>
+                            </div>
+                        )}
+                    </div>
                     {updateStatus && (
                         <p className={`status-message ${updateStatus.includes("success") ? "success" : "error"}`}>
                             {updateStatus}
