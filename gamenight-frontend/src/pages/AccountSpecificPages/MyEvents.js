@@ -5,6 +5,7 @@ import { useAuth } from '../../AuthContext';
 import '../../styles/layout.css';
 import '../../styles/event-history.css';
 import { Box, CircularProgress } from '@mui/material';
+import AddIcon from '@mui/icons-material/Add';
 
 
 const EventCard = ({ event, playerId, isCreator = false }) => {
@@ -289,7 +290,7 @@ function MyEvents() {
                     style={{ position: 'absolute', top: 30, right: 30 }}
                     onClick={() => setShowCreateEvent(true)}
                 >
-                    ➕ Create Event
+                    <AddIcon sx={{ color: 'inherit' }} /> Create Event
                 </button>
             )}
 
