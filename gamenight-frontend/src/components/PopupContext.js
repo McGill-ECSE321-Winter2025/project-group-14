@@ -27,7 +27,6 @@ import {
       {children}
 
       <Dialog open={popup.visible} onClose={hidePopup}>
-        <DialogTitle>Warning</DialogTitle>
         <DialogContent>
           <Typography>{popup.message}</Typography>
         </DialogContent>
