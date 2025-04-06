@@ -47,7 +47,7 @@ function GameCard({ gameId, title, rating }) {
                 URL.revokeObjectURL(imageUrl);
             }
         };
-    }, [gameId, imageUrl]);
+    }, [gameId]);
 
 
     return (

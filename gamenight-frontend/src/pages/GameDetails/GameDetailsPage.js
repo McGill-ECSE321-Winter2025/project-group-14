@@ -61,7 +61,7 @@ const GameDetailsPage = () => {
         URL.revokeObjectURL(imageUrl);
       }
     };
-  }, [id, imageUrl]);
+  }, [id]);
 
 
   const [game, setGame] = useState();
