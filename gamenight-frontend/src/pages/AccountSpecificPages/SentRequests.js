@@ -1,48 +1,73 @@
 import React, { useState, useEffect, useContext } from "react";
 import axios from "axios";
 import { AuthContext } from "../../AuthContext";
-import '../../App.css';
-import { Box, Tabs, Tab } from "@mui/material";
+import '../../App.css'; 
+import './SentRequestsPage.css';
+import RequestCard from '../../components/cards/RequestCard';
+import { Box, Tabs, Tab, CircularProgress } from "@mui/material"; 
 
 function SentRequestsPage() {
   const [allRequests, setAllRequests] = useState([]);
   const { user } = useContext(AuthContext);
-  const userId = user?.userId; 
+  const userId = user?.userId;
 
   const [tabValue, setTabValue] = useState(0);
   const [senderId, setSenderId] = useState(null);
+  const [isLoading, setIsLoading] = useState(true); 
+  const [error, setError] = useState(null); 
 
   useEffect(() => {
-    if (!user || !userId) return;
-  
-    const fetchSenderId = async () => {
+    if (!user || !userId) {
+      setIsLoading(false);
+      return;
+    }
+    setIsLoading(true); 
+    setError(null); 
+    const fetchSenderId = async () => { 
       try {
-        console.log("Sending request with User-Id:", userId);
-        const response = await axios.get(`http://localhost:8080/users/${userId}/player-id`);
-        const senderId = response.data;
-        console.log("Sender ID fetched:", senderId);
-        setSenderId(senderId); 
-        fetchSentRequests(senderId); 
+        const response = await axios.get(`http://localhost:8080/users/${userId}/player-id`, {
+          headers: { "User-Id": userId } 
+        });
+        const fetchedSenderId = response.data;
+        setSenderId(fetchedSenderId);
+        if (fetchedSenderId) {
+          fetchSentRequests(fetchedSenderId);
+        } else {
+           console.warn("Sender ID (Player ID) not found for user:", userId);
+           setAllRequests([]); 
+           setError("Could not find player details for this account."); 
+           setIsLoading(false);
+        }
       } catch (error) {
         console.error("Error fetching sender ID:", error);
+        if (error.response && error.response.status === 404) {
+             setError("Could not find player details for this account.");
+        } else {
+             setError("An error occurred while loading player details."); 
+        }
+        setAllRequests([]); 
+        setIsLoading(false);
       }
     };
-    
-    const fetchSentRequests = async (senderId) => {
+
+    const fetchSentRequests = async (currentSenderId) => {
       try {
-        console.log("Fetching sent requests for sender ID:", senderId);
-        const requestsResponse = await axios.get(`http://localhost:8080/borrowingRequests/${senderId}/sent-requests`, { 
+        const requestsResponse = await axios.get(`http://localhost:8080/borrowingRequests/${currentSenderId}/sent-requests`, { 
           headers: { "User-Id": userId }
         });
-        console.log("Requests fetched:", requestsResponse.data);
-        setAllRequests(requestsResponse.data);
+        setAllRequests(requestsResponse.data || []); 
+        setError(null); 
       } catch (error) {
         console.error("Error fetching sent requests:", error);
+        setError("Could not load sent requests."); 
+        setAllRequests([]); 
+      } finally {
+        setIsLoading(false); 
       }
     };
   
     fetchSenderId();
-  }, [user, userId]);
+  }, [user, userId]); 
 
   const handleTabChange = (event, newValue) => {
     setTabValue(newValue);
@@ -50,20 +75,44 @@ function SentRequestsPage() {
 
   const filteredRequests =
     tabValue === 0
-      ? allRequests.filter((req) => req.status === "Delivered")
+      ? allRequests.filter((req) => req.status === "Delivered") 
       : allRequests.filter((req) =>
           req.status === "Accepted" || req.status === "Rejected"
         );
 
+  const renderContent = () => {
+    if (isLoading) {
+      return <div className="message-area"><p>Loading requests...</p></div>; 
+    }
+    if (error) {
+      return <div className="message-area"><p className="error-text">{error}</p></div>;
+    }
+    if (filteredRequests.length === 0) {
+      return <div className="message-area"><p>No requests found.</p></div>;
+    }
+
+    return (
+      <div className="requests-list-container">
+        {filteredRequests.map((request) => (
+          <RequestCard 
+            key={request.id} 
+            gameName={request.gameName} 
+            status={request.status} 
+            startTime={request.startTime} 
+            endTime={request.endTime} 
+          />
+        ))}
+      </div>
+    );
+  };
+
   return (
-    <div>
+    <div style={{ display: 'flex', flexDirection: 'column', minHeight: 'calc(100vh - 64px)' }}> 
       <Box
         sx={{
           width: "100%",
-          borderBottom: 1,
-          borderColor: "divider",
-          mb: 3,
-          '& .MuiTabs-indicator': { backgroundColor: 'black', height: '3px' },
+          mb: 8, 
+          '& .MuiTabs-indicator': { backgroundColor: 'black', height: '3px' }, 
           '& .MuiTab-root': {
             color: '#666',
             fontSize: '1rem',
@@ -74,43 +123,20 @@ function SentRequestsPage() {
             '&.Mui-selected': { color: 'black', fontWeight: 600 },
             '&:hover': { color: 'black', opacity: 1 },
           },
+          flexShrink: 0 
         }}
       >
         <Tabs value={tabValue} onChange={handleTabChange} centered variant="fullWidth">
-          <Tab label="Sent Borrowing Requests" />
-          <Tab label="Updated Status Requests" />
+          <Tab label="Pending Approval Requests" />
+          <Tab label="Answered Requests" />
         </Tabs>
       </Box>
 
-      <div className="received-requests-container">
-        <h2 className="left-align">
-          {tabValue === 0 ? "Sent Borrowing Requests" : "Updated Status Requests"}
+      <div className="requests-content-area"> 
+        <h2 className="page-title">
+          {tabValue === 0 ? "Pending Approval Requests" : "Answered Requests"}
         </h2>
-
-        {filteredRequests.length > 0 ? (
-          filteredRequests.map((request, index) => (
-            <div className="request-card" key={index}>
-              <div className="request-header">
-                <div className="request-user">
-                  <div className="avatar">
-                    {request.gameName.charAt(0).toUpperCase()}
-                  </div>
-                  <div>
-                    <div className="username">{request.gameName}</div>
-                    <div className="request-badge">Sent</div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="request-info">
-                <p><strong>Status:</strong> {request.status}</p>
-                <p><strong>Dates:</strong> {request.startTime} - {request.endTime}</p>
-              </div>
-            </div>
-          ))
-        ) : (
-          <p>No requests found.</p>
-        )}
+        {renderContent()}
       </div>
     </div>
   );

@@ -14,17 +14,6 @@
   margin-bottom: 20px;
 }
 
-.page-title::after {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 100px;
-  height: 4px;
-  background: linear-gradient(90deg, #0D90A4, #4ecdc4);
-  border-radius: 4px;
-}
-
 .search-controls {
   display: flex;
   align-items: center;
