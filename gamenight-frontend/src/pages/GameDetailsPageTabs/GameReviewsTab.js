@@ -70,6 +70,8 @@ const GameReviewsTab = () => {
         e.preventDefault();
         if (rating === 0) {
             showPopup("Please enter a rating");
+        } else if (review === "") {
+            showPopup("Please enter a comment");
         } else {
             const response = await fetch('http://localhost:8080/reviews/', {
                 method: 'POST',
@@ -105,7 +107,7 @@ const GameReviewsTab = () => {
         <div>
             <div className='card' style={{ "minWidth": "100%" }}>
                 <div className="card-content">
-                    <form onSubmit={handleSubmitReview}>
+                    <div>
 
                         <div className="user-section">
                             <div className="avatar">
@@ -135,7 +137,6 @@ const GameReviewsTab = () => {
                                 onChange={handleReviewChange}
                                 placeholder="Write your review here..."
                                 rows="1"
-                                required
                                 className='textarea'
                                 onInput={(e) => {
                                     e.target.style.height = "auto"; // Reset height
@@ -145,10 +146,10 @@ const GameReviewsTab = () => {
                         </div>
                         {/* Submit and Cancel Buttons */}
                         <div className="game-review-buttons">
-                            <Button type="danger" onClick={handleCancelReview}>Cancel</Button>
-                            <Button type="success">Submit review</Button>
+                            <Button type="danger" onClick={handleCancelReview} htmlType="button">Cancel</Button>
+                            <Button type="success" onClick={handleSubmitReview} htmlType="button">Submit review</Button>
                         </div>
-                    </form>
+                    </div>
                 </div>
             </div >
 
