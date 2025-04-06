@@ -1,4 +1,3 @@
-// src/components/PopupContext.js
 import React, { createContext, useState, useContext, useCallback } from 'react';
 import {
     Typography,
@@ -82,43 +81,95 @@ export const PopupProvider = ({ children }) => {
             {children}
 
             <Dialog
-                open={popup.open}
-                onClose={(event, reason) => {
-                    if (reason === 'backdropClick' && popup.isProcessing) return;
-                    if (!popup.isProcessing) hidePopup();
-                }}
-                sx={{ zIndex: 100000 }} // High z-index if needed
-                aria-labelledby="popup-dialog-title"
-                aria-describedby="popup-dialog-description"
-            >
-                {popup.title && <DialogTitle id="popup-dialog-title">{popup.title}</DialogTitle>}
-                <DialogContent>
-                    <Typography component="div" id="popup-dialog-description">{popup.message}</Typography>
-                </DialogContent>
-                <DialogActions>
-                    {/* Conditionally show Cancel button only for 'confirm' type */}
-                    {popup.type === 'confirm' && (
-                        <MuiButton
-                            onClick={hidePopup}
-                            size="small" // Use MUI's small size
-                            variant='outlined'
-                            disabled={popup.isProcessing}
-                        >
-                            {popup.cancelText}
-                        </MuiButton>
-                    )}
-                    {/* OK or Confirm button */}
+            open={popup.open}
+            onClose={(event, reason) => {
+                if (reason === 'backdropClick' && popup.isProcessing) return;
+                if (!popup.isProcessing) hidePopup();
+            }}
+            sx={{ 
+                '& .MuiPaper-root': {
+                    borderRadius: '12px',
+                    minWidth: '350px',
+                    maxWidth: '90vw',
+                    padding: '16px',
+                    boxShadow: '0 4px 20px rgba(0,0,0,0.15)'
+                }
+            }}
+            aria-labelledby="popup-dialog-title"
+            aria-describedby="popup-dialog-description"
+        >
+            {popup.title && (
+                <DialogTitle 
+                    id="popup-dialog-title"
+                    sx={{
+                        fontSize: '1.25rem',
+                        fontWeight: '600',
+                        padding: '0 0 16px 0',
+                        color: popup.confirmColor === 'error' ? '#d32f2f' : '#1976d2'
+                    }}
+                >
+                    {popup.title}
+                </DialogTitle>
+            )}
+            <DialogContent sx={{ padding: '8px 0 16px 0' }}>
+                <Typography 
+                    component="div" 
+                    id="popup-dialog-description"
+                    sx={{ 
+                        fontSize: '1rem',
+                        color: 'rgba(0, 0, 0, 0.87)',
+                        lineHeight: '1.5'
+                    }}
+                >
+                    {popup.message}
+                </Typography>
+            </DialogContent>
+            <DialogActions sx={{ padding: '0', justifyContent: 'center'}}>
+                {/* Conditionally show Cancel button only for 'confirm' type */}
+                {popup.type === 'confirm' && (
                     <MuiButton
-                        onClick={handleConfirm}
-                        size="small" // Use MUI's small size
-                        variant={popup.confirmVariant}
-                        color={popup.confirmColor}
+                        onClick={hidePopup}
+                        size="small"
+                        variant='outlined'
                         disabled={popup.isProcessing}
+                        sx={{
+                            textTransform: 'none',
+                            borderRadius: '8px',
+                            padding: '6px 16px',
+                            marginRight: '8px',
+                            borderColor: '#e0e0e0',
+                            '&:hover': {
+                                borderColor: '#bdbdbd'
+                            }
+                        }}
                     >
-                        {popup.isProcessing ? 'Processing...' : popup.confirmText}
+                        {popup.cancelText}
                     </MuiButton>
-                </DialogActions>
-            </Dialog>
+                )}
+                {/* OK or Confirm button */}
+                <MuiButton
+                    onClick={handleConfirm}
+                    size="small"
+                    variant={popup.confirmVariant}
+                    color={popup.confirmColor}
+                    disabled={popup.isProcessing}
+                    sx={{
+                        textTransform: 'none',
+                        borderRadius: '8px',
+                        padding: '6px 16px',
+                        fontWeight: '500',
+                        boxShadow: 'none',
+                        '&:hover': {
+                            boxShadow: 'none',
+                            backgroundColor: popup.confirmColor === 'error' ? '#c62828' : 
+                                          popup.confirmColor === 'primary' ? '#1565c0' : '#1976d2'
+                        }
+                    }}
+                >
+                    {popup.isProcessing ? 'Processing...' : popup.confirmText}
+                </MuiButton>
+            </DialogActions>
+        </Dialog>
         </PopupContext.Provider>
     );
 };
