@@ -159,14 +159,14 @@ const AddGameCopyForm = ({ onCancel, onSuccess }) => {
           width: '100%'
         }}>
           <Button
-            type="secondary"
+            type="danger"
             onClick={onCancel}
             style={{ width: '120px' }}
           >
             Cancel
           </Button>
           <Button
-            type="submit"
+            type="success"
             style={{ width: '120px' }}
           >
             Add Game Copy
