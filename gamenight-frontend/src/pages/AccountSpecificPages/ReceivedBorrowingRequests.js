@@ -1,138 +1,114 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import BorrowingRequestItem from '../../components/cards/BorrowingRequestItem';
+import ReceivedRequestCard from '../../components/cards/ReceivedRequestCard';
 import { AuthContext } from '../../AuthContext';
+import '../../styles/layout.css'; 
+import { CircularProgress } from "@mui/material"; 
 
 const ReceivedBorrowingRequests = () => {
-  const { user, loading, isOwner } = useContext(AuthContext);
+  const { user, loading: authLoading, isOwner } = useContext(AuthContext); 
   const navigate = useNavigate();
   const [requests, setRequests] = useState([]);
   const [error, setError] = useState(null);
-  const [ownerId, setOwnerId] = useState(null);
   const [accessDenied, setAccessDenied] = useState(false);
+  const [isLoading, setIsLoading] = useState(true); 
 
   useEffect(() => {
-    if (loading || !user) return;
-    
-    // Check if user is in owner mode
+     if (authLoading) {
+        setIsLoading(true); 
+        return; 
+    }
+    if (!user) {
+        setError("Please log in to view requests.");
+        setIsLoading(false); 
+        setAccessDenied(false); 
+        return;
+    }
     if (!isOwner) {
       setAccessDenied(true);
+      setError(null); 
+      setIsLoading(false); 
       return;
     }
-
-    const token = localStorage.getItem('token');
-    
+    setIsLoading(true); 
+    setAccessDenied(false);
+    setError(null);
+    const token = localStorage.getItem('token'); 
     const fetchOwnerIdAndRequests = async () => {
+      let fetchedOwnerId;
       try {
-        // First fetch the ownerId for this user
         const ownerIdResponse = await axios.get(
-          `http://localhost:8080/users/${user.userId}/owner-id`,
-          {
-            headers: { 
-              Authorization: `Bearer ${token}`,
-              'User-Id': user.userId.toString()
-            }
-          }
+          `http://localhost:8080/users/${user.userId}/owner-id`, { headers: { 'User-Id': user.userId.toString() } }
         );
-        
-        const fetchedOwnerId = ownerIdResponse.data;
-        setOwnerId(fetchedOwnerId);
-        console.log('Fetched ownerId:', fetchedOwnerId);
+        fetchedOwnerId = ownerIdResponse.data;
+        if (!fetchedOwnerId) throw new Error("Could not retrieve owner ID for this user."); 
 
-        // Now fetch requests with the ownerId
         const response = await axios.get(
-          `http://localhost:8080/borrowingRequests/owners/${fetchedOwnerId}/lending-history`,
-          {
-            headers: { 
-              Authorization: `Bearer ${token}`,
-              'User-Id': user.userId.toString()
-            }
-          }
+          `http://localhost:8080/borrowingRequests/owners/${fetchedOwnerId}/lending-history`, { headers: { 'User-Id': user.userId.toString() } }
         );
-        
-        console.log('Response Data:', response.data);
-        
-        console.log('Raw Response Data:', response.data);
-
-        const deliveredRequests = response.data.filter(request => {
-          console.log('Request status:', request.status, typeof request.status);
-          return request.status === 'Delivered' || request.status === 0;
-        });
-        
-        setRequests(deliveredRequests);
+        const pendingRequests = (response.data || []).filter(request => request.status === 'Delivered' || request.status === 0);
+        setRequests(pendingRequests);
       } catch (err) {
-        console.error('Error:', err);
-        setError(err.response?.data?.message || err.message);
-      }
+        console.error('Error fetching received requests data:', err);
+        setError(err.response?.data?.message || err.message || "Failed to load requests.");
+        setRequests([]); 
+      } finally { setIsLoading(false); }
     };
-  
     fetchOwnerIdAndRequests();
-  }, [loading, user, isOwner]);
+  }, [authLoading, user, isOwner]); 
 
   const handleAccept = (id) => {
-    const token = localStorage.getItem('token');
-    axios
-      .put(`http://localhost:8080/borrowingRequests/${id}/status`, null, {
-        params: { status: 'Accepted', action: 'respond' },
-        headers: { Authorization: `Bearer ${token}`,
-        'User-Id': user.userId.toString() }
+    if (!user || !user.userId) return;
+    axios.put(`http://localhost:8080/borrowingRequests/${id}/status`, null, {
+        params: { status: 'Accepted', action: 'respond' }, headers: { 'User-Id': user.userId.toString() }
       })
-      .then(response => {
-        console.log('Accepted request with ID:', id);
-        setRequests(prev => prev.filter(request => request.id !== id));
-      })
-      .catch(err => console.error('Error accepting request:', err));
+      .then(response => setRequests(prev => prev.filter(request => request.id !== id)))
+      .catch(err => setError(err.response?.data?.message || "Error accepting request."));
   };
 
   const handleDecline = (id) => {
-    const token = localStorage.getItem('token');
-    axios
-      .put(`http://localhost:8080/borrowingRequests/${id}/status`, null, {
-        params: { status: 'Rejected', action: 'respond' },
-        headers: { Authorization: `Bearer ${token}`,
-        'User-Id': user.userId.toString() }
+     if (!user || !user.userId) return;
+    axios.put(`http://localhost:8080/borrowingRequests/${id}/status`, null, {
+        params: { status: 'Rejected', action: 'respond' }, headers: { 'User-Id': user.userId.toString() }
       })
-      .then(response => {
-        console.log('Declined request with ID:', id);
-        setRequests(prev => prev.filter(request => request.id !== id));
-      })
-      .catch(err => console.error('Error declining request:', err));
+      .then(response => setRequests(prev => prev.filter(request => request.id !== id)))
+      .catch(err => setError(err.response?.data?.message || "Error declining request."));
   };
 
-  if (loading) {
-    return <div>Loading...</div>;
-  }
 
-  if (accessDenied) {
-    return (
-      <div style={{ padding: '20px', textAlign: 'center' }}>
-        <h2>Access Denied</h2>
-        <p>You need to be in owner mode to view this page.</p>
-        <p>Switch to owner mode in your account settings.</p>
-      </div>
-    );
-  }
-
-  if (error) {
-    return <div>Error: {error.toString()}</div>;
-  }
+  const renderContent = () => {
+      if (isLoading) {
+          return <div className="message-area"><CircularProgress /><p style={{marginTop: '10px'}}>Loading requests...</p></div>;
+      }
+      if (accessDenied) {
+          return <div className="message-area"><h2>Access Denied</h2><p>You need to be in owner mode to view received requests.</p></div>;
+      }
+      if (error && requests.length === 0) { 
+          return <div className="message-area"><p className="error-text">Error: {error.toString()}</p></div>;
+      }
+      if (requests.length === 0) {
+          return <div className="message-area"><p>No borrowing requests have come in yet 📭 Sit back and relax — we’ll let you know when someone reaches out!</p></div>;
+      }
+      return (
+          <div className="requests-list-container"> 
+            {error && <p style={{color: 'red', textAlign: 'center', marginBottom: '1rem'}}>Action failed: {error.toString()}</p>}
+            {requests.map((request) => (
+            <ReceivedRequestCard
+                key={request.id}
+                request={request}
+                onAccept={handleAccept}
+                onDecline={handleDecline}
+            />
+            ))}
+        </div>
+      );
+  };
 
   return (
-    <div style={{ padding: '20px' }}>
-      <h1>Received Borrowing Requests</h1>
-      {requests.length === 0 ? (
-        <p>No borrowing requests available.</p>
-      ) : (
-        requests.map((request) => (
-          <BorrowingRequestItem
-            key={request.id}
-            request={request}
-            onAccept={handleAccept}
-            onDecline={handleDecline}
-          />
-        ))
-      )}
+    <div className="page-container received-requests-page-container"> 
+        <h1 className="page-title">Incoming Requests</h1>
+        {renderContent()}
     </div>
   );
 };
