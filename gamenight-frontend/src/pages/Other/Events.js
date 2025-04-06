@@ -122,6 +122,7 @@ function Events() {
   }
 
   // EventCard component using plain HTML
+  // EventCard component using plain HTML
   const EventCard = ({ event }) => {
     const navigate = useNavigate();
     const [games, setGames] = useState([]);
@@ -170,23 +171,26 @@ function Events() {
         })
       : null;
 
+    // Set a limit for the description length (e.g., 150 characters)
+    const descriptionLimit = 60;
+    const truncatedDescription =
+      event.description.length > descriptionLimit
+        ? event.description.slice(0, descriptionLimit) + "..."
+        : event.description;
+
     return (
       <div className="card event-card">
         <div className="card-content">
           <h3 className="event-title">{event.name}</h3>
           <div className="event-date-box">
             {hasValidStartTime && (
-              <p className="event-date">
-                 Start: {formattedStart}
-              </p>
+              <p className="event-date">Start: {formattedStart}</p>
             )}
             {hasValidEndTime && (
-              <p className="event-date">
-                 End: {formattedEnd}
-              </p>
+              <p className="event-date">End: {formattedEnd}</p>
             )}
           </div>
-          <p className="event-description">{event.description}</p>
+          <p className="event-description">{truncatedDescription}</p>
           {games.length > 0 ? (
             <div>
               <h4>Games Scheduled:</h4>
@@ -211,6 +215,7 @@ function Events() {
       </div>
     );
   };
+
 
   return (
     <div className="events-container">
