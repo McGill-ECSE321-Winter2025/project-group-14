@@ -11,12 +11,14 @@ import org.springframework.web.multipart.MultipartFile;
 
 import ca.mcgill.ecse321.gamenight.exception.MissingFieldsException;
 import ca.mcgill.ecse321.gamenight.exception.ObjectNotFoundException;
+import ca.mcgill.ecse321.gamenight.model.BorrowingRequest;
 import ca.mcgill.ecse321.gamenight.model.Game;
 import ca.mcgill.ecse321.gamenight.model.GameCopy;
 import ca.mcgill.ecse321.gamenight.model.GameOwner;
 import ca.mcgill.ecse321.gamenight.repo.GameCopyRepository;
 import ca.mcgill.ecse321.gamenight.repo.GameOwnerRepository;
 import ca.mcgill.ecse321.gamenight.repo.GameRepository;
+import ca.mcgill.ecse321.gamenight.repo.BorrowingRequestRepository;
 import jakarta.transaction.Transactional;
 
 @Service
@@ -33,6 +35,9 @@ public class GameManagementService {
 
     @Autowired
     private FileStorageService fileStorageService;
+
+    @Autowired
+    private BorrowingRequestRepository borrowingRequestRepository;
 
     @Transactional
     public Game createGame(String name, String description, MultipartFile imageFile) throws IOException {
@@ -103,7 +108,15 @@ public class GameManagementService {
 
     @Transactional
     public void deleteGameCopy(int id) {
+        Optional<GameCopy> copy = gameCopyRepository.findById(id);
+        if (copy.isPresent()) {
+            List<BorrowingRequest> requests = borrowingRequestRepository.findByGameCopy(copy.get());
+            for (BorrowingRequest request : requests) {
+                borrowingRequestRepository.delete(request);
+            }
+        }
         gameCopyRepository.deleteById(id);
+
     }
 
     public GameCopy findGameCopyById(int id) throws ObjectNotFoundException {
