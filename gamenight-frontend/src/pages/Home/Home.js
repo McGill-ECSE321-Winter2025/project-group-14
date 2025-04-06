@@ -90,8 +90,8 @@ function Home() {
                             }}
                         >
                             <GameCard
+                                gameId={game.id}  // Make sure your game objects have an id
                                 title={game.name}
-                                image={game.image || "https://cdn.mos.cms.futurecdn.net/DCNoD5GWBhpHbkybMGt33X-1000-80.jpg"}
                                 rating={game.rating ?? 0}
                             />
 
