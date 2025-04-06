@@ -224,43 +224,52 @@ function MyEvents() {
 
             {/* Display Event Lists */}
             {!isLoading && !error && !showCreateEvent && user?.userId && (
-                <>
-                    {/* Events You Created Section */}
-                    <h2 className="centered event-section-title"> Events You Created </h2>
-                    {sortedCreatedEvents.length > 0 ? (
-                        <div className="event-list-container">
-                            {sortedCreatedEvents.map((event) => (
-                                <ClickableEventCard
-                                    key={event.id}
-                                    event={event}
-                                    playerId={playerId}
-                                    isCreator={true}
-                                    showPopup={showPopup} // Pass for errors in card
-                                    onEventCancelled={handleEventCancelled}
-                                />
-                            ))}
-                        </div>
-                    ) : ( <p className="centered empty-message">You haven't created any events yet.</p> )}
+                <div className="events-split-container">
+                    {/* Left Column - Created Events */}
+                    <div className="events-column">
+                        <h2 className="event-section-title">Events You Created</h2>
+                        {sortedCreatedEvents.length > 0 ? (
+                            <div className="event-list-container">
+                                {sortedCreatedEvents.map((event) => (
+                                    <ClickableEventCard
+                                        key={event.id}
+                                        event={event}
+                                        playerId={playerId}
+                                        isCreator={true}
+                                        showPopup={showPopup}
+                                        onEventCancelled={handleEventCancelled}
+                                    />
+                                ))}
+                            </div>
+                        ) : (
+                            <p className="empty-message">You haven't created any events yet.</p>
+                        )}
+                    </div>
 
-                    <hr className="divider" />
+                    {/* Vertical Divider */}
+                    <div className="vertical-divider"></div>
 
-                    {/* Events You Are Registered For Section */}
-                    <h2 className="centered event-section-title"> Events You Are Registered For </h2>
-                    {sortedRegisteredEvents.length > 0 ? (
-                        <div className="event-list-container">
-                            {sortedRegisteredEvents.map((event) => (
-                                <ClickableEventCard
-                                    key={event.id}
-                                    event={event}
-                                    playerId={playerId}
-                                    isCreator={false}
-                                    showPopup={showPopup} // Pass for errors in card
-                                    onUnregister={handleUnregisterFromEvent}
-                                />
-                            ))}
-                        </div>
-                    ) : ( <p className="centered empty-message">You are not registered for any other events.</p> )}
-                </>
+                    {/* Right Column - Registered Events */}
+                    <div className="events-column">
+                        <h2 className="event-section-title">Events You Are Registered For</h2>
+                        {sortedRegisteredEvents.length > 0 ? (
+                            <div className="event-list-container">
+                                {sortedRegisteredEvents.map((event) => (
+                                    <ClickableEventCard
+                                        key={event.id}
+                                        event={event}
+                                        playerId={playerId}
+                                        isCreator={false}
+                                        showPopup={showPopup}
+                                        onUnregister={handleUnregisterFromEvent}
+                                    />
+                                ))}
+                            </div>
+                        ) : (
+                            <p className="empty-message">You are not registered for any other events.</p>
+                        )}
+                    </div>
+                </div>
             )}
         </div>
     );
