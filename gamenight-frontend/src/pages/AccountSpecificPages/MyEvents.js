@@ -283,7 +283,7 @@ function MyEvents() {
     };
 
     return (
-        <div className="my-events-container" style={{ padding: '30px', position: 'relative', backgroundColor: '#F4F4F4' }}>
+        <div className="my-events-container" style={{ padding: '30px', position: 'relative', backgroundColor: '#fff' }}>
             {isLoading && <p className="centered loading-message">Loading your events...</p>}
             {error && <p className="centered error-message">{error}</p>}
 
