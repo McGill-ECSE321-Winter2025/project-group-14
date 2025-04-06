@@ -82,7 +82,9 @@ const GameDetailsPage = () => {
       .then((data) => {
         setGameCopies(data);
         // ✅ Center the 3rd card if we have enough, otherwise default to 0
-        setCarouselIndex(data.length >= 5 ? 2 : 0);
+        setCarouselIndex(data.length >= 3 ? 1 : 0);
+        if (data.length >= 5) setCarouselIndex(2);
+
       })
       .catch((error) => console.error("Error fetching game:", error));
   }, [id, user]);
@@ -157,7 +159,7 @@ const GameDetailsPage = () => {
                   className="carousel-copy-item"
                   style={{
                     left: '50%',
-                    transform: `translateX(${offset * 320 - 200}px) scale(${scale})`,
+                    transform: `translateX(${offset * 350 - 200}px) scale(${scale})`,
                     opacity,
                     zIndex: 10 - Math.abs(offset),
                     width: '400px',
