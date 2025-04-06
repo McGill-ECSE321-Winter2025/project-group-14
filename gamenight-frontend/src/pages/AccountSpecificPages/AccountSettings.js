@@ -14,7 +14,6 @@ import {
 import Button from './../../components/ui/Button'
 import { useNavigate } from 'react-router-dom';
 import { usePopup } from '../../components/PopupContext';
-    
 
 const AccountSettings = () => {
     const { user, logout, isOwner } = useAuth();
@@ -26,6 +25,8 @@ const AccountSettings = () => {
     const [updateStatus, setUpdateStatus] = useState('');
     const [infoLocked, setInfoLocked] = useState('');
     const [confirmDeleteAccountOpen, setConfirmDeleteAccountOpen] = useState(false);
+    const [emailSectionOpen, setEmailSectionOpen] = useState(true);
+    const [passwordSectionOpen, setPasswordSectionOpen] = useState(false);
     const placeholderImage = `https://i.pravatar.cc/150?u=${user?.userId || 'guest'}`;
     const navigate = useNavigate();
     const { showPopup } = usePopup();
@@ -64,24 +65,43 @@ const AccountSettings = () => {
         };
     }, [user]);
 
-    const handleUpdate = async () => {
-        if (!oldPassword) return alert("Enter your current password to proceed.");
-
+    const handleUpdateEmail = async () => {
+        if (!oldPassword || !email) return alert("Provide current password and new email.");
         const success = await UserManagementAPI.updateUser(
             user.userId,
             oldPassword,
-            email || null,
-            newPassword || null
+            email,
+            oldPassword
         );
 
         if (success) {
             const updatedInfo = await UserManagementAPI.getUserDetails(user.userId);
-            setUpdateStatus("Updated successfully.");
+            setUserDetails(updatedInfo);
+            setUpdateStatus("Email updated successfully.");
             setEmail('');
+            setOldPassword('');
+        } else {
+            setUpdateStatus("Email update failed.");
+        }
+    };
+
+    const handleUpdatePassword = async () => {
+        if (!oldPassword || !newPassword) return alert("Provide current and new password.");
+        const currentEmail = userDetails?.email || userInfo?.email;
+
+        const success = await UserManagementAPI.updateUser(
+            user.userId,
+            oldPassword,
+            currentEmail,
+            newPassword
+        );
+
+        if (success) {
+            setUpdateStatus("Password updated successfully.");
             setNewPassword('');
             setOldPassword('');
         } else {
-            setUpdateStatus("Update failed.");
+            setUpdateStatus("Password update failed.");
         }
     };
 
@@ -96,13 +116,13 @@ const AccountSettings = () => {
             logout();
             setTimeout(() => navigate("/"), 0);
         } else {
-            showPopup("Deleting account failed.")
+            showPopup("Deleting account failed.");
         }
-    }
+    };
 
     const deleteAccountCanceled = () => {
         setConfirmDeleteAccountOpen(false);
-    }
+    };
 
     const InfoIcon = ({ id }) => (
         <button
@@ -114,11 +134,8 @@ const AccountSettings = () => {
         </button>
     );
 
-    const InfoText = ({ id, children }) => (
-        infoLocked === id && (
-            <div className="info-text">{children}</div>
-        )
-    );
+    const InfoText = ({ id, children }) =>
+        infoLocked === id ? <div className="info-text">{children}</div> : null;
 
     return (
         <div className='account-settings-container'>
@@ -162,72 +179,111 @@ const AccountSettings = () => {
                     </div>
                     <InfoText id="toggleRole">Switch between player and owner mode.</InfoText>
 
+                    {/* Update Email */}
                     <div className="settings-section">
-                        <div className="section-header">
+                        <div
+                            className="section-header collapsible-header"
+                            onClick={() => setEmailSectionOpen(!emailSectionOpen)}
+                        >
                             <div className="section-title">
                                 <FiMail className="section-icon" />
-                                <h3>Update Credentials</h3>
+                                <h3>Update Email</h3>
                             </div>
-                            <InfoIcon id="emailPass" />
+                            <FiInfo className={`toggle-icon ${emailSectionOpen ? 'open' : ''}`} />
                         </div>
-                        <InfoText id="emailPass">Change email or password. Current password required.</InfoText>
+                        <InfoText id="emailUpdate">Change your email. Requires current password.</InfoText>
 
-                        <div className="auth-form">
-                            <div className="form-group">
-                                <label htmlFor="email">
-                                    <FiMail className="input-icon" />
-                                    New Email
-                                </label>
-                                <input
-                                    id="email"
-                                    type="email"
-                                    placeholder="Enter new email address"
-                                    value={email}
-                                    onChange={e => setEmail(e.target.value)}
-                                />
+                        {emailSectionOpen && (
+                            <div className="auth-form">
+                                <div className="form-group">
+                                    <label htmlFor="email">
+                                        <FiMail className="input-icon" />
+                                        New Email
+                                    </label>
+                                    <input
+                                        id="email"
+                                        type="email"
+                                        placeholder="Enter new email address"
+                                        value={email}
+                                        onChange={e => setEmail(e.target.value)}
+                                    />
+                                </div>
+                                <div className="form-group">
+                                    <label htmlFor="currentPasswordEmail">
+                                        <FiLock className="input-icon" />
+                                        Current Password
+                                    </label>
+                                    <input
+                                        id="currentPasswordEmail"
+                                        type="password"
+                                        placeholder="Enter current password"
+                                        value={oldPassword}
+                                        onChange={e => setOldPassword(e.target.value)}
+                                    />
+                                </div>
+                                <button className="update-button" onClick={handleUpdateEmail}>
+                                    <FiCheck className="button-icon" />
+                                    Update Email
+                                </button>
                             </div>
-
-                            <div className="form-group">
-                                <label htmlFor="newPassword">
-                                    <FiLock className="input-icon" />
-                                    New Password
-                                </label>
-                                <input
-                                    id="newPassword"
-                                    type="password"
-                                    placeholder="Enter new password"
-                                    value={newPassword}
-                                    onChange={e => setNewPassword(e.target.value)}
-                                />
-                            </div>
-
-                            <div className="form-group">
-                                <label htmlFor="currentPassword">
-                                    <FiLock className="input-icon" />
-                                    Current Password
-                                </label>
-                                <input
-                                    id="currentPassword"
-                                    type="password"
-                                    placeholder="Enter current password"
-                                    required
-                                    value={oldPassword}
-                                    onChange={e => setOldPassword(e.target.value)}
-                                />
-                            </div>
-
-                            <button className="update-button" onClick={handleUpdate}>
-                                <FiCheck className="button-icon" />
-                                Save Changes
-                            </button>
-
-                            {updateStatus && (
-                                <p className={`status-message ${updateStatus.includes("success") ? "success" : "error"}`}>
-                                    {updateStatus}
-                                </p>
-                            )}
-                        </div>
+                        )}
                     </div>
+
+                    {/* Update Password */}
+                    <div className="settings-section">
+                        <div
+                            className="section-header collapsible-header"
+                            onClick={() => setPasswordSectionOpen(!passwordSectionOpen)}
+                        >
+                            <div className="section-title">
+                                <FiLock className="section-icon" />
+                                <h3>Update Password</h3>
+                            </div>
+                            <FiInfo className={`toggle-icon ${passwordSectionOpen ? 'open' : ''}`} />
+                        </div>
+                        <InfoText id="passwordUpdate">Change your password. Requires current password.</InfoText>
+
+                        {passwordSectionOpen && (
+                            <div className="auth-form">
+                                <div className="form-group">
+                                    <label htmlFor="newPassword">
+                                        <FiLock className="input-icon" />
+                                        New Password
+                                    </label>
+                                    <input
+                                        id="newPassword"
+                                        type="password"
+                                        placeholder="Enter new password"
+                                        value={newPassword}
+                                        onChange={e => setNewPassword(e.target.value)}
+                                    />
+                                </div>
+                                <div className="form-group">
+                                    <label htmlFor="currentPasswordPass">
+                                        <FiLock className="input-icon" />
+                                        Current Password
+                                    </label>
+                                    <input
+                                        id="currentPasswordPass"
+                                        type="password"
+                                        placeholder="Enter current password"
+                                        value={oldPassword}
+                                        onChange={e => setOldPassword(e.target.value)}
+                                    />
+                                </div>
+                                <button className="update-button" onClick={handleUpdatePassword}>
+                                    <FiCheck className="button-icon" />
+                                    Update Password
+                                </button>
+                            </div>
+                        )}
+                    </div>
+
+                    {updateStatus && (
+                        <p className={`status-message ${updateStatus.includes("success") ? "success" : "error"}`}>
+                            {updateStatus}
+                        </p>
+                    )}
                 </div>
 
                 <Dialog open={confirmDeleteAccountOpen}>

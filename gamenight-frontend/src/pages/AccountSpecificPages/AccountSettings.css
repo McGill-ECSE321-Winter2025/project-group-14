@@ -248,3 +248,20 @@ button {
 .account-settings-item {
   min-width: 400px;
 }
+
+.collapsible-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #eee;
+}
+
+.toggle-icon {
+  transition: transform 0.3s ease;
+}
+
+.toggle-icon.open {
+  transform: rotate(90deg);
+}
