@@ -16,9 +16,9 @@ function Navbar() {
         <nav className="navbar">
             <div className="nav-left">
                 {!user && <Link to="/">Home</Link>}
+                {user && <Link to="/about">About</Link>}
                 {user && <Link to="/games">Games</Link>}
                 {user && <Link to="/events">Events</Link>}
-                {user && <Link to="/about">About</Link>}
                 {user && isOwner && <Link to="/received-requests">Borrowing Requests</Link>}
                 
   
