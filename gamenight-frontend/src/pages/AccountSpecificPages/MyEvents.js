@@ -1,20 +1,19 @@
-
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useAuth } from '../../AuthContext';
+import { usePopup } from "../../components/PopupContext"; // <-- Added import
 import '../../styles/layout.css';
 import '../../styles/event-history.css';
-import { Box, CircularProgress,Button  } from '@mui/material';
+import { Box, CircularProgress, Button } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import '../../styles/button.css';
-
 
 const EventCard = ({ event, playerId, isCreator = false }) => {
     const [scheduledGames, setScheduledGames] = useState([]);
     const [isLoadingGames, setIsLoadingGames] = useState(false);
     const [errorGames, setErrorGames] = useState(null);
+    const { showPopup } = usePopup(); // <-- Destructure showPopup
 
-   
     const formatDateAndTime = (dateString) => {
         const d = new Date(dateString);
         const datePart = d.toLocaleDateString();
@@ -22,21 +21,16 @@ const EventCard = ({ event, playerId, isCreator = false }) => {
         return `${datePart} ${timePart}`;
     };
 
-   
     let dateLine = "";
     if (event.startTime || event.endTime) {
-       
         const startStr = event.startTime ? formatDateAndTime(event.startTime) : null;
         const endStr = event.endTime ? formatDateAndTime(event.endTime) : null;
 
         if (startStr && endStr) {
-           
             dateLine = `Start: ${startStr} | End: ${endStr}`;
         } else if (startStr) {
-           
             dateLine = `Start: ${startStr}`;
         } else if (endStr) {
-           
             dateLine = `End: ${endStr}`;
         }
     }
@@ -48,7 +42,6 @@ const EventCard = ({ event, playerId, isCreator = false }) => {
             setIsLoadingGames(true);
             setErrorGames(null);
             setScheduledGames([]);
-
             try {
                 const response = await axios.get(`/events/scheduledevent/${event.id}`);
                 setScheduledGames(Array.isArray(response.data) ? response.data : []);
@@ -64,18 +57,16 @@ const EventCard = ({ event, playerId, isCreator = false }) => {
         fetchScheduledGames();
     }, [event?.id]);
 
-   
     const isExpired = event.endTime && new Date(event.endTime) < new Date();
 
     // Unregister
     const handleUnregister = async () => {
         try {
             await axios.delete(`/events/${event.id}/player/${playerId}`);
-            
             window.location.reload();
         } catch (error) {
             console.error(error);
-            alert("Error unregistering from event.");
+            showPopup("Error unregistering from event: " + error.message);
         }
     };
 
@@ -83,27 +74,23 @@ const EventCard = ({ event, playerId, isCreator = false }) => {
     const handleCancelEvent = async () => {
         try {
             await axios.delete(`/events/${event.id}`);
-            
             window.location.reload();
         } catch (error) {
             console.error(error);
-            alert("Error canceling event.");
+            showPopup("Error canceling event: " + error.message);
         }
     };
 
     return (
         <div className={`request-card event-card ${isExpired ? 'expired-event' : ''}`}>
             {isExpired && <span className="expired-badge">Expired</span>}
-           
             <div className="request-header">
                 <h3 className="event-title">{event.name || 'Unnamed Event'}</h3>
             </div>
-           
             <div className="request-info event-info">
                 {dateLine && <p className="event-date"><strong>📅</strong> {dateLine}</p>}
                 {event.description && <p className="event-description">{event.description}</p>}
             </div>
-
             <div className="games-section">
                 <div className="games-section-title">📋 Scheduled Games:</div>
                 {isLoadingGames && <p>Loading games...</p>}
@@ -120,7 +107,6 @@ const EventCard = ({ event, playerId, isCreator = false }) => {
                     )
                 )}
             </div>
-
             {!isExpired && (
                 <div className="event-action-buttons" style={{ marginTop: '1rem' }}>
                     {isCreator ? (
@@ -140,13 +126,12 @@ const EventCard = ({ event, playerId, isCreator = false }) => {
 
 function MyEvents() {
     const { user } = useAuth();
+    const { showPopup } = usePopup(); // <-- Destructure showPopup
     const [events, setEvents] = useState([]);
     const [createdEvents, setCreatedEvents] = useState([]);
     const [playerId, setPlayerId] = useState(null);
-
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
-
     const [showCreateEvent, setShowCreateEvent] = useState(false);
     const [newEventName, setNewEventName] = useState("");
     const [newEventDesc, setNewEventDesc] = useState("");
@@ -176,27 +161,22 @@ function MyEvents() {
                 setError("Please log in to view your events.");
                 return;
             }
-
             try {
                 const playerRes = await axios.get(`/users/${user.userId}/player-id`);
                 const pid = playerRes.data;
                 setPlayerId(pid);
-
                 const eventsRes = await axios.get(`/events/player/${pid}`);
                 let registeredList = Array.isArray(eventsRes.data) ? eventsRes.data : [];
-
                 try {
                     const createdRes = await axios.get(`/events/bycreator/${pid}`);
                     const createdList = Array.isArray(createdRes.data) ? createdRes.data : [];
                     setCreatedEvents(createdList);
-
                     registeredList = registeredList.filter(
                         (regEvent) => !createdList.some((ce) => ce.id === regEvent.id)
                     );
                 } catch (e) {
                     console.error("Failed to load created events:", e);
                 }
-
                 setEvents(registeredList);
             } catch (err) {
                 console.error(err);
@@ -211,23 +191,19 @@ function MyEvents() {
         fetchEvents();
     }, [user?.userId]);
 
-   
     const sortedEvents = [...events].sort((a, b) => {
         const now = new Date();
         const aExpired = a.endTime && new Date(a.endTime) < now;
         const bExpired = b.endTime && new Date(b.endTime) < now;
-
         if (aExpired && !bExpired) return 1;
         if (!aExpired && bExpired) return -1;
         return 0;
     });
 
-   
     const sortedCreatedEvents = [...createdEvents].sort((a, b) => {
         const now = new Date();
         const aExpired = a.endTime && new Date(a.endTime) < now;
         const bExpired = b.endTime && new Date(b.endTime) < now;
-
         if (aExpired && !bExpired) return 1;
         if (!aExpired && bExpired) return -1;
         return 0;
@@ -235,7 +211,8 @@ function MyEvents() {
 
     const handleCreateEvent = async () => {
         if (!newEventName.trim()) {
-          alert("Please provide an event name.");
+        showPopup("Please provide an event name.");
+
           return;
         }
         try {
@@ -246,24 +223,19 @@ function MyEvents() {
             endTime: newEventEnd ? new Date(newEventEnd) : null
           });
           const newEvent = createRes.data;
-      
           if (selectedGameIds.length > 0) {
             await axios.post(`/events/${newEvent.id}/scheduleGames`, selectedGameIds);
           }
-      
           if (playerId) {
             await axios.post(`/events/${newEvent.id}/player/${playerId}`);
           }
-      
-      
           setShowCreateEvent(false);
           window.location.reload();
         } catch (error) {
           console.error("Error creating event:", error);
-          alert("Failed to create event. Check console for details.");
+          showPopup("Failed to create event: " + error.message);
         }
       };
-      
 
     const handleCancelCreate = () => {
         setShowCreateEvent(false);
@@ -286,7 +258,6 @@ function MyEvents() {
         <div className="my-events-container" style={{ padding: '30px', position: 'relative', backgroundColor: '#fff' }}>
             {isLoading && <p className="centered loading-message">Loading your events...</p>}
             {error && <p className="centered error-message">{error}</p>}
-
             {!isLoading && !error && !showCreateEvent && (
                 <button
                     className="btn success create-event-btn"
@@ -295,12 +266,10 @@ function MyEvents() {
                     <AddIcon sx={{ color: 'inherit' }} /> Create Event
                 </button>
             )}
-
             {showCreateEvent && (
                 <div className="modal-backdrop">
                     <div className="modal-content">
                         <h2 className="modal-title">Create New Event</h2>
-                       
                         <div className="form-group">
                             <label className="form-label">Event Name:</label>
                             <input
@@ -311,7 +280,6 @@ function MyEvents() {
                                 placeholder="Enter event name..."
                             />
                         </div>
-                       
                         <div className="form-group">
                             <label className="form-label">Description:</label>
                             <textarea
@@ -321,7 +289,6 @@ function MyEvents() {
                                 placeholder="Describe your event..."
                             />
                         </div>
-                       
                         <div className="form-group">
                             <label className="form-label">Start Time:</label>
                             <input
@@ -331,7 +298,6 @@ function MyEvents() {
                                 onChange={(e) => setNewEventStart(e.target.value)}
                             />
                         </div>
-                       
                         <div className="form-group">
                             <label className="form-label">End Time:</label>
                             <input
@@ -341,7 +307,6 @@ function MyEvents() {
                                 onChange={(e) => setNewEventEnd(e.target.value)}
                             />
                         </div>
-
                         <div className="games-selection">
                             <div className="games-selection-title">Select Games to Schedule:</div>
                             <div className="games-list">
@@ -364,7 +329,6 @@ function MyEvents() {
                                 )}
                             </div>
                         </div>
-
                         <div className="modal-actions">
                             <button className="btn btn-secondary" onClick={handleCancelCreate}>
                                 Cancel
@@ -376,7 +340,6 @@ function MyEvents() {
                     </div>
                 </div>
             )}
-
             {!isLoading && !error && (
                 <>
                     <h2 className="centered event-section-title">
@@ -396,9 +359,7 @@ function MyEvents() {
                     ) : (
                         <p className="centered empty-message">You haven't created any events yet.</p>
                     )}
-
                     <hr className="divider" />
-
                     <h2 className="centered event-section-title">
                         Events You Are Registered For
                     </h2>
@@ -418,7 +379,6 @@ function MyEvents() {
                     )}
                 </>
             )}
-
         </div>
     );
 }

@@ -2,17 +2,18 @@ import React, { useState, useEffect, useCallback, useContext } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Box, Typography, Button, CircularProgress } from "@mui/material";
 import { AuthContext } from "../../AuthContext";
+import { usePopup } from "../../components/PopupContext"; 
 import '../../styles/event-details.css';
 
 function EventDetails() {
   const { eventId } = useParams();
   const navigate = useNavigate();
   const { user } = useContext(AuthContext);
+  const { showPopup } = usePopup(); 
 
   const [event, setEvent] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isRegistered, setIsRegistered] = useState(false);
- 
   const [games, setGames] = useState([]);
 
   const fetchEvent = useCallback(async () => {
@@ -47,10 +48,11 @@ function EventDetails() {
         setGames(gamesData);
       } catch (error) {
         console.error("Error fetching games for event:", error);
+        showPopup("Error fetching games for event: " + error.message);
       }
     }
     fetchGames();
-  }, [eventId]);
+  }, [eventId, showPopup]);
 
   useEffect(() => {
     async function checkRegistration() {
@@ -89,7 +91,7 @@ function EventDetails() {
 
   const handleRegister = async () => {
     if (!user || !user.userId) {
-      alert("You must be logged in to register for an event.");
+      showPopup("You must be logged in to register for an event.");
       return;
     }
     try {
@@ -106,19 +108,19 @@ function EventDetails() {
         { method: "POST" }
       );
       if (registerResponse.ok) {
-        
         setIsRegistered(true);
       } else {
-        alert("Error registering for event.");
+        showPopup("Error registering for event.");
       }
     } catch (error) {
       console.error("Error registering for event:", error);
+      showPopup("Error registering for event: " + error.message);
     }
   };
 
   const handleUnregister = async () => {
     if (!user || !user.userId) {
-      alert("You must be logged in to unregister for an event.");
+      showPopup("You must be logged in to unregister for an event.");
       return;
     }
     try {
@@ -135,13 +137,13 @@ function EventDetails() {
         { method: "DELETE" }
       );
       if (unregisterResponse.ok) {
-        
         setIsRegistered(false);
       } else {
-        alert("Error unregistering for event.");
+        showPopup("Error unregistering for event.");
       }
     } catch (error) {
       console.error("Error unregistering for event:", error);
+      showPopup("Error unregistering for event: " + error.message);
     }
   };
 
