@@ -78,7 +78,7 @@ const Account = () => {
             }}>
                 <Tabs value={tabValue} onChange={handleTabChange} centered variant="fullWidth">
                     <Tab label="My Account" />
-                    <Tab label="My Review" />
+                    <Tab label="My Reviews" />
                     <Tab label="Game History" />
                     <Tab label="Event History" />
                 </Tabs>

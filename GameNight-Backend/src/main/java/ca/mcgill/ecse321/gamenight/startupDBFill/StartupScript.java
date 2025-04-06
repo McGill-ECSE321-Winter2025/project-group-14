@@ -44,21 +44,34 @@ public class StartupScript implements CommandLineRunner {
         cleanup();
 
         Person person1 = personRepo.save(new Person("aaaaaa@gmail.com", "aaaaa",
-        "Bertrand"));
+                "Bertrand"));
         GameOwner owner1 = gameOwnerRepo.save(new GameOwner(person1));
         Player player1 = playerRepo.save(new Player(person1));
 
         Person person2 = personRepo.save(new Person("bbbbbb@gmail.com", "bbbbb",
-        "Patrick"));
+                "Patrick"));
         GameOwner owner2 = gameOwnerRepo.save(new GameOwner(person2));
         Player player2 = playerRepo.save(new Player(person2));
 
-        Game game1 = gameRepo.save(new Game("Batman", "A Batman game"));
-        Game game2 = gameRepo.save(new Game("Uno", "A card game"));
-        Game game3 = gameRepo.save(new Game("Monopoly", "A board game"));
-        Game game4 = gameRepo.save(new Game("Jenga", "A fun block game"));
-        Game game5 = gameRepo.save(new Game("Twister", "A game"));
-        Game game6 = gameRepo.save(new Game("Sorry", "A multiplayer board game"));
+        Game game1 = new Game("Batman", "A Batman game");
+        game1.setImagePath("games/batman.jpg");
+        gameRepo.save(game1);
+        Game game2 = new Game("Uno", "A card game");
+        game2.setImagePath("games/uno.jpg");
+        gameRepo.save(game2);
+        Game game3 = new Game("Monopoly", "A board game");
+        game3.setImagePath("games/monopoly.jpg");
+        gameRepo.save(game3);
+        Game game4 = new Game("Jenga", "A fun block game");
+        game4.setImagePath("games/jenga.webp");
+        gameRepo.save(game4);
+        Game game5 = new Game("Twister", "A game");
+        game5.setImagePath("games/twister.jpg");
+        gameRepo.save(game5);
+        Game game6 = new Game("Sorry", "A multiplayer board game");
+        game6.setImagePath("games/sorry.webp");
+        gameRepo.save(game6);
+
         gameCopyRepo.save(new GameCopy("Perfect condition", game1, owner1));
         gameCopyRepo.save(new GameCopy("Missing piece", game2, owner1));
         gameCopyRepo.save(new GameCopy("Good condition", game3, owner1));

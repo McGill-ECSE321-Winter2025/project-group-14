@@ -23,7 +23,7 @@ function GameCard({ gameId, title, rating }) {
                     setImageError(true);
                     return;
                 }
-
+    
                 const response = await fetch(`http://localhost:8080/games/${gameId}/image`);
                 if (response.ok) {
                     const imageBlob = await response.blob();
@@ -39,15 +39,16 @@ function GameCard({ gameId, title, rating }) {
                 setImageLoading(false);
             }
         };
-
+    
         fetchGameImage();
-
+    
         return () => {
-            if (imageUrl) {
+
+            if (imageUrl && !gameId) {
                 URL.revokeObjectURL(imageUrl);
             }
         };
-    }, [gameId, imageUrl]);
+    }, [gameId]); 
 
 
     return (
