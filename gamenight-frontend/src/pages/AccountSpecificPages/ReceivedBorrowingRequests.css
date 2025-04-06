@@ -1,0 +1,45 @@
+
+.requests-content-area,
+.received-requests-page-container .requests-content-area {
+  display: flex;
+  flex-direction: column;
+  padding: 0 0 2rem 0; 
+  width: 100%;
+  box-sizing: border-box;
+  flex-grow: 1; 
+}
+
+.page-title {
+  width: 100%; 
+  text-align: center; 
+  margin-top: 1rem;
+  margin-bottom: 2rem;
+  flex-shrink: 0; 
+}
+
+.message-area {
+    display: flex;
+    flex-direction: column; 
+    justify-content: center; 
+    align-items: center; 
+    flex-grow: 1; 
+    width: 100%; 
+    min-height: 50vh; 
+    text-align: center; 
+}
+
+.message-area p { 
+   color: #666; 
+   font-size: 1.1rem; 
+   max-width: 90%; 
+   text-align: center; 
+}
+
+.message-area p.error-text { 
+    color: #dc3545; 
+    font-weight: 500;
+}
+
+.requests-list-container {
+    width: 100%;
+}

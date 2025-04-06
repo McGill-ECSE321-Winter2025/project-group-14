@@ -19,7 +19,7 @@ function Navbar() {
                 {user && <Link to="/games">Games</Link>}
                 {user && <Link to="/events">Events</Link>}
                 {user && <Link to="/about">About</Link>}
-                {user && isOwner && <Link to="/received-requests">Borrowing Requests</Link>}
+                {user && isOwner && <Link to="/received-requests">Incoming Requests</Link>}
                 
   
                 {user && <Link to="/sent-requests">My Borrowing Requests</Link> }
