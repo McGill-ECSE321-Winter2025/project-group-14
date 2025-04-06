@@ -17,14 +17,11 @@ import GameReviewsTab from '../GameDetailsPageTabs/GameReviewsTab';
 import GameCopyCard from "./GameCopyGameDetailsPage";
 import { AuthContext } from "../../AuthContext";
 
-
 const GameDetailsPage = () => {
-
   const { id } = useParams();
   const { user } = useContext(AuthContext);
   const location = useLocation();
   const { title } = location.state || {};
-
 
   const [imageUrl, setImageUrl] = useState(null);
   const [imageLoading, setImageLoading] = useState(true);
@@ -61,8 +58,7 @@ const GameDetailsPage = () => {
         URL.revokeObjectURL(imageUrl);
       }
     };
-  }, [id, imageUrl]);
-
+  }, [id]);
 
   const [game, setGame] = useState();
   useEffect(() => {
@@ -76,25 +72,32 @@ const GameDetailsPage = () => {
 
 
   const [gameCopies, setGameCopies] = useState([]);
+  const [carouselIndex, setCarouselIndex] = useState(0);
+
   useEffect(() => {
     fetch(`http://localhost:8080/game/${id}/game-copies`, {
       headers: { 'Content-Type': 'application/json', "User-Id": user.userId }
     })
       .then((response) => response.json())
-      .then((data) => setGameCopies(data))
+      .then((data) => {
+        setGameCopies(data);
+        // ✅ Center the 3rd card if we have enough, otherwise default to 0
+        setCarouselIndex(data.length >= 3 ? 1 : 0);
+        if (data.length >= 5) setCarouselIndex(2);
+
+      })
       .catch((error) => console.error("Error fetching game:", error));
   }, [id, user]);
 
-  const carouselItems = gameCopies?.map((game) => (
-    <div className='game-copy'>
-      <GameCopyCard
-        key={game.id}
-        gameCopyId={game.id}
-        owner={game.gameOwnerName}
-        description={game.description}
-      />
-    </div>
-  )) || [];
+
+  const handleWheel = (e) => {
+    e.preventDefault();
+    if (e.deltaY > 0 && carouselIndex < gameCopies.length - 1) {
+      setCarouselIndex((prev) => prev + 1);
+    } else if (e.deltaY < 0 && carouselIndex > 0) {
+      setCarouselIndex((prev) => prev - 1);
+    }
+  };
 
   return (
     <div className='game-page-top-level-container'>
@@ -141,8 +144,38 @@ const GameDetailsPage = () => {
           <div>
             <h3 className='centered'>Available game copies</h3>
           </div>
-          <div className='game-copies-section'>
-            {carouselItems}
+          <div className='game-copies-section' onWheel={handleWheel}>
+            {gameCopies.map((copy, i) => {
+              const offset = i - carouselIndex;
+              if (Math.abs(offset) > 3) return null;
+
+              const scale = 1 - Math.abs(offset) * 0.1;
+              const opacity = 1 - Math.abs(offset) * 0.25;
+              const translateX = offset * 320;
+
+              return (
+                <div
+                  key={copy.id}
+                  className="carousel-copy-item"
+                  style={{
+                    left: '50%',
+                    transform: `translateX(${offset * 350 - 200}px) scale(${scale})`,
+                    opacity,
+                    zIndex: 10 - Math.abs(offset),
+                    width: '400px',
+                    position: 'absolute',
+                    transformOrigin: 'center center',
+                    transition: 'transform 0.6s ease, opacity 0.6s ease'
+                  }}
+                >
+                  <GameCopyCard
+                    gameCopyId={copy.id}
+                    owner={copy.gameOwnerName}
+                    description={copy.description}
+                  />
+                </div>
+              );
+            })}
           </div>
         </div>
       </div>

@@ -141,4 +141,25 @@ export const UserManagementAPI = {
             return false;
         }
     },
+
+    updateUsername: async (userId, newUsername) => {
+        try {
+            const response = await axios.put(
+                `${API_BASE_URL}/${userId}/username`,
+                null,
+                {
+                    headers: {
+                        ...getAuthHeaders(),
+                        "Content-Type": "application/x-www-form-urlencoded"
+                    },
+                    params: { newUsername }
+                }
+            );
+            return response.status === 200;
+        } catch (error) {
+            console.error("Error updating username:", error);
+            return false;
+        }
+    }
+
 };
