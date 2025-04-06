@@ -6,6 +6,7 @@ import {
   Backdrop,
   Fade,
   Typography,
+  FormControl,
 } from "@mui/material";
 import { AuthContext } from "../../AuthContext";
 import Button from "../ui/Button";
@@ -20,10 +21,9 @@ const CreateGameForm = ({ open, onClose, onSuccess }) => {
   const [loading, setLoading] = useState(false);
   const fileInputRef = useRef(null);
 
-  // Completely separate click handler for file input
   const handleFileButtonClick = (e) => {
-    e.preventDefault(); // Prevent any form submission
-    e.stopPropagation(); // Stop event bubbling
+    e.preventDefault();
+    e.stopPropagation();
     fileInputRef.current.click();
   };
 
@@ -31,13 +31,10 @@ const CreateGameForm = ({ open, onClose, onSuccess }) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Validation
     if (!file.type.startsWith('image/')) {
-      alert('Please select an image file (JPEG, PNG, etc.)');
       return;
     }
     if (file.size > 2 * 1024 * 1024) {
-      alert('Image must be smaller than 2MB');
       return;
     }
     
@@ -56,22 +53,15 @@ const CreateGameForm = ({ open, onClose, onSuccess }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!name || !description) {
-      alert('Please fill in all required fields');
-      return;
-    }
-    
+
     setLoading(true);
 
     try {
       const formData = new FormData();
-      
-      // Create game data as JSON blob
       const gameJson = JSON.stringify({ name, description });
       const gameBlob = new Blob([gameJson], { type: 'application/json' });
       formData.append('game', gameBlob);
       
-      // Add image if exists
       if (imageFile) {
         formData.append('imageFile', imageFile);
       }
@@ -80,14 +70,12 @@ const CreateGameForm = ({ open, onClose, onSuccess }) => {
         method: "POST",
         headers: {
           "User-Id": user.userId
-          // Let browser set Content-Type with boundary
         },
         body: formData
       });
 
       if (!response.ok) {
-        const error = await response.json().catch(() => ({}));
-        throw new Error(error.message || 'Failed to create game');
+        throw new Error('Failed to create game');
       }
 
       const newGame = await response.json();
@@ -95,7 +83,6 @@ const CreateGameForm = ({ open, onClose, onSuccess }) => {
       handleClose();
     } catch (error) {
       console.error("Error creating game:", error);
-      alert(error.message || "Failed to create game. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -120,32 +107,35 @@ const CreateGameForm = ({ open, onClose, onSuccess }) => {
           bgcolor: 'background.paper',
           boxShadow: 24,
           p: 4,
-          borderRadius: 2
+          borderRadius: 2,
+          border: '1px solid #ddd'
         }}>
-          <Typography variant="h5" gutterBottom textAlign="center">Create New Game</Typography>
+          <Typography variant="h5" gutterBottom textAlign="center" sx={{ mb: 3 }}>
+            Create New Game
+          </Typography>
           
-          <Box component="form" onSubmit={handleSubmit} noValidate>
-            <TextField
-              fullWidth
-              label="Game Name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              margin="normal"
-              required
-            />
+          <Box component="form" onSubmit={handleSubmit} >
+            <FormControl fullWidth sx={{ mb: 2 }}>
+              <TextField
+                label="Game Name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                required
+              />
+            </FormControl>
             
-            <TextField
-              fullWidth
-              multiline
-              rows={4}
-              label="Description"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              margin="normal"
-              required
-            />
+            <FormControl fullWidth sx={{ mb: 2 }}>
+              <TextField
+                multiline
+                rows={4}
+                label="Description"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                required
+              />
+            </FormControl>
 
-            <Box sx={{ my: 2, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+            <Box sx={{ mb: 2, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
               <input
                 type="file"
                 accept="image/*"
@@ -169,7 +159,7 @@ const CreateGameForm = ({ open, onClose, onSuccess }) => {
               )}
               
               {previewUrl && (
-                <Box sx={{ width: '100%', mt: 2 }}>
+                <Box sx={{ width: '100%', mt: 1 }}>
                   <Box
                     component="img"
                     src={previewUrl}
@@ -192,14 +182,30 @@ const CreateGameForm = ({ open, onClose, onSuccess }) => {
               )}
             </Box>
 
-            <Box sx={{ display: 'flex', justifyContent: 'center', gap: 2, mt: 3 }}>
-              <Button onClick={handleClose} disabled={loading} type="button">
-                Cancel
-              </Button>
-              <Button type="submit" variant="contained" disabled={loading}>
-                {loading ? 'Creating...' : 'Create Game'}
-              </Button>
-            </Box>
+                      <Box sx={{ 
+            display: 'flex', 
+            justifyContent: 'center', 
+            gap: 2, 
+            width: '100%',
+            mt: 3
+          }}>
+            <Button
+              type="danger"
+              onClick={handleClose}
+              disabled={loading}
+              style={{ width: '120px' }}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="success"
+              disabled={loading}
+              style={{ width: '120px' }}
+            >
+              {loading ? 'Creating...' : 'Create'}
+            </Button>
+          </Box>
+
           </Box>
         </Box>
       </Fade>
