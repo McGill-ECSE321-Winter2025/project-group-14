@@ -21,9 +21,8 @@ import ReceivedBorrowingRequests from "./pages/AccountSpecificPages/ReceivedBorr
 import AddGame from "./pages/Other/AddGame";
 import GameDetailsPage from "./pages/GameDetails/GameDetailsPage";
 import EventDetails from "./pages/Other/EventDetails.js";
-
 import SentRequests from "./pages/AccountSpecificPages/SentRequests";
-
+import MyRentals from "./pages/AccountSpecificPages/MyRentals"; 
 import { PopupProvider } from './components/PopupContext';
 
 import './App.css'
@@ -43,6 +42,7 @@ function App() {
             <Route path="/games/:id" element={<ProtectedRoute><GameDetailsPage /></ProtectedRoute>} />
             <Route path="/my-games" element={<ProtectedRoute><MyGamesPage /></ProtectedRoute>} />
             <Route path="/my-events" element={<ProtectedRoute><MyEvents /></ProtectedRoute>} />
+            <Route path="/my-rentals" element={<ProtectedRoute><MyRentals /></ProtectedRoute>} /> 
             <Route path="/account" element={<ProtectedRoute><Account /></ProtectedRoute>} />
             <Route path="/events" element={<ProtectedRoute><Events /></ProtectedRoute>} />
             <Route path="/events/:eventId" element={<ProtectedRoute><EventDetails /></ProtectedRoute>} />

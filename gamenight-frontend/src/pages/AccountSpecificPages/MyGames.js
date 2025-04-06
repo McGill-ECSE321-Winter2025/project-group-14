@@ -1,17 +1,14 @@
 import React, { useState, useEffect, useContext, useCallback } from "react";
-import { Tabs, Tab, Box, Modal, Backdrop, Fade } from "@mui/material";
+import { Box, Modal, Backdrop, Fade } from "@mui/material";
 import GameCopyCard from "../../components/cards/GameCopyCard";
-import AddGameCopyCard from "../../components/cards/AddGameCopyCard"; // New import
+import AddGameCopyCard from "../../components/cards/AddGameCopyCard";
 import AddGameCopyForm from "../../components/forms/AddGameCopyForm";
 import { AuthContext } from "../../AuthContext";
-import BorrowingRequestItem from '../../components/cards/BorrowingRequestItem';
 
 function MyGamesPage() {
   const { user } = useContext(AuthContext);
   const [authChecked] = useState(true);
-  const [tabValue, setTabValue] = useState(0);
   const [myGameCopies, setMyGameCopies] = useState([]);
-  const [borrowedGameCopies, setBorrowedGameCopies] = useState([]);
   const [showAddForm, setShowAddForm] = useState(false);
   const [loading, setLoading] = useState(true);
 
@@ -28,56 +25,16 @@ function MyGamesPage() {
     }
   }, [user?.userId]);
 
-  const fetchBorrowedGameCopies = useCallback(async () => {
-    try {
-      const playerResponse = await fetch(`http://localhost:8080/users/${user?.userId}/player-id`, {
-        headers: { 
-          "Content-Type": "application/json",
-          "User-Id": user?.userId 
-        }
-      });
-      
-      if (!playerResponse.ok) throw new Error("Failed to fetch player ID");
-      const playerId = await playerResponse.json();
-  
-      const requestsResponse = await fetch(
-        `http://localhost:8080/borrowingRequests/${playerId}/status/accepted`,
-        {
-          headers: { 
-            "Content-Type": "application/json",
-            "User-Id": user?.userId 
-          }
-        }
-      );
-  
-      if (!requestsResponse.ok) throw new Error("Failed to fetch borrowed games");
-      
-      const data = await requestsResponse.json();
-      setBorrowedGameCopies(Array.isArray(data) ? data : []);
-      
-    } catch (error) {
-      console.error("Error in fetchBorrowedGameCopies:", error);
-      setBorrowedGameCopies([]);
-    }
-  }, [user?.userId]);
-  
   useEffect(() => {
     if (!authChecked || !user) return;
 
     const loadData = async () => {
       setLoading(true);
-      await Promise.all([
-        fetchMyGameCopies(), 
-        fetchBorrowedGameCopies(), 
-      ]);
+      await fetchMyGameCopies();
       setLoading(false);
     };
     loadData();
-  }, [authChecked, fetchMyGameCopies, fetchBorrowedGameCopies, user]);
-
-  const handleTabChange = (event, newValue) => {
-    setTabValue(newValue);
-  };
+  }, [authChecked, fetchMyGameCopies, user]);
 
   const handleAddGameCopy = () => {
     setShowAddForm(true);
@@ -141,124 +98,63 @@ function MyGamesPage() {
   return (
     <div className="container">
       <div>
-        <h1 className="centered">My Games</h1>
+        <h1 className="centered">My Game Collection</h1>
       </div>
 
-      <Box sx={{ 
-        width: '100%', 
-        mb: 3,
-        '& .MuiTabs-indicator': { backgroundColor: 'black', height: '3px' },
-        '& .MuiTab-root': {
-          color: '#666',
-          fontSize: '1rem',
-          textTransform: 'none',
-          fontWeight: 500,
-          padding: '12px 24px',
-          minWidth: 'unset',
-          '&.Mui-selected': { color: 'black', fontWeight: 600 },
-          '&:hover': { color: 'black', opacity: 1 }
-        }
-      }}>
-        <Tabs value={tabValue} onChange={handleTabChange} centered variant="fullWidth">
-          <Tab label="My Collection" />
-          <Tab label="Borrowed Games" />
-        </Tabs>
-      </Box>
+      <Modal
+        open={showAddForm}
+        onClose={handleCancelAdd}
+        closeAfterTransition
+        BackdropComponent={Backdrop}
+        BackdropProps={{ timeout: 500 }}
+      >
+        <Fade in={showAddForm}>
+          <Box sx={modalStyle}>
+            <AddGameCopyForm
+              onCancel={handleCancelAdd}
+              onSuccess={handleGameCopyAdded}
+            />
+          </Box>
+        </Fade>
+      </Modal>
 
-      {tabValue === 0 && (
-        <>
-          <Modal
-            open={showAddForm}
-            onClose={handleCancelAdd}
-            closeAfterTransition
-            BackdropComponent={Backdrop}
-            BackdropProps={{ timeout: 500 }}
-          >
-            <Fade in={showAddForm}>
-              <Box sx={modalStyle}>
-                <AddGameCopyForm
-                  onCancel={handleCancelAdd}
-                  onSuccess={handleGameCopyAdded}
-                />
-              </Box>
-            </Fade>
-          </Modal>
+      {loading ? (
+        <Box display="flex" justifyContent="center">
+          <p className="text-center">Loading your game collection...</p>
+        </Box>
+      ) : (
+        <Box sx={{ 
+          display: 'flex',
+          justifyContent: 'center',
+          flexWrap: 'wrap',
+          gap: '16px',
+          maxWidth: '1200px',
+          margin: '0 auto',
+          padding: '0 16px'
+        }}>
+          {/* Add Game Copy Card - always shown */}
+          <Box sx={{ 
+            width: { xs: '100%', sm: 'calc(50% - 8px)', md: 'calc(33.333% - 11px)' },
+            maxWidth: '280px'
+          }}>
+            <AddGameCopyCard onClick={handleAddGameCopy} />
+          </Box>
 
-          {loading ? (
-            <Box display="flex" justifyContent="center">
-              <p className="text-center">Loading your game collection...</p>
-            </Box>
-          ) : (
-            <Box sx={{ 
-              display: 'flex',
-              justifyContent: 'center',
-              flexWrap: 'wrap',
-              gap: '16px',
-              maxWidth: '1200px',
-              margin: '0 auto',
-              padding: '0 16px'
+          {/* Existing Game Copies */}
+          {myGameCopies.map((gameCopy) => (
+            <Box key={gameCopy.id} sx={{ 
+              width: { xs: '100%', sm: 'calc(50% - 8px)', md: 'calc(33.333% - 11px)' },
+              maxWidth: '280px'
             }}>
-              {/* Add Game Copy Card - always shown */}
-              <Box sx={{ 
-                width: { xs: '100%', sm: 'calc(50% - 8px)', md: 'calc(33.333% - 11px)' },
-                maxWidth: '280px'
-              }}>
-                <AddGameCopyCard onClick={handleAddGameCopy} />
-              </Box>
-
-              {/* Existing Game Copies */}
-              {myGameCopies.map((gameCopy) => (
-                <Box key={gameCopy.id} sx={{ 
-                  width: { xs: '100%', sm: 'calc(50% - 8px)', md: 'calc(33.333% - 11px)' },
-                  maxWidth: '280px'
-                }}>
-                  <GameCopyCard 
-                    gameCopy={gameCopy} 
-                    onDelete={handleDeleteGameCopy}
-                    onUpdate={handleUpdateGameCopy}
-                    isOwner={true}
-                  />
-                </Box>
-              ))}
+              <GameCopyCard 
+                gameCopy={gameCopy} 
+                onDelete={handleDeleteGameCopy}
+                onUpdate={handleUpdateGameCopy}
+                isOwner={true}
+              />
             </Box>
-          )}
-        </>
-      )}
-
-      {tabValue === 1 && (
-        <>
-          {loading ? (
-            <Box display="flex" justifyContent="center">
-              <p className="text-center">Loading borrowed games...</p>
-            </Box>
-          ) : borrowedGameCopies.length === 0 ? (
-            <Box display="flex" justifyContent="center">
-              <p className="text-center">You haven't borrowed any games yet.</p>
-            </Box>
-          ) : (
-            <Box sx={{ 
-              display: 'flex',
-              justifyContent: 'center',
-              flexWrap: 'wrap',
-              gap: '16px',
-              maxWidth: '1200px',
-              margin: '0 auto',
-              padding: '0 16px'
-            }}>
-              {borrowedGameCopies.map((gameCopy) => (
-                <Box key={gameCopy.id} sx={{ 
-                  width: { xs: '100%', sm: 'calc(50% - 8px)', md: 'calc(33.333% - 11px)' },
-                  maxWidth: '280px'
-                }}>
-                  <BorrowingRequestItem 
-                    request={gameCopy} 
-                    badgeText="Active Borrow"
-                  />
-                </Box>
-              ))}
-            </Box>
-          )}
-        </>
+          ))}
+        </Box>
       )}
     </div>
   );
