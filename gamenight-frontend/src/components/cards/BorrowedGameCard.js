@@ -9,6 +9,7 @@ const BorrowedGameCard = ({ request }) => {
     const [imageLoading, setImageLoading] = useState(true);
     const [imageError, setImageError] = useState(false);
     const [gameId, setGameId] = useState(null);
+    const [ownerName, setOwnerName] = useState('Unknown');
 
     const {
         id: borrowingRequestId,
@@ -20,22 +21,24 @@ const BorrowedGameCard = ({ request }) => {
     } = request;
 
     useEffect(() => {
-        const fetchGameId = async () => {
+        const fetchGameCopyData = async () => {
             try {
                 const gameCopy = await GameHistoryAPI.getGameCopyById(gameCopyId);
-                if (gameCopy?.game?.id) {
+                if (!gameCopy) throw new Error('No game copy returned from API');
+                if (gameCopy.game?.id) {
                     setGameId(gameCopy.game.id);
-                } else {
-                    throw new Error("No game found inside game copy response");
+                }
+                if (gameCopy.gameOwnerName) {
+                    setOwnerName(gameCopy.gameOwnerName);
                 }
             } catch (err) {
-                console.error("Failed to fetch game ID from game copy:", err);
+                console.error('Failed to fetch game copy data:', err);
                 setImageError(true);
                 setImageLoading(false);
             }
         };
 
-        fetchGameId();
+        fetchGameCopyData();
     }, [gameCopyId]);
 
     useEffect(() => {
@@ -131,7 +134,7 @@ const BorrowedGameCard = ({ request }) => {
                         </div>
                         <div className="section">
                             <strong>Owner:</strong>
-                            <p>{senderName}</p>
+                            <p>{ownerName}</p>
                         </div>
                     </div>
                 </div>
