@@ -1,6 +1,4 @@
-/* =====================
-   ✅ styles/button.css
-   ===================== */
+
 
 .btn {
     background-color: #333;
@@ -70,4 +68,10 @@
 
 .btn::before {
     display: none !important;
+
+.btn-card-action {
+    padding: 6px 10px !important;
+    font-size: 0.8rem !important;
+    min-width: auto;
+    }
   }
