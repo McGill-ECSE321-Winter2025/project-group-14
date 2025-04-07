@@ -1,0 +1,49 @@
+version: "3.7"
+
+services:
+  backend:
+    build:
+      context: ./GameNight-Backend
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./uploads:/app/uploads
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/game_night
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=$@ndyCh33k5
+      - SPRING_MAIL_USERNAME=gamenightcorporation@gmail.com
+      - SPRING_MAIL_PASSWORD=vcma iegz ykin erae
+    depends_on:
+      - db
+    networks:
+      - gamenight
+
+  frontend:
+    build:
+      context: ./gamenight-frontend
+    ports:
+      - "3000:80"
+    networks:
+      - gamenight
+    environment:
+      - REACT_APP_BACKEND_URL=http://localhost:8080
+
+  db:
+    image: postgres:latest
+    environment:
+      POSTGRES_DB: game_night
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: $@ndyCh33k5
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    networks:
+      - gamenight
+
+networks:
+  gamenight:
+    driver: bridge
+
+volumes:
+  db_data:
+    driver: local
