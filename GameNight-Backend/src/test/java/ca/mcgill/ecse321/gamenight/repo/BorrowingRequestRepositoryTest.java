@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.sql.Date;
+import java.time.LocalDate;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -74,8 +75,8 @@ public class BorrowingRequestRepositoryTest {
 
         @Test
         public void testCreateAndReadBorrowingRequest() {
-                Date startTime = Date.valueOf("2023-10-01");
-                Date endTime = Date.valueOf("2023-10-10");
+                LocalDate startTime = LocalDate.parse("2023-10-01");
+                LocalDate endTime = LocalDate.parse("2023-10-10");
                 BorrowingRequest request = new BorrowingRequest(startTime, endTime, borrower, gameCopy);
                 borrowingRepo.save(request);
 
@@ -92,8 +93,8 @@ public class BorrowingRequestRepositoryTest {
 
         @Test
         public void testUpdateBorrowingRequest() {
-                Date startTime = Date.valueOf("2023-10-01");
-                Date endTime = Date.valueOf("2023-10-10");
+                LocalDate startTime = LocalDate.parse("2023-10-01");
+                LocalDate endTime = LocalDate.parse("2023-10-10");
                 BorrowingRequest request = new BorrowingRequest(startTime, endTime, borrower, gameCopy);
                 borrowingRepo.save(request);
 
@@ -108,8 +109,8 @@ public class BorrowingRequestRepositoryTest {
 
         @Test
         public void testDeleteBorrowingRequest() {
-                Date startTime = Date.valueOf("2023-10-01");
-                Date endTime = Date.valueOf("2023-10-10");
+                LocalDate startTime = LocalDate.parse("2023-10-01");
+                LocalDate endTime = LocalDate.parse("2023-10-10");
                 BorrowingRequest request = new BorrowingRequest(startTime, endTime, borrower, gameCopy);
                 borrowingRepo.save(request);
 
@@ -122,9 +123,9 @@ public class BorrowingRequestRepositoryTest {
 
         @Test
         public void testFindAllBorrowingRequests() {
-                BorrowingRequest request1 = new BorrowingRequest(Date.valueOf("2023-10-01"), Date.valueOf("2023-10-10"),
+                BorrowingRequest request1 = new BorrowingRequest(LocalDate.parse("2023-10-01"), LocalDate.parse("2023-10-10"),
                                 borrower, gameCopy);
-                BorrowingRequest request2 = new BorrowingRequest(Date.valueOf("2023-11-01"), Date.valueOf("2023-11-10"),
+                BorrowingRequest request2 = new BorrowingRequest(LocalDate.parse("2023-11-01"), LocalDate.parse("2023-11-10"),
                                 borrower, gameCopy);
                 borrowingRepo.save(request1);
                 borrowingRepo.save(request2);
@@ -136,12 +137,12 @@ public class BorrowingRequestRepositoryTest {
 
         @Test
         public void testFindAllRequestsByStatusAndGameOwner() {
-                BorrowingRequest request1 = new BorrowingRequest(Date.valueOf("2023-10-01"), Date.valueOf("2023-10-10"),
+                BorrowingRequest request1 = new BorrowingRequest(LocalDate.parse("2023-10-01"), LocalDate.parse("2023-10-10"),
                                 borrower, gameCopy);
                 request1.setStatus(BorrowingRequestStatus.Rejected);
                 borrowingRepo.save(request1);
 
-                BorrowingRequest request2 = new BorrowingRequest(Date.valueOf("2023-11-01"), Date.valueOf("2023-11-10"),
+                BorrowingRequest request2 = new BorrowingRequest(LocalDate.parse("2023-11-01"), LocalDate.parse("2023-11-10"),
                                 borrower, gameCopy);
                 request2.setStatus(BorrowingRequestStatus.Accepted);
                 borrowingRepo.save(request2);
@@ -155,9 +156,9 @@ public class BorrowingRequestRepositoryTest {
 
         @Test
         public void testFindBySender() {
-                BorrowingRequest request1 = new BorrowingRequest(Date.valueOf("2023-10-01"), Date.valueOf("2023-10-10"),
+                BorrowingRequest request1 = new BorrowingRequest(LocalDate.parse("2023-10-01"), LocalDate.parse("2023-10-10"),
                                 borrower, gameCopy);
-                BorrowingRequest request2 = new BorrowingRequest(Date.valueOf("2023-11-01"), Date.valueOf("2023-11-10"),
+                BorrowingRequest request2 = new BorrowingRequest(LocalDate.parse("2023-11-01"), LocalDate.parse("2023-11-10"),
                                 borrower, gameCopy);
                 borrowingRepo.save(request1);
                 borrowingRepo.save(request2);
@@ -170,12 +171,12 @@ public class BorrowingRequestRepositoryTest {
 
         @Test
         public void testFindAllRequestsByStatusAndSender() {
-                BorrowingRequest request1 = new BorrowingRequest(Date.valueOf("2023-10-01"), Date.valueOf("2023-10-10"),
+                BorrowingRequest request1 = new BorrowingRequest(LocalDate.parse("2023-10-01"), LocalDate.parse("2023-10-10"),
                                 borrower, gameCopy);
                 request1.setStatus(BorrowingRequestStatus.Rejected);
                 borrowingRepo.save(request1);
 
-                BorrowingRequest request2 = new BorrowingRequest(Date.valueOf("2023-11-01"), Date.valueOf("2023-11-10"),
+                BorrowingRequest request2 = new BorrowingRequest(LocalDate.parse("2023-11-01"), LocalDate.parse("2023-11-10"),
                                 borrower, gameCopy);
                 request2.setStatus(BorrowingRequestStatus.Accepted);
                 borrowingRepo.save(request2);
@@ -190,9 +191,9 @@ public class BorrowingRequestRepositoryTest {
 
         @Test
         public void testFindByGameCopy() {
-                BorrowingRequest request1 = new BorrowingRequest(Date.valueOf("2023-10-01"), Date.valueOf("2023-10-10"),
+                BorrowingRequest request1 = new BorrowingRequest(LocalDate.parse("2023-10-01"), LocalDate.parse("2023-10-10"),
                                 borrower, gameCopy);
-                BorrowingRequest request2 = new BorrowingRequest(Date.valueOf("2023-11-01"), Date.valueOf("2023-11-10"),
+                BorrowingRequest request2 = new BorrowingRequest(LocalDate.parse("2023-11-01"), LocalDate.parse("2023-11-10"),
                                 borrower, gameCopy);
                 borrowingRepo.save(request1);
                 borrowingRepo.save(request2);

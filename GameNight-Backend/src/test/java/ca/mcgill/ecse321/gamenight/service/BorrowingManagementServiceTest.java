@@ -10,6 +10,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 import java.sql.Date;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -105,8 +106,8 @@ public class BorrowingManagementServiceTest {
     public void testSendValidBorrowingRequest() {
         int gameCopyId = 10;
         int senderId = 5;
-        Date startTime = Date.valueOf("2025-03-12");
-        Date endTime = Date.valueOf("2025-03-15");
+        LocalDate startTime = LocalDate.parse("2025-03-12");
+        LocalDate endTime = LocalDate.parse("2025-03-15");
 
         // Game and Gameowner
         Game game = new Game();
@@ -169,8 +170,8 @@ public class BorrowingManagementServiceTest {
     void testSendBorrowingRequest_EmailFailure() {
         int gameCopyId = 10;
         int senderId = 5;
-        Date startTime = Date.valueOf("2025-03-12");
-        Date endTime = Date.valueOf("2025-03-15");
+        LocalDate startTime = LocalDate.parse("2025-03-12");
+        LocalDate endTime = LocalDate.parse("2025-03-15");
 
         Game game = new Game();
         game.setName("Uno");
@@ -206,8 +207,8 @@ public class BorrowingManagementServiceTest {
     public void testSendBorrowingRequestInvalidGameCopy() {
         int gameCopyId = 10;
         int senderId = 5;
-        Date startTime = Date.valueOf("2025-03-12");
-        Date endTime = Date.valueOf("2025-03-15");
+        LocalDate startTime = LocalDate.parse("2025-03-12");
+        LocalDate endTime = LocalDate.parse("2025-03-15");
 
         when(gameCopyRepository.findById(gameCopyId)).thenReturn(Optional.empty());
 
@@ -223,8 +224,8 @@ public class BorrowingManagementServiceTest {
     public void testSendBorrowingRequestInvalidSender() {
         int gameCopyId = 10;
         int senderId = 5;
-        Date startTime = Date.valueOf("2025-03-12");
-        Date endTime = Date.valueOf("2025-03-15");
+        LocalDate startTime = LocalDate.parse("2025-03-12");
+        LocalDate endTime = LocalDate.parse("2025-03-15");
 
         Game game = new Game();
         game.setName("uno");
@@ -638,13 +639,13 @@ public class BorrowingManagementServiceTest {
     @Test
     public void testFindActiveBorrowingRequests() {
         // Mock current date
-        Date currentDate = Date.valueOf("2023-06-01");
+        LocalDate currentLocalDate = LocalDate.parse("2023-06-01");
         
         // Mock repository response
         when(borrowingRequestRepository.findActiveBorrowingRequestsForBorrower(
             anyInt(), 
             any(BorrowingRequestStatus.class), 
-            any(Date.class))
+            any(LocalDate.class))
         ).thenReturn(Arrays.asList(activeRequest));
 
         // Call service method

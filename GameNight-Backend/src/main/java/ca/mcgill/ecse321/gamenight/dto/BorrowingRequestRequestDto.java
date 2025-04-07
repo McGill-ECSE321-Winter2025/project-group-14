@@ -1,26 +1,26 @@
 package ca.mcgill.ecse321.gamenight.dto;
-import java.sql.Date;
+import java.time.LocalDate;
 
 public class BorrowingRequestRequestDto {
-    private Date startTime;
-    private Date endTime;
+    private LocalDate startTime;
+    private LocalDate endTime;
     private int senderId;
     private int gameCopyId;
     
     @SuppressWarnings("unused")
     private BorrowingRequestRequestDto(){
     }
-    public BorrowingRequestRequestDto(Date startTime, Date endTime, int senderId, int gameCopyId){
+    public BorrowingRequestRequestDto(LocalDate startTime, LocalDate endTime, int senderId, int gameCopyId){
         this.startTime = startTime;
         this.endTime = endTime;
         this.senderId = senderId;
         this.gameCopyId = gameCopyId;
     }
 
-    public Date getStartTime() {
+    public LocalDate getStartTime() {
         return startTime;
     }
-    public Date getEndTime() {
+    public LocalDate getEndTime() {
         return endTime;
     }
     public int getSenderId() {

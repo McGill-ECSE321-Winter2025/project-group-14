@@ -3,6 +3,7 @@
 package ca.mcgill.ecse321.gamenight.repo;
 
 import java.sql.Date;
+import java.time.LocalDate;
 import java.util.List;
 
 import org.springframework.data.jpa.repository.Query;
@@ -32,7 +33,7 @@ public interface BorrowingRequestRepository extends CrudRepository<BorrowingRequ
     List<BorrowingRequest> findActiveBorrowingRequestsForBorrower(
     @Param("senderId") int senderId,
     @Param("status") BorrowingRequestStatus status,
-    @Param("currentDate") Date currentDate);
+    @Param("currentDate") LocalDate currentDate);
 
     @Query("SELECT r FROM BorrowingRequest r WHERE r.sender.id = ?1 ORDER BY r.sendTime DESC")
     List<BorrowingRequest> findAllBySenderId(int senderId);

@@ -1,6 +1,7 @@
 package ca.mcgill.ecse321.gamenight.service;
 
 import java.sql.Date;
+import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -35,7 +36,7 @@ public class BorrowingManagementService {
     private EmailService emailService;
 
     @Transactional
-    public BorrowingRequest sendBorrowingRequest(int gameCopyId, int senderId, Date startTime, Date endTime) {
+    public BorrowingRequest sendBorrowingRequest(int gameCopyId, int senderId, LocalDate startTime, LocalDate endTime) {
         Optional<GameCopy> gameCopyOpt = gameCopyRepository.findById(gameCopyId);
         if (!gameCopyOpt.isPresent()) {
             throw new ObjectNotFoundException("GameCopy with id " + String.valueOf(gameCopyId) + " not found.");
@@ -100,11 +101,11 @@ public class BorrowingManagementService {
     
     @Transactional
     public List<BorrowingRequest> findActiveBorrowingRequestsForBorrower(int senderId) {
-        Date currentDate = new Date(System.currentTimeMillis());
+        LocalDate currentLocalDate = LocalDate.now();
         return borrowingRequestRepository.findActiveBorrowingRequestsForBorrower(
             senderId, 
             BorrowingRequestStatus.Accepted, 
-            currentDate
+            currentLocalDate
         );
     }
 

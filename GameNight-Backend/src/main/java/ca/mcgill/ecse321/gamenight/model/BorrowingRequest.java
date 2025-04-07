@@ -1,6 +1,7 @@
 package ca.mcgill.ecse321.gamenight.model;
 
 import java.sql.Date;
+import java.time.LocalDate;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -20,8 +21,8 @@ public class BorrowingRequest {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
     private Date sendTime;
-    private Date startTime;
-    private Date endTime;
+    private LocalDate startTime;
+    private LocalDate endTime;
     private BorrowingRequestStatus status = BorrowingRequestStatus.Delivered;
 
     @ManyToOne
@@ -35,7 +36,7 @@ public class BorrowingRequest {
     public BorrowingRequest() {
     }
 
-    public BorrowingRequest(Date startTime, Date endTime, Player sender, GameCopy gameCopy) {
+    public BorrowingRequest(LocalDate startTime, LocalDate endTime, Player sender, GameCopy gameCopy) {
         this.sendTime = new java.sql.Date(System.currentTimeMillis());
         this.startTime = startTime;
         this.endTime = endTime;
@@ -51,11 +52,11 @@ public class BorrowingRequest {
         return sendTime;
     }
 
-    public Date getStartTime() {
+    public LocalDate getStartTime() {
         return startTime;
     }
 
-    public Date getEndTime() {
+    public LocalDate getEndTime() {
         return endTime;
     }
 
@@ -84,11 +85,11 @@ public class BorrowingRequest {
         this.sendTime = sendTime;
     }
 
-    public void setStartTime(Date startTime) {
+    public void setStartTime(LocalDate startTime) {
         this.startTime = startTime;
     }
 
-    public void setEndTime(Date endTime) {
+    public void setEndTime(LocalDate endTime) {
         this.endTime = endTime;
     }
 

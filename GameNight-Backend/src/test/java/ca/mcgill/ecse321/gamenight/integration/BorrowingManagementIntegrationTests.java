@@ -15,6 +15,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.sql.Date;
+import java.time.LocalDate;
 
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -89,8 +90,8 @@ public class BorrowingManagementIntegrationTests {
         private static final String VALID_GAMECOPYDESCRIPTION = "Good condition";
         private static final String VALID_PASSWORD2 = "1234RE";
         private static final String VALID_NAME2 = "jane doe";
-        private static final Date START_TIME = Date.valueOf("2025-01-05");
-        private static final Date END_TIME = Date.valueOf("2025-01-10");
+        private static final LocalDate START_TIME = LocalDate.parse("2025-01-05");
+        private static final LocalDate END_TIME = LocalDate.parse("2025-01-10");
 
         private <T> HttpEntity<T> createRequestWithHeaders(T body, int userId) {
                 HttpHeaders headers = new HttpHeaders();
@@ -775,9 +776,9 @@ public class BorrowingManagementIntegrationTests {
         @Order(22)
         public void testGetAcceptedRequestsForBorrowerMapsCorrectly() {
         // Create dates that ensure the request will be "active" (current date between start and end)
-        Date currentDate = new Date(System.currentTimeMillis());
-        Date startDate = new Date(currentDate.getTime() - 86400000); // yesterday
-        Date endDate = new Date(currentDate.getTime() + 86400000);   // tomorrow
+        LocalDate currentDate = LocalDate.now();
+        LocalDate startDate = LocalDate.of(currentDate.getYear(), currentDate.getMonthValue(), currentDate.getDayOfMonth() - 1); // yesterday
+        LocalDate endDate = LocalDate.of(currentDate.getYear(), currentDate.getMonthValue(), currentDate.getDayOfMonth() + 1);   // tomorrow
         
         BorrowingRequestRequestDto requestDto = new BorrowingRequestRequestDto(startDate, endDate,
                         validSenderId, validGameCopyId);
@@ -837,9 +838,9 @@ public class BorrowingManagementIntegrationTests {
         @Order(23)
         public void testHandleBorrowingRequestStatusWithRespondAction() {
         // Create dates that ensure the request will be "active" (current date between start and end)
-        Date currentDate = new Date(System.currentTimeMillis());
-        Date startDate = new Date(currentDate.getTime() - 86400000); // yesterday
-        Date endDate = new Date(currentDate.getTime() + 86400000);   // tomorrow
+        LocalDate currentDate = LocalDate.now();
+        LocalDate startDate = LocalDate.of(currentDate.getYear(), currentDate.getMonthValue(), currentDate.getDayOfMonth() - 1); // yesterday
+        LocalDate endDate = LocalDate.of(currentDate.getYear(), currentDate.getMonthValue(), currentDate.getDayOfMonth() + 1);   // tomorrow
         
         BorrowingRequestRequestDto requestDto = new BorrowingRequestRequestDto(startDate, endDate,
                         validSenderId, validGameCopyId);

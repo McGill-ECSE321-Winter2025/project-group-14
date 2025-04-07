@@ -1,6 +1,7 @@
 package ca.mcgill.ecse321.gamenight.dto;
 
 import java.sql.Date;
+import java.time.LocalDate;
 
 import ca.mcgill.ecse321.gamenight.model.BorrowingRequest;
 import ca.mcgill.ecse321.gamenight.model.BorrowingRequest.BorrowingRequestStatus;
@@ -8,8 +9,8 @@ import ca.mcgill.ecse321.gamenight.model.BorrowingRequest.BorrowingRequestStatus
 public class BorrowingRequestResponseDto {
     private int id;
     private Date sendTime;
-    private Date startTime;
-    private Date endTime;
+    private LocalDate startTime;
+    private LocalDate endTime;
     private String gameName;
     private String senderName;
     private BorrowingRequestStatus status;
@@ -38,11 +39,11 @@ public class BorrowingRequestResponseDto {
         return sendTime;
     }
 
-    public Date getStartTime() {
+    public LocalDate getStartTime() {
         return startTime;
     }
 
-    public Date getEndTime() {
+    public LocalDate getEndTime() {
         return endTime;
     }
 
