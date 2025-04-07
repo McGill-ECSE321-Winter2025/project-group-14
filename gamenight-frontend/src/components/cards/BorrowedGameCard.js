@@ -4,26 +4,23 @@ import { CircularProgress } from '@mui/material';
 import { GameHistoryAPI } from '../../GettingAllGamesAPI'; // Assuming this API exists
 
 // Define the date formatting utility function (outside the component)
-const formatDateAndTime = (dateString) => {
+const formatDate = (dateString) => {
     if (!dateString) return ''; // Return empty string if input is null/undefined
     try {
         const d = new Date(dateString);
         // Check if the date is valid
         if (isNaN(d.getTime())) {
-             console.warn("[formatDateAndTime] Invalid date string received:", dateString);
+             console.warn("[formatDate] Invalid date string received:", dateString);
              return 'Invalid Date';
         }
-        // Format date and time parts
-        const datePart = d.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
-        const timePart = d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true });
-        return `${datePart} ${timePart}`; // Combine them
+        // Format date only
+        return d.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
     } catch (error) {
         // Log error if formatting fails
-        console.error("[formatDateAndTime] Error formatting date:", dateString, error);
+        console.error("[formatDate] Error formatting date:", dateString, error);
         return 'Invalid Date'; // Return fallback string
     }
 };
-
 
 const BorrowedGameCard = ({ request }) => {
     const [expanded, setExpanded] = useState(false);
@@ -159,9 +156,9 @@ const BorrowedGameCard = ({ request }) => {
     }
 
     // Format dates for display
-    const formattedStartTime = formatDateAndTime(startTime);
-    const formattedEndTime = formatDateAndTime(endTime);
-    const headerDateTime = formattedStartTime || 'Date not specified';
+    const formattedStartDate = formatDate(startTime);
+    const formattedEndDate = formatDate(endTime);
+    const headerDate = formattedStartDate || 'Date not specified';
 
     return (
         <div className={`event-card ${expanded ? 'expanded' : ''}`} onClick={toggleExpand} role="button" tabIndex="0" onKeyPress={(e) => (e.key === 'Enter' || e.key === ' ') && toggleExpand()} aria-expanded={expanded}>
@@ -170,7 +167,7 @@ const BorrowedGameCard = ({ request }) => {
                     <div>
                         <h3>{gameName}</h3>
                         {/* Add Calendar Emoji to Header */}
-                        <p>📅 {headerDateTime}</p>
+                        <p>📅 {headerDate}</p>
                     </div>
                     <div className={`chevron ${expanded ? 'expanded' : ''}`}>&#x25BC;</div>
                 </div>
@@ -227,12 +224,12 @@ const BorrowedGameCard = ({ request }) => {
                         <div className="section">
                             {/* Add Calendar Emoji to Borrow Period Label */}
                             <strong>📅 Borrow Period:</strong>
-                             {formattedStartTime && formattedEndTime ? (
-                                <p>From {formattedStartTime} to {formattedEndTime}</p>
-                            ) : formattedStartTime ? (
-                                <p>Starts: {formattedStartTime}</p>
-                            ) : formattedEndTime ? (
-                                <p>Ends: {formattedEndTime}</p>
+                             {formattedStartDate && formattedEndDate ? (
+                                <p>From {formattedStartDate} to {formattedEndDate}</p>
+                            ) : formattedStartDate ? (
+                                <p>Starts: {formattedStartDate}</p>
+                            ) : formattedEndDate ? (
+                                <p>Ends: {formattedEndDate}</p>
                             ) : (
                                 <p>Date not specified</p>
                             )}
@@ -248,7 +245,5 @@ const BorrowedGameCard = ({ request }) => {
         </div>
     );
 };
-
-
 
 export default BorrowedGameCard;
