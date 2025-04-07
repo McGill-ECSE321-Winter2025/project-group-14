@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import './rentalcard.css';
+import dayjs from 'dayjs'
 
 const rentalcard = ({ 
   request, 
@@ -33,7 +34,7 @@ const rentalcard = ({
           <div className="detail-row">
             <span className="detail-label">Rental Period</span>
             <span className="detail-value">
-              {new Date(request.startTime).toLocaleDateString()} – {new Date(request.endTime).toLocaleDateString()}
+              {new dayjs(request.startTime).format("MM/DD/YYYY")} – {dayjs(request.endTime).format("MM/DD/YYYY")}
             </span>
           </div>
           
