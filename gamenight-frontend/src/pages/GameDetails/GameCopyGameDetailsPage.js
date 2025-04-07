@@ -55,8 +55,8 @@ const GameCopyCard = ({ gameCopyId, owner, description }) => {
       setBorrowRequestOpen(false);
       setStartDate(null);
       setEndDate(null);
-      } else {
-        showPopup("Please select both start and end dates before submitting.");
+    } else {
+      showPopup("Please select both start and end dates before submitting.");
     }
   };
 
@@ -83,9 +83,9 @@ const GameCopyCard = ({ gameCopyId, owner, description }) => {
           </div>
         </div>
         <div className="asktoborrow-button-container">
-        <Button onClick={handleBorrowClick}>
-          Ask to Borrow
-        </Button>
+          <Button onClick={handleBorrowClick}>
+            Ask to Borrow
+          </Button>
         </div>
       </div>
 
@@ -111,9 +111,14 @@ const GameCopyCard = ({ gameCopyId, owner, description }) => {
                 disablePast
               />
             </LocalizationProvider>
-            <Button type="success" onClick={handleSubmit}>
-              Submit Request
-            </Button>
+            <div className="asktoborrow-button-container">
+              <Button type="success" onClick={handleSubmit}>
+                Submit Request
+              </Button>
+              <Button type="danger" onClick={handleCancelBorrowRequest}>
+                Cancel
+              </Button>
+            </div>
           </div>
         </DialogActions>
       </Dialog>
