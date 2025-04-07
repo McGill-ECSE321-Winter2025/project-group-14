@@ -31,62 +31,92 @@ const BorrowedGameCard = ({ request }) => {
     const [imageLoading, setImageLoading] = useState(true);
     const [imageError, setImageError] = useState(false);
     const [gameId, setGameId] = useState(null);
+    // Destructure senderName prop for default owner name
+    const { senderName = "Unknown" } = request;
+    const [ownerName, setOwnerName] = useState(senderName); // Initialize with senderName
 
-    // Destructure props from request
+    // Destructure other props from request
     const {
-        // id: borrowingRequestId, // Uncomment if needed elsewhere
         gameCopyId,
         gameName = "Untitled Game",
-        senderName = "Unknown", // Assuming this is the Owner's name in this context
-        startTime, // Keep original string/date value from prop
-        endTime    // Keep original string/date value from prop
+        startTime,
+        endTime
     } = request;
 
-    // --- useEffect hooks remain the same ---
+    // --- useEffect hook to fetch GameCopy data (Game ID and Owner Name) ---
     useEffect(() => {
-        const fetchGameId = async () => {
-             if (!gameCopyId) {
-                console.error("GameCopy ID is missing, cannot fetch game ID.");
-                setImageError(true);
+        const fetchGameCopyData = async () => {
+            // Check if gameCopyId is provided
+            if (!gameCopyId) {
+                console.error("GameCopy ID is missing, cannot fetch game copy data.");
+                setImageError(true); // Cannot fetch image without gameId from copy
                 setImageLoading(false);
                 return;
             }
             try {
-                // Ensure GameHistoryAPI.getGameCopyById exists and works as expected
+                // Fetch game copy details
                 const gameCopy = await GameHistoryAPI.getGameCopyById(gameCopyId);
-                if (gameCopy?.game?.id) {
-                    setGameId(gameCopy.game.id);
-                } else {
-                     console.error("No game found inside game copy response for GameCopy ID:", gameCopyId, gameCopy);
-                     throw new Error("No game found inside game copy response");
+                if (!gameCopy) {
+                    throw new Error('No game copy returned from API for ID: ' + gameCopyId);
                 }
+
+                // Set Game ID if available (needed for image fetching)
+                let foundGameId = false;
+                if (gameCopy.game?.id) {
+                    setGameId(gameCopy.game.id);
+                    foundGameId = true;
+                } else {
+                    console.warn("No game ID found in game copy response for GameCopy ID:", gameCopyId);
+                    // If gameId is missing, we cannot fetch the image
+                    setImageError(true);
+                    setImageLoading(false);
+                }
+
+                // Set Owner Name if available from the response
+                if (gameCopy.gameOwnerName) {
+                    setOwnerName(gameCopy.gameOwnerName);
+                } else {
+                     console.warn("No game owner name found in game copy response for GameCopy ID:", gameCopyId, ". Using senderName prop as fallback.");
+                     // Keep the ownerName state initialized with senderName prop
+                }
+
+                 // If gameId wasn't found, image state is already set, so return
+                if (!foundGameId) return;
+
             } catch (err) {
-                console.error("Failed to fetch game ID from game copy ID:", gameCopyId, err);
-                setImageError(true);
+                // Handle errors during fetch
+                console.error('Failed to fetch game copy data for ID:', gameCopyId, err);
+                setImageError(true); // General fetch failure also prevents image loading
                 setImageLoading(false);
             }
         };
 
-        fetchGameId();
-    }, [gameCopyId]);
+        fetchGameCopyData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [gameCopyId]); // Only re-run if gameCopyId changes
 
+    // --- useEffect hook to fetch the image ---
     useEffect(() => {
-        if (!gameId) return; // Don't fetch if gameId is not set
+        // Don't fetch if gameId is not set or if an error occurred earlier
+        if (!gameId || imageError) {
+            // If there was an error getting gameId, ensure loading is false
+            if (!gameId) setImageLoading(false);
+            return;
+        }
 
         let objectUrl = null;
 
         const fetchImage = async () => {
-            setImageLoading(true); // Ensure loading state is true at the start
-            setImageError(false); // Reset error state
-            setImageUrl(null); // Reset image URL
+            setImageLoading(true);
+            setImageError(false); // Reset error state for this attempt
+            setImageUrl(null);
 
             try {
                 const response = await fetch(`http://localhost:8080/games/${gameId}/image`);
                 if (!response.ok) {
-                     // Distinguish between truly not found and other errors
                      if (response.status === 404) {
                         console.log(`Image not found for game ID ${gameId}. Using default.`);
-                        setImageError(true); // Use flag to indicate default image should be used
+                        setImageError(true);
                      } else {
                          throw new Error(`HTTP error ${response.status}`);
                      }
@@ -94,12 +124,12 @@ const BorrowedGameCard = ({ request }) => {
                     const imageBlob = await response.blob();
                     objectUrl = URL.createObjectURL(imageBlob);
                     setImageUrl(objectUrl);
-                    setImageError(false); // Explicitly set error to false on success
+                    setImageError(false);
                 }
 
             } catch (error) {
                 console.error(`Failed to fetch image blob for game ID ${gameId}:`, error);
-                setImageError(true); // Use flag to indicate default image should be used
+                setImageError(true);
             } finally {
                 setImageLoading(false);
             }
@@ -107,19 +137,20 @@ const BorrowedGameCard = ({ request }) => {
 
         fetchImage();
 
-        // Cleanup function to revoke the object URL
+        // Cleanup function
         return () => {
             if (objectUrl) {
                 URL.revokeObjectURL(objectUrl);
             }
         };
-    }, [gameId]); // Rerun when gameId changes
+    // Rerun only if gameId changes (and imageError is false initially)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [gameId]);
 
 
     const toggleExpand = () => setExpanded(prev => !prev);
 
-    // Calculate duration (requires Date objects)
-    // Keep these Date object creations if duration calculation is needed
+    // Calculate duration
     const start = startTime ? new Date(startTime) : null;
     const end = endTime ? new Date(endTime) : null;
     let duration = null;
@@ -127,12 +158,10 @@ const BorrowedGameCard = ({ request }) => {
         duration = Math.ceil((end - start) / (1000 * 60 * 60 * 24));
     }
 
-    // --- Use formatDateAndTime for display ---
+    // Format dates for display
     const formattedStartTime = formatDateAndTime(startTime);
     const formattedEndTime = formatDateAndTime(endTime);
-
-    // Format for the header (using only start time/date)
-    const headerDateTime = formattedStartTime || 'Date not specified'; // Use formatted start time or fallback
+    const headerDateTime = formattedStartTime || 'Date not specified';
 
     return (
         <div className={`event-card ${expanded ? 'expanded' : ''}`} onClick={toggleExpand} role="button" tabIndex="0" onKeyPress={(e) => (e.key === 'Enter' || e.key === ' ') && toggleExpand()} aria-expanded={expanded}>
@@ -140,8 +169,8 @@ const BorrowedGameCard = ({ request }) => {
                 <div className="event-header">
                     <div>
                         <h3>{gameName}</h3>
-                        {/* Display formatted start time/date in header */}
-                        <p>{headerDateTime}</p>
+                        {/* Add Calendar Emoji to Header */}
+                        <p>📅 {headerDateTime}</p>
                     </div>
                     <div className={`chevron ${expanded ? 'expanded' : ''}`}>&#x25BC;</div>
                 </div>
@@ -154,54 +183,52 @@ const BorrowedGameCard = ({ request }) => {
                         display: 'grid',
                         gridTemplateColumns: '160px 1fr',
                         gap: '32px',
-                        alignItems: 'flex-start', // Align items to the top
+                        alignItems: 'flex-start',
                         padding: '16px',
                         boxSizing: 'border-box',
                     }}
                 >
                     {/* Image Column */}
                      <div style={{
-                        width: '160px', // Fixed width
-                        height: '160px', // Fixed height for aspect ratio control
+                        width: '160px',
+                        height: '160px',
                         display: 'flex',
                         justifyContent: 'center',
                         alignItems: 'center',
-                        overflow: 'hidden', // Hide parts of image that don't fit container
-                        borderRadius: '12px', // Apply border radius to container
+                        overflow: 'hidden',
+                        borderRadius: '12px',
                         boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
-                        backgroundColor: '#f0f0f0' // Background for loading/error state
+                        backgroundColor: '#f0f0f0'
                     }}>
                         {imageLoading ? (
                             <CircularProgress size={32} />
                         ) : (
                             <img
-                                src={imageError ? '/default-game-image.jpg' : imageUrl} // Use default image on error
+                                src={imageError ? '/default-game-image.jpg' : imageUrl}
                                 alt={`${gameName} cover`}
                                 style={{
-                                    display: 'block', // Remove extra space below image
+                                    display: 'block',
                                     width: '100%',
                                     height: '100%',
-                                    objectFit: 'cover', // Cover ensures the container is filled
+                                    objectFit: 'cover',
                                 }}
                             />
                         )}
                     </div>
 
-
                     {/* Info Column */}
                     <div className="borrow-info">
-                        {/* Show duration only if valid */}
                         {duration !== null && (
                              <div className="section">
                                 <strong>Borrow Duration:</strong>
                                 <p>{duration} day{duration !== 1 ? 's' : ''}</p>
                             </div>
                         )}
-                         {/* Use formatDateAndTime for Borrow Period */}
                         <div className="section">
-                        <strong> Borrow Period:</strong>
+                            {/* Add Calendar Emoji to Borrow Period Label */}
+                            <strong>📅 Borrow Period:</strong>
                              {formattedStartTime && formattedEndTime ? (
-                                <p>📅 From {formattedStartTime} to {formattedEndTime}</p>
+                                <p>From {formattedStartTime} to {formattedEndTime}</p>
                             ) : formattedStartTime ? (
                                 <p>Starts: {formattedStartTime}</p>
                             ) : formattedEndTime ? (
@@ -212,7 +239,8 @@ const BorrowedGameCard = ({ request }) => {
                         </div>
                         <div className="section">
                             <strong>Owner:</strong>
-                            <p>{senderName}</p> {/* Assuming senderName is the owner */}
+                             {/* Use ownerName state variable */}
+                            <p>{ownerName}</p>
                         </div>
                     </div>
                 </div>
@@ -220,6 +248,7 @@ const BorrowedGameCard = ({ request }) => {
         </div>
     );
 };
+
 
 
 export default BorrowedGameCard;

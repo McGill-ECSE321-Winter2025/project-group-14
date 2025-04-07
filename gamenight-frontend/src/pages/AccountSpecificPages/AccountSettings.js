@@ -210,19 +210,6 @@ const AccountSettings = () => {
                         {openSection === 'password' && (
                             <div className="auth-form">
                                 <div className="form-group">
-                                    <label htmlFor="newPassword">
-                                        <FiLock className="input-icon" />
-                                        New Password
-                                    </label>
-                                    <input
-                                        id="newPassword"
-                                        type="password"
-                                        placeholder="Enter new password"
-                                        value={newPassword}
-                                        onChange={e => setNewPassword(e.target.value)}
-                                    />
-                                </div>
-                                <div className="form-group">
                                     <label htmlFor="currentPasswordPass">
                                         <FiLock className="input-icon" />
                                         Current Password
@@ -235,12 +222,26 @@ const AccountSettings = () => {
                                         onChange={e => setOldPassword(e.target.value)}
                                     />
                                 </div>
+                                <div className="form-group">
+                                    <label htmlFor="newPassword">
+                                        <FiLock className="input-icon" />
+                                        New Password
+                                    </label>
+                                    <input
+                                        id="newPassword"
+                                        type="password"
+                                        placeholder="Enter new password"
+                                        value={newPassword}
+                                        onChange={e => setNewPassword(e.target.value)}
+                                    />
+                                </div>
                                 <button className="update-button" onClick={handleUpdatePassword}>
                                     <FiCheck className="button-icon" />
                                     Update Password
                                 </button>
                             </div>
                         )}
+
                     </div>
 
                     {updateStatus && (
