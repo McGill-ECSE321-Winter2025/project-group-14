@@ -1,6 +1,7 @@
 import React from 'react';
 import './ReceivedRequestCard.css'; 
 import Button from '../ui/Button'; 
+import dayjs from 'dayjs'
 
 function ReceivedRequestCard({ request, onAccept, onDecline }) {
 
@@ -27,7 +28,7 @@ function ReceivedRequestCard({ request, onAccept, onDecline }) {
                     <span className="game-name">wants to borrow <strong>{request.gameName || 'Unknown Game'}</strong> from you</span>
                 </div>
                 <div className="request-dates">
-                    Dates: {formatDate(request.startTime)} - {formatDate(request.endTime)}
+                    Dates: {dayjs(request.startTime).format('YYYY-MM-DD')} - {dayjs(request.endTime).format('YYYY-MM-DD')}
                 </div>
             </div>
             <div className="card-actions-container">
