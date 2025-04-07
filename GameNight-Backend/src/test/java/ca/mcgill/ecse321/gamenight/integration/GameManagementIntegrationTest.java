@@ -83,7 +83,10 @@ public class GameManagementIntegrationTest {
 
         // create the logged in user
         Person person = personRepository.save(new Person("bob@gmail.com", "password123", "Bob"));
-        aGameOwner = gameOwnerRepository.save(new GameOwner(person));
+
+        aGameOwner = new GameOwner(person);
+        aGameOwner.setActive(true);
+        gameOwnerRepository.save(aGameOwner);
         authenticationHeaders.set("User-Id", String.valueOf(person.getId()));
     }
 

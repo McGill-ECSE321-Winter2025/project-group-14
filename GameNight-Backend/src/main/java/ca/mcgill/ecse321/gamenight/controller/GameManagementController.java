@@ -231,7 +231,9 @@ public class GameManagementController {
         ArrayList<GameCopyResponseDto> response = new ArrayList<>();
         List<GameCopy> gameCopies = gameManagementService.findGameCopiesByGame(gameId);
         for (GameCopy gameCopy : gameCopies) {
-            response.add(new GameCopyResponseDto(gameCopy));
+            if (gameCopy.getOwner().isActive()) {
+                response.add(new GameCopyResponseDto(gameCopy));
+            }
         }
         return response;
     }
