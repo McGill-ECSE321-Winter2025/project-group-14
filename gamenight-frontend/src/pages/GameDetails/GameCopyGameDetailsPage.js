@@ -82,7 +82,7 @@ const GameCopyCard = ({ gameCopyId, owner, description }) => {
             <span className="comment-value">{description}</span>
           </div>
         </div>
-        <div className="asktoborrow-button-container">
+        <div className="centered">
           <Button onClick={handleBorrowClick}>
             Ask to Borrow
           </Button>
